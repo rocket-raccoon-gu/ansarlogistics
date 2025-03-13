@@ -1,0 +1,33 @@
+{
+    "hello": "Hello",
+    "welcome": "Welcome",
+    "Hi": "Hi",
+    "Test picker 1": "Test picker 1",
+    "Search Orderid": "Search Orderid",
+    "Profile": "Profile",
+    "Products": "Products",
+    "My Report": "My Report",
+    "Orders": "Orders",
+    "Start Picking": "Start Picking",
+    "End Picking": "End Picking",
+    "Assigned Picker": "Assigned Picker",
+    "Express": "Express",
+    "Date": "Date",
+    "Total Amount": "Total Amount",
+    "Payment Method": "Payment Method",
+    "Comment":"Comment",
+    "Pending Payment": "Pending Payment",
+    "Processing":"Processing",
+    "Delivered": "Delivered",
+    "On Hold": "On Hold",
+    "On The Way": "On The Way",
+    "Payment Captured": "Payment Captured",
+    "Cancel Request": "Cancel Request",
+    "Canceled": "Canceled",
+    "Canceled By Team": "Canceled By Team",
+    "Rescheduled": "Rescheduled",
+    "Material Request": "Material Request",
+    "Assigned Driver": "Assigned Driver"
+
+}
+  

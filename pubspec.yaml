@@ -34,17 +34,77 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  get_it: any
+  connectivity_plus: ^6.0.5
+  bloc: any
+  shared_preferences: ^2.5.2
+  provider: any
+  flutter_bloc: any
+  firebase_core: any
+  firebase_crashlytics: any
+  firebase_storage: any
+  package_info_plus: any
+  encrypt: ^5.0.3
+  firebase_messaging: any
+  device_info_plus: any
+  googleapis_auth: ^1.6.0
+  intl: any
+  url_launcher: any
+  cached_network_image: any
+  top_modal_sheet: any
+  permission_handler: any
+  flutter_phone_direct_caller: ^2.1.1
+  super_tooltip: any
+  flutter_staggered_grid_view: any
+  slider_button: any
+  toastification: any
+  flutter_local_notifications: ^17.2.4
+  flutter_foreground_task: any
+  flutter_background_service: any
+  location: any
+  geolocator: any
+  dotted_border: any
+  image_picker: any
+  flutter_image_compress: any
+  signature: any
+  path_provider: any
+  expandable: any
+  flutter_rounded_date_picker: any
+  syncfusion_flutter_datepicker: any
+  overlay_support: ^2.1.0
+  flutter_localization: any
+  flutter_date_range_picker: any
+  google_mlkit_barcode_scanning: any
+  camera: any
+  mobile_scanner: any
+  translator: any
+  lottie: any
+  timeline_tile: ^2.0.0
+  google_maps_flutter: any
+  event_bus: ^2.0.1
+  carousel_slider: any
+  cloud_firestore: any
+  dropdown_button2: ^2.3.9
+  file_picker: any
+
+  picker_driver_api:
+    path: ./picker_driver_api/
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+ 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+flutter_launcher_icons:
+  image_path: "assets/picker_app_logo.png"
+  android: true
+  ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -58,9 +118,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/
+    - assets/2.0x/
+    - assets/3.0x/
+    - assets/lottie_files/
+    - assets/lang/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -73,17 +136,42 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
+  fonts:
+    - family: OpenSans
+      fonts:
+        - asset: fonts/OpenSans-VariableFont_wdth,wght.ttf
+        - asset: fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf
+        #   style: italic
+    - family: OpenSansLight
+      fonts:
+        - asset: fonts/OpenSansLight-VariableFont_wdth,wght.ttf
+        # - asset: fonts/OpenSansLight-Italic-VariableFont_wdth,wght.ttf
+        #   style: italic
+    - family: OpenSansRegular
+      fonts:
+        - asset: fonts/OpenSansRegular-VariableFont_wdth,wght.ttf
+        # - asset: fonts/OpenSansRegular-Italic-VariableFont_wdth,wght.ttf
+        #   style: italic
+    - family: OpenSansSemiBold
+      fonts:
+        - asset: fonts/OpenSansSemiBold-VariableFont_wdth,wght.ttf
+        # - asset: fonts/OpenSansSemiBold-Italic-VariableFont_wdth,wght.ttf
+        #   style: italic
+    - family: OpenSansBold
+      fonts:
+        - asset: fonts/OpenSansBold-VariableFont_wdth,wght.ttf
+    - family: Inspiration
+      fonts:
+        - asset: fonts/Inspiration-Regular.ttf
+        # - asset: fonts/OpenSansBold-Italic-VariableFont_wdth,wght.ttf
+        #   style: italic
+    - family: OpenSansItalicBold
+      fonts:
+        - asset: fonts/OpenSansBold-Italic-VariableFont_wdth,wght.ttf
+    - family: Inspiration
+      fonts:
+        - asset: fonts/Inspiration-Regular.ttf
+        # - asset: fonts/OpenSansBold-Italic-VariableFont_wdth,wght.ttf
+        #   style: italic
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

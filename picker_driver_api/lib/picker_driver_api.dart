@@ -1,0 +1,940 @@
+library picker_driver_api;
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
+import 'package:picker_driver_api/requests/update_section_request.dart';
+import 'package:picker_driver_api/responses/base_response.dart';
+import 'package:picker_driver_api/responses/login_response.dart';
+import 'package:picker_driver_api/utils/utils.dart';
+
+import 'requests/login_request.dart' as loginRequestModel;
+
+import 'package:uuid/uuid.dart';
+import 'picker_driver_api_platform_interface.dart';
+
+part 'utils/debuggable_client.dart';
+part 'endpoints.dart';
+part 'responses/failure.dart';
+
+class ContentTypes {
+  static const String applicationCharset = "application/json;charset=UTF-8";
+  static const String applicationJson = "application/json";
+  static const String formurlencoded = "application/x-www-form-urlencoded";
+}
+
+var mainbaseUrl = String.fromEnvironment('BASE_URL',
+    defaultValue: "https://pickerdriver.testuatah.com");
+var mainapplicationPath =
+    String.fromEnvironment('APPLICATION_PATH', defaultValue: "/v1/");
+
+String productUrl1 = 'https://www.ansargallery.com/rest/V1/';
+
+const Duration timeoutDuration = Duration(seconds: 30);
+
+class PickerDriverApi {
+  final String applicationPath;
+  final Uri baseUrl;
+  final Uri productUrl;
+  final http.Client _client;
+
+  String cookie = "";
+  String fullcookie = "";
+  String token = "";
+
+  bool networkOnline = true;
+
+  PickerDriverApi(
+      this.baseUrl, this.productUrl, this.applicationPath, this._client);
+
+  factory PickerDriverApi.create(
+      {required String baseUrl,
+      required String productUrl,
+      required String applicationPath,
+      Duration connectionTimeout = timeoutDuration}) {
+    return PickerDriverApi(
+        Uri.parse(baseUrl),
+        Uri.parse(productUrl), //'xlrds/webresources/SearchSymbol',
+        applicationPath,
+        IOClient(HttpClient()));
+  }
+
+  factory PickerDriverApi.debuggable(
+      {required String baseUrl,
+      required String productUrl,
+      required String applicationPath,
+      Duration connectionTimeout = timeoutDuration}) {
+    HttpClient httpClient = HttpClient();
+    httpClient.connectionTimeout = connectionTimeout;
+    return PickerDriverApi(
+        Uri.parse(baseUrl), //'xlrds/webresources/SearchSymbol',
+        Uri.parse(productUrl),
+        applicationPath,
+        _DebuggableClient(IOClient(HttpClient())));
+  }
+
+  factory PickerDriverApi.proxy(
+      {required String baseUrl,
+      required String productUrl,
+      required String applicationPath,
+      required String proxyIp,
+      Duration connectionTimeout = timeoutDuration}) {
+    HttpClient httpClient = HttpClient();
+    httpClient.connectionTimeout = connectionTimeout;
+    httpClient.findProxy = (uri) {
+      return "PROXY $proxyIp:8888;";
+    };
+    httpClient.badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => Platform.isAndroid);
+    return PickerDriverApi(
+        Uri.parse(productUrl),
+        Uri.parse(baseUrl), //'xlrds/webresources/SearchSymbol',
+        applicationPath,
+        IOClient(httpClient));
+  }
+
+  Future<String?> getPlatformVersion() {
+    return PickerDriverApiPlatform.instance.getPlatformVersion();
+  }
+}
+
+extension PDGeneralApi on PickerDriverApi {
+  Future<String> generalService(
+      {required String endpoint, required String token}) async {
+    final url = _endpointWithApplicationPath(_ordersService + endpoint);
+    // final generalRequest =
+    //     GeneralRequest(proc: "general_service", request: request);
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    print("my path" + url.toString());
+
+    return _handleRequest(
+        onRequest: () => _client.get(url, headers: headers),
+        onResponse: (response) {
+          return response.body;
+        });
+  }
+
+  Future<LoginResponse> loginService(
+      {required String userId,
+      required String password,
+      required String token,
+      required String bearertoken,
+      required String appversion}) async {
+    Uri url = Uri.parse(_endpointWithApplicationPathString('pk_dv_login.php'));
+
+    log(url.toString());
+
+    final loginRequest = loginRequestModel.LoginRequest(
+        empId: userId,
+        password: password,
+        token: token,
+        bearertoken: bearertoken,
+        os: 'Android',
+        version: appversion);
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    log(jsonEncode(loginRequest).toString());
+
+    try {
+      serviceSend("Login");
+      return _handleRequest(
+          onRequest: () => _client.post(url,
+              body: jsonEncode(loginRequest), headers: headers),
+          onResponse: (response) {
+            cookie = updateCookie(response);
+            // fullcookie = updateFullCookie(response);
+
+            return loginResponseFromJson(response.body);
+          });
+    } catch (e) {
+      serviceSendError("Login");
+      rethrow;
+    }
+  }
+
+  Future<http.Response> OrderService({
+    required pagesize,
+    required currentpage,
+    required token,
+    required role,
+    required status,
+  }) async {
+    Uri urlorder;
+    log("${pagesize.toString()}-------------------------------------");
+
+    log("${currentpage.toString()}........................");
+
+    if (status == "all") {
+      urlorder = Uri.parse(_endpointWithApplicationPathString(
+          'pickerDriverOrdersItemsV1.php?page_size=${pagesize}&current_page=${currentpage}'));
+    } else {
+      urlorder = Uri.parse(_endpointWithApplicationPathString(
+          'pickerDriverOrdersItemsV1.php?page_size=${pagesize}&current_page=${currentpage}'));
+    }
+
+    log("-------------------------------------");
+
+    log("${urlorder}");
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+    log("${DateTime.now()}");
+    try {
+      serviceSend("order send");
+      return _handleRequest(
+          onRequest: () => _client.get(urlorder, headers: headers),
+          onResponse: (responce) {
+            log("${DateTime.now()}");
+
+            return responce;
+          });
+    } catch (e) {
+      serviceSend("Order Send Error");
+      rethrow;
+    }
+  }
+
+  Future<http.Response> orderItemStatusUpdateService(
+      {required Map<String, dynamic> body, required token}) {
+    //
+    Uri url =
+        Uri.parse(_endpointWithApplicationPathString('updateOrderItemV2.php'));
+    //
+    //
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token',
+    };
+    log('order items status ${body.toString()}');
+    try {
+      serviceSend("update item status service send");
+      return _handleRequest(
+          onRequest: () =>
+              _client.put(url, body: jsonEncode(body), headers: headers),
+          onResponse: (response) {
+            log('order items status ${DateTime.now().toString()}');
+
+            return response;
+          });
+    } catch (e) {
+      serviceSendError("update items status service Error");
+      rethrow;
+    }
+  }
+
+  Future<http.Response> OrderItemsService({
+    required String orderid,
+    required token,
+  }) {
+    //
+    Uri url =
+        Uri.parse(_endpointWithApplicationPathString('pdOrdersItemsV1.php'));
+    //
+    //
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token',
+    };
+
+    final Map<String, dynamic> body = {'suborderId': orderid};
+    log('${url}');
+    try {
+      serviceSend("order items service send");
+      return _handleRequest(
+          onRequest: () =>
+              _client.put(url, body: jsonEncode(body), headers: headers),
+          onResponse: (response) {
+            log('order items ${DateTime.now().toString()}');
+
+            return response;
+          });
+    } catch (e) {
+      serviceSendError("Order items service Error");
+      rethrow;
+    }
+  }
+
+  Future<http.Response> updatemainorderstat(
+      {required String orderid,
+      required String order_status,
+      required String comment,
+      required String user_id,
+      required String latitude,
+      required String longitude}) {
+    // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
+    //     'custom-api/api/qatar/updateSubOrder.php'));
+
+    Uri url =
+        Uri.parse(_endpointWithApplicationPathString('updateSubOrderV1.php'));
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+    };
+
+    final Map<String, dynamic> body = {
+      "order_id": orderid,
+      "order_status": order_status,
+      "comment": comment,
+      "user_id": user_id,
+      "latitude": latitude,
+      "longitude": longitude
+    };
+
+    print(url);
+
+    log(body.toString());
+
+    log(DateTime.now().toString());
+
+    try {
+      serviceSend("update main order stat");
+      return _handleRequest(
+          onRequest: () =>
+              _client.put(url, body: jsonEncode(body), headers: headers),
+          onResponse: (response) {
+            log(DateTime.now().toString());
+
+            return response;
+          });
+    } catch (e) {
+      serviceSendError("Order Error");
+      rethrow;
+    }
+  }
+
+  Future uploadDocumentService(Uint8List imagebytes, Uint8List imagebytesdSign,
+      Uint8List imagebytesqId, String orderid, int driverid) async {
+    final Map<String, String> headers = {"Content-Type": "multipart/form-data"};
+
+    Uri url = Uri.parse(
+        _endpointWithApplicationPathString('delivery_verification.php'));
+
+    try {
+      var request = await http.MultipartRequest('POST', url);
+
+      final httpcSign = await http.MultipartFile.fromBytes(
+          'customer_signature', imagebytes,
+          filename: 'customersign-${orderid.toString()}.jpg');
+
+      final httpdSign = await http.MultipartFile.fromBytes(
+          'driver_signature', imagebytesdSign,
+          filename: 'driversign-${orderid.toString()}.jpg');
+
+      final httpqId = await http.MultipartFile.fromBytes(
+          'document', imagebytesqId,
+          filename: 'qId-${orderid.toString()}.jpg');
+
+      request.files.add(httpcSign);
+
+      request.files.add(httpdSign);
+
+      request.files.add(httpqId);
+
+      request.fields['order_id'] = orderid.toString();
+
+      request.fields['driver_id'] = driverid.toString();
+
+      print(driverid);
+
+      final response = await request.send();
+
+      String responsebody = await response.stream.bytesToString();
+
+      print(responsebody);
+
+      log(responsebody);
+
+      return response.statusCode;
+    } catch (e) {
+      log(e.toString());
+      return "500";
+    }
+  }
+
+  Future<http.Response> getsimilarProducts({required String product_id}) async {
+    // final url = Uri.parse(
+    //     'https://admin-qatar.testuatah.com/rest/V1/ahmarket-recommendation/related-product/' +
+    //         product_id);
+
+    final url =
+        '${productUrl}ahmarket-recommendation/related-product/${product_id}';
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer 8jki6ynymuxwu6empi53bk0s43n7c6vi'
+    };
+
+    serviceSend("get similiar products request");
+
+    serviceSend(url.toString());
+
+    return _handleRequest(
+        onRequest: () => _client.get(Uri.parse(url), headers: headers),
+        onResponse: (response) {
+          return response;
+        });
+  }
+
+  Future<http.Response> generalProductService(
+      {required String endpoint, required String token}) async {
+    log("endpoint.........${endpoint}");
+
+    // final url = Uri.parse(
+    //     'https://admin-qatar.testuatah.com/custom-api/api/qatar/getProductdata_new.php?sku=' +
+    //         endpoint.trim());
+
+    final url = _endpointWithApplicationPathString(
+        'getProductdata_new.php?sku=${endpoint.trim()}');
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    return _handleRequest(
+        onRequest: () => _client.get(Uri.parse(url), headers: headers),
+        onResponse: (response) {
+          return response;
+        });
+  }
+
+  Future<http.Response> updateUserStat(
+      {required int userid, required int status}) async {
+    Uri url =
+        Uri.parse(_endpointWithApplicationPathString('pd_online_status.php'));
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+    };
+
+    final Map<String, dynamic> body = {
+      "user_id": userid,
+      "online_status": status
+    };
+
+    try {
+      serviceSend("update user stat");
+      return _handleRequest(
+          onRequest: () =>
+              _client.put(url, body: jsonEncode(body), headers: headers),
+          onResponse: (response) {
+            log(DateTime.now().toString());
+
+            return response;
+          });
+    } catch (e) {
+      serviceSendError("status update Error..");
+      rethrow;
+    }
+  }
+
+  Future rescheduleRequest(
+      {required String orderid,
+      required String deliverydate,
+      required int userid,
+      required String timerange,
+      required bool candeliver}) {
+    final url = _endpointWithApplicationPath('/rescheduleDelivery.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    final Map<String, dynamic> data = {
+      "order_id": orderid,
+      "user_id": userid,
+      "delivery_date": deliverydate,
+      "time_range": timerange,
+      "can_deliver": candeliver ? 1 : 0
+    };
+
+    log(data.toString());
+
+    return _handleRequest(
+        onRequest: () =>
+            _client.post(url, body: jsonEncode(data), headers: headers),
+        onResponse: (response) {
+          return response.body;
+        });
+  }
+
+  Future rescheduleRequestNOL(
+      {required String orderid,
+      required String deliverydate,
+      required String comment,
+      required bool candeliver,
+      required int userid}) async {
+    final url = _endpointWithApplicationPath('/rescheduleDelivery.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    final Map<String, dynamic> data = {
+      "order_id": orderid,
+      "user_id": userid,
+      "delivery_date": deliverydate,
+      "can_deliver": candeliver ? 1 : 0,
+      "comment": comment
+    };
+
+    serviceSend("Reschedule Request");
+    return _handleRequest(
+        onRequest: () =>
+            _client.post(url, body: jsonEncode(data), headers: headers),
+        onResponse: (response) {
+          return response.body;
+        });
+  }
+
+  Future<http.Response> getlocationdetails(
+      String startlat, String endlat, String destlat, String destlong) async {
+    serviceSend("Distence detsils");
+
+    const google_api_key = "AIzaSyDeFN4A3eenCTIUYvCI7dViF-N-V5X8RgA";
+
+    print(
+        "https://maps.googleapis.com/maps/api/directions/json?origin=${startlat}%2C${endlat}&destination=${destlat}%2C${destlong}&travelMode=transit&avoidHighways=false&avoidFerries=true&avoidTolls=false&key=${google_api_key}");
+    return _handleRequest(
+        onRequest: () => _client.get(Uri.parse(
+            "https://maps.googleapis.com/maps/api/directions/json?origin=${startlat}%2C${endlat}&destination=${destlat}%2C${destlong}&travelMode=transit&avoidHighways=false&avoidFerries=true&avoidTolls=false&key=${google_api_key}")),
+        onResponse: (responce) {
+          return responce;
+        });
+  }
+
+  Future<http.Response> updateDriverLocation(
+      {required int userId,
+      required String latitude,
+      required String longitude}) async {
+    final url = _endpointWithApplicationPath('pd_driverstatus.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    serviceSend("User Distance Update");
+
+    Map<String, dynamic> usermap = {
+      "user_id": userId,
+      "lat": latitude,
+      "long": longitude
+    };
+
+    log(usermap.toString());
+
+    try {
+      return _handleRequest(
+          onRequest: () =>
+              _client.put(url, body: jsonEncode(usermap), headers: headers),
+          onResponse: (response) {
+            return response;
+          });
+    } catch (e) {
+      serviceSendError("User Distance Update Error");
+      rethrow;
+    }
+  }
+
+  Future<http.Response> OrderREportService(
+      {required String startDate, required String endDate, required token}) {
+    Uri url;
+
+    if (startDate != "" && endDate == "") {
+      url = Uri.parse(_endpointWithApplicationPathString(
+          'getStatusHistoriesV1.php?startdate=$startDate'));
+    } else {
+      url = Uri.parse(_endpointWithApplicationPathString(
+          'getStatusHistoriesV1.php?startdate=$startDate&enddate=$endDate'));
+    }
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      "Content-Type": ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token'
+    };
+
+    serviceSend("Order Report Service");
+
+    return _handleRequest(
+        onRequest: () => _client.get(url, headers: headers),
+        onResponse: (response) {
+          return response;
+        });
+  }
+
+  Future<http.StreamedResponse> uploadBillService(
+      File bill, String ordernumber) async {
+    final Map<String, String> headers = {
+      "Content-Type": "multipart/form-data",
+    };
+
+    log(DateTime.now().toString() + ".....time started");
+
+    Uri url = Uri.parse(_endpointWithApplicationPathString("upload-bill.php"));
+
+    log(url.toString());
+
+    Uint8List imagebytes = await bill.readAsBytes();
+    var request = await http.MultipartRequest('POST', url);
+    final httpimage = http.MultipartFile.fromBytes('bill', imagebytes,
+        filename: 'billimage.jpg');
+    request.files.add(httpimage);
+    request.fields['order_number'] = ordernumber;
+    final response = await request.send();
+    log(DateTime.now().toString() + ".....time ended");
+
+    return response;
+  }
+
+  Future<http.Response> getStatusHistoryData(String orderid) async {
+    Uri url = Uri.parse(_endpointWithApplicationPathString(
+        'order-history.php?order_id=$orderid'));
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      "Content-Type": ContentTypes.applicationCharset,
+    };
+
+    try {
+      serviceSend("status history data send");
+      return _handleRequest(
+          onRequest: () => _client.get(url, headers: headers),
+          onResponse: (response) {
+            return response;
+          });
+    } catch (e) {
+      serviceSend("status history data error");
+      rethrow;
+    }
+  }
+
+  Future<http.Response> sendNotification(
+      {required String bearertoken,
+      required String devicetoken,
+      required String title,
+      required String body}) async {
+    Uri url = Uri.parse(
+        'https://fcm.googleapis.com/v1/projects/ah-market-5ab28/messages:send');
+
+    final Map<String, String> headers = {
+      "Authorization": "Bearer ${bearertoken}",
+      "Content-Type": ContentTypes.applicationJson,
+    };
+
+    final Map<String, dynamic> data = {
+      "message": {
+        "token": "${devicetoken}",
+        "data": {"message_id": "0001", "id": "1"},
+        "notification": {"title": "${title}", "body": "${body}"},
+        "android": {
+          "notification": {
+            "channel_id":
+                "channel_id_6" // Ensure correct spelling for channel_id
+          }
+        }
+      }
+    };
+
+    try {
+      serviceSend("Send Notification");
+
+      return _handleRequest(
+          onRequest: () =>
+              _client.post(url, body: jsonEncode(data), headers: headers),
+          onResponse: (response) {
+            return response;
+          });
+    } catch (e) {
+      serviceSend("send notification data error");
+      rethrow;
+    }
+  }
+
+  Future<http.Response> updateSectionData(
+      {required UpdateSectionRequest updateSectionRequest,
+      required String branch}) async {
+    final url;
+
+    if (branch != "Q013") {
+      url = _endpointWithApplicationPath('updateproductstatusbranch.php');
+    } else {
+      url = _endpointWithApplicationPath('updateproductstatus.php');
+    }
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    print("section update service");
+
+    log(updateSectionRequest.toJson().toString());
+
+    log(branch);
+
+    log(url.toString());
+
+    return _handleRequest(
+        onRequest: () => _client.post(url,
+            body: jsonEncode(updateSectionRequest.toJson()), headers: headers),
+        onResponse: (response) {
+          log(DateTime.now().toString());
+          return response;
+        });
+  }
+
+  Future<http.Response> driverRegisterService(
+      {required Map<String, dynamic> driverdata}) async {
+    final url = _endpointWithApplicationPath('driver-register.php');
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset
+    };
+
+    return _handleRequest(
+        onRequest: () =>
+            _client.post(url, headers: headers, body: jsonEncode(driverdata)),
+        onResponse: (response) {
+          return response;
+        });
+  }
+
+  Future<http.Response> getLastID() async {
+    // Uri urlorder;
+    final url = _endpointWithApplicationPath('get_last_Id.php');
+    // log("${urlorder.path.toString()}-------------------------------------");
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    log(url.toString());
+
+    try {
+      serviceSend("last data get");
+      return _handleRequest(
+          onRequest: () => _client.get(url, headers: headers),
+          onResponse: (response) {
+            return response;
+          });
+    } catch (e) {
+      serviceSendError("last data Error");
+      rethrow;
+    }
+  }
+
+  Future<String> getSectionData(String user, int catid) async {
+    // Uri urlorder;
+    String url = _endpointWithApplicationPathSection(user, catid);
+    // log("${urlorder.path.toString()}-------------------------------------");
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    print(user);
+    log(url.toString());
+
+    try {
+      serviceSend("section data send");
+      return _handleRequest(
+          onRequest: () => _client.get(Uri.parse(url), headers: headers),
+          onResponse: (response) {
+            return response.body;
+          });
+    } catch (e) {
+      serviceSendError("section data Error");
+      rethrow;
+    }
+  }
+}
+
+extension on PickerDriverApi {
+  Uri _endpointWithApplicationPath(String path) {
+    print(baseUrl.toString());
+    print("okok");
+    print(baseUrl.replace(path: '${baseUrl.path}$applicationPath$path'));
+    return baseUrl.replace(path: '${baseUrl.path}$applicationPath$path');
+  }
+
+  String _endpointWithApplicationPathString(String path) {
+    String newpath = '${baseUrl}$applicationPath$path';
+    return newpath;
+  }
+
+  String _endpointWithApplicationPathSection(String userid, int catid) {
+    String root =
+        baseUrl.replace(path: '${baseUrl.path}$applicationPath').toString();
+    switch (userid) {
+      case "ahqa_fish":
+      case "fish_alkhor":
+      case "fish_rawdah":
+      case "fish_rayyan":
+        // return '${productUrl1.toString()}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=761,762,764,763&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,status,visibility,extension_attributes[ah_is_in_stock],media_gallery_entries]';
+        return '${root}get_section_data.php?category_ids=761,762,764,763';
+      case "ahqa_butch":
+      case "alkhor_butch":
+      case "rawdah_butch":
+      case "rayyan_butch":
+        if (catid != 0) {
+          // return '${productUrl1.toString()}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=${catid.toString()}&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,status,visibility,extension_attributes[ah_is_in_stock],media_gallery_entries]';
+          return '${root}get_section_data.php?category_ids=${catid.toString()}';
+        } else {
+          // return '${productUrl1.toString()}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=17&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,status,visibility,extension_attributes[ah_is_in_stock],media_gallery_entries]';
+          return '${root}get_section_data.php?category_ids=17';
+        }
+      case "ahqa_deli":
+      case "alkhor_deli":
+      case "rawdah_deli":
+      case "rayyan_deli":
+        // return '${productUrl1}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=793,782,781&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,visibility,status,extension_attributes,media_gallery_entries]';
+        return '${root}get_section_data.php?category_ids=793,782,781';
+      case "ahqa_veg":
+        return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1215,1216,1207,1219,1226,1220,1230,1228,1231';
+      case "veg_rawdah":
+        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
+      case "veg_rayyan":
+        log('${mainbaseUrl}');
+        log('${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008');
+        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008';
+      default:
+        return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1215,1216,1207,1219,1226,1220,1230,1228,1231';
+    }
+  }
+
+  Future<T> _handleRequest<T>({
+    required Future<http.Response> Function() onRequest,
+    required T Function(http.Response) onResponse,
+  }) async {
+    if (!networkOnline) {
+      throw NetworkException(
+          "Oops, device is offline, please check your internet connection.");
+    }
+
+    try {
+      final response = await onRequest().timeout(
+        timeoutDuration,
+        onTimeout: () => throw TimeoutException("Request timed out"),
+      );
+
+      if (response.statusCode == 200) {
+        if (response.body.isEmpty) {
+          throw NetworkException("Response is empty");
+        }
+
+        final baseResponse = BaseResponse.fromJson(response.body);
+        if (baseResponse.errorCode == 1604) {
+          throw NetworkException("Session timeout, please relogin");
+        }
+
+        return onResponse(response);
+      } else {
+        _logResponseError(response);
+        return onResponse(
+            response); // Optional: Handle non-200 status codes here
+      }
+    } on SocketException catch (e) {
+      log("Socket Exception: $e", time: DateTime.now());
+      throw NetworkException("Network error: Unable to reach server");
+    } on TimeoutException catch (e) {
+      log("Timeout Exception: $e", time: DateTime.now());
+      throw NetworkException('Request took too long, please try again');
+    } on ResponseFailure catch (e) {
+      log("Response Failure: $e", time: DateTime.now());
+      if (e.errorMessage == 'You are not logged in, please log back in') {
+        throw e.errorMessage;
+      }
+      rethrow;
+    } catch (e) {
+      log("Unexpected Error: $e", time: DateTime.now());
+      throw Exception(e.toString());
+    }
+  }
+
+  void _logResponseError(http.Response response) {
+    log("Response Error: ${response.statusCode}", time: DateTime.now());
+    log("Response Body: ${response.body}");
+  }
+
+  Future<T> _handleHTTPRequest<T>(
+      {required Future<http.Response> Function() onRequest,
+      required T Function(http.Response) onResponse}) async {
+    if (!networkOnline) {
+      throw "Oops, device is offline, please check your internet connection.";
+    } else {
+      try {
+        final response = await onRequest().timeout(
+          timeoutDuration,
+          onTimeout: () => throw TimeoutException("Timeout Exception"),
+        );
+        if (response.statusCode == 200) {
+          if ((response.contentLength ?? 0) < 1) {
+            throw "respose is empty";
+          }
+          return onResponse(response);
+        } else {
+          log("Network Response Error", time: DateTime.now());
+          throw "Network error"; //"Oops, We are having some trouble connecting";
+        }
+      } on SocketException {
+        log("Socket Exception", time: DateTime.now());
+        throw "Network error"; //'We are having some trouble reaching the server';
+      } on TimeoutException {
+        log("Timeout Exception", time: DateTime.now());
+        throw 'Its taking longer than usual, please try again';
+      } on ResponseFailure catch (e) {
+        log("Response Failure", time: DateTime.now());
+        if (e.errorMessage == 'You are not logged in, please log back in') {
+          throw e.errorMessage;
+        }
+        rethrow;
+      } catch (e) {
+        throw e.toString();
+      }
+    }
+  }
+}
+
+String updateCookie(http.Response response) {
+  String cookie = "";
+  List<String> cookies = [];
+  if (response.headers.containsKey('set-cookie')) {
+    String rawCookie = response.headers['set-cookie'] ?? "";
+    cookies = rawCookie.split("; ");
+    for (var item in cookies) {
+      item = item.replaceFirst("Secure,", "");
+      if (item.startsWith("JSESSIONID=")) {
+        cookie = item;
+        break;
+      }
+    }
+  }
+  return cookie;
+}
+
+class NetworkException implements Exception {
+  final String message;
+  NetworkException(this.message);
+}

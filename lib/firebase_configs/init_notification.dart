@@ -1,0 +1,144 @@
+import 'dart:developer';
+import 'dart:typed_data';
+
+import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/restart_widget.dart';
+import 'package:ansarlogistics/themes/style.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:overlay_support/overlay_support.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+initializeFirebasenotification() async {
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  FirebaseMessaging.onMessage.listen(
+    (event) {
+      log("notification hitted");
+
+      showLocalNotification(event);
+    },
+    onDone: () {
+      // FlutterAppBadger.removeBadge();
+    },
+  );
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  log('Handling a background message ${message.messageId}');
+  log('${message.data}');
+
+  //
+  //
+
+  flutterLocalNotificationsPlugin.show(
+    message.data.hashCode,
+    message.notification!.title,
+    message.notification!.body,
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        'channel_id_6',
+        'channelname',
+        icon: '@mipmap/ic_launcher',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+        sound: RawResourceAndroidNotificationSound('alert'),
+        vibrationPattern: Int64List.fromList([0, 1000, 5000, 2000]),
+      ),
+    ),
+  );
+}
+
+void showLocalNotification(RemoteMessage message) {
+  late OverlaySupportEntry entry; // Declare the entry variable
+
+  if (message.notification != null) {
+    //show overlay notification
+
+    entry = showSimpleNotification(
+      Text(
+        message.notification?.title ?? 'Notification Title',
+        style: customTextStyle(
+          fontStyle: FontStyle.BodyL_Bold,
+          color: FontColor.FontPrimary,
+        ),
+      ),
+      subtitle: Builder(
+        builder: (context) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                child: Image.asset('assets/notification.png', height: 80.0),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                child: Text(
+                  message.notification?.body ?? 'Notification Body',
+                  textAlign: TextAlign.center,
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: BasketButton(
+                        onpress: () {
+                          entry
+                              .dismiss(); // Dismiss the notification when "OK" is pressed
+                          RestartWidget.restartApp(context);
+                        },
+                        text: "OK",
+                        bgcolor: customColors().dodgerBlue,
+                        textStyle: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.White,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      background: customColors().backgroundPrimary,
+      leading: Icon(Icons.notifications_active),
+      position: NotificationPosition.bottom,
+      autoDismiss: false,
+    );
+
+    // show local notification
+    flutterLocalNotificationsPlugin.show(
+      message.data.hashCode,
+      message.notification?.title ?? 'Notification Title',
+      message.notification?.body ?? 'Notification Body',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'channel_id_6', // Channel ID
+          'channelname', // Channel name
+          icon: '@mipmap/ic_launcher', // Small icon
+          importance: Importance.high,
+          playSound: true,
+          enableVibration: true,
+          // sound: RawResourceAndroidNotificationSound('alert'),
+          vibrationPattern: Int64List.fromList([0, 1000, 5000, 2000]),
+        ),
+      ),
+    );
+  }
+}

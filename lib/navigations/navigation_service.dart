@@ -1,0 +1,122 @@
+part of 'navigation.dart';
+
+class NavigationService {
+  Future<void> openSplashPage(BuildContext context) {
+    return Navigator.of(context).pushNamed(_splash);
+  }
+
+  Future<void> openLoginPage(BuildContext context) {
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      _loginPageRouteName,
+      (Route<dynamic> route) => false,
+    );
+  }
+
+  Future<void> openSignupPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_signupPageRouteName, arguments: MapArguments(arg!));
+  }
+
+  Future<void> openPickerWorkspacePage(BuildContext context) {
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      _pickerDashBoardPageRouteName,
+      (Route<dynamic> route) => false,
+    );
+  }
+
+  Future<void> openSectionInChargePage(BuildContext context) {
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      _homeSectionInchargePageRouteName,
+      (Route<dynamic> route) => false,
+    );
+  }
+
+  dynamic back(BuildContext context, {Map<String, dynamic>? arg}) {
+    return Navigator.pop(context, arg);
+  }
+
+  Future<void> openPickerOrderInnerPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(context).pushNamed(
+      _pickerOrderDetailsPageRouteName,
+      arguments: MapArguments(arg!),
+    );
+  }
+
+  Future<void> openOrderItemDetailsPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_orderItemDetailsPageRouteName, arguments: MapArguments(arg!));
+  }
+
+  Future<void> openOrderItemReplacementPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(context).pushNamed(
+      _orderItemReplacementPageRouteName,
+      arguments: MapArguments(arg!),
+    );
+  }
+
+  Future<void> openOrderItemAddPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_orderitemAddPageRouteName, arguments: MapArguments(arg!));
+  }
+
+  Future<void> openDriverDashBoardPage(BuildContext context) {
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      _driverDashBoardPageRouteName,
+      (Route<dynamic> route) => false,
+    );
+  }
+
+  Future<void> openDriverOrderInnerPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_driverOrderInnerPageRouteName, arguments: MapArguments(arg!));
+  }
+
+  Future<void> openDeliveryUpdatePage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_deliveryUpdatePageRouteName, arguments: MapArguments(arg!));
+  }
+
+  Future<void> openDocumentUpdatePage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_documentUploadPageRouteName, arguments: MapArguments(arg!));
+  }
+
+  Future<void> openOrderRoutesPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_viewOrderRoutePageRouteName, arguments: MapArguments(arg!));
+  }
+}
