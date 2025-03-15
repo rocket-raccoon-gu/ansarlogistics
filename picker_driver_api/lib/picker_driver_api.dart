@@ -27,10 +27,14 @@ class ContentTypes {
   static const String formurlencoded = "application/x-www-form-urlencoded";
 }
 
-var mainbaseUrl = String.fromEnvironment('BASE_URL',
-    defaultValue: "https://pickerdriver.testuatah.com");
-var mainapplicationPath =
-    String.fromEnvironment('APPLICATION_PATH', defaultValue: "/v1/");
+var mainbaseUrl = String.fromEnvironment(
+  'BASE_URL',
+  defaultValue: "https://pickerdriver.testuatah.com",
+);
+var mainapplicationPath = String.fromEnvironment(
+  'APPLICATION_PATH',
+  defaultValue: "/v1/",
+);
 
 String productUrl1 = 'https://www.ansargallery.com/rest/V1/';
 
@@ -49,40 +53,49 @@ class PickerDriverApi {
   bool networkOnline = true;
 
   PickerDriverApi(
-      this.baseUrl, this.productUrl, this.applicationPath, this._client);
+    this.baseUrl,
+    this.productUrl,
+    this.applicationPath,
+    this._client,
+  );
 
-  factory PickerDriverApi.create(
-      {required String baseUrl,
-      required String productUrl,
-      required String applicationPath,
-      Duration connectionTimeout = timeoutDuration}) {
+  factory PickerDriverApi.create({
+    required String baseUrl,
+    required String productUrl,
+    required String applicationPath,
+    Duration connectionTimeout = timeoutDuration,
+  }) {
     return PickerDriverApi(
-        Uri.parse(baseUrl),
-        Uri.parse(productUrl), //'xlrds/webresources/SearchSymbol',
-        applicationPath,
-        IOClient(HttpClient()));
+      Uri.parse(baseUrl),
+      Uri.parse(productUrl), //'xlrds/webresources/SearchSymbol',
+      applicationPath,
+      IOClient(HttpClient()),
+    );
   }
 
-  factory PickerDriverApi.debuggable(
-      {required String baseUrl,
-      required String productUrl,
-      required String applicationPath,
-      Duration connectionTimeout = timeoutDuration}) {
+  factory PickerDriverApi.debuggable({
+    required String baseUrl,
+    required String productUrl,
+    required String applicationPath,
+    Duration connectionTimeout = timeoutDuration,
+  }) {
     HttpClient httpClient = HttpClient();
     httpClient.connectionTimeout = connectionTimeout;
     return PickerDriverApi(
-        Uri.parse(baseUrl), //'xlrds/webresources/SearchSymbol',
-        Uri.parse(productUrl),
-        applicationPath,
-        _DebuggableClient(IOClient(HttpClient())));
+      Uri.parse(baseUrl), //'xlrds/webresources/SearchSymbol',
+      Uri.parse(productUrl),
+      applicationPath,
+      _DebuggableClient(IOClient(HttpClient())),
+    );
   }
 
-  factory PickerDriverApi.proxy(
-      {required String baseUrl,
-      required String productUrl,
-      required String applicationPath,
-      required String proxyIp,
-      Duration connectionTimeout = timeoutDuration}) {
+  factory PickerDriverApi.proxy({
+    required String baseUrl,
+    required String productUrl,
+    required String applicationPath,
+    required String proxyIp,
+    Duration connectionTimeout = timeoutDuration,
+  }) {
     HttpClient httpClient = HttpClient();
     httpClient.connectionTimeout = connectionTimeout;
     httpClient.findProxy = (uri) {
@@ -91,10 +104,11 @@ class PickerDriverApi {
     httpClient.badCertificateCallback =
         ((X509Certificate cert, String host, int port) => Platform.isAndroid);
     return PickerDriverApi(
-        Uri.parse(productUrl),
-        Uri.parse(baseUrl), //'xlrds/webresources/SearchSymbol',
-        applicationPath,
-        IOClient(httpClient));
+      Uri.parse(productUrl),
+      Uri.parse(baseUrl), //'xlrds/webresources/SearchSymbol',
+      applicationPath,
+      IOClient(httpClient),
+    );
   }
 
   Future<String?> getPlatformVersion() {
@@ -103,8 +117,10 @@ class PickerDriverApi {
 }
 
 extension PDGeneralApi on PickerDriverApi {
-  Future<String> generalService(
-      {required String endpoint, required String token}) async {
+  Future<String> generalService({
+    required String endpoint,
+    required String token,
+  }) async {
     final url = _endpointWithApplicationPath(_ordersService + endpoint);
     // final generalRequest =
     //     GeneralRequest(proc: "general_service", request: request);
@@ -116,29 +132,32 @@ extension PDGeneralApi on PickerDriverApi {
     print("my path" + url.toString());
 
     return _handleRequest(
-        onRequest: () => _client.get(url, headers: headers),
-        onResponse: (response) {
-          return response.body;
-        });
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
   }
 
-  Future<LoginResponse> loginService(
-      {required String userId,
-      required String password,
-      required String token,
-      required String bearertoken,
-      required String appversion}) async {
+  Future<LoginResponse> loginService({
+    required String userId,
+    required String password,
+    required String token,
+    required String bearertoken,
+    required String appversion,
+  }) async {
     Uri url = Uri.parse(_endpointWithApplicationPathString('pk_dv_login.php'));
 
     log(url.toString());
 
     final loginRequest = loginRequestModel.LoginRequest(
-        empId: userId,
-        password: password,
-        token: token,
-        bearertoken: bearertoken,
-        os: 'Android',
-        version: appversion);
+      empId: userId,
+      password: password,
+      token: token,
+      bearertoken: bearertoken,
+      os: 'Android',
+      version: appversion,
+    );
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
     };
@@ -148,14 +167,19 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("Login");
       return _handleRequest(
-          onRequest: () => _client.post(url,
-              body: jsonEncode(loginRequest), headers: headers),
-          onResponse: (response) {
-            cookie = updateCookie(response);
-            // fullcookie = updateFullCookie(response);
+        onRequest:
+            () => _client.post(
+              url,
+              body: jsonEncode(loginRequest),
+              headers: headers,
+            ),
+        onResponse: (response) {
+          cookie = updateCookie(response);
+          // fullcookie = updateFullCookie(response);
 
-            return loginResponseFromJson(response.body);
-          });
+          return loginResponseFromJson(response.body);
+        },
+      );
     } catch (e) {
       serviceSendError("Login");
       rethrow;
@@ -175,11 +199,17 @@ extension PDGeneralApi on PickerDriverApi {
     log("${currentpage.toString()}........................");
 
     if (status == "all") {
-      urlorder = Uri.parse(_endpointWithApplicationPathString(
-          'pickerDriverOrdersItemsV1.php?page_size=${pagesize}&current_page=${currentpage}'));
+      urlorder = Uri.parse(
+        _endpointWithApplicationPathString(
+          'pickerDriverOrdersItemsV1.php?page_size=${pagesize}&current_page=${currentpage}',
+        ),
+      );
     } else {
-      urlorder = Uri.parse(_endpointWithApplicationPathString(
-          'pickerDriverOrdersItemsV1.php?page_size=${pagesize}&current_page=${currentpage}'));
+      urlorder = Uri.parse(
+        _endpointWithApplicationPathString(
+          'pickerDriverOrdersItemsV1.php?page_size=${pagesize}&current_page=${currentpage}',
+        ),
+      );
     }
 
     log("-------------------------------------");
@@ -194,23 +224,27 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("order send");
       return _handleRequest(
-          onRequest: () => _client.get(urlorder, headers: headers),
-          onResponse: (responce) {
-            log("${DateTime.now()}");
+        onRequest: () => _client.get(urlorder, headers: headers),
+        onResponse: (responce) {
+          log("${DateTime.now()}");
 
-            return responce;
-          });
+          return responce;
+        },
+      );
     } catch (e) {
       serviceSend("Order Send Error");
       rethrow;
     }
   }
 
-  Future<http.Response> orderItemStatusUpdateService(
-      {required Map<String, dynamic> body, required token}) {
+  Future<http.Response> orderItemStatusUpdateService({
+    required Map<String, dynamic> body,
+    required token,
+  }) {
     //
-    Uri url =
-        Uri.parse(_endpointWithApplicationPathString('updateOrderItemV2.php'));
+    Uri url = Uri.parse(
+      _endpointWithApplicationPathString('updateOrderItemV2.php'),
+    );
     //
     //
 
@@ -222,13 +256,14 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("update item status service send");
       return _handleRequest(
-          onRequest: () =>
-              _client.put(url, body: jsonEncode(body), headers: headers),
-          onResponse: (response) {
-            log('order items status ${DateTime.now().toString()}');
+        onRequest:
+            () => _client.put(url, body: jsonEncode(body), headers: headers),
+        onResponse: (response) {
+          log('order items status ${DateTime.now().toString()}');
 
-            return response;
-          });
+          return response;
+        },
+      );
     } catch (e) {
       serviceSendError("update items status service Error");
       rethrow;
@@ -240,8 +275,9 @@ extension PDGeneralApi on PickerDriverApi {
     required token,
   }) {
     //
-    Uri url =
-        Uri.parse(_endpointWithApplicationPathString('pdOrdersItemsV1.php'));
+    Uri url = Uri.parse(
+      _endpointWithApplicationPathString('pdOrdersItemsV1.php'),
+    );
     //
     //
 
@@ -255,31 +291,34 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("order items service send");
       return _handleRequest(
-          onRequest: () =>
-              _client.put(url, body: jsonEncode(body), headers: headers),
-          onResponse: (response) {
-            log('order items ${DateTime.now().toString()}');
+        onRequest:
+            () => _client.put(url, body: jsonEncode(body), headers: headers),
+        onResponse: (response) {
+          log('order items ${DateTime.now().toString()}');
 
-            return response;
-          });
+          return response;
+        },
+      );
     } catch (e) {
       serviceSendError("Order items service Error");
       rethrow;
     }
   }
 
-  Future<http.Response> updatemainorderstat(
-      {required String orderid,
-      required String order_status,
-      required String comment,
-      required String user_id,
-      required String latitude,
-      required String longitude}) {
+  Future<http.Response> updatemainorderstat({
+    required String orderid,
+    required String order_status,
+    required String comment,
+    required String user_id,
+    required String latitude,
+    required String longitude,
+  }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
 
-    Uri url =
-        Uri.parse(_endpointWithApplicationPathString('updateSubOrderV1.php'));
+    Uri url = Uri.parse(
+      _endpointWithApplicationPathString('updateSubOrderV1.php'),
+    );
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationJson,
@@ -291,7 +330,7 @@ extension PDGeneralApi on PickerDriverApi {
       "comment": comment,
       "user_id": user_id,
       "latitude": latitude,
-      "longitude": longitude
+      "longitude": longitude,
     };
 
     print(url);
@@ -303,40 +342,53 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("update main order stat");
       return _handleRequest(
-          onRequest: () =>
-              _client.put(url, body: jsonEncode(body), headers: headers),
-          onResponse: (response) {
-            log(DateTime.now().toString());
+        onRequest:
+            () => _client.put(url, body: jsonEncode(body), headers: headers),
+        onResponse: (response) {
+          log(DateTime.now().toString());
 
-            return response;
-          });
+          return response;
+        },
+      );
     } catch (e) {
       serviceSendError("Order Error");
       rethrow;
     }
   }
 
-  Future uploadDocumentService(Uint8List imagebytes, Uint8List imagebytesdSign,
-      Uint8List imagebytesqId, String orderid, int driverid) async {
+  Future uploadDocumentService(
+    Uint8List imagebytes,
+    Uint8List imagebytesdSign,
+    Uint8List imagebytesqId,
+    String orderid,
+    int driverid,
+  ) async {
     final Map<String, String> headers = {"Content-Type": "multipart/form-data"};
 
     Uri url = Uri.parse(
-        _endpointWithApplicationPathString('delivery_verification.php'));
+      _endpointWithApplicationPathString('delivery_verification.php'),
+    );
 
     try {
       var request = await http.MultipartRequest('POST', url);
 
       final httpcSign = await http.MultipartFile.fromBytes(
-          'customer_signature', imagebytes,
-          filename: 'customersign-${orderid.toString()}.jpg');
+        'customer_signature',
+        imagebytes,
+        filename: 'customersign-${orderid.toString()}.jpg',
+      );
 
       final httpdSign = await http.MultipartFile.fromBytes(
-          'driver_signature', imagebytesdSign,
-          filename: 'driversign-${orderid.toString()}.jpg');
+        'driver_signature',
+        imagebytesdSign,
+        filename: 'driversign-${orderid.toString()}.jpg',
+      );
 
       final httpqId = await http.MultipartFile.fromBytes(
-          'document', imagebytesqId,
-          filename: 'qId-${orderid.toString()}.jpg');
+        'document',
+        imagebytesqId,
+        filename: 'qId-${orderid.toString()}.jpg',
+      );
 
       request.files.add(httpcSign);
 
@@ -375,7 +427,7 @@ extension PDGeneralApi on PickerDriverApi {
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
-      'Authorization': 'Bearer 8jki6ynymuxwu6empi53bk0s43n7c6vi'
+      'Authorization': 'Bearer 8jki6ynymuxwu6empi53bk0s43n7c6vi',
     };
 
     serviceSend("get similiar products request");
@@ -383,14 +435,17 @@ extension PDGeneralApi on PickerDriverApi {
     serviceSend(url.toString());
 
     return _handleRequest(
-        onRequest: () => _client.get(Uri.parse(url), headers: headers),
-        onResponse: (response) {
-          return response;
-        });
+      onRequest: () => _client.get(Uri.parse(url), headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
   }
 
-  Future<http.Response> generalProductService(
-      {required String endpoint, required String token}) async {
+  Future<http.Response> generalProductService({
+    required String endpoint,
+    required String token,
+  }) async {
     log("endpoint.........${endpoint}");
 
     // final url = Uri.parse(
@@ -398,7 +453,8 @@ extension PDGeneralApi on PickerDriverApi {
     //         endpoint.trim());
 
     final url = _endpointWithApplicationPathString(
-        'getProductdata_new.php?sku=${endpoint.trim()}');
+      'getProductdata_new.php?sku=${endpoint.trim()}',
+    );
 
     log(url.toString());
 
@@ -408,16 +464,49 @@ extension PDGeneralApi on PickerDriverApi {
     };
 
     return _handleRequest(
-        onRequest: () => _client.get(Uri.parse(url), headers: headers),
-        onResponse: (response) {
-          return response;
-        });
+      onRequest: () => _client.get(Uri.parse(url), headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
   }
 
-  Future<http.Response> updateUserStat(
-      {required int userid, required int status}) async {
-    Uri url =
-        Uri.parse(_endpointWithApplicationPathString('pd_online_status.php'));
+  Future<http.Response> getProductService({
+    required String endpoint,
+    required String token,
+  }) async {
+    log("endpoint.........${endpoint}");
+
+    // final url = Uri.parse(
+    //     'https://admin-qatar.testuatah.com/custom-api/api/qatar/getProductdata_new.php?sku=' +
+    //         endpoint.trim());
+
+    final url = Uri.parse(
+      'https://www.ansargallery.com/rest/V1/products/${endpoint}',
+    );
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
+  Future<http.Response> updateUserStat({
+    required int userid,
+    required int status,
+  }) async {
+    Uri url = Uri.parse(
+      _endpointWithApplicationPathString('pd_online_status.php'),
+    );
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationJson,
@@ -425,31 +514,33 @@ extension PDGeneralApi on PickerDriverApi {
 
     final Map<String, dynamic> body = {
       "user_id": userid,
-      "online_status": status
+      "online_status": status,
     };
 
     try {
       serviceSend("update user stat");
       return _handleRequest(
-          onRequest: () =>
-              _client.put(url, body: jsonEncode(body), headers: headers),
-          onResponse: (response) {
-            log(DateTime.now().toString());
+        onRequest:
+            () => _client.put(url, body: jsonEncode(body), headers: headers),
+        onResponse: (response) {
+          log(DateTime.now().toString());
 
-            return response;
-          });
+          return response;
+        },
+      );
     } catch (e) {
       serviceSendError("status update Error..");
       rethrow;
     }
   }
 
-  Future rescheduleRequest(
-      {required String orderid,
-      required String deliverydate,
-      required int userid,
-      required String timerange,
-      required bool candeliver}) {
+  Future rescheduleRequest({
+    required String orderid,
+    required String deliverydate,
+    required int userid,
+    required String timerange,
+    required bool candeliver,
+  }) {
     final url = _endpointWithApplicationPath('/rescheduleDelivery.php');
 
     final Map<String, String> headers = {
@@ -461,25 +552,27 @@ extension PDGeneralApi on PickerDriverApi {
       "user_id": userid,
       "delivery_date": deliverydate,
       "time_range": timerange,
-      "can_deliver": candeliver ? 1 : 0
+      "can_deliver": candeliver ? 1 : 0,
     };
 
     log(data.toString());
 
     return _handleRequest(
-        onRequest: () =>
-            _client.post(url, body: jsonEncode(data), headers: headers),
-        onResponse: (response) {
-          return response.body;
-        });
+      onRequest:
+          () => _client.post(url, body: jsonEncode(data), headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
   }
 
-  Future rescheduleRequestNOL(
-      {required String orderid,
-      required String deliverydate,
-      required String comment,
-      required bool candeliver,
-      required int userid}) async {
+  Future rescheduleRequestNOL({
+    required String orderid,
+    required String deliverydate,
+    required String comment,
+    required bool candeliver,
+    required int userid,
+  }) async {
     final url = _endpointWithApplicationPath('/rescheduleDelivery.php');
 
     final Map<String, String> headers = {
@@ -491,38 +584,50 @@ extension PDGeneralApi on PickerDriverApi {
       "user_id": userid,
       "delivery_date": deliverydate,
       "can_deliver": candeliver ? 1 : 0,
-      "comment": comment
+      "comment": comment,
     };
 
     serviceSend("Reschedule Request");
     return _handleRequest(
-        onRequest: () =>
-            _client.post(url, body: jsonEncode(data), headers: headers),
-        onResponse: (response) {
-          return response.body;
-        });
+      onRequest:
+          () => _client.post(url, body: jsonEncode(data), headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
   }
 
   Future<http.Response> getlocationdetails(
-      String startlat, String endlat, String destlat, String destlong) async {
+    String startlat,
+    String endlat,
+    String destlat,
+    String destlong,
+  ) async {
     serviceSend("Distence detsils");
 
     const google_api_key = "AIzaSyDeFN4A3eenCTIUYvCI7dViF-N-V5X8RgA";
 
     print(
-        "https://maps.googleapis.com/maps/api/directions/json?origin=${startlat}%2C${endlat}&destination=${destlat}%2C${destlong}&travelMode=transit&avoidHighways=false&avoidFerries=true&avoidTolls=false&key=${google_api_key}");
+      "https://maps.googleapis.com/maps/api/directions/json?origin=${startlat}%2C${endlat}&destination=${destlat}%2C${destlong}&travelMode=transit&avoidHighways=false&avoidFerries=true&avoidTolls=false&key=${google_api_key}",
+    );
     return _handleRequest(
-        onRequest: () => _client.get(Uri.parse(
-            "https://maps.googleapis.com/maps/api/directions/json?origin=${startlat}%2C${endlat}&destination=${destlat}%2C${destlong}&travelMode=transit&avoidHighways=false&avoidFerries=true&avoidTolls=false&key=${google_api_key}")),
-        onResponse: (responce) {
-          return responce;
-        });
+      onRequest:
+          () => _client.get(
+            Uri.parse(
+              "https://maps.googleapis.com/maps/api/directions/json?origin=${startlat}%2C${endlat}&destination=${destlat}%2C${destlong}&travelMode=transit&avoidHighways=false&avoidFerries=true&avoidTolls=false&key=${google_api_key}",
+            ),
+          ),
+      onResponse: (responce) {
+        return responce;
+      },
+    );
   }
 
-  Future<http.Response> updateDriverLocation(
-      {required int userId,
-      required String latitude,
-      required String longitude}) async {
+  Future<http.Response> updateDriverLocation({
+    required int userId,
+    required String latitude,
+    required String longitude,
+  }) async {
     final url = _endpointWithApplicationPath('pd_driverstatus.php');
 
     final Map<String, String> headers = {
@@ -535,57 +640,68 @@ extension PDGeneralApi on PickerDriverApi {
     Map<String, dynamic> usermap = {
       "user_id": userId,
       "lat": latitude,
-      "long": longitude
+      "long": longitude,
     };
 
     log(usermap.toString());
 
     try {
       return _handleRequest(
-          onRequest: () =>
-              _client.put(url, body: jsonEncode(usermap), headers: headers),
-          onResponse: (response) {
-            return response;
-          });
+        onRequest:
+            () => _client.put(url, body: jsonEncode(usermap), headers: headers),
+        onResponse: (response) {
+          return response;
+        },
+      );
     } catch (e) {
       serviceSendError("User Distance Update Error");
       rethrow;
     }
   }
 
-  Future<http.Response> OrderREportService(
-      {required String startDate, required String endDate, required token}) {
+  Future<http.Response> OrderREportService({
+    required String startDate,
+    required String endDate,
+    required token,
+  }) {
     Uri url;
 
     if (startDate != "" && endDate == "") {
-      url = Uri.parse(_endpointWithApplicationPathString(
-          'getStatusHistoriesV1.php?startdate=$startDate'));
+      url = Uri.parse(
+        _endpointWithApplicationPathString(
+          'getStatusHistoriesV1.php?startdate=$startDate',
+        ),
+      );
     } else {
-      url = Uri.parse(_endpointWithApplicationPathString(
-          'getStatusHistoriesV1.php?startdate=$startDate&enddate=$endDate'));
+      url = Uri.parse(
+        _endpointWithApplicationPathString(
+          'getStatusHistoriesV1.php?startdate=$startDate&enddate=$endDate',
+        ),
+      );
     }
 
     log(url.toString());
 
     final Map<String, String> headers = {
       "Content-Type": ContentTypes.applicationJson,
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
     };
 
     serviceSend("Order Report Service");
 
     return _handleRequest(
-        onRequest: () => _client.get(url, headers: headers),
-        onResponse: (response) {
-          return response;
-        });
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
   }
 
   Future<http.StreamedResponse> uploadBillService(
-      File bill, String ordernumber) async {
-    final Map<String, String> headers = {
-      "Content-Type": "multipart/form-data",
-    };
+    File bill,
+    String ordernumber,
+  ) async {
+    final Map<String, String> headers = {"Content-Type": "multipart/form-data"};
 
     log(DateTime.now().toString() + ".....time started");
 
@@ -595,8 +711,11 @@ extension PDGeneralApi on PickerDriverApi {
 
     Uint8List imagebytes = await bill.readAsBytes();
     var request = await http.MultipartRequest('POST', url);
-    final httpimage = http.MultipartFile.fromBytes('bill', imagebytes,
-        filename: 'billimage.jpg');
+    final httpimage = http.MultipartFile.fromBytes(
+      'bill',
+      imagebytes,
+      filename: 'billimage.jpg',
+    );
     request.files.add(httpimage);
     request.fields['order_number'] = ordernumber;
     final response = await request.send();
@@ -606,8 +725,9 @@ extension PDGeneralApi on PickerDriverApi {
   }
 
   Future<http.Response> getStatusHistoryData(String orderid) async {
-    Uri url = Uri.parse(_endpointWithApplicationPathString(
-        'order-history.php?order_id=$orderid'));
+    Uri url = Uri.parse(
+      _endpointWithApplicationPathString('order-history.php?order_id=$orderid'),
+    );
 
     log(url.toString());
 
@@ -618,23 +738,26 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("status history data send");
       return _handleRequest(
-          onRequest: () => _client.get(url, headers: headers),
-          onResponse: (response) {
-            return response;
-          });
+        onRequest: () => _client.get(url, headers: headers),
+        onResponse: (response) {
+          return response;
+        },
+      );
     } catch (e) {
       serviceSend("status history data error");
       rethrow;
     }
   }
 
-  Future<http.Response> sendNotification(
-      {required String bearertoken,
-      required String devicetoken,
-      required String title,
-      required String body}) async {
+  Future<http.Response> sendNotification({
+    required String bearertoken,
+    required String devicetoken,
+    required String title,
+    required String body,
+  }) async {
     Uri url = Uri.parse(
-        'https://fcm.googleapis.com/v1/projects/ah-market-5ab28/messages:send');
+      'https://fcm.googleapis.com/v1/projects/ah-market-5ab28/messages:send',
+    );
 
     final Map<String, String> headers = {
       "Authorization": "Bearer ${bearertoken}",
@@ -649,30 +772,32 @@ extension PDGeneralApi on PickerDriverApi {
         "android": {
           "notification": {
             "channel_id":
-                "channel_id_6" // Ensure correct spelling for channel_id
-          }
-        }
-      }
+                "channel_id_6", // Ensure correct spelling for channel_id
+          },
+        },
+      },
     };
 
     try {
       serviceSend("Send Notification");
 
       return _handleRequest(
-          onRequest: () =>
-              _client.post(url, body: jsonEncode(data), headers: headers),
-          onResponse: (response) {
-            return response;
-          });
+        onRequest:
+            () => _client.post(url, body: jsonEncode(data), headers: headers),
+        onResponse: (response) {
+          return response;
+        },
+      );
     } catch (e) {
       serviceSend("send notification data error");
       rethrow;
     }
   }
 
-  Future<http.Response> updateSectionData(
-      {required UpdateSectionRequest updateSectionRequest,
-      required String branch}) async {
+  Future<http.Response> updateSectionData({
+    required UpdateSectionRequest updateSectionRequest,
+    required String branch,
+  }) async {
     final url;
 
     if (branch != "Q013") {
@@ -694,30 +819,38 @@ extension PDGeneralApi on PickerDriverApi {
     log(url.toString());
 
     return _handleRequest(
-        onRequest: () => _client.post(url,
-            body: jsonEncode(updateSectionRequest.toJson()), headers: headers),
-        onResponse: (response) {
-          log(DateTime.now().toString());
-          return response;
-        });
+      onRequest:
+          () => _client.post(
+            url,
+            body: jsonEncode(updateSectionRequest.toJson()),
+            headers: headers,
+          ),
+      onResponse: (response) {
+        log(DateTime.now().toString());
+        return response;
+      },
+    );
   }
 
-  Future<http.Response> driverRegisterService(
-      {required Map<String, dynamic> driverdata}) async {
+  Future<http.Response> driverRegisterService({
+    required Map<String, dynamic> driverdata,
+  }) async {
     final url = _endpointWithApplicationPath('driver-register.php');
 
     log(url.toString());
 
     final Map<String, String> headers = {
-      'Content-Type': ContentTypes.applicationCharset
+      'Content-Type': ContentTypes.applicationCharset,
     };
 
     return _handleRequest(
-        onRequest: () =>
-            _client.post(url, headers: headers, body: jsonEncode(driverdata)),
-        onResponse: (response) {
-          return response;
-        });
+      onRequest:
+          () =>
+              _client.post(url, headers: headers, body: jsonEncode(driverdata)),
+      onResponse: (response) {
+        return response;
+      },
+    );
   }
 
   Future<http.Response> getLastID() async {
@@ -734,14 +867,35 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("last data get");
       return _handleRequest(
-          onRequest: () => _client.get(url, headers: headers),
-          onResponse: (response) {
-            return response;
-          });
+        onRequest: () => _client.get(url, headers: headers),
+        onResponse: (response) {
+          return response;
+        },
+      );
     } catch (e) {
       serviceSendError("last data Error");
       rethrow;
     }
+  }
+
+  Future checkavailabilitybarcode({required String sku}) async {
+    final url = _endpointWithApplicationPath('/checkAvailabileBarcode.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    final Map<String, dynamic> body = {"sku": sku};
+
+    serviceSend("Check Barcode Availablity..!");
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
   }
 
   Future<String> getSectionData(String user, int catid) async {
@@ -760,14 +914,39 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("section data send");
       return _handleRequest(
-          onRequest: () => _client.get(Uri.parse(url), headers: headers),
-          onResponse: (response) {
-            return response.body;
-          });
+        onRequest: () => _client.get(Uri.parse(url), headers: headers),
+        onResponse: (response) {
+          return response.body;
+        },
+      );
     } catch (e) {
       serviceSendError("section data Error");
       rethrow;
     }
+  }
+
+  Future addtoproductlist({
+    required List<Map<String, dynamic>> dynamiclist,
+  }) async {
+    final url = _endpointWithApplicationPath('/addSkuScanned.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    final Map<String, dynamic> body = {"items": dynamiclist};
+
+    serviceSend("add to product list service full");
+    log(DateTime.now().toString());
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
+        log(DateTime.now().toString());
+        return response;
+      },
+    );
   }
 }
 
@@ -817,7 +996,9 @@ extension on PickerDriverApi {
         return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
       case "veg_rayyan":
         log('${mainbaseUrl}');
-        log('${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008');
+        log(
+          '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008',
+        );
         return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008';
       default:
         return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1215,1216,1207,1219,1226,1220,1230,1228,1231';
@@ -830,7 +1011,8 @@ extension on PickerDriverApi {
   }) async {
     if (!networkOnline) {
       throw NetworkException(
-          "Oops, device is offline, please check your internet connection.");
+        "Oops, device is offline, please check your internet connection.",
+      );
     }
 
     try {
@@ -853,7 +1035,8 @@ extension on PickerDriverApi {
       } else {
         _logResponseError(response);
         return onResponse(
-            response); // Optional: Handle non-200 status codes here
+          response,
+        ); // Optional: Handle non-200 status codes here
       }
     } on SocketException catch (e) {
       log("Socket Exception: $e", time: DateTime.now());
@@ -878,9 +1061,10 @@ extension on PickerDriverApi {
     log("Response Body: ${response.body}");
   }
 
-  Future<T> _handleHTTPRequest<T>(
-      {required Future<http.Response> Function() onRequest,
-      required T Function(http.Response) onResponse}) async {
+  Future<T> _handleHTTPRequest<T>({
+    required Future<http.Response> Function() onRequest,
+    required T Function(http.Response) onResponse,
+  }) async {
     if (!networkOnline) {
       throw "Oops, device is offline, please check your internet connection.";
     } else {

@@ -46,7 +46,8 @@ class _CustomBottomNavigationBarPickerState
               const AssetImage("assets/order_active.png"),
               color: HexColor('#8E8E8E'),
             ),
-            label: getTranslate(context, PickerTexts.bottomBarItem1),
+            // label: getTranslate(context, PickerTexts.bottomBarItem1),
+            label: PickerTexts.bottomBarItem1,
           ),
           BottomNavigationBarItem(
             activeIcon: ImageIcon(
@@ -57,7 +58,8 @@ class _CustomBottomNavigationBarPickerState
               AssetImage("assets/report_new_active.png"),
               color: HexColor('#8E8E8E'),
             ),
-            label: getTranslate(context, PickerTexts.bottomBarItem2),
+            // label: getTranslate(context, PickerTexts.bottomBarItem2),
+            label: PickerTexts.bottomBarItem2,
           ),
           BottomNavigationBarItem(
             activeIcon: ImageIcon(
@@ -68,7 +70,8 @@ class _CustomBottomNavigationBarPickerState
               AssetImage("assets/products_inactive.png"),
               color: HexColor('#8E8E8E'),
             ),
-            label: getTranslate(context, PickerTexts.bottomBarItem3),
+            // label: getTranslate(context, PickerTexts.bottomBarItem3),
+            label: PickerTexts.bottomBarItem3,
           ),
           BottomNavigationBarItem(
             activeIcon: ImageIcon(
@@ -79,7 +82,8 @@ class _CustomBottomNavigationBarPickerState
               AssetImage("assets/profile_inactive.png"),
               color: HexColor('#8E8E8E'),
             ),
-            label: getTranslate(context, PickerTexts.bottomBarItem4),
+            // label: getTranslate(context, PickerTexts.bottomBarItem4),
+            label: PickerTexts.bottomBarItem4,
           ),
         ],
         currentIndex: widget.selectedIndex,

@@ -203,7 +203,8 @@ Widget getitemstat(EndPicking data, BuildContext context) {
     );
   } else if (data.itemStatus == "start_picking") {
     return Text(
-      "${getTranslate(context, "Start Picking")}",
+      // "${getTranslate(context, "Start Picking")}",
+      "Start Picking",
       style: customTextStyle(
         fontStyle: FontStyle.BodyL_Bold,
         color: FontColor.SecretGarden,

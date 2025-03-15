@@ -30,7 +30,8 @@ class DeliveryTypeTile extends StatelessWidget {
                 children: [
                   Image.asset('assets/express.png', height: 19.0),
                   Text(
-                    getTranslate(context, "Express"),
+                    // getTranslate(context, "Express"),
+                    "Express",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_ItalicBold,
                       color: FontColor.White,

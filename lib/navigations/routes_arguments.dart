@@ -5,3 +5,20 @@ class MapArguments {
 
   MapArguments(this.data);
 }
+
+swithcnavigate(BuildContext context, String role) {
+  switch (role) {
+    case "1":
+      context.gNavigationService.openPickerWorkspacePage(context);
+      break;
+    case "2":
+    case "3":
+      context.gNavigationService.openDriverDashBoardPage(context);
+      break;
+    case "6":
+      context.gNavigationService.openSectionInChargePage(context);
+      break;
+    default:
+      context.gNavigationService.openPickerWorkspacePage(context);
+  }
+}

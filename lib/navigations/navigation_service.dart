@@ -119,4 +119,13 @@ class NavigationService {
       context,
     ).pushNamed(_viewOrderRoutePageRouteName, arguments: MapArguments(arg!));
   }
+
+  Future<void> openNewScannerPage2(
+    BuildContext context,
+    Map<String, dynamic> data,
+  ) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_newScanBarcodePageRouteName, arguments: MapArguments(data));
+  }
 }

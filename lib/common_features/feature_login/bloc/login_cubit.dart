@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ansarlogistics/navigations/navigation.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -104,9 +105,16 @@ class LoginCubit extends Cubit<LoginState> {
         DateTime responseTime = DateTime.now();
 
         if (loginResponse.success == 1) {
+          UserController.userController.profile = loginResponse.profile;
+
           PreferenceUtils.storeDataToShared(
             "crypto",
             encryptStringForUser(password, keyVal(userId)),
+          );
+
+          await PreferenceUtils.storeDataToShared(
+            "usertoken",
+            loginResponse.token,
           );
 
           updateUserController(
@@ -114,6 +122,8 @@ class LoginCubit extends Cubit<LoginState> {
             userId: userId,
             username: userId,
           );
+
+          swithcnavigate(context, loginResponse.profile.role);
 
           showSnackBar(
             context: context,

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
@@ -103,25 +104,31 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
             BlocProvider.of<OrderItemDetailsCubit>(
               context,
             ).orderItem!.productSku.toString()) {
-          if (editquantity != 0) {
-            BlocProvider.of<OrderItemDetailsCubit>(context).updateitemstatus(
-              "end_picking",
-              editquantity.toString(),
-              "",
-              BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.price,
-            );
-          } else {
-            BlocProvider.of<OrderItemDetailsCubit>(context).updateitemstatus(
-              "end_picking",
-              actualquantity.toString(),
-              "",
-              BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.price,
-            );
+          if (mounted) {
+            if (editquantity != 0) {
+              BlocProvider.of<OrderItemDetailsCubit>(context).updateitemstatus(
+                "end_picking",
+                editquantity.toString(),
+                "",
+                BlocProvider.of<OrderItemDetailsCubit>(
+                  context,
+                ).orderItem!.price,
+              );
+            } else {
+              BlocProvider.of<OrderItemDetailsCubit>(context).updateitemstatus(
+                "end_picking",
+                actualquantity.toString(),
+                "",
+                BlocProvider.of<OrderItemDetailsCubit>(
+                  context,
+                ).orderItem!.price,
+              );
+            }
           }
 
-          BlocProvider.of<PickerOrdersCubit>(
-            context,
-          ).loadPosts(1, statuslist[UserController().selectedindex]['status']);
+          // BlocProvider.of<PickerOrdersCubit>(
+          //   context,
+          // ).loadPosts(1, statuslist[UserController().selectedindex]['status']);
 
           // setState(() {
           //   isScanner = false;
@@ -1609,21 +1616,39 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                 ],
               )
               : MobileScanner(
-                // allowDuplicates: false,
+                controller: MobileScannerController(
+                  detectionSpeed: DetectionSpeed.normal,
+                  returnImage: true,
+                  facing: CameraFacing.back,
+                ),
+                onDetect: (barcode) {
+                  final List<Barcode> barcodes = barcode.barcodes;
+                  final Uint8List? image = barcode.image;
+
+                  for (final barcode in barcodes) {
+                    print(barcode.rawValue ?? "No Data found in QR");
+
+                    if (barcode.rawValue == null) {
+                      showSnackBar(
+                        context: context,
+                        snackBar: showErrorDialogue(
+                          errorMessage: "Please Scan accurate...!",
+                        ),
+                      );
+                    } else {
+                      final String code = barcode.rawValue!;
+                      showSnackBar(
+                        context: context,
+                        snackBar: showSuccessDialogue(message: code),
+                      );
+                      scanBarcodeNormal(code);
+                    }
+                  }
+                },
+
                 // controller: MobileScannerController(facing: CameraFacing.back),
                 // onDetect: (barcode, args) {
-                //   if (barcode.rawValue == null) {
-                //     showSnackBar(
-                //         context: context,
-                //         snackBar: showErrorDialogue(
-                //             errorMessage: "Please Scan accurate...!"));
-                //   } else {
-                //     final String code = barcode.rawValue!;
-                //     showSnackBar(
-                //         context: context,
-                //         snackBar: showSuccessDialogue(message: code));
-                //     scanBarcodeNormal(code);
-                //   }
+                //
                 // }
               ),
       bottomNavigationBar:

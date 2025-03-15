@@ -86,6 +86,7 @@ dependencies:
   cloud_firestore: any
   dropdown_button2: ^2.3.9
   file_picker: any
+  barcode_scan2: any
 
   picker_driver_api:
     path: ./picker_driver_api/

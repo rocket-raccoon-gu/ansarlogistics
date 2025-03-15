@@ -77,3 +77,49 @@ final List<String> timerangelist = [
   "20:00 — 21:00",
   "21:00 — 22:00",
 ];
+
+final regular_shifts = [
+  "08:00 AM - 06:00 PM",
+  "09:30 AM - 07:30 PM",
+  "10:00 AM - 08:00 PM",
+  "12:00 PM - 10:00 PM",
+  "01:00 PM - 11:00 PM",
+  "02:00 PM - 12:00 PM",
+  "08:00 AM - 02:00 PM & 06:00 PM - 12:00 PM",
+  "08:00 AM - 02:00 PM & 07:00 PM - 11:00 PM",
+  "08:00 AM - 10:00 AM & 04:00 PM - 12:00 PM",
+];
+
+final friday_shifts = [
+  "08:00 AM - 06:00 PM",
+  "09:30 AM - 07:30 PM",
+  "10:00 AM - 08:00 PM",
+  "12:00 PM - 10:00 PM",
+  "01:00 PM - 11:00 PM",
+  "02:00 PM - 12:00 PM",
+  "08:00 AM - 02:00 PM & 06:00 PM - 12:00 PM",
+  "08:00 AM - 02:00 PM & 07:00 PM - 11:00 PM",
+  "08:00 AM - 10:00 AM & 04:00 PM - 12:00 PM",
+  "Day Off",
+];
+
+final dayoffs = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+String getUserType(String name) {
+  switch (name) {
+    case "Picker":
+      return "1";
+    case "Driver":
+      return "3";
+    default:
+      return "2";
+  }
+}

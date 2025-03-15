@@ -52,7 +52,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     );
                   },
                   child: Text(
-                    "${getTranslate(context, 'Hi')}, ${UserController.userController.profile.name}",
+                    // "${getTranslate(context, 'Hi')}, ${UserController.userController.profile.name}",
+                    "Hi, ${UserController.userController.profile.name}",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_SemiBold_lato,
                       color: FontColor.FontPrimary,

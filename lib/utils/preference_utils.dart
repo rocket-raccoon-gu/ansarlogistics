@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceUtils {
@@ -25,5 +27,26 @@ class PreferenceUtils {
   static Future<String?> getDataFromShared(String key) async {
     SharedPreferences _prefInstance = await SharedPreferences.getInstance();
     return _prefInstance.getString(key);
+  }
+
+  static Future<List<dynamic>> getstoremap(String key) async {
+    SharedPreferences _preferences = await SharedPreferences.getInstance();
+
+    final String? list = _preferences.getString(key);
+
+    if (list != null) {
+      final List<dynamic> dataList = jsonDecode(list);
+      return dataList;
+    } else {
+      return [];
+    }
+  }
+
+  static storeListmap(String key, List<Map<String, dynamic>> listdata) async {
+    SharedPreferences _prefInstance = await SharedPreferences.getInstance();
+
+    final String encodelist = jsonEncode(listdata);
+
+    _prefInstance.setString(key, encodelist);
   }
 }

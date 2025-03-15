@@ -77,34 +77,40 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
             //     allowDuplicates: false,
             //     controller: MobileScannerController(facing: CameraFacing.back),
             //     onDetect: (barcode, args) {
-            //       if (barcode.rawValue == null) {
-            //         showSnackBar(
-            //             context: context,
-            //             snackBar: showErrorDialogue(
-            //                 errorMessage: "Please Scan accurate...!"));
-            //       } else {
-            //         final String code = barcode.rawValue!;
-            //         showSnackBar(
-            //             context: context,
-            //             snackBar: showSuccessDialogue(message: code));
-            //         scanBarcodeNormal(code);
-            //       }
+            //
             //     });
             return MobileScanner(
-              onDetect: (barcodes) {
-                //  if (barcodes.raw == null) {
-                //     showSnackBar(
-                //         context: context,
-                //         snackBar: showErrorDialogue(
-                //             errorMessage: "Please Scan accurate...!"));
-                //   } else {
-                //     final String code = barcodes.rawValue ?? '';
-                //     final String code = barcodes.;
-                //     showSnackBar(
-                //         context: context,
-                //         snackBar: showSuccessDialogue(message: code));
-                //     scanBarcodeNormal(code);
-                //   }
+              //  if (barcodes.raw == null) {
+
+              //   }
+              controller: MobileScannerController(
+                detectionSpeed: DetectionSpeed.normal,
+                returnImage: true,
+                facing: CameraFacing.back,
+              ),
+              onDetect: (barcode) {
+                final List<Barcode> barcodes = barcode.barcodes;
+                final Uint8List? image = barcode.image;
+
+                for (final barcode in barcodes) {
+                  print(barcode.rawValue ?? "No Data found in QR");
+
+                  if (barcode.rawValue == null) {
+                    showSnackBar(
+                      context: context,
+                      snackBar: showErrorDialogue(
+                        errorMessage: "Please Scan accurate...!",
+                      ),
+                    );
+                  } else {
+                    final String code = barcode.rawValue!;
+                    showSnackBar(
+                      context: context,
+                      snackBar: showSuccessDialogue(message: code),
+                    );
+                    scanBarcodeNormal(code);
+                  }
+                }
               },
             );
           } else if (istextbarcode) {

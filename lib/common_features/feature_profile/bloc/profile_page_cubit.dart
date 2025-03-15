@@ -42,6 +42,7 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
         // "1": {"title": "My Order Status", "img": 'assets/checklist.png'},
         "1": {"title": "Emp ID", "value": UserController().profile.empId},
         "2": {"title": "OutStock Marked Items ", "value": ""},
+        "3": {"title": "Switch To PhotoGraphy Scanner", "value": ""},
       };
 
       currentstat =

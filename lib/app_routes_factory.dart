@@ -1,4 +1,17 @@
+import 'package:ansarlogistics/Driver/features/feature_delivery_update/delivery_update_page_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_document_upload/document_upload_page_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_order_routes/order_routes_route_builder.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_add/item_add_page_route_builder.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/order_item_inner_route_builder.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/item_replacement_page_route_builder.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_dashboard/picker_dashboard_page_route_builder.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/picker_order_details_page_route_builder.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/home_section_incharge_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_login/login_page_route_builder.dart';
+import 'package:ansarlogistics/common_features/feature_scan_barcode/new_scan_page_route_builder.dart';
+import 'package:ansarlogistics/common_features/feature_signup/signup_page_routebuilder.dart';
 import 'package:ansarlogistics/common_features/feature_splash/splash_route_builder.dart';
 import 'package:ansarlogistics/navigations/navigation.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -20,6 +33,118 @@ class AppRoutesFactory extends RoutesFactory {
   Route createLoginPageRoute() {
     // TODO: implement createLoginPageRoute
     return CustomRoute(builder: LoginPageRouteBuilder(_serviceLocator));
+  }
+
+  @override
+  Route createPickerDashboardPageRoute() {
+    // TODO: implement createPickerDashboardPageRoute
+    return CustomRoute(
+      builder: PickerDashboardPageRouteBuilder(_serviceLocator),
+    );
+  }
+
+  @override
+  Route createHomeSectionInchargePageRoute() {
+    // TODO: implement createHomeSectionInchargePageRoute
+    return CustomRoute(
+      builder: HomeSectionInchargeRootBuilder(_serviceLocator),
+    );
+  }
+
+  @override
+  Route createPickerOrderDetailsPageRoute(Map<String, dynamic> data) {
+    // TODO: implement createPickerOrderDetailsPageRoute
+    return CustomRoute(
+      builder: PickerOrderDetailsPageRouteBuilder(_serviceLocator, data),
+    );
+  }
+
+  @override
+  Route createOrderItemDetailsPageRoute(Map<String, dynamic> data) {
+    // TODO: implement createOrderItemDetailsPageRoute
+    return CustomRoute(
+      builder: OrderItemInnerRouteBuilder(
+        serviceLocator: _serviceLocator,
+        data: data,
+      ),
+    );
+  }
+
+  @override
+  Route createOrderItemReplacementPageRoute(Map<String, dynamic> data) {
+    // TODO: implement createOrderItemReplacementPageRoute
+    return CustomRoute(
+      builder: ItemReplacementPageRouteBuilder(_serviceLocator, data),
+    );
+  }
+
+  @override
+  Route createOrderItemAddPageRoute(Map<String, dynamic> data) {
+    // TODO: implement createOrderItemAddPageRoute
+    return CustomRoute(
+      builder: ItemAddPageRouteBuilder(
+        serviceLocator: _serviceLocator,
+        data: data,
+      ),
+    );
+  }
+
+  @override
+  Route createDriverDashboardPageRoute() {
+    // TODO: implement createDriverDashboardPageRoute
+    return CustomRoute(
+      builder: DriverDashboardPageRouteBuilder(_serviceLocator),
+    );
+  }
+
+  @override
+  Route createDriverOrderInnerPageRoute(Map<String, dynamic> data) {
+    // TODO: implement createDriverOrderInnerPageRoute
+    return CustomRoute(
+      builder: DriverOrderInnerPageRouteBuilder(_serviceLocator, data),
+    );
+  }
+
+  @override
+  Route createDeliveryUpdatePageRoute(Map<String, dynamic> data) {
+    // TODO: implement createDeliveryUpdatePageRoute
+    return CustomRoute(
+      builder: DeliveryUpdatePageRouteBuilder(_serviceLocator, data),
+    );
+  }
+
+  @override
+  Route createDocumentUploadPageRoute(Map<String, dynamic> data) {
+    // TODO: implement createDocumentUploadPageRoute
+    return CustomRoute(
+      builder: DocumentUploadPageRouteBuilder(_serviceLocator, data),
+    );
+  }
+
+  @override
+  Route createViewOrderRoutePageRoute(Map<String, dynamic> data) {
+    // TODO: implement createViewOrderRoutePageRoute
+    return CustomRoute(builder: OrderRoutesRouteBuilder(_serviceLocator, data));
+  }
+
+  @override
+  Route createHomeSectionPageRoute(Map<String, dynamic> dara) {
+    // TODO: implement createHomeSectionPageRoute
+    return CustomRoute(
+      builder: HomeSectionInchargeRootBuilder(_serviceLocator),
+    );
+  }
+
+  @override
+  Route createSignupPageRoute(Map<String, dynamic> data) {
+    // TODO: implement createSignupPageRoute
+    return CustomRoute(builder: SignupPageRouteBuilder(_serviceLocator, data));
+  }
+
+  @override
+  Route createNewScanBarcodePageRoute(Map<String, dynamic> data) {
+    // TODO: implement createNewScanBarcodePageRoute
+    return CustomRoute(builder: NewScanPageRouteBuilder(_serviceLocator, data));
   }
 }
 

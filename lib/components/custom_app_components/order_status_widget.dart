@@ -21,7 +21,8 @@ class OrderStatusWidget extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          getTranslate(context, getStatus(status)),
+          // getTranslate(context, getStatus(status)),
+          getStatus(status),
           style: customTextStyle(
             fontStyle: FontStyle.BodyM_SemiBold,
             color: FontColor.White,

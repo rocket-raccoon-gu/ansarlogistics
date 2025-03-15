@@ -21,9 +21,10 @@ class NavigationCubit extends Cubit<NavigationState> {
   updateWatchList(int index, {Map<String, dynamic>? args}) {
     adcontroller.add(NavIndex(prevIndex: preIndex, currIndex: index));
 
-    emit(WatchlistIndexState(index: index, args: args!));
+    emit(WatchlistIndexState(index: index, args: args ?? {}));
 
-    // preIndex = index;
+    adcontroller.add(NavIndex(prevIndex: preIndex, currIndex: index));
+    preIndex = index;
   }
 
   // updatestream() {

@@ -131,13 +131,13 @@ Color getOrderWidgetColor(String status) {
   }
 }
 
-getTranslate(BuildContext context, String key) {
-  if (arabicRegex.hasMatch(key.toString())) {
-    getTranslateWord(key);
-  } else {
-    return AppLocalizations.of(context)!.translate(key);
-  }
-}
+// getTranslate(BuildContext context, String key) {
+//   if (arabicRegex.hasMatch(key.toString())) {
+//     getTranslateWord(key);
+//   } else {
+//     return AppLocalizations.of(context)!.translate(key);
+//   }
+// }
 
 Future<String?> getTranslateto(String keyword) async {
   try {
@@ -212,14 +212,19 @@ Color getTypeColor(String type) {
 // Reference to the specific Firestore document
 final DocumentReference documentReference = FirebaseFirestore.instance
     .collection('base_path')
-    .doc('7F32CBHMHACadSeNRWsY');
+    .doc('KpgYoreZWgsAgwkPll1C');
 
 // Function to fetch data from the Firestore document
 Future<Map<String, dynamic>> getData() async {
-  DocumentSnapshot snapshot = await documentReference.get();
-  if (snapshot.exists) {
-    return snapshot.data() as Map<String, dynamic>;
-  } else {
+  try {
+    DocumentSnapshot snapshot = await documentReference.get();
+    if (snapshot.exists) {
+      return snapshot.data() as Map<String, dynamic>;
+    } else {
+      throw Exception('Document does not exist');
+    }
+  } catch (e) {
+    log(e.toString());
     throw Exception('Document does not exist');
   }
 }

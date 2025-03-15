@@ -126,7 +126,8 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
                       Row(
                         children: [
                           Text(
-                            "${getTranslate(context, "Date")} ",
+                            // "${getTranslate(context, "Date")} ",
+                            "Date",
                             style: customTextStyle(
                               fontStyle: FontStyle.Inter_Light,
                             ),
@@ -216,7 +217,8 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
                                   child: RichText(
                                     text: TextSpan(
                                       text:
-                                          '${getTranslate(context, "Comment")} : ',
+                                          // '${getTranslate(context, "Comment")} : ',
+                                          "Comment : ",
                                       style: customTextStyle(
                                         fontStyle: FontStyle.Inter_Light,
                                       ),

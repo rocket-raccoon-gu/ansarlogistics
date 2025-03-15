@@ -6,21 +6,39 @@ import 'package:ansarlogistics/components/restart_widget.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/custom_theme.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 //################## DEVELOPMENT ###########################
+// const baseUrl = String.fromEnvironment(
+//   'BASE_URL',
+//   defaultValue: "https://admin-qatar.testuatah.com",
+// );
+// const applicationPath = String.fromEnvironment(
+//   'APPLICATION_PATH',
+//   defaultValue: "/custom-api/api/qatar/",
+// );
+//################## DEVELOPMENT NEW ###########################
+
 const baseUrl = String.fromEnvironment(
   'BASE_URL',
-  defaultValue: "https://admin-qatar.testuatah.com",
+  defaultValue: "https://pickerdriver.testuatah.com",
 );
+
+const productUrl = String.fromEnvironment(
+  'PRODUCT_URL',
+  defaultValue: "https://www.ansargallery.com/rest/V1/",
+);
+
 const applicationPath = String.fromEnvironment(
   'APPLICATION_PATH',
-  defaultValue: "/custom-api/api/qatar/",
+  defaultValue: "/v1/api/qatar/",
 );
-//################## DEVELOPMENT ###########################
+
+// ################## DEVELOPMENT NEW ###########################
 
 const environment = String.fromEnvironment('FLAVOR', defaultValue: 'staging');
 const debuggable = bool.fromEnvironment('DEBUGGABLE', defaultValue: true);
@@ -33,7 +51,9 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
-      await initializeFirebase(); // Initialize Firebase
+      if (Firebase.apps.isEmpty) {
+        await initializeFirebase(); // Initialize Firebase
+      }
 
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,

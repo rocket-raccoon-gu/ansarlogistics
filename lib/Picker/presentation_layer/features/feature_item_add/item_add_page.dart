@@ -224,6 +224,29 @@ class _ItemAddPageState extends State<ItemAddPage> {
                     //         .updatedata(code, producebarcode);
                     //   }
                     // }
+                    controller: MobileScannerController(
+                      detectionSpeed: DetectionSpeed.normal,
+                      returnImage: true,
+                      facing: CameraFacing.back,
+                    ),
+                    onDetect: (barcode) {
+                      final List<Barcode> barcodes = barcode.barcodes;
+                      final Uint8List? image = barcode.image;
+
+                      for (final barcode in barcodes) {
+                        print(barcode.rawValue ?? "No Data found in QR");
+
+                        if (barcode.rawValue == null) {
+                          debugPrint('Failed to scan Barcode');
+                        } else {
+                          final String code = barcode.rawValue!;
+                          debugPrint('Barcode found! $code');
+                          BlocProvider.of<ItemAddPageCubit>(
+                            context,
+                          ).updatedata(code, producebarcode);
+                        }
+                      }
+                    },
                   ),
                 )
               else if (state is ItemAddPageInitialState &&

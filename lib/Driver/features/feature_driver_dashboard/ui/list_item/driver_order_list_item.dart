@@ -128,7 +128,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                       Row(
                         children: [
                           Text(
-                            "${getTranslate(context, "Date")} ",
+                            // "${getTranslate(context, "Date")} ",
+                            "Date",
                             style: customTextStyle(
                               fontStyle: FontStyle.Inter_Light,
                             ),

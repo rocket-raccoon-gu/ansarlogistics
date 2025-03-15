@@ -9,7 +9,7 @@ class CustomSearchField extends StatefulWidget {
   final String hintText;
   bool focus;
   TextEditingController controller;
-  TextInputType? keyboardType;
+  TextInputType keyboardType;
   final GlobalKey<FormFieldState<String>> searchFormKey;
   final void Function() onFilter;
   CustomSearchField({
@@ -77,7 +77,8 @@ class _CustomSearchFieldState extends State<CustomSearchField> {
                   ],
                   controller: widget.controller,
                   decoration: InputDecoration(
-                    hintText: getTranslate(context, widget.hintText),
+                    // hintText: getTranslate(context, widget.hintText),
+                    hintText: widget.hintText,
                     hintStyle: customTextStyle(
                       fontStyle: FontStyle.BodyL_Regular,
                       color: FontColor.FontTertiary,

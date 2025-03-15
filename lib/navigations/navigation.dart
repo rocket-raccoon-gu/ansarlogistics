@@ -1,3 +1,4 @@
+import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:flutter/material.dart';
 
 part 'routes_arguments.dart';

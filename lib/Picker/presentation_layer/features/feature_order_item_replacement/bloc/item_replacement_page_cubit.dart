@@ -309,7 +309,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
         if (item.containsKey('message')) {
           print("not ok");
-          Navigator.pop(context);
+          // Navigator.pop(context);
           showSnackBar(
             context: context,
             snackBar: showErrorDialogue(errorMessage: item['message']),

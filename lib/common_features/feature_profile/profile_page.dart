@@ -1,4 +1,5 @@
 import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
+import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_profile/bloc/profile_page_cubit.dart';
 import 'package:ansarlogistics/common_features/feature_profile/bloc/profile_page_state.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
@@ -165,8 +166,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               if (index == 3) {
                                 Map<String, dynamic> data = {"selected": 0};
 
-                                // context.gNavigationService
-                                //     .openNewScannerPage2(context, data);
+                                context.gNavigationService.openNewScannerPage2(
+                                  context,
+                                  data,
+                                );
                                 // } else if (index == 4) {
                                 //   context.gNavigationService
                                 //       .openReplacementMarkIFAtemsPage(context, {});

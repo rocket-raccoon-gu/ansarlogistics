@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:ansarlogistics/services/authentication_service.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:picker_driver_api/picker_driver_api.dart';
 import 'package:picker_driver_api/requests/update_section_request.dart';
 import 'package:picker_driver_api/responses/login_response.dart';
@@ -484,6 +485,98 @@ class PDApiGateway implements AuthenticationService {
     } catch (e) {
       serviceSendError("get Last Data Request Error");
       rethrow;
+    }
+  }
+
+  @override
+  Future generalProductServiceGet({
+    required String endpoint,
+    required String token11,
+  }) async {
+    try {
+      // String? token11 = await PreferenceUtils.getDataFromShared("usertoken");
+
+      final responce = await pickerDriverApi
+          .generalProductService(endpoint: endpoint, token: token11)
+          .catchError((e) {
+            // networkStreamController.sink.add(e.toString());
+            // throw e;
+          });
+      return responce;
+    } catch (e) {
+      serviceSendError("customer request Failed");
+      return "";
+    }
+    // return await tradingApi
+    //     .generalProductService(
+    //         endpoint: endpoint, token: UserController().usertoken)
+    //     .catchError((e) {
+    //   networkStreamController.sink.add(e.toString());
+    //   throw e;
+    // });
+  }
+
+  @override
+  Future getProductServiceGet({
+    required String endpoint,
+    required String token11,
+  }) async {
+    try {
+      // String? token11 = await PreferenceUtils.getDataFromShared("usertoken");
+
+      final responce = await pickerDriverApi
+          .getProductService(endpoint: endpoint, token: token11)
+          .catchError((e) {
+            // networkStreamController.sink.add(e.toString());
+            // throw e;
+          });
+      return responce;
+    } catch (e) {
+      serviceSendError("product request Failed");
+      return "";
+    }
+    // return await tradingApi
+    //     .generalProductService(
+    //         endpoint: endpoint, token: UserController().usertoken)
+    //     .catchError((e) {
+    //   networkStreamController.sink.add(e.toString());
+    //   throw e;
+    // });
+  }
+
+  Future checkbarcodeavailablity({required String sku}) async {
+    try {
+      final response = await pickerDriverApi
+          .checkavailabilitybarcode(sku: sku)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("Product Barcode Check Error..!");
+
+      return "Retry";
+    }
+  }
+
+  Future addtoProductList({
+    required List<Map<String, dynamic>> dynamiclist,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .addtoproductlist(dynamiclist: dynamiclist)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      // print(dynamiclist);
+      return response;
+    } catch (e) {
+      serviceSendError("Product Add To List API Error");
+
+      return "Retry";
     }
   }
 }
