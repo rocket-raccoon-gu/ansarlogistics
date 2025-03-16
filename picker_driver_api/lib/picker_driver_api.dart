@@ -628,7 +628,11 @@ extension PDGeneralApi on PickerDriverApi {
     required String latitude,
     required String longitude,
   }) async {
-    final url = _endpointWithApplicationPath('pd_driverstatus.php');
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/pd_driverstatus.php',
+    );
+
+    log(url.toString());
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
@@ -944,6 +948,36 @@ extension PDGeneralApi on PickerDriverApi {
           () => _client.post(url, body: jsonEncode(body), headers: headers),
       onResponse: (response) {
         log(DateTime.now().toString());
+        return response;
+      },
+    );
+  }
+
+  Future<http.Response> updateBarcodeLog({
+    required orderid,
+    required String sku,
+    required String scanned_sku,
+    required String user_id,
+  }) async {
+    final url = _endpointWithApplicationPath('/updateBarcode_log.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    final Map<String, dynamic> body = {
+      "parent_id": orderid,
+      "order_barcode": sku,
+      "scanned_barcode": scanned_sku,
+      "picker_id": user_id,
+    };
+
+    serviceSend("Update Barcode Log..!");
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
         return response;
       },
     );

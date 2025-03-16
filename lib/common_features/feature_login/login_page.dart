@@ -150,11 +150,11 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 80),
+                            padding: const EdgeInsets.only(top: 70),
                             child: SizedBox(
-                              height: 100,
+                              height: 150,
                               width: 250,
-                              child: Image.asset("assets/app_logo.png"),
+                              child: Image.asset("assets/ansar-logistics.png"),
                             ),
                           ),
                           if (UserController().userName != "")
@@ -165,12 +165,12 @@ class _LoginPageState extends State<LoginPage> {
                           Form(
                             key: idFormKey,
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
+                              padding: const EdgeInsets.only(top: 5.0),
                               child: Column(
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.only(
-                                      top: 40.0,
+                                      top: 10.0,
                                       left: 16.0,
                                       right: 16.0,
                                     ),
@@ -197,10 +197,10 @@ class _LoginPageState extends State<LoginPage> {
                                           customColors().backgroundTertiary,
                                       inputFormatter: [
                                         LengthLimitingTextInputFormatter(15),
-                                        UpperCaseFormatter(),
-                                        FilteringTextInputFormatter.allow(
-                                          RegExp("[0-9a-zA-Z]"),
-                                        ),
+                                        // UpperCaseFormatter(),
+                                        // FilteringTextInputFormatter.allow(
+                                        //   RegExp("[0-9a-zA-Z]"),
+                                        // ),
                                       ],
                                       onFieldSubmit: (value) async {
                                         // if (idFormKey
@@ -421,9 +421,9 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 100,
+                    height: 150,
                     width: 250,
-                    child: Image.asset("assets/app_logo.png"),
+                    child: Image.asset("assets/ansar-logistics.png"),
                   ),
                   const SizedBox(height: 12.0),
                   const SizedBox(

@@ -29,6 +29,8 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   getUserCode() async {
+    await Future.delayed(Duration(seconds: 5));
+
     if (UserController().userName.isEmpty ||
         UserSettings().userPersonalSettings.username == null) {
       if (await PreferenceUtils.preferenceHasKey("userCode")) {
@@ -115,6 +117,11 @@ class LoginCubit extends Cubit<LoginState> {
           await PreferenceUtils.storeDataToShared(
             "usertoken",
             loginResponse.token,
+          );
+
+          await PreferenceUtils.storeDataToShared(
+            "userid",
+            loginResponse.profile.id,
           );
 
           updateUserController(

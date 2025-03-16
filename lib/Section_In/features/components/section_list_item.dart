@@ -1,4 +1,5 @@
 import 'package:ansarlogistics/Section_In/features/components/custom_toggle_button.dart';
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -71,11 +72,12 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10.0),
+
                             child:
                                 widget.sectionitem.imageUrl.isNotEmpty
                                     ? CachedNetworkImage(
                                       imageUrl:
-                                          "https://media-qatar.ahmarket.com/media/catalog/product/cache/2b71e5a2b5266e17ec3596451a32baea/${widget.sectionitem.imageUrl}",
+                                          "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
                                       imageBuilder: (context, imageProvider) {
                                         return Container(
                                           decoration: BoxDecoration(
@@ -326,4 +328,9 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
   //     },
   //   );
   // }
+}
+
+String getImageUrlEdited(String base) {
+  String newPath = base.replaceFirst("/catalog/product/", "");
+  return newPath;
 }

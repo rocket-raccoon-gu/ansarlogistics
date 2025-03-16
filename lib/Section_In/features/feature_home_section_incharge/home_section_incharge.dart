@@ -238,14 +238,17 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
                               Expanded(
                                 child: RefreshIndicator(
                                   onRefresh: () async {
-                                    // if (selectedcat != -1) {
-                                    //   BlocProvider.of<HomeSectionInchargeCubit>(context)
-                                    //       .updateloadProducts(
-                                    //           maplist[selectedcat]['id']);
-                                    // } else {
-                                    //   BlocProvider.of<HomeSectionInchargeCubit>(context)
-                                    //       .loadProducts();
-                                    // }
+                                    if (selectedcat != -1) {
+                                      BlocProvider.of<HomeSectionInchargeCubit>(
+                                        context,
+                                      ).updateloadProducts(
+                                        maplist[selectedcat]['id'],
+                                      );
+                                    } else {
+                                      BlocProvider.of<HomeSectionInchargeCubit>(
+                                        context,
+                                      ).loadProducts();
+                                    }
                                   },
                                   child: Container(
                                     color: customColors().backgroundPrimary,

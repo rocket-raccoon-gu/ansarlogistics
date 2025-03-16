@@ -75,27 +75,43 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
     WidgetsBinding.instance.addObserver(this);
   }
 
+  bool isRequestingPermission = false; // Prevent multiple requests
+
   getusercheck() async {
+    if (isRequestingPermission)
+      return; // Stop if a request is already in progress
+    isRequestingPermission = true;
+
     FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-    NotificationSettings settings = await firebaseMessaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
+    // Check current permission status before requesting
+    NotificationSettings settings =
+        await firebaseMessaging.getNotificationSettings();
 
+    if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+      // Only request permission if not yet determined
+      settings = await firebaseMessaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+    }
+
+    // Handle different authorization statuses
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print("user permission granted");
+      print("User permission granted");
     } else if (settings.authorizationStatus ==
         AuthorizationStatus.provisional) {
-      print("user granted provisional permission");
+      print("User granted provisional permission");
     } else {
-      print("user permission not granted");
+      print("User permission not granted");
     }
+
+    isRequestingPermission = false;
   }
 
   void onMessageRecieved(String title) async {

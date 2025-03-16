@@ -444,18 +444,14 @@ class _ItemAddPageState extends State<ItemAddPage> {
                               vertical: 12.0,
                               horizontal: 14.0,
                             ),
-                            child: CounterContainer(
+                            child: CounterDropdown(
                               initNumber: 1,
                               counterCallback: (v) {
                                 setState(() {
                                   editquantity = v;
                                 });
                               },
-                              increaseCallback: () {},
-                              decreaseCallback: () {
-                                print("mm");
-                                // stateSetter(() => op = true);
-                              },
+                              maxNumber: 100,
                               minNumber: 0,
                             ),
                           ),
@@ -658,18 +654,14 @@ class _ItemAddPageState extends State<ItemAddPage> {
                               vertical: 12.0,
                               horizontal: 14.0,
                             ),
-                            child: CounterContainer(
+                            child: CounterDropdown(
                               initNumber: 1,
                               counterCallback: (v) {
                                 setState(() {
                                   editquantity = v;
                                 });
                               },
-                              increaseCallback: () {},
-                              decreaseCallback: () {
-                                print("mm");
-                                // stateSetter(() => op = true);
-                              },
+                              maxNumber: 100,
                               minNumber: 0,
                             ),
                           ),

@@ -120,6 +120,13 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
     }
   }
 
+  Future<void> requestPermission() async {
+    var status = await Permission.location.request();
+    if (status.isDenied || status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
   updateseekorder() async {
     try {
       final service = FlutterBackgroundService();
@@ -221,6 +228,9 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
             } catch (e) {
               log("Error getting location: $e");
             }
+          } else {
+            requestPermission();
+            emit(DriverPageLoadedState([]));
           }
         });
       } else {

@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 class PDApp extends StatefulWidget {
   final String initialRoute;
@@ -109,19 +110,21 @@ class _PDAppState extends State<PDApp> {
       child: AppTheme(
         child: BlocProvider(
           create: (context) => NavigationCubit(),
-          child: MaterialApp(
-            navigatorKey: _navigatorKey,
-            initialRoute: widget.initialRoute,
-            onGenerateRoute: onGenerateAppRoute(
-              AppRoutesFactory(widget.serviceLocator),
+          child: ToastificationWrapper(
+            child: MaterialApp(
+              navigatorKey: _navigatorKey,
+              initialRoute: widget.initialRoute,
+              onGenerateRoute: onGenerateAppRoute(
+                AppRoutesFactory(widget.serviceLocator),
+              ),
+              debugShowCheckedModeBanner: kDebugMode,
+              supportedLocales: const [Locale('en', 'US'), Locale('ar', 'AE')],
+              themeMode:
+                  CustomTheme.modelTheme == CustomMode.Light
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+              theme: Provider.of<CustomTheme>(context).currentTheme,
             ),
-            debugShowCheckedModeBanner: kDebugMode,
-            supportedLocales: const [Locale('en', 'US'), Locale('ar', 'AE')],
-            themeMode:
-                CustomTheme.modelTheme == CustomMode.Light
-                    ? ThemeMode.light
-                    : ThemeMode.dark,
-            theme: Provider.of<CustomTheme>(context).currentTheme,
           ),
         ),
       ),

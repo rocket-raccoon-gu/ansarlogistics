@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -35,6 +37,23 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     orderResponseItem = data['order'];
     if (!isClosed) {
       emit(OrderItemDetailInitialState(orderItem: orderItem!));
+    }
+  }
+
+  updateBarcodeLog(String sku, String scannedsku) async {
+    try {
+      final response = await serviceLocator.tradingApi.updateBarcodeLog(
+        orderid: orderResponseItem!.subgroupIdentifier,
+        sku: sku,
+        scanned_sku: scannedsku,
+        user_id: UserController().profile.id,
+      );
+
+      if (response.statusCode == 200) {
+        log("Barcode Log Data Updated");
+      }
+    } catch (e) {
+      log("Barcode Log Update Failed ${e.toString()}");
     }
   }
 

@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 //################## DEVELOPMENT ###########################
@@ -89,12 +90,14 @@ Future<void> main() async {
 
       // Run the app
       runApp(
-        RestartWidget(
-          child: ChangeNotifierProvider<CustomTheme>(
-            create:
-                (BuildContext context) =>
-                    CustomTheme(themeMode: CustomMode.Light),
-            child: PDApp(serviceLocator: locator, initialRoute: initialRoute),
+        OverlaySupport.global(
+          child: RestartWidget(
+            child: ChangeNotifierProvider<CustomTheme>(
+              create:
+                  (BuildContext context) =>
+                      CustomTheme(themeMode: CustomMode.Light),
+              child: PDApp(serviceLocator: locator, initialRoute: initialRoute),
+            ),
           ),
         ),
       );

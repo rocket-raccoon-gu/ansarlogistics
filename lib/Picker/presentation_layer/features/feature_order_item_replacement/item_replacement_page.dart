@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/dynamic_grid.dart';
@@ -10,12 +12,14 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 
 class ItemReplacementPage extends StatefulWidget {
@@ -47,16 +51,85 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
   bool istextbarcode = false;
 
-  Future<void> scanBarcodeNormal(String barcodeScanRes) async {
-    await BlocProvider.of<ItemReplacementPageCubit>(
-      context,
-    ).getScannedProductData(barcodeScanRes, producebarcode);
+  Future<void> requestCameraPermission() async {
+    var status = await Permission.camera.request();
+    if (status.isDenied || status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
 
-    if (mounted) {
+  Future<void> scanBarcodeNormal() async {
+    String? barcodeScanRes;
+
+    ScanResult scanResult;
+
+    try {
+      await requestCameraPermission();
+
+      scanResult = await BarcodeScanner.scan();
       setState(() {
-        isScanner = false;
-        istextbarcode = false;
+        barcodeScanRes = scanResult.rawContent;
       });
+
+      log(barcodeScanRes!);
+
+      if (producebarcode) {
+        // produce barcode
+
+        // Replace last 7 digits with '0'
+        String modifiedBarcode =
+            barcodeScanRes!.substring(0, barcodeScanRes!.length - 7) +
+            '0000000';
+
+        await BlocProvider.of<ItemReplacementPageCubit>(
+          context,
+        ).getScannedProductData(modifiedBarcode, producebarcode);
+
+        if (mounted) {
+          setState(() {
+            isScanner = false;
+            istextbarcode = false;
+          });
+        }
+      } else {
+        log(barcodeScanRes.toString());
+
+        log("scanned barcode.............");
+
+        if (barcodeScanRes.toString().startsWith(']C1')) {
+          log('contains c1');
+          barcodeScanRes = barcodeScanRes.toString().replaceAll(']C1', '');
+        } else if (barcodeScanRes.toString().startsWith('C1')) {
+          barcodeScanRes = barcodeScanRes.toString().replaceAll('C1', '');
+        }
+
+        await BlocProvider.of<ItemReplacementPageCubit>(
+          context,
+        ).getScannedProductData(barcodeScanRes!, producebarcode);
+
+        if (mounted) {
+          setState(() {
+            isScanner = false;
+            istextbarcode = false;
+          });
+        }
+      }
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
+        setState(() {
+          barcodeScanRes = 'Camera permission was denied';
+        });
+      } else {
+        setState(() {
+          barcodeScanRes = 'Unknown error: $e';
+        });
+      }
+    } on FormatException {
+      setState(() {
+        barcodeScanRes = 'Nothing captured.';
+      });
+    } catch (e) {
+      log(e.toString(), stackTrace: StackTrace.current);
     }
   }
 
@@ -73,46 +146,41 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
       body: Builder(
         builder: (context) {
           if (isScanner) {
+            return Container();
             // return MobileScanner(
-            //     allowDuplicates: false,
-            //     controller: MobileScannerController(facing: CameraFacing.back),
-            //     onDetect: (barcode, args) {
-            //
-            //     });
-            return MobileScanner(
-              //  if (barcodes.raw == null) {
+            //   //  if (barcodes.raw == null) {
 
-              //   }
-              controller: MobileScannerController(
-                detectionSpeed: DetectionSpeed.normal,
-                returnImage: true,
-                facing: CameraFacing.back,
-              ),
-              onDetect: (barcode) {
-                final List<Barcode> barcodes = barcode.barcodes;
-                final Uint8List? image = barcode.image;
+            //   //   }
+            //   controller: MobileScannerController(
+            //     detectionSpeed: DetectionSpeed.normal,
+            //     returnImage: true,
+            //     facing: CameraFacing.back,
+            //   ),
+            //   onDetect: (barcode) {
+            //     final List<Barcode> barcodes = barcode.barcodes;
+            //     final Uint8List? image = barcode.image;
 
-                for (final barcode in barcodes) {
-                  print(barcode.rawValue ?? "No Data found in QR");
+            //     for (final barcode in barcodes) {
+            //       print(barcode.rawValue ?? "No Data found in QR");
 
-                  if (barcode.rawValue == null) {
-                    showSnackBar(
-                      context: context,
-                      snackBar: showErrorDialogue(
-                        errorMessage: "Please Scan accurate...!",
-                      ),
-                    );
-                  } else {
-                    final String code = barcode.rawValue!;
-                    showSnackBar(
-                      context: context,
-                      snackBar: showSuccessDialogue(message: code),
-                    );
-                    scanBarcodeNormal(code);
-                  }
-                }
-              },
-            );
+            //       if (barcode.rawValue == null) {
+            //         showSnackBar(
+            //           context: context,
+            //           snackBar: showErrorDialogue(
+            //             errorMessage: "Please Scan accurate...!",
+            //           ),
+            //         );
+            //       } else {
+            //         final String code = barcode.rawValue!;
+            //         showSnackBar(
+            //           context: context,
+            //           snackBar: showSuccessDialogue(message: code),
+            //         );
+            //         scanBarcodeNormal(code);
+            //       }
+            //     }
+            //   },
+            // );
           } else if (istextbarcode) {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -142,7 +210,13 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                           onpress: () async {
                             // context.read<ItemAddPageCubit>().updatedata(
                             //     barcodeController.text, producebarcode);
-                            scanBarcodeNormal(barcodeController.text);
+                            // scanBarcodeNormal(barcodeController.text);
+                            await BlocProvider.of<ItemReplacementPageCubit>(
+                              context,
+                            ).getScannedProductData(
+                              barcodeController.text,
+                              producebarcode,
+                            );
                           },
                           bgcolor: customColors().dodgerBlue,
                           text: "Enter",
@@ -673,18 +747,14 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                                             vertical: 12.0,
                                                             horizontal: 14.0,
                                                           ),
-                                                      child: CounterContainer(
+                                                      child: CounterDropdown(
                                                         initNumber: 1,
                                                         counterCallback: (v) {
                                                           setState(() {
                                                             // editquantity = v;
                                                           });
                                                         },
-                                                        increaseCallback: () {},
-                                                        decreaseCallback: () {
-                                                          print("mm");
-                                                          // stateSetter(() => op = true);
-                                                        },
+                                                        maxNumber: 100,
                                                         minNumber: 0,
                                                       ),
                                                     ),
@@ -1650,11 +1720,11 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                       ),
                                       child: BasketButtonwithIcon(
                                         onpress: () {
-                                          // scanBarcodeNormal();
+                                          scanBarcodeNormal();
 
-                                          setState(() {
-                                            isScanner = true;
-                                          });
+                                          // setState(() {
+                                          //   isScanner = true;
+                                          // });
                                         },
                                         image: "assets/noun_scan.png",
                                         text: "Scan Item",

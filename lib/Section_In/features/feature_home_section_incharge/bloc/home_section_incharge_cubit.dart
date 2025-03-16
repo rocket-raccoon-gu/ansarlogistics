@@ -101,7 +101,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
         map = jsonDecode(response);
 
-        if (map["items"].isNotEmpty) {
+        if (map["data"].isNotEmpty) {
           SectionItemResponse sectionItemResponse =
               await SectionItemResponse.fromJson(map);
 
