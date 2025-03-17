@@ -45,6 +45,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
             preferredSize: const Size.fromHeight(0.0),
             child: AppBar(elevation: 0, backgroundColor: HexColor('#F9FBFF')),
           ),
+          backgroundColor: customColors().backgroundPrimary,
           body: Stack(
             children: [
               Column(

@@ -1,3 +1,4 @@
+import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,6 @@ class ProductsPage extends StatefulWidget {
 class _ProductsPageState extends State<ProductsPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(backgroundColor: customColors().backgroundPrimary);
   }
 }

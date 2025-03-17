@@ -527,6 +527,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
           backgroundColor: Color.fromRGBO(183, 214, 53, 1),
         ),
       ),
+      backgroundColor: customColors().backgroundPrimary,
       body:
       // !isScanner
       //     ?
@@ -1536,11 +1537,11 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
       ),
 
       bottomNavigationBar:
+          // BlocProvider.of<OrderItemDetailsCubit>(
+          //               context,
+          //             ).orderItem!.itemStatus ==
+          //             "end_picking" ||
           BlocProvider.of<OrderItemDetailsCubit>(
-                        context,
-                      ).orderItem!.itemStatus ==
-                      "end_picking" ||
-                  BlocProvider.of<OrderItemDetailsCubit>(
                         context,
                       ).orderItem!.itemStatus ==
                       "item_not_available" ||
@@ -1550,10 +1551,11 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                       "canceled" ||
                   UserController.userController.itemnotavailablelist.contains(
                     BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
-                  ) ||
-                  UserController.userController.indexlist.contains(
-                    BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
                   )
+              // ||
+              // UserController.userController.indexlist.contains(
+              //   BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
+              // )
               ? SizedBox()
               : SizedBox(
                 height: screenSize.height * 0.095,

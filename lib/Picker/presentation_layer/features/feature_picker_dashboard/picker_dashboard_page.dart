@@ -162,6 +162,7 @@ class _PickerDashboardPageState extends State<PickerDashboardPage> {
             backgroundColor: customColors().backgroundPrimary,
           ),
         ),
+        backgroundColor: customColors().backgroundPrimary,
         bottomNavigationBar: CustomBottomNavigationBarPicker(
           selectedIndex: selectedIndex,
           context: context,

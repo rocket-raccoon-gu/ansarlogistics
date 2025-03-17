@@ -37,12 +37,12 @@ class ServiceLocator implements CubitsLocator {
             ? PickerDriverApi.debuggable(
               baseUrl: _baseUrl,
               applicationPath: _applicationPath,
-              productUrl: '',
+              productUrl: 'https://www.ansargallery.com/en/rest/V1/',
             )
             : PickerDriverApi.create(
               baseUrl: _baseUrl,
               applicationPath: _applicationPath,
-              productUrl: '',
+              productUrl: 'https://www.ansargallery.com/en/rest/V1/',
             ),
         StreamController<String>.broadcast(),
       ),

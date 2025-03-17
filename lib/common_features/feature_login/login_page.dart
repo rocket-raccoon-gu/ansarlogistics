@@ -122,6 +122,7 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: customColors().backgroundPrimary,
         ),
       ),
+      backgroundColor: customColors().backgroundPrimary,
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<LoginCubit, LoginState>(
         builder: (context, state) {

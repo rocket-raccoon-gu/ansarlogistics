@@ -70,8 +70,9 @@ class _DynamicGridState extends State<DynamicGrid> {
                                   ),
                                 ),
                             errorWidget:
-                                (context, url, error) =>
-                                    Image.asset('assets/placeholder.png'),
+                                (context, url, error) => Image.network(
+                                  'https://media-qatar.ansargallery.com/catalog/product/placeholder/default/thumbnail-placeholder.jpg',
+                                ),
                           ),
                         ),
                       ),
