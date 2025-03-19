@@ -1,11 +1,14 @@
 buildscript {
+    var kotlinVersion = "2.1.0" // Update to Kotlin 1.9.0 or later
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath("com.google.gms:google-services:4.4.2") // Corrected dependency
+        classpath("com.android.tools.build:gradle:8.1.0") // Update to the latest version
+        classpath("com.google.gms:google-services:4.4.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
 
