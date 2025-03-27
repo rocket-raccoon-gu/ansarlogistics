@@ -31,30 +31,56 @@ class LoginCubit extends Cubit<LoginState> {
   getUserCode() async {
     await Future.delayed(Duration(seconds: 5));
 
-    if (UserController().userName.isEmpty ||
-        UserSettings().userPersonalSettings.username == null) {
-      if (await PreferenceUtils.preferenceHasKey("userCode")) {
-        String id =
-            UserController().userName =
-                (await PreferenceUtils.getDataFromShared("userCode")) ?? "";
-        String val = await PreferenceUtils.getDataFromShared("crypto") ?? "";
-        if (val != "" && id != "") {
-          String pass = decryptStringForUser(val, keyVal(id));
-          if (pass != "") {
+    // if (UserController().userName.isEmpty ||
+    //     UserSettings().userPersonalSettings.username == null) {
+    if (await PreferenceUtils.preferenceHasKey("userCode")) {
+      String id =
+          UserController().userName =
+              (await PreferenceUtils.getDataFromShared("userCode")) ?? "";
+      String val = await PreferenceUtils.getDataFromShared("password") ?? "";
+      // if (id != "" && val != "") {
+      //   String pass = decryptStringForUser(val, keyVal(id));
+      //   if (pass != "") {
+      //     if (await sendLoginRequest(
+      //       context: context,
+      //       userId: id,
+      //       password: pass,
+      //     ))
+      //       return;
+      //   } else {
+      //     // showSnackBar(
+      //     //     context: context,
+      //     //     snackBar: showErrorDialogue(errorMessage: "relogin"));
+      //   }
+      // }
+
+      if (id != "" && val != "") {
+        // Validate the encrypted password
+
+        try {
+          // String pass = decryptStringForUser(val, keyVal(id));
+          if (val != "") {
             if (await sendLoginRequest(
               context: context,
               userId: id,
-              password: pass,
-            ))
+              password: val,
+            )) {
               return;
+            }
           } else {
-            // showSnackBar(
-            //     context: context,
-            //     snackBar: showErrorDialogue(errorMessage: "relogin"));
+            // Handle invalid password
+            print("Decrypted password is empty");
           }
+        } catch (e) {
+          // Handle decryption errors
+          print("Decryption failed: $e");
         }
+      } else {
+        // Handle empty or invalid data
+        print("Invalid or empty userCode or password");
       }
     }
+    // }
     if (!isClosed) emit(LoginInitial());
   }
 
@@ -102,17 +128,12 @@ class LoginCubit extends Cubit<LoginState> {
               password: password,
               token: value,
               bearertoken: serverkey,
-              appversion: "",
+              appversion: "2.0.2",
             );
         DateTime responseTime = DateTime.now();
 
         if (loginResponse.success == 1) {
           UserController.userController.profile = loginResponse.profile;
-
-          PreferenceUtils.storeDataToShared(
-            "crypto",
-            encryptStringForUser(password, keyVal(userId)),
-          );
 
           await PreferenceUtils.storeDataToShared(
             "usertoken",
@@ -123,6 +144,11 @@ class LoginCubit extends Cubit<LoginState> {
             "userid",
             loginResponse.profile.id,
           );
+
+          // // Encrypt the password
+          // String encryptedHex = encryptStringForUser(password, key);
+
+          await PreferenceUtils.storeDataToShared("password", password);
 
           updateUserController(
             sessionKey: "",

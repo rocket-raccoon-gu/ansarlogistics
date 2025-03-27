@@ -32,9 +32,72 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
   bool loading = false;
 
+  String colorOptionId = "";
+
+  String carpetOptionId = "";
+
+  String color = "";
+
+  String carpetSizeValue = "";
+
+  Map<String, dynamic>? productoptions = {};
+
+  ColorInfo? colorInfo;
+
+  CarpetSizeInfo? carpetSizeInfo;
+
   updatedata() {
     orderItem = data['item'];
     orderResponseItem = data['order'];
+
+    if (orderItem!.productOptions.isNotEmpty) {
+      productoptions = orderItem!.productOptions;
+    }
+
+    if (productoptions!.isNotEmpty) {
+      final attributesInfo =
+          productoptions!['attributes_info'] as List<dynamic>;
+
+      // 2. Access super_attribute map and get the value using option_id as key
+      final superAttributes =
+          productoptions!["info_buyRequest"]["super_attribute"]
+              as Map<String, dynamic>;
+
+      // Step 2: Find the Color attribute
+      final colorAttribute = attributesInfo.firstWhere(
+        (attr) => attr['label'] == 'Color',
+        orElse: () => null,
+      );
+
+      // Step 3: Extract option_id for Color
+      if (colorAttribute != null) {
+        colorOptionId = colorAttribute['option_value'];
+        log('Color Option ID: $colorOptionId'); // Output: 93
+
+        colorInfo = getColorInfo(colorOptionId);
+      } else {
+        print('Color attribute not found');
+      }
+
+      // 4. Find the Carpet Size attribute
+      final carpetSizeAttribute = attributesInfo.firstWhere(
+        (attr) => attr['label'] == 'Carpet Size',
+        orElse: () => null,
+      );
+
+      if (carpetSizeAttribute != null) {
+        carpetOptionId = carpetSizeAttribute['option_id'].toString();
+
+        log("Carpet Option ID: $carpetOptionId");
+
+        carpetSizeValue = superAttributes["$carpetOptionId"]; // "856"
+
+        log("Carpet Value: $carpetSizeValue");
+
+        carpetSizeInfo = getCarpetSizeInfo(carpetSizeValue);
+      }
+    }
+
     if (!isClosed) {
       emit(OrderItemDetailInitialState(orderItem: orderItem!));
     }

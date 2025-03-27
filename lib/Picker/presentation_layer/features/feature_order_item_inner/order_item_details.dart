@@ -1055,6 +1055,122 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                       ),
                                     ),
 
+                                    context
+                                            .read<OrderItemDetailsCubit>()
+                                            .productoptions!
+                                            .isNotEmpty
+                                        ? Column(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                if (context
+                                                        .read<
+                                                          OrderItemDetailsCubit
+                                                        >()
+                                                        .colorOptionId !=
+                                                    "")
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "Color",
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .BodyL_Bold,
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 8.0,
+                                                            ),
+                                                        child: Column(
+                                                          children: [
+                                                            Container(
+                                                              height: 20,
+                                                              width: 50,
+                                                              decoration: BoxDecoration(
+                                                                color: HexColor(
+                                                                  context
+                                                                      .read<
+                                                                        OrderItemDetailsCubit
+                                                                      >()
+                                                                      .colorInfo!
+                                                                      .colorCode,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              context
+                                                                  .read<
+                                                                    OrderItemDetailsCubit
+                                                                  >()
+                                                                  .colorInfo!
+                                                                  .label,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                else
+                                                  SizedBox(),
+
+                                                if (context
+                                                        .read<
+                                                          OrderItemDetailsCubit
+                                                        >()
+                                                        .carpetOptionId !=
+                                                    "")
+                                                  Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 8.0,
+                                                            ),
+                                                        child: Column(
+                                                          children: [
+                                                            Container(
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        3.0,
+                                                                    vertical:
+                                                                        3.0,
+                                                                  ),
+                                                              decoration: BoxDecoration(
+                                                                border: Border.all(
+                                                                  color:
+                                                                      customColors()
+                                                                          .fontPrimary,
+                                                                ),
+                                                              ),
+                                                              child: Center(
+                                                                child: Text(
+                                                                  context
+                                                                      .read<
+                                                                        OrderItemDetailsCubit
+                                                                      >()
+                                                                      .carpetSizeInfo!
+                                                                      .label,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Text("Size"),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                else
+                                                  SizedBox(),
+                                              ],
+                                            ),
+                                          ],
+                                        )
+                                        : SizedBox(),
+
                                     state.orderItem.itemStatus ==
                                                 "end_picking" ||
                                             state.orderItem.itemStatus ==

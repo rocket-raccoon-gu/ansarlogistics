@@ -51,9 +51,16 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
   }
 
   Future<void> requestCameraPermission() async {
-    var status = await Permission.camera.request();
-    if (status.isDenied || status.isPermanentlyDenied) {
-      openAppSettings();
+    var status = await Permission.camera.status;
+
+    if (status.isGranted) {
+      print("Camera permission already granted.");
+      return; // No need to request again
+    }
+
+    var newStatus = await Permission.camera.request();
+    if (newStatus.isDenied || newStatus.isPermanentlyDenied) {
+      openAppSettings(); // Redirect user to app settings
     }
   }
 

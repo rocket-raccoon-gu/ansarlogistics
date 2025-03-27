@@ -364,7 +364,8 @@ class _DriverReportsPageState extends State<DriverReportsPage> {
                                                                     'assigned_driver',
                                                               )
                                                               .first
-                                                              .orderCount,
+                                                              .orderCount
+                                                              .toString(),
                                                     ),
                                                   ),
                                                   SizedBox(width: 5.0),
@@ -380,7 +381,8 @@ class _DriverReportsPageState extends State<DriverReportsPage> {
                                                                     'on_the_way',
                                                               )
                                                               .first
-                                                              .orderCount,
+                                                              .orderCount
+                                                              .toString(),
                                                     ),
                                                   ),
                                                 ],
@@ -405,7 +407,8 @@ class _DriverReportsPageState extends State<DriverReportsPage> {
                                                                     'complete',
                                                               )
                                                               .first
-                                                              .orderCount,
+                                                              .orderCount
+                                                              .toString(),
                                                     ),
                                                   ),
                                                 ],
