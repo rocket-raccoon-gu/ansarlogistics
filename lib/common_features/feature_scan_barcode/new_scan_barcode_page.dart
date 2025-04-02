@@ -1045,6 +1045,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
           backgroundColor: customColors().backgroundPrimary,
         ),
       ),
+      backgroundColor: customColors().backgroundPrimary,
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

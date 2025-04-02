@@ -1682,7 +1682,7 @@ whatsapp(
   } else {
     String contactsplit = "";
 
-    if (contact.contains('+974')) {
+    if (contact.startsWith('+974') || contact.startsWith('974')) {
       contactsplit = contact;
     } else {
       contactsplit = "+974${contact}";

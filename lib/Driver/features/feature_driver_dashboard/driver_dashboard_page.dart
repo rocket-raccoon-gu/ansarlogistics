@@ -75,17 +75,45 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
         });
   }
 
-  Future<void> requestPermissions() async {
-    await Permission.activityRecognition.request();
-    await Permission.location.request();
-    await Permission.locationWhenInUse.request();
-    await Permission.locationAlways.request();
+  // Future<void> requestPermissions() async {
+  //   await Permission.activityRecognition.request();
+  //   await Permission.location.request();
+  //   await Permission.locationWhenInUse.request();
+  //   await Permission.locationAlways.request();
 
-    // await Permission.microphone.request();
-    await Permission.notification.request();
-    await Permission.phone.request();
-    await Permission.storage.request();
-    await Permission.camera.request();
+  //   // await Permission.microphone.request();
+  //   await Permission.notification.request();
+  //   await Permission.phone.request();
+  //   await Permission.storage.request();
+  //   await Permission.camera.request();
+  // }
+
+  Future<void> requestPermissions() async {
+    try {
+      // Request permissions one by one with proper error handling
+
+      // Location permissions
+      await handlePermission(Permission.location, context);
+      await handlePermission(Permission.locationWhenInUse, context);
+      await handlePermission(Permission.locationAlways, context);
+
+      // Other permissions
+      await handlePermission(Permission.activityRecognition, context);
+      await handlePermission(Permission.notification, context);
+      await handlePermission(Permission.phone, context);
+      await handlePermission(Permission.storage, context);
+      await handlePermission(Permission.camera, context);
+    } catch (e, stackTrace) {
+      log('Permission request error: $e', stackTrace: stackTrace);
+      if (kReleaseMode) {
+        // In production, you might want to silently fail or show a user-friendly message
+      } else {
+        // In debug, show the error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Permission error: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   @override

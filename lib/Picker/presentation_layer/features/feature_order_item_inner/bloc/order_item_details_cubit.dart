@@ -54,7 +54,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       productoptions = orderItem!.productOptions;
     }
 
-    if (productoptions!.isNotEmpty) {
+    if (productoptions!.isNotEmpty &&
+        productoptions!.containsKey('attributes_info')) {
       final attributesInfo =
           productoptions!['attributes_info'] as List<dynamic>;
 

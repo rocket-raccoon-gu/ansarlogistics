@@ -451,7 +451,7 @@ class _LoginPageState extends State<LoginPage> {
                 context: context,
                 inputWidget: OrderWarningBottomSheet(
                   heading: "Login Failed",
-                  errorMsg: state.errorMessage,
+                  errorMsg: "Please Check Your Credentials or Contact Admin",
                 ),
               ).then((value) {
                 focus1.requestFocus();

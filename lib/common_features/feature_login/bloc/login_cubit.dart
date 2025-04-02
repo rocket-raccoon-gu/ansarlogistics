@@ -29,7 +29,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   getUserCode() async {
-    await Future.delayed(Duration(seconds: 5));
+    // await Future.delayed(Duration(seconds: 5));
 
     // if (UserController().userName.isEmpty ||
     //     UserSettings().userPersonalSettings.username == null) {
@@ -70,18 +70,23 @@ class LoginCubit extends Cubit<LoginState> {
           } else {
             // Handle invalid password
             print("Decrypted password is empty");
+            if (!isClosed) emit(LoginInitial());
           }
         } catch (e) {
           // Handle decryption errors
           print("Decryption failed: $e");
+          if (!isClosed) emit(LoginInitial());
         }
       } else {
         // Handle empty or invalid data
         print("Invalid or empty userCode or password");
+        if (!isClosed) emit(LoginInitial());
       }
+    } else {
+      if (!isClosed) emit(LoginInitial());
     }
     // }
-    if (!isClosed) emit(LoginInitial());
+    // if (!isClosed) emit(LoginInitial());
   }
 
   Future<bool> sendLoginRequest({

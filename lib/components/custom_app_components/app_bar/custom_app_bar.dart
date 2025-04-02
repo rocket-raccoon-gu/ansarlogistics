@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -51,18 +52,28 @@ class _CustomAppBarState extends State<CustomAppBar> {
                       ),
                     );
                   },
-                  child: Text(
-                    // "${getTranslate(context, 'Hi')}, ${UserController.userController.profile.name}",
-                    "Hi, ${UserController.userController.profile.name}",
+                  // child: Text(
+                  //   // "${getTranslate(context, 'Hi')}, ${UserController.userController.profile.name}",
+                  //   "Hi, ${UserController.userController.profile.name}",
+                  //   style: customTextStyle(
+                  //     fontStyle: FontStyle.BodyL_SemiBold_lato,
+                  //     color: FontColor.FontPrimary,
+                  //   ),
+                  //   maxLines:
+                  //       2, // Allow the text to be displayed in up to 2 lines
+                  //   softWrap: true, // Enable text wrapping
+                  //   overflow:
+                  //       TextOverflow.ellipsis, // Handle overflow with ellipsis
+                  // ),
+                  child: TranslatedText(
+                    text: "Hi, ${UserController.userController.profile.name}",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_SemiBold_lato,
                       color: FontColor.FontPrimary,
                     ),
-                    maxLines:
-                        2, // Allow the text to be displayed in up to 2 lines
-                    softWrap: true, // Enable text wrapping
-                    overflow:
-                        TextOverflow.ellipsis, // Handle overflow with ellipsis
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),

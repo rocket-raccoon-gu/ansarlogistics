@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as crypto;
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
 
@@ -634,4 +635,90 @@ CarpetSizeInfo getCarpetSizeInfo(String value) {
     default:
       return CarpetSizeInfo("Unknown Size", value);
   }
+}
+
+Future<void> handlePermission(
+  Permission permission,
+  BuildContext context,
+) async {
+  try {
+    // First check if we already have the permission
+    var status = await permission.status;
+
+    if (status.isGranted) {
+      return; // Already granted
+    }
+
+    if (status.isPermanentlyDenied) {
+      // Guide user to app settings
+      _showPermissionSettingsDialog(permission, context);
+      return;
+    }
+
+    // Request the permission
+    status = await permission.request();
+
+    if (!status.isGranted) {
+      log('Permission ${permission.toString()} not granted: $status');
+    }
+  } catch (e, stackTrace) {
+    log(
+      'Error handling permission ${permission.toString()}: $e',
+      stackTrace: stackTrace,
+    );
+    rethrow;
+  }
+}
+
+void _showPermissionSettingsDialog(
+  Permission permission,
+  BuildContext context,
+) {
+  showDialog(
+    context: context,
+    builder:
+        (context) => AlertDialog(
+          title: Text('Permission required'),
+          content: Text(
+            '${permission.toString().split('.').last.replaceAll('_', ' ')} '
+            'permission is permanently denied. Please enable it in app settings.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                openAppSettings();
+              },
+              child: Text('Open Settings'),
+            ),
+          ],
+        ),
+  );
+}
+
+String normalizeSpecialBarcode(String barcode) {
+  // Check if last digit is '1'
+  if (!barcode.endsWith('1')) return barcode;
+
+  // Get all digits except the last one
+  String prefix = barcode.substring(0, barcode.length - 1);
+
+  // Check if all remaining digits are '0'
+  if (prefix.replaceAll('0', '').isEmpty) {
+    // If all prefix digits are 0, replace last '1' with '0'
+    return '${prefix}0';
+  }
+
+  // Check if only the first few digits are non-zero and rest are '0'
+  // (e.g., '91160700000001')
+  String nonZeroPrefix = prefix.replaceAll('0', '');
+  if (nonZeroPrefix == prefix.substring(0, nonZeroPrefix.length)) {
+    return '${prefix}0';
+  }
+
+  return barcode;
 }

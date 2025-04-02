@@ -457,6 +457,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.10.4"
+  firebase_remote_config:
+    dependency: "direct main"
+    description:
+      name: firebase_remote_config
+      sha256: "908fe47d1aea2dbb6c6f3ef93ae884b34bafddf696495949f75c981a47f6704e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.4.2"
+  firebase_remote_config_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_remote_config_platform_interface
+      sha256: "0914e2680235cca3e0c88ad98ff387d38c5455ec8d24ad70649a15e6a872295b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.2"
+  firebase_remote_config_web:
+    dependency: transitive
+    description:
+      name: firebase_remote_config_web
+      sha256: "7fd610cf20077fb1b3383573968e3477864272f540788b6da24e4fab395f68bb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.8.2"
   firebase_storage:
     dependency: "direct main"
     description:
@@ -1101,6 +1125,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  os_detect:
+    dependency: transitive
+    description:
+      name: os_detect
+      sha256: "7d87c0dd98c6faf110d5aa498e9a6df02ffce4bb78cc9cfc8ad02929be9bb71f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   overlay_support:
     dependency: "direct main"
     description:
@@ -1609,6 +1641,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.2"
+  upgrader:
+    dependency: "direct main"
+    description:
+      name: upgrader
+      sha256: eb5a4888873d7998605306c4212491efdff8e59ee609d946dbcd6df83598d004
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.3.1"
   url_launcher:
     dependency: "direct main"
     description:
@@ -1713,6 +1753,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  version:
+    dependency: transitive
+    description:
+      name: version
+      sha256: "3d4140128e6ea10d83da32fef2fa4003fccbf6852217bb854845802f04191f94"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   vibration:
     dependency: transitive
     description:

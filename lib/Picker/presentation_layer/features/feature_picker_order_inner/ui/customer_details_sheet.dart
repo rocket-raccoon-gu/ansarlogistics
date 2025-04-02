@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/cs_tool_tip_board.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/sheet_button.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/customer_details_tab.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/driver_customer_details_tab.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/picker_customer_details_tab.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_status_history/status_history.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
@@ -229,12 +231,21 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
                 child: TabBarView(
                   controller: tabController,
                   children: [
-                    CustomerDetailsTab(
-                      orderResponseItem: widget.orderResponseItem,
-                      enablecancelrequest: enablecancelrequest,
-                      enableholdrequest: enableholdrequest,
-                      enablecsnotaanswer: enablecsnotanswrrequest,
-                    ),
+                    // CustomerDetailsTab(
+                    //   orderResponseItem: widget.orderResponseItem,
+                    //   enablecancelrequest: enablecancelrequest,
+                    //   enableholdrequest: enableholdrequest,
+                    //   enablecsnotaanswer: enablecsnotanswrrequest,
+                    // ),
+                    if (UserController().profile.role == "2" ||
+                        UserController().profile.role == "3")
+                      DriverCustomerDetailsTab(
+                        orderResponseItem: widget.orderResponseItem,
+                      )
+                    else
+                      PickerCustomerDetailsTab(
+                        orderResponseItem: widget.orderResponseItem,
+                      ),
                     StatusHistory(
                       serviceLocator: widget.serviceLocator,
                       orderResponseItem: widget.orderResponseItem,
@@ -242,434 +253,435 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
                   ],
                 ),
               ),
-              if (enablecancelrequest)
-                Row(
-                  children: [
-                    Expanded(
-                      child: BasketButton(
-                        bgcolor: customColors().carnationRed,
-                        textStyle: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
-                          color: FontColor.White,
-                        ),
-                        text: "Send Cancel Request",
-                        loading: sendcancelreq,
-                        onpress: () async {
-                          if (UserController().cancelreason !=
-                                  "Please Select Reason" &&
-                              UserController().cancelreason !=
-                                  "Other Reasons") {
-                            setState(() {
-                              sendcancelreq = true;
-                            });
 
-                            showSnackBar(
-                              context: context,
-                              snackBar: showSuccessDialogue(
-                                message: "status updating....!",
-                              ),
-                            );
+              // if (enablecancelrequest)
+              //   Row(
+              //     children: [
+              //       Expanded(
+              //         child: BasketButton(
+              //           bgcolor: customColors().carnationRed,
+              //           textStyle: customTextStyle(
+              //             fontStyle: FontStyle.BodyL_Bold,
+              //             color: FontColor.White,
+              //           ),
+              //           text: "Send Cancel Request",
+              //           loading: sendcancelreq,
+              //           onpress: () async {
+              //             if (UserController().cancelreason !=
+              //                     "Please Select Reason" &&
+              //                 UserController().cancelreason !=
+              //                     "Other Reasons") {
+              //               setState(() {
+              //                 sendcancelreq = true;
+              //               });
 
-                            final resp = await context.gTradingApiGateway
-                                .updateMainOrderStat(
-                                  orderid:
-                                      widget
-                                          .orderResponseItem
-                                          .subgroupIdentifier,
-                                  orderstatus: "cancel_request",
-                                  comment:
-                                      "${UserController().profile.name.toString()} (${UserController().profile.empId}) is requested cancel the order for ${UserController().cancelreason.toString()}",
-                                  userid: UserController().profile.id,
-                                  latitude:
-                                      UserController
-                                          .userController
-                                          .locationlatitude,
-                                  longitude:
-                                      UserController
-                                          .userController
-                                          .locationlongitude,
-                                );
+              //               showSnackBar(
+              //                 context: context,
+              //                 snackBar: showSuccessDialogue(
+              //                   message: "status updating....!",
+              //                 ),
+              //               );
 
-                            try {
-                              if (resp.statusCode == 200) {
-                                toastification.show(
-                                  backgroundColor: customColors().secretGarden,
-                                  context: context,
-                                  autoCloseDuration: const Duration(seconds: 5),
-                                  title: Text(
-                                    "Requested For Cancel...!",
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyL_Bold,
-                                      color: FontColor.White,
-                                    ),
-                                  ),
-                                );
+              //               final resp = await context.gTradingApiGateway
+              //                   .updateMainOrderStat(
+              //                     orderid:
+              //                         widget
+              //                             .orderResponseItem
+              //                             .subgroupIdentifier,
+              //                     orderstatus: "cancel_request",
+              //                     comment:
+              //                         "${UserController().profile.name.toString()} (${UserController().profile.empId}) is requested cancel the order for ${UserController().cancelreason.toString()}",
+              //                     userid: UserController().profile.id,
+              //                     latitude:
+              //                         UserController
+              //                             .userController
+              //                             .locationlatitude,
+              //                     longitude:
+              //                         UserController
+              //                             .userController
+              //                             .locationlongitude,
+              //                   );
 
-                                UserController().cancelreason =
-                                    "Please Select Reason";
+              //               try {
+              //                 if (resp.statusCode == 200) {
+              //                   toastification.show(
+              //                     backgroundColor: customColors().secretGarden,
+              //                     context: context,
+              //                     autoCloseDuration: const Duration(seconds: 5),
+              //                     title: Text(
+              //                       "Requested For Cancel...!",
+              //                       style: customTextStyle(
+              //                         fontStyle: FontStyle.BodyL_Bold,
+              //                         color: FontColor.White,
+              //                       ),
+              //                     ),
+              //                   );
 
-                                Navigator.of(
-                                  context,
-                                ).popUntil((route) => route.isFirst);
+              //                   UserController().cancelreason =
+              //                       "Please Select Reason";
 
-                                if (UserController
-                                        .userController
-                                        .profile
-                                        .role ==
-                                    "2") {
-                                  context.gNavigationService
-                                      .openDriverDashBoardPage(context);
-                                } else {
-                                  context.gNavigationService
-                                      .openPickerWorkspacePage(context);
-                                }
-                              } else {
-                                setState(() {
-                                  sendcancelreq = false;
-                                });
+              //                   Navigator.of(
+              //                     context,
+              //                   ).popUntil((route) => route.isFirst);
 
-                                toastification.show(
-                                  backgroundColor: customColors().carnationRed,
-                                  context: context,
-                                  autoCloseDuration: const Duration(seconds: 5),
-                                  title: Text(
-                                    "Send Request Failed Please Try Again...!",
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyL_Bold,
-                                      color: FontColor.White,
-                                    ),
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              setState(() {
-                                sendcancelreq = false;
-                              });
+              //                   if (UserController
+              //                           .userController
+              //                           .profile
+              //                           .role ==
+              //                       "2") {
+              //                     context.gNavigationService
+              //                         .openDriverDashBoardPage(context);
+              //                   } else {
+              //                     context.gNavigationService
+              //                         .openPickerWorkspacePage(context);
+              //                   }
+              //                 } else {
+              //                   setState(() {
+              //                     sendcancelreq = false;
+              //                   });
 
-                              toastification.show(
-                                backgroundColor: customColors().carnationRed,
-                                context: context,
-                                autoCloseDuration: const Duration(seconds: 5),
-                                title: Text(
-                                  "Send Request Failed Please Try Again...!",
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                    color: FontColor.White,
-                                  ),
-                                ),
-                              );
-                            }
-                          } else {
-                            showSnackBar(
-                              context: context,
-                              snackBar: showErrorDialogue(
-                                errorMessage: "Please Update Reason...!",
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              else if (enableholdrequest)
-                Row(
-                  children: [
-                    Expanded(
-                      child: BasketButton(
-                        bgcolor: customColors().mattPurple,
-                        textStyle: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
-                          color: FontColor.White,
-                        ),
-                        text: 'Send Hold Request',
-                        loading: sendcancelreq,
-                        onpress: () async {
-                          if (UserController().cancelreason !=
-                              "Please Select Reason") {
-                            setState(() {
-                              sendcancelreq = true;
-                            });
+              //                   toastification.show(
+              //                     backgroundColor: customColors().carnationRed,
+              //                     context: context,
+              //                     autoCloseDuration: const Duration(seconds: 5),
+              //                     title: Text(
+              //                       "Send Request Failed Please Try Again...!",
+              //                       style: customTextStyle(
+              //                         fontStyle: FontStyle.BodyL_Bold,
+              //                         color: FontColor.White,
+              //                       ),
+              //                     ),
+              //                   );
+              //                 }
+              //               } catch (e) {
+              //                 setState(() {
+              //                   sendcancelreq = false;
+              //                 });
 
-                            showSnackBar(
-                              context: context,
-                              snackBar: showSuccessDialogue(
-                                message: "status updating....!",
-                              ),
-                            );
+              //                 toastification.show(
+              //                   backgroundColor: customColors().carnationRed,
+              //                   context: context,
+              //                   autoCloseDuration: const Duration(seconds: 5),
+              //                   title: Text(
+              //                     "Send Request Failed Please Try Again...!",
+              //                     style: customTextStyle(
+              //                       fontStyle: FontStyle.BodyL_Bold,
+              //                       color: FontColor.White,
+              //                     ),
+              //                   ),
+              //                 );
+              //               }
+              //             } else {
+              //               showSnackBar(
+              //                 context: context,
+              //                 snackBar: showErrorDialogue(
+              //                   errorMessage: "Please Update Reason...!",
+              //                 ),
+              //               );
+              //             }
+              //           },
+              //         ),
+              //       ),
+              //     ],
+              //   )
+              // else if (enableholdrequest)
+              //   Row(
+              //     children: [
+              //       Expanded(
+              //         child: BasketButton(
+              //           bgcolor: customColors().mattPurple,
+              //           textStyle: customTextStyle(
+              //             fontStyle: FontStyle.BodyL_Bold,
+              //             color: FontColor.White,
+              //           ),
+              //           text: 'Send Hold Request',
+              //           loading: sendcancelreq,
+              //           onpress: () async {
+              //             if (UserController().cancelreason !=
+              //                 "Please Select Reason") {
+              //               setState(() {
+              //                 sendcancelreq = true;
+              //               });
 
-                            final resp = await context.gTradingApiGateway
-                                .updateMainOrderStat(
-                                  orderid:
-                                      widget
-                                          .orderResponseItem
-                                          .subgroupIdentifier,
-                                  orderstatus: "holded",
-                                  comment:
-                                      "${UserController().profile.name.toString()} (${UserController().profile.empId}) was holded the order for ${UserController().cancelreason.toString()}",
-                                  userid: UserController().profile.id,
-                                  latitude:
-                                      UserController
-                                          .userController
-                                          .locationlatitude,
-                                  longitude:
-                                      UserController
-                                          .userController
-                                          .locationlongitude,
-                                );
+              //               showSnackBar(
+              //                 context: context,
+              //                 snackBar: showSuccessDialogue(
+              //                   message: "status updating....!",
+              //                 ),
+              //               );
 
-                            if (resp.statusCode == 200) {
-                              toastification.show(
-                                backgroundColor: customColors().secretGarden,
-                                context: context,
-                                autoCloseDuration: const Duration(seconds: 5),
-                                title: Text(
-                                  "Order is On Hold",
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                    color: FontColor.White,
-                                  ),
-                                ),
-                              );
+              //               final resp = await context.gTradingApiGateway
+              //                   .updateMainOrderStat(
+              //                     orderid:
+              //                         widget
+              //                             .orderResponseItem
+              //                             .subgroupIdentifier,
+              //                     orderstatus: "holded",
+              //                     comment:
+              //                         "${UserController().profile.name.toString()} (${UserController().profile.empId}) was holded the order for ${UserController().cancelreason.toString()}",
+              //                     userid: UserController().profile.id,
+              //                     latitude:
+              //                         UserController
+              //                             .userController
+              //                             .locationlatitude,
+              //                     longitude:
+              //                         UserController
+              //                             .userController
+              //                             .locationlongitude,
+              //                   );
 
-                              UserController().cancelreason =
-                                  "Please Select Reason";
+              //               if (resp.statusCode == 200) {
+              //                 toastification.show(
+              //                   backgroundColor: customColors().secretGarden,
+              //                   context: context,
+              //                   autoCloseDuration: const Duration(seconds: 5),
+              //                   title: Text(
+              //                     "Order is On Hold",
+              //                     style: customTextStyle(
+              //                       fontStyle: FontStyle.BodyL_Bold,
+              //                       color: FontColor.White,
+              //                     ),
+              //                   ),
+              //                 );
 
-                              Navigator.of(
-                                context,
-                              ).popUntil((route) => route.isFirst);
+              //                 UserController().cancelreason =
+              //                     "Please Select Reason";
 
-                              if (UserController.userController.profile.role ==
-                                  "2") {
-                                context.gNavigationService
-                                    .openDriverDashBoardPage(context);
-                              } else {
-                                context.gNavigationService
-                                    .openPickerWorkspacePage(context);
-                              }
-                            } else {
-                              setState(() {
-                                sendcancelreq = false;
-                              });
+              //                 Navigator.of(
+              //                   context,
+              //                 ).popUntil((route) => route.isFirst);
 
-                              toastification.show(
-                                backgroundColor: customColors().carnationRed,
-                                context: context,
-                                autoCloseDuration: const Duration(seconds: 5),
-                                title: Text(
-                                  "Send Request Failed Please Try Again...!",
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                    color: FontColor.White,
-                                  ),
-                                ),
-                              );
-                            }
-                          } else {
-                            // showSnackBar(
-                            //     context: context,
-                            //     snackBar: showErrorDialogue(
-                            //         errorMessage: "Please Fill The Reason..."));
-                            toastification.show(
-                              backgroundColor: customColors().carnationRed,
-                              context:
-                                  context, // optional if you use ToastificationWrapper
-                              title: Text('Please Update The Reason...!'),
-                              autoCloseDuration: const Duration(seconds: 5),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              else if (enablecsnotanswrrequest)
-                Row(
-                  children: [
-                    Expanded(
-                      child: BasketButton(
-                        bgcolor: customColors().carnationRed,
-                        textStyle: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
-                          color: FontColor.White,
-                        ),
-                        text: 'Customer Not Answering',
-                        onpress: () async {
-                          showSnackBar(
-                            context: context,
-                            snackBar: showSuccessDialogue(
-                              message: "status updating....!",
-                            ),
-                          );
+              //                 if (UserController.userController.profile.role ==
+              //                     "2") {
+              //                   context.gNavigationService
+              //                       .openDriverDashBoardPage(context);
+              //                 } else {
+              //                   context.gNavigationService
+              //                       .openPickerWorkspacePage(context);
+              //                 }
+              //               } else {
+              //                 setState(() {
+              //                   sendcancelreq = false;
+              //                 });
 
-                          final resp = await context.gTradingApiGateway
-                              .updateMainOrderStat(
-                                orderid:
-                                    widget.orderResponseItem.subgroupIdentifier,
-                                orderstatus: "customer_not_answer",
-                                comment:
-                                    "${UserController().profile.name.toString()} (${UserController().profile.empId}) was marked the order customer not answer",
-                                userid: UserController().profile.id,
-                                latitude:
-                                    UserController
-                                        .userController
-                                        .locationlatitude,
-                                longitude:
-                                    UserController
-                                        .userController
-                                        .locationlongitude,
-                              );
+              //                 toastification.show(
+              //                   backgroundColor: customColors().carnationRed,
+              //                   context: context,
+              //                   autoCloseDuration: const Duration(seconds: 5),
+              //                   title: Text(
+              //                     "Send Request Failed Please Try Again...!",
+              //                     style: customTextStyle(
+              //                       fontStyle: FontStyle.BodyL_Bold,
+              //                       color: FontColor.White,
+              //                     ),
+              //                   ),
+              //                 );
+              //               }
+              //             } else {
+              //               // showSnackBar(
+              //               //     context: context,
+              //               //     snackBar: showErrorDialogue(
+              //               //         errorMessage: "Please Fill The Reason..."));
+              //               toastification.show(
+              //                 backgroundColor: customColors().carnationRed,
+              //                 context:
+              //                     context, // optional if you use ToastificationWrapper
+              //                 title: Text('Please Update The Reason...!'),
+              //                 autoCloseDuration: const Duration(seconds: 5),
+              //               );
+              //             }
+              //           },
+              //         ),
+              //       ),
+              //     ],
+              //   )
+              // else if (enablecsnotanswrrequest)
+              //   Row(
+              //     children: [
+              //       Expanded(
+              //         child: BasketButton(
+              //           bgcolor: customColors().carnationRed,
+              //           textStyle: customTextStyle(
+              //             fontStyle: FontStyle.BodyL_Bold,
+              //             color: FontColor.White,
+              //           ),
+              //           text: 'Customer Not Answering',
+              //           onpress: () async {
+              //             showSnackBar(
+              //               context: context,
+              //               snackBar: showSuccessDialogue(
+              //                 message: "status updating....!",
+              //               ),
+              //             );
 
-                          if (resp.statusCode == 200) {
-                            toastification.show(
-                              backgroundColor: customColors().secretGarden,
-                              context: context,
-                              autoCloseDuration: const Duration(seconds: 5),
-                              title: Text(
-                                "Order is on Customer Not Answer",
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
-                                  color: FontColor.White,
-                                ),
-                              ),
-                            );
+              //             final resp = await context.gTradingApiGateway
+              //                 .updateMainOrderStat(
+              //                   orderid:
+              //                       widget.orderResponseItem.subgroupIdentifier,
+              //                   orderstatus: "customer_not_answer",
+              //                   comment:
+              //                       "${UserController().profile.name.toString()} (${UserController().profile.empId}) was marked the order customer not answer",
+              //                   userid: UserController().profile.id,
+              //                   latitude:
+              //                       UserController
+              //                           .userController
+              //                           .locationlatitude,
+              //                   longitude:
+              //                       UserController
+              //                           .userController
+              //                           .locationlongitude,
+              //                 );
 
-                            UserController().cancelreason =
-                                "Please Select Reason";
+              //             if (resp.statusCode == 200) {
+              //               toastification.show(
+              //                 backgroundColor: customColors().secretGarden,
+              //                 context: context,
+              //                 autoCloseDuration: const Duration(seconds: 5),
+              //                 title: Text(
+              //                   "Order is on Customer Not Answer",
+              //                   style: customTextStyle(
+              //                     fontStyle: FontStyle.BodyL_Bold,
+              //                     color: FontColor.White,
+              //                   ),
+              //                 ),
+              //               );
 
-                            Navigator.of(
-                              context,
-                            ).popUntil((route) => route.isFirst);
+              //               UserController().cancelreason =
+              //                   "Please Select Reason";
 
-                            if (UserController.userController.profile.role ==
-                                "2") {
-                              context.gNavigationService
-                                  .openDriverDashBoardPage(context);
-                            } else {
-                              context.gNavigationService
-                                  .openPickerWorkspacePage(context);
-                            }
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              else
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (UserController.userController.profile.role == "2" &&
-                        widget.orderResponseItem.status == "on_the_way")
-                      Stack(
-                        children: [
-                          SheetButton(
-                            imagepath: 'assets/contact_btn.png',
-                            sheettext:
-                                isRecording
-                                    ? 'Recording...'
-                                    : 'Contact \n Customer',
-                            onTapbtn: () async {
-                              // await handleCall();
-                            },
-                          ),
-                          Positioned(
-                            child: CsToolTipBoard(
-                              phone_num: widget.orderResponseItem.telephone,
-                              onTap: () async {
-                                await handleCall(); // Call and record
-                                // await _makeCall('97450154119');
-                              },
-                              ordernum:
-                                  widget.orderResponseItem.subgroupIdentifier,
-                            ),
-                          ),
-                        ],
-                      )
-                    else if (UserController.userController.profile.role == "1")
-                      Stack(
-                        children: [
-                          SheetButton(
-                            imagepath: 'assets/contact_btn.png',
-                            sheettext:
-                                isRecording
-                                    ? 'Recording...'
-                                    : 'Contact \n Customer',
-                            onTapbtn: () async {
-                              // await handleCall();
-                            },
-                          ),
-                          Positioned(
-                            child: CsToolTipBoard(
-                              phone_num: widget.orderResponseItem.telephone,
-                              onTap: () async {
-                                await handleCall(); // Call and record
-                                // await _makeCall('97450154119');
-                              },
-                              ordernum:
-                                  widget.orderResponseItem.subgroupIdentifier,
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      SheetButton(
-                        imagepath: 'assets/contact_btn.png',
-                        sheettext:
-                            isRecording
-                                ? 'Recording...'
-                                : 'Contact \n Customer',
-                        onTapbtn: () async {
-                          // await handleCall();
-                          toastification.show(
-                            backgroundColor: customColors().accent,
-                            title: Text("Please Mark On The Way...!"),
-                          );
-                        },
-                      ),
-                    SheetButton(
-                      imagepath: 'assets/cancel_req.png',
-                      sheettext: 'Cancel \n Request',
-                      onTapbtn: () {
-                        setState(() {
-                          enablecancelrequest = true;
-                        });
-                      },
-                    ),
-                    SheetButton(
-                      imagepath: 'assets/hold_req.png',
-                      sheettext: 'Hold \n Order',
-                      onTapbtn: () {
-                        setState(() {
-                          enableholdrequest = true;
-                        });
-                      },
-                    ),
-                    // Stack(
-                    //   children: [
-                    SheetButton(
-                      imagepath: 'assets/customer_ser.png',
-                      sheettext: 'Client not\n Answer',
-                      onTapbtn: () {
-                        setState(() {
-                          enablecsnotanswrrequest = true;
-                        });
-                      },
-                    ),
-                    // Positioned(
-                    //     child: CsToolTipBoard(
-                    //   phone_num: '+97460094446',
-                    //   ordernum: widget.orderResponseItem.subgroupIdentifier,
-                    //   onTap: () async {
-                    //     // await handleCall(); // Call and record
-                    //     c1.call('+97460094446', () {});
-                    //   },
-                    // )
-                    // )
-                    //   ],
-                    // )
-                  ],
-                ),
+              //               Navigator.of(
+              //                 context,
+              //               ).popUntil((route) => route.isFirst);
+
+              //               if (UserController.userController.profile.role ==
+              //                   "2") {
+              //                 context.gNavigationService
+              //                     .openDriverDashBoardPage(context);
+              //               } else {
+              //                 context.gNavigationService
+              //                     .openPickerWorkspacePage(context);
+              //               }
+              //             }
+              //           },
+              //         ),
+              //       ),
+              //     ],
+              //   )
+              // else
+              //   Row(
+              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //     children: [
+              //       if (UserController.userController.profile.role == "2" &&
+              //           widget.orderResponseItem.status == "on_the_way")
+              //         Stack(
+              //           children: [
+              //             SheetButton(
+              //               imagepath: 'assets/contact_btn.png',
+              //               sheettext:
+              //                   isRecording
+              //                       ? 'Recording...'
+              //                       : 'Contact \n Customer',
+              //               onTapbtn: () async {
+              //                 // await handleCall();
+              //               },
+              //             ),
+              //             Positioned(
+              //               child: CsToolTipBoard(
+              //                 phone_num: widget.orderResponseItem.telephone,
+              //                 onTap: () async {
+              //                   await handleCall(); // Call and record
+              //                   // await _makeCall('97450154119');
+              //                 },
+              //                 ordernum:
+              //                     widget.orderResponseItem.subgroupIdentifier,
+              //               ),
+              //             ),
+              //           ],
+              //         )
+              //       else if (UserController.userController.profile.role == "1")
+              //         Stack(
+              //           children: [
+              //             SheetButton(
+              //               imagepath: 'assets/contact_btn.png',
+              //               sheettext:
+              //                   isRecording
+              //                       ? 'Recording...'
+              //                       : 'Contact \n Customer',
+              //               onTapbtn: () async {
+              //                 // await handleCall();
+              //               },
+              //             ),
+              //             Positioned(
+              //               child: CsToolTipBoard(
+              //                 phone_num: widget.orderResponseItem.telephone,
+              //                 onTap: () async {
+              //                   await handleCall(); // Call and record
+              //                   // await _makeCall('97450154119');
+              //                 },
+              //                 ordernum:
+              //                     widget.orderResponseItem.subgroupIdentifier,
+              //               ),
+              //             ),
+              //           ],
+              //         )
+              //       else
+              //         SheetButton(
+              //           imagepath: 'assets/contact_btn.png',
+              //           sheettext:
+              //               isRecording
+              //                   ? 'Recording...'
+              //                   : 'Contact \n Customer',
+              //           onTapbtn: () async {
+              //             // await handleCall();
+              //             toastification.show(
+              //               backgroundColor: customColors().accent,
+              //               title: Text("Please Mark On The Way...!"),
+              //             );
+              //           },
+              //         ),
+              //       SheetButton(
+              //         imagepath: 'assets/cancel_req.png',
+              //         sheettext: 'Cancel \n Request',
+              //         onTapbtn: () {
+              //           setState(() {
+              //             enablecancelrequest = true;
+              //           });
+              //         },
+              //       ),
+              //       SheetButton(
+              //         imagepath: 'assets/hold_req.png',
+              //         sheettext: 'Hold \n Order',
+              //         onTapbtn: () {
+              //           setState(() {
+              //             enableholdrequest = true;
+              //           });
+              //         },
+              //       ),
+              //       // Stack(
+              //       //   children: [
+              //       SheetButton(
+              //         imagepath: 'assets/customer_ser.png',
+              //         sheettext: 'Client not\n Answer',
+              //         onTapbtn: () {
+              //           setState(() {
+              //             enablecsnotanswrrequest = true;
+              //           });
+              //         },
+              //       ),
+              //       // Positioned(
+              //       //     child: CsToolTipBoard(
+              //       //   phone_num: '+97460094446',
+              //       //   ordernum: widget.orderResponseItem.subgroupIdentifier,
+              //       //   onTap: () async {
+              //       //     // await handleCall(); // Call and record
+              //       //     c1.call('+97460094446', () {});
+              //       //   },
+              //       // )
+              //       // )
+              //       //   ],
+              //       // )
+              //     ],
+              //   ),
             ],
           ),
         ),

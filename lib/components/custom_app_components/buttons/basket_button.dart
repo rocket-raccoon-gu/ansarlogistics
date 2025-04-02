@@ -1,3 +1,4 @@
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,8 @@ class BasketButton extends StatelessWidget {
                     animating: true,
                     color: indicatorColor,
                   )
-                  : Text(text.toString(), style: textStyle),
+                  // : Text(text.toString(), style: textStyle),
+                  : TranslatedText(text: text.toString(), style: textStyle),
         ),
       ),
     );
@@ -121,7 +123,11 @@ class BasketButtonwithIcon extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(text.toString(), style: textStyle),
+                        // child: Text(text.toString(), style: textStyle),
+                        child: TranslatedText(
+                          text: text.toString(),
+                          style: textStyle,
+                        ),
                       ),
                     ],
                   ),

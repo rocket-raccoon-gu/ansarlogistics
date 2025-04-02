@@ -110,6 +110,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
       } else {
         log(barcodeScanRes.toString());
 
+        barcodeScanRes = normalizeSpecialBarcode(barcodeScanRes!);
+
         log("scanned barcode.............");
 
         if (barcodeScanRes.toString().startsWith(']C1')) {

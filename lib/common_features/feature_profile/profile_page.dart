@@ -8,6 +8,7 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/localization/language_button.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -141,7 +142,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   TileCardWidget(),
                   Padding(
-                    padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      bottom: 10.0,
+                    ),
                     child: Row(
                       children: [
                         Text(
@@ -154,90 +159,231 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount:
-                            context.read<ProfilePageCubit>().profilelist.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () async {
-                              if (index == 3) {
-                                Map<String, dynamic> data = {"selected": 0};
-
-                                context.gNavigationService.openNewScannerPage2(
-                                  context,
-                                  data,
-                                );
-                                // } else if (index == 4) {
-                                //   context.gNavigationService
-                                //       .openReplacementMarkIFAtemsPage(context, {});
-                              }
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 4.0),
-                              child: Container(
-                                padding: const EdgeInsets.only(
-                                  left: 8.0,
-                                  right: 16,
-                                  bottom: 16,
-                                  top: 16.0,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
                                 ),
-                                child: Column(
+                                child: Row(
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            // Image.asset(
-                                            //   state.listmap[index.toString()]['img'],
-                                            //   height: 20,
-                                            // ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 8.0,
-                                              ),
-                                              child: Text(
-                                                context
-                                                    .read<ProfilePageCubit>()
-                                                    .profilelist[index
-                                                    .toString()]['title'],
-                                                style: customTextStyle(
-                                                  fontStyle:
-                                                      FontStyle.BodyL_SemiBold,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                    // Image.asset(
+                                    //   state.listmap[index.toString()]['img'],
+                                    //   height: 20,
+                                    // ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 10.0,
+                                      ),
+                                      child: Text(
+                                        "Name",
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyL_SemiBold,
                                         ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              context
-                                                  .read<ProfilePageCubit>()
-                                                  .profilelist[index
-                                                  .toString()]['value'],
-                                            ),
-                                            // Icon(
-                                            //   Icons.arrow_forward_ios,
-                                            //   size: 20,
-                                            // )
-                                          ],
-                                        ),
-                                      ],
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
+                              Row(
+                                children: [
+                                  Text(
+                                    UserController.userController.profile.name,
+                                  ),
+                                  // Icon(
+                                  //   Icons.arrow_forward_ios,
+                                  //   size: 20,
+                                  // )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Image.asset(
+                                    //   state.listmap[index.toString()]['img'],
+                                    //   height: 20,
+                                    // ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 10.0,
+                                      ),
+                                      child: Text(
+                                        "User ID",
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyL_SemiBold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    UserController.userController.profile.empId,
+                                  ),
+                                  // Icon(
+                                  //   Icons.arrow_forward_ios,
+                                  //   size: 20,
+                                  // )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8.0,
+                            right: 8.0,
+                            top: 22.0,
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Map<String, dynamic> data = {"selected": 0};
+
+                              context.gNavigationService.openNewScannerPage2(
+                                context,
+                                data,
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    // Image.asset(
+                                    //   state.listmap[index.toString()]['img'],
+                                    //   height: 20,
+                                    // ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 10.0,
+                                      ),
+                                      child: Text(
+                                        "Switch to Scanner",
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyL_SemiBold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    // Text(
+                                    //   UserController.userController.profile.empId,
+                                    // ),
+                                    Icon(Icons.arrow_forward_ios, size: 20),
+                                  ],
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
+                  // Expanded(
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.only(top: 8.0),
+                  //     child: ListView.builder(
+                  //       shrinkWrap: true,
+                  //       itemCount:
+                  //           context.read<ProfilePageCubit>().profilelist.length,
+                  //       itemBuilder: (context, index) {
+                  //         return InkWell(
+                  //           onTap: () async {
+                  //             if (index == 3) {
+                  //               Map<String, dynamic> data = {"selected": 0};
+
+                  //               context.gNavigationService.openNewScannerPage2(
+                  //                 context,
+                  //                 data,
+                  //               );
+                  //               // } else if (index == 4) {
+                  //               //   context.gNavigationService
+                  //               //       .openReplacementMarkIFAtemsPage(context, {});
+                  //             }
+                  //           },
+                  //           child: Container(
+                  //             padding: const EdgeInsets.only(
+                  //               left: 12.0,
+                  //               right: 12.0,
+                  //               top: 12.0,
+                  //               bottom: 8.0,
+                  //             ),
+                  //             child: Column(
+                  //               children: [
+                  //                 Row(
+                  //                   mainAxisAlignment:
+                  //                       MainAxisAlignment.spaceBetween,
+                  //                   children: [
+                  //                     Row(
+                  //                       children: [
+                  //                         // Image.asset(
+                  //                         //   state.listmap[index.toString()]['img'],
+                  //                         //   height: 20,
+                  //                         // ),
+                  //                         Padding(
+                  //                           padding: const EdgeInsets.only(
+                  //                             left: 8.0,
+                  //                           ),
+                  //                           child: Text(
+                  //                             context
+                  //                                 .read<ProfilePageCubit>()
+                  //                                 .profilelist[index
+                  //                                 .toString()]['title'],
+                  //                             style: customTextStyle(
+                  //                               fontStyle:
+                  //                                   FontStyle.BodyL_SemiBold,
+                  //                             ),
+                  //                           ),
+                  //                         ),
+                  //                       ],
+                  //                     ),
+                  //                     Row(
+                  //                       children: [
+                  //                         Text(
+                  //                           context
+                  //                               .read<ProfilePageCubit>()
+                  //                               .profilelist[index
+                  //                               .toString()]['value'],
+                  //                         ),
+                  //                         // Icon(
+                  //                         //   Icons.arrow_forward_ios,
+                  //                         //   size: 20,
+                  //                         // )
+                  //                       ],
+                  //                     ),
+                  //                   ],
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ),
+                  //         );
+                  //       },
+                  //     ),
+                  //   ),
+                  // ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16.0,

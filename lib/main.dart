@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:ansarlogistics/app.dart';
+import 'package:ansarlogistics/common_features/force_update_screen.dart';
+import 'package:ansarlogistics/common_features/update_checker.dart';
 import 'package:ansarlogistics/components/restart_widget.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -52,8 +54,17 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
+      // First check if update is required
+
+      // Continue with your existing initialization
       if (Firebase.apps.isEmpty) {
-        await initializeFirebase(); // Initialize Firebase
+        await initializeFirebase();
+      }
+
+      final needsUpdate = await UpdateChecker.isUpdateRequired();
+      if (needsUpdate) {
+        runApp(const MaterialApp(home: ForceUpdateScreen()));
+        return; // Exit early if update is needed
       }
 
       await SystemChrome.setPreferredOrientations([
@@ -66,19 +77,8 @@ Future<void> main() async {
         defaultValue: '/login',
       );
 
-      // if (kReleaseMode) {
-      //   // Setup for release mode
-      // } else if (kDebugMode) {
-      //   // Disable crashlytics in debug mode
-      //   disableCrashlytics();
-      // }
-
       if (!kIsWeb) {
-        // if (kDebugMode) {
-        //   disableCrashlytics();
-        // } else {
         enableCrashlytics();
-        // }
       }
 
       // Initialize service locator
@@ -104,13 +104,11 @@ Future<void> main() async {
     },
     (error, stackTrace) {
       if (kReleaseMode) {
-        // Log errors to Firebase in release mode
         firebaseLog(
           msg: "ROOT : " + error.toString(),
           trace: StackTrace.current.toString(),
         );
       } else {
-        // Log errors in debug mode
         log('TradingAppError', error: error, stackTrace: stackTrace);
         if (error.toString().contains("unsolicited response without request")) {
           unsolicitedResponse = true;
