@@ -2,6 +2,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/sheet_button.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -56,15 +57,16 @@ class _DriverCustomerDetailsTabState extends State<DriverCustomerDetailsTab> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Customer Name",
+                    TranslatedText(
+                      text: "Customer Name",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Regular,
                         color: FontColor.FontSecondary,
                       ),
                     ),
-                    Text(
-                      "${widget.orderResponseItem!.customerFirstname} ${widget.orderResponseItem!.customerLastname}",
+                    TranslatedText(
+                      text:
+                          "${widget.orderResponseItem!.customerFirstname} ${widget.orderResponseItem!.customerLastname}",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_SemiBold,
                         color: FontColor.FontPrimary,
@@ -88,15 +90,15 @@ class _DriverCustomerDetailsTabState extends State<DriverCustomerDetailsTab> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Customer Phone",
+                    TranslatedText(
+                      text: "Customer Phone",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Regular,
                         color: FontColor.FontSecondary,
                       ),
                     ),
                     Text(
-                      "+974 ${widget.orderResponseItem!.telephone}",
+                      "${widget.orderResponseItem!.telephone}",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Bold,
                         color: FontColor.FontPrimary,
@@ -118,8 +120,8 @@ class _DriverCustomerDetailsTabState extends State<DriverCustomerDetailsTab> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Total amount",
+                  TranslatedText(
+                    text: "Total amount",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_Regular,
                       color: FontColor.FontSecondary,
@@ -149,8 +151,8 @@ class _DriverCustomerDetailsTabState extends State<DriverCustomerDetailsTab> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Payment Method",
+                    TranslatedText(
+                      text: "Payment Method",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Regular,
                         color: FontColor.FontSecondary,

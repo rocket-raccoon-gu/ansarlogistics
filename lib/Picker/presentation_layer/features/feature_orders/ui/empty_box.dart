@@ -1,3 +1,4 @@
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
 
@@ -15,8 +16,14 @@ class EmptyBox extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Center(
-                child: Text(
-                  "No Orders Found..!",
+                // child: Text(
+                //   "No Orders Found..!",
+                //   style: customTextStyle(
+                //     fontStyle: FontStyle.HeaderXS_SemiBold,
+                //   ),
+                // ),
+                child: TranslatedText(
+                  text: "No Orders Found..!",
                   style: customTextStyle(
                     fontStyle: FontStyle.HeaderXS_SemiBold,
                   ),

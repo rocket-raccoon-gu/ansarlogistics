@@ -177,6 +177,18 @@ Future<String> getTranslateWord(String keyword) async {
   }
 }
 
+String getTranslateWord11(String keyword) {
+  // Regular expression to check if the string contains Arabic characters
+  final arabicRegex = RegExp(r'[\u0600-\u06FF]');
+
+  if (arabicRegex.hasMatch(keyword)) {
+    // Return the translation promise directly
+    return translator.translate(keyword, to: 'en').toString();
+  } else {
+    return keyword;
+  }
+}
+
 getFormatedDate(String _date) {
   var inputFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
   var date1 = inputFormat.parse(_date);
@@ -212,7 +224,7 @@ Color getTypeColor(String type) {
 // Reference to the specific Firestore document
 final DocumentReference documentReference = FirebaseFirestore.instance
     .collection('base_path')
-    .doc('KpgYoreZWgsAgwkPll1C');
+    .doc('7F32CBHMHACadSeNRWsY');
 
 // Function to fetch data from the Firestore document
 Future<Map<String, dynamic>> getData() async {

@@ -622,6 +622,14 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                           Map<String, dynamic> data =
                                               snapshot.data!;
 
+                                          log(data['mediapath']);
+
+                                          log(
+                                            state
+                                                .orderItem
+                                                .productImages[selectedindex],
+                                          );
+
                                           return SizedBox(
                                             height: 275.0,
                                             width: 275.0,

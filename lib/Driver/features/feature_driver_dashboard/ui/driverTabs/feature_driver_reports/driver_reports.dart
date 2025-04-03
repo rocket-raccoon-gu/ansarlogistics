@@ -4,6 +4,7 @@ import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/drive
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_reports/bloc/driver_reports_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_reports/ui/count_container_widget.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/animation_switch.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
@@ -83,8 +84,15 @@ class _DriverReportsPageState extends State<DriverReportsPage> {
                               bottom: 16.0,
                               top: 8.0,
                             ),
-                            child: Text(
-                              "My Order Report ",
+                            // child: Text(
+                            //   "My Order Report ",
+                            //   style: customTextStyle(
+                            //     fontStyle: FontStyle.BodyL_Bold,
+                            //     color: FontColor.FontPrimary,
+                            //   ),
+                            // ),
+                            child: TranslatedText(
+                              text: "My Order Report ",
                               style: customTextStyle(
                                 fontStyle: FontStyle.BodyL_Bold,
                                 color: FontColor.FontPrimary,

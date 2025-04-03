@@ -4,6 +4,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/schedular_sheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/foundation.dart';
@@ -62,8 +63,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          "Reschedule",
+                        child: TranslatedText(
+                          text: "Reschedule",
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyM_Bold,
                             color: FontColor.White,
@@ -127,9 +128,9 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                       ),
                       Row(
                         children: [
-                          Text(
+                          TranslatedText(
                             // "${getTranslate(context, "Date")} ",
-                            "Date",
+                            text: "Date",
                             style: customTextStyle(
                               fontStyle: FontStyle.Inter_Light,
                             ),
@@ -165,8 +166,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 3.0,
                                     ),
-                                    child: Text(
-                                      "Zone  ",
+                                    child: TranslatedText(
+                                      text: "Zone  ",
                                       style: customTextStyle(
                                         fontStyle: FontStyle.Inter_Light,
                                       ),
@@ -185,8 +186,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 3.0,
                                     ),
-                                    child: Text(
-                                      "Building  ",
+                                    child: TranslatedText(
+                                      text: "Building  ",
                                       style: customTextStyle(
                                         fontStyle: FontStyle.Inter_Light,
                                       ),
@@ -316,8 +317,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Payment Method",
+                      TranslatedText(
+                        text: "Payment Method",
                         style: customTextStyle(fontStyle: FontStyle.BodyM_Bold),
                       ),
                       Text(
@@ -338,22 +339,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            text: 'Comment : ',
-                            style: customTextStyle(
-                              fontStyle: FontStyle.Inter_Light,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: widget.orderResponseItem.deliveryNote,
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.Inter_Medium,
-                                  color: FontColor.FontPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: TranslatedTextSpan(
+                          text: widget.orderResponseItem.deliveryNote,
                         ),
                       ),
                     ],

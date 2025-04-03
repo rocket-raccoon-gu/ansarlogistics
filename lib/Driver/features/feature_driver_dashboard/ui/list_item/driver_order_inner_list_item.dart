@@ -1,4 +1,5 @@
 import 'package:ansarlogistics/components/custom_app_components/image_widgets/list_image_widget.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
@@ -50,8 +51,8 @@ class DriverOrderInnerListItem extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        orderItem.productName,
+                      child: TranslatedText(
+                        text: orderItem.productName,
                         style: customTextStyle(
                           fontStyle: FontStyle.Inter_Medium,
                           color: FontColor.FontPrimary,
@@ -91,8 +92,8 @@ class DriverOrderInnerListItem extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 2.0),
                       child: Row(
                         children: [
-                          Text(
-                            "Price :",
+                          TranslatedText(
+                            text: "Price :",
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyL_SemiBold,
                               color: FontColor.FontTertiary,
@@ -126,8 +127,8 @@ class DriverOrderInnerListItem extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 2.0),
                       child: Row(
                         children: [
-                          Text(
-                            "Qty : ",
+                          TranslatedText(
+                            text: "Qty : ",
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyL_SemiBold,
                               color: FontColor.FontTertiary,

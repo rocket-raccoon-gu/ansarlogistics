@@ -1,3 +1,4 @@
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -22,8 +23,15 @@ class CountContainer extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            title,
+          // Text(
+          //   title,
+          //   style: customTextStyle(
+          //     fontStyle: FontStyle.BodyL_Bold,
+          //     color: FontColor.White,
+          //   ),
+          // ),
+          TranslatedText(
+            text: title,
             style: customTextStyle(
               fontStyle: FontStyle.BodyL_Bold,
               color: FontColor.White,

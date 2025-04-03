@@ -7,6 +7,7 @@ import 'package:ansarlogistics/Driver/features/feature_delivery_update/bloc/deli
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -139,8 +140,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                 bottom: 16.0,
                                 top: 8.0,
                               ),
-                              child: Text(
-                                "Upload Bill Picture ",
+                              child: TranslatedText(
+                                text: "Upload Bill Picture ",
                                 style: customTextStyle(
                                   fontStyle: FontStyle.BodyL_Bold,
                                   color: FontColor.FontPrimary,
@@ -300,8 +301,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                     Icons.camera_alt_rounded,
                                                     size: 65.0,
                                                   ),
-                                                  Text(
-                                                    "Take Photo",
+                                                  TranslatedText(
+                                                    text: "Take Photo",
                                                     style: customTextStyle(
                                                       fontStyle:
                                                           FontStyle
@@ -442,8 +443,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                               child: Center(
                                                 child: Row(
                                                   children: [
-                                                    Text(
-                                                      "Upload",
+                                                    TranslatedText(
+                                                      text: "Upload",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -507,8 +508,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                               MainAxisAlignment
                                                                   .spaceBetween,
                                                           children: [
-                                                            Text(
-                                                              "Camera",
+                                                            TranslatedText(
+                                                              text: "Camera",
                                                               style: customTextStyle(
                                                                 fontStyle:
                                                                     FontStyle
@@ -550,8 +551,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                               MainAxisAlignment
                                                                   .spaceBetween,
                                                           children: [
-                                                            Text(
-                                                              "Gallery",
+                                                            TranslatedText(
+                                                              text: "Gallery",
                                                               style: customTextStyle(
                                                                 fontStyle:
                                                                     FontStyle
@@ -586,8 +587,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                     BorderRadius.circular(5.0),
                                               ),
                                               child: Center(
-                                                child: Text(
-                                                  "Retake",
+                                                child: TranslatedText(
+                                                  text: "Retake",
                                                   style: customTextStyle(
                                                     fontStyle:
                                                         FontStyle.BodyM_Bold,

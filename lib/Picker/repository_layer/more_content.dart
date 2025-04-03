@@ -7,6 +7,6 @@ logout(BuildContext context) async {
   RestartWidget.restartApp(context);
 
   await PreferenceUtils.clear();
-
+  UserController().translationCache.clear();
   UserController().dispose();
 }

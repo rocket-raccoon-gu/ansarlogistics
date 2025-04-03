@@ -8,6 +8,7 @@ import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/app_bar/custom_app_bar.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/custom_search_field.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/components/loading_indecator.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -499,8 +500,12 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                       Lottie.asset(
                         'assets/lottie_files/Animation - 1733906326255.json',
                       ),
-                      Text(
-                        "Finding Orders...!",
+                      // Text(
+                      //   "Finding Orders...!",
+                      //   style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                      // ),
+                      TranslatedText(
+                        text: "Finding Orders...!",
                         style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
                       ),
                     ],
@@ -525,8 +530,15 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Center(
-                                      child: Text(
-                                        "No Orders Found..!",
+                                      // child: Text(
+                                      //   "No Orders Found..!",
+                                      //   style: customTextStyle(
+                                      //     fontStyle:
+                                      //         FontStyle.HeaderXS_SemiBold,
+                                      //   ),
+                                      // ),
+                                      child: TranslatedText(
+                                        text: "No Orders Found..!",
                                         style: customTextStyle(
                                           fontStyle:
                                               FontStyle.HeaderXS_SemiBold,

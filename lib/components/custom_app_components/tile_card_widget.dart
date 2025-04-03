@@ -1,5 +1,6 @@
 import 'package:ansarlogistics/common_features/feature_profile/bloc/profile_page_cubit.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/animation_switch.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -57,8 +58,8 @@ class _TileCardWidgetState extends State<TileCardWidget> {
                                       color: HexColor('#C8E93D'),
                                     ),
                                     child: Center(
-                                      child: Text(
-                                        "On Duty",
+                                      child: TranslatedText(
+                                        text: "On Duty",
                                         style: customTextStyle(
                                           fontStyle: FontStyle.BodyL_Bold,
                                           color: FontColor.White,

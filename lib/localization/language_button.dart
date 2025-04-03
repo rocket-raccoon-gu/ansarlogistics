@@ -1,5 +1,6 @@
 import 'package:ansarlogistics/components/restart_widget.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -29,6 +30,7 @@ class _LanguageButtonState extends State<LanguageButton> {
               });
 
               await PreferenceUtils.storeDataToShared('language', 'en');
+              UserController.userController.translationCache.clear();
               RestartWidget.restartApp(context);
             },
             child: Container(
@@ -63,6 +65,7 @@ class _LanguageButtonState extends State<LanguageButton> {
                 widget.indexval = 2;
               });
               await PreferenceUtils.storeDataToShared('language', 'ar');
+              UserController.userController.translationCache.clear();
               RestartWidget.restartApp(context);
             },
             child: Container(

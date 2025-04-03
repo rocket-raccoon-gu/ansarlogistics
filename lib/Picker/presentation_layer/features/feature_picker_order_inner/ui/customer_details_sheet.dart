@@ -10,6 +10,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_status_history/status_history.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -205,8 +206,8 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
                       controller: tabController,
                       tabs: [
                         Tab(
-                          child: Text(
-                            "Info",
+                          child: TranslatedText(
+                            text: "Info",
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyM_Bold,
                               color: FontColor.FontPrimary,
@@ -214,8 +215,8 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
                           ),
                         ),
                         Tab(
-                          child: Text(
-                            "Comments",
+                          child: TranslatedText(
+                            text: "Comments",
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyM_Bold,
                               color: FontColor.FontPrimary,

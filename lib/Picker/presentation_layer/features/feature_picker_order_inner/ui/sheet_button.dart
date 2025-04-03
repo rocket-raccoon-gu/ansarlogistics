@@ -1,3 +1,4 @@
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
 
@@ -19,8 +20,8 @@ class SheetButton extends StatelessWidget {
       child: Column(
         children: [
           Image.asset(imagepath),
-          Text(
-            sheettext,
+          TranslatedText(
+            text: sheettext,
             textAlign: TextAlign.center,
             style: customTextStyle(
               fontStyle: FontStyle.Inter_Light,

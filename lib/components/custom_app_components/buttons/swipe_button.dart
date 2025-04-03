@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
 import 'package:slider_button/slider_button.dart';
@@ -22,8 +23,8 @@ class _SwipeableWidgetState extends State<SwipeableWidget>
         log("okok");
         widget.onSwipeFinish!();
       },
-      label: Text(
-        widget.text,
+      label: TranslatedText(
+        text: widget.text,
         style: customTextStyle(
           fontStyle: FontStyle.BodyL_Bold,
           color: FontColor.FontPrimary,

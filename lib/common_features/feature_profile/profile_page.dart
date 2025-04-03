@@ -3,6 +3,7 @@ import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_profile/bloc/profile_page_cubit.dart';
 import 'package:ansarlogistics/common_features/feature_profile/bloc/profile_page_state.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/components/custom_app_components/tile_card_widget.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/localization/language_button.dart';
@@ -124,8 +125,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                       bottom: 16.0,
                                       top: 8.0,
                                     ),
-                                    child: Text(
-                                      "Profile ",
+                                    // child: Text(
+                                    //   "Profile ",
+                                    //   style: customTextStyle(
+                                    //     fontStyle: FontStyle.BodyL_Bold,
+                                    //     color: FontColor.FontPrimary,
+                                    //   ),
+                                    // ),
+                                    child: TranslatedText(
+                                      text: "Profile",
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyL_Bold,
                                         color: FontColor.FontPrimary,
@@ -149,8 +157,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     child: Row(
                       children: [
-                        Text(
-                          "USER INFO",
+                        TranslatedText(
+                          text: "USER INFO",
                           style: customTextStyle(
                             fontStyle: FontStyle.Inter_Medium,
                           ),
@@ -180,8 +188,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                       padding: const EdgeInsets.only(
                                         left: 10.0,
                                       ),
-                                      child: Text(
-                                        "Name",
+                                      child: TranslatedText(
+                                        text: "Name",
                                         style: customTextStyle(
                                           fontStyle: FontStyle.BodyL_SemiBold,
                                         ),
@@ -192,8 +200,12 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               Row(
                                 children: [
-                                  Text(
-                                    UserController.userController.profile.name,
+                                  TranslatedText(
+                                    text:
+                                        UserController
+                                            .userController
+                                            .profile
+                                            .name,
                                   ),
                                   // Icon(
                                   //   Icons.arrow_forward_ios,
@@ -224,8 +236,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                       padding: const EdgeInsets.only(
                                         left: 10.0,
                                       ),
-                                      child: Text(
-                                        "User ID",
+                                      child: TranslatedText(
+                                        text: "User ID",
                                         style: customTextStyle(
                                           fontStyle: FontStyle.BodyL_SemiBold,
                                         ),
@@ -277,8 +289,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                       padding: const EdgeInsets.only(
                                         left: 10.0,
                                       ),
-                                      child: Text(
-                                        "Switch to Scanner",
+                                      child: TranslatedText(
+                                        text: "Switch to Scanner",
                                         style: customTextStyle(
                                           fontStyle: FontStyle.BodyL_SemiBold,
                                         ),
@@ -392,8 +404,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Language",
+                        // Text(
+                        //   "Language",
+                        //   style: customTextStyle(
+                        //     fontStyle: FontStyle.BodyL_SemiBold,
+                        //   ),
+                        // ),
+                        TranslatedText(
+                          text: "Language",
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyL_SemiBold,
                           ),
@@ -410,8 +428,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Region",
+                        TranslatedText(
+                          text: "Region",
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyL_SemiBold,
                           ),
@@ -428,8 +446,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "App Version - ",
+                        TranslatedText(
+                          text: "App Version - ",
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyM_SemiBold,
                             color: FontColor.FontPrimary,
