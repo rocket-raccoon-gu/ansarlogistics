@@ -158,78 +158,80 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
         log("log");
         return false;
       },
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(0.0),
-          child: AppBar(
-            elevation: 0,
-            backgroundColor: customColors().backgroundPrimary,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(0.0),
+            child: AppBar(
+              elevation: 0,
+              backgroundColor: customColors().backgroundPrimary,
+            ),
           ),
-        ),
-        bottomNavigationBar: CustomBottomBarDriver(
-          context: context,
-          selectedIndex: selectedIndex,
-          onTap: (int value) {
-            BlocProvider.of<NavigationCubit>(context).updateWatchList(value);
-            setState(() {
-              selectedIndex = value;
-            });
-          },
-        ),
-        body: BlocConsumer<NavigationCubit, NavigationState>(
-          builder: (context, state) {
-            if (state is WatchlistIndexState) {
-              return IndexedStack(
-                index: state.index,
-                children: [
-                  BlocProvider(
-                    create:
-                        (context) => DriverOrdersPageCubit(
-                          context.gTradingApiGateway,
-                          context,
-                          PostRepositories(
-                            PostService(widget.serviceLocator, context),
+          bottomNavigationBar: CustomBottomBarDriver(
+            context: context,
+            selectedIndex: selectedIndex,
+            onTap: (int value) {
+              BlocProvider.of<NavigationCubit>(context).updateWatchList(value);
+              setState(() {
+                selectedIndex = value;
+              });
+            },
+          ),
+          body: BlocConsumer<NavigationCubit, NavigationState>(
+            builder: (context, state) {
+              if (state is WatchlistIndexState) {
+                return IndexedStack(
+                  index: state.index,
+                  children: [
+                    BlocProvider(
+                      create:
+                          (context) => DriverOrdersPageCubit(
+                            context.gTradingApiGateway,
+                            context,
+                            PostRepositories(
+                              PostService(widget.serviceLocator, context),
+                            ),
                           ),
-                        ),
-                    child: DriverOrdersPage(),
-                  ),
-                  BlocProvider(
-                    create:
-                        (context) => DriverReportCubit(
-                          context: context,
-                          serviceLocator: widget.serviceLocator,
-                        ),
-                    child: DriverReportsPage(),
-                  ),
-                  DriverSummeryPage(),
-                  ProfilePage(serviceLocator: widget.serviceLocator),
-                ],
-              );
-            }
-            return Container();
-          },
-          listener: (context, state) {
-            if (state is WatchlistIndexState) {
-              switch (state.index) {
-                case 0:
-                  selectedIndex = 0;
-                  break;
-                case 1:
-                  selectedIndex = 1;
-                  break;
-                case 2:
-                  selectedIndex = 2;
-                  break;
-                case 3:
-                  selectedIndex = 3;
-                  break;
-                case 4:
-                  selectedIndex = 0;
-                  break;
+                      child: DriverOrdersPage(),
+                    ),
+                    BlocProvider(
+                      create:
+                          (context) => DriverReportCubit(
+                            context: context,
+                            serviceLocator: widget.serviceLocator,
+                          ),
+                      child: DriverReportsPage(),
+                    ),
+                    DriverSummeryPage(),
+                    ProfilePage(serviceLocator: widget.serviceLocator),
+                  ],
+                );
               }
-              setState(() {});
-            }
-          },
+              return Container();
+            },
+            listener: (context, state) {
+              if (state is WatchlistIndexState) {
+                switch (state.index) {
+                  case 0:
+                    selectedIndex = 0;
+                    break;
+                  case 1:
+                    selectedIndex = 1;
+                    break;
+                  case 2:
+                    selectedIndex = 2;
+                    break;
+                  case 3:
+                    selectedIndex = 3;
+                    break;
+                  case 4:
+                    selectedIndex = 0;
+                    break;
+                }
+                setState(() {});
+              }
+            },
+          ),
         ),
       ),
     );

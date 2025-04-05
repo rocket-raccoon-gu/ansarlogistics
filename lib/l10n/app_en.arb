@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "login": "Log In",
+  "userId": "User Id",
+  "enterUserId": "Enter User ID/Emp ID",
+  "password": "Password",
+  "enterPassword": "Enter Password",
+  "loginFailed": "Login Failed",
+  "checkCredentials": "Please Check Your Credentials or Contact Admin"
+}

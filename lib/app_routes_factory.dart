@@ -11,6 +11,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/home_section_incharge_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_login/login_page_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/new_scan_page_route_builder.dart';
+import 'package:ansarlogistics/common_features/feature_select_region/select_region_root_builder.dart';
 import 'package:ansarlogistics/common_features/feature_signup/signup_page_routebuilder.dart';
 import 'package:ansarlogistics/common_features/feature_splash/splash_route_builder.dart';
 import 'package:ansarlogistics/navigations/navigation.dart';
@@ -145,6 +146,12 @@ class AppRoutesFactory extends RoutesFactory {
   Route createNewScanBarcodePageRoute(Map<String, dynamic> data) {
     // TODO: implement createNewScanBarcodePageRoute
     return CustomRoute(builder: NewScanPageRouteBuilder(_serviceLocator, data));
+  }
+
+  @override
+  Route createSelectRegionsPageRoute() {
+    // TODO: implement createSelectRegionsPageRoute
+    return CustomRoute(builder: SelectRegionRootBuilder(_serviceLocator));
   }
 }
 

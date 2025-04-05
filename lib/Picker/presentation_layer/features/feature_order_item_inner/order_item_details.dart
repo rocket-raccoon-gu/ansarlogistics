@@ -11,6 +11,7 @@ import 'package:ansarlogistics/components/custom_app_components/buttons/counter_
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/barcode_change_sheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/price_change_sheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/components/loading_indecator.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
@@ -1734,11 +1735,14 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                             autoCloseDuration: Duration(
                                               seconds: 5,
                                             ),
-                                            title: Text("Alert..!"),
+                                            title: TranslatedText(
+                                              text: "Alert..!",
+                                            ),
                                             backgroundColor:
                                                 customColors().carnationRed,
-                                            description: Text(
-                                              "Only One Item You Can Cancel this order !",
+                                            description: TranslatedText(
+                                              text:
+                                                  "Only One Item You Can Cancel this order !",
                                               style: customTextStyle(
                                                 fontStyle: FontStyle.BodyM_Bold,
                                                 color: FontColor.White,
@@ -1781,8 +1785,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                           ),
                                           backgroundColor:
                                               customColors().carnationRed,
-                                          title: Text(
-                                            "Alert..!",
+                                          title: TranslatedText(
+                                            text: "Alert..!",
                                             style: customTextStyle(
                                               fontStyle: FontStyle.BodyM_Bold,
                                               color: FontColor.White,

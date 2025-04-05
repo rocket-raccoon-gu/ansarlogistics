@@ -45,6 +45,8 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
       case _newScanBarcodePageRouteName:
         final arg = settings.arguments as MapArguments;
         return routesFactory.createNewScanBarcodePageRoute(arg.data);
+      case _selectRegionsPageRouteName:
+        return routesFactory.createSelectRegionsPageRoute();
       default:
         return null;
     }

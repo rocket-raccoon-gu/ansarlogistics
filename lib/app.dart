@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class PDApp extends StatefulWidget {
   final String initialRoute;
@@ -118,7 +119,13 @@ class _PDAppState extends State<PDApp> {
                 AppRoutesFactory(widget.serviceLocator),
               ),
               debugShowCheckedModeBanner: kDebugMode,
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
               supportedLocales: const [Locale('en', 'US'), Locale('ar', 'AE')],
+
               themeMode:
                   CustomTheme.modelTheme == CustomMode.Light
                       ? ThemeMode.light

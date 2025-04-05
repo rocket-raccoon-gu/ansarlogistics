@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:ansarlogistics/Driver/background_service/background_service.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_orders/bloc/driver_orders_page_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/services/post_repositories.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/services/api_gateway.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -184,15 +185,15 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
                 if (data['message'].toString().contains('updated')) {
                   toastification.show(
                     backgroundColor: customColors().success,
-                    title: Text(
-                      "Location Update",
+                    title: TranslatedText(
+                      text: "Location Update",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Bold,
                         color: FontColor.White,
                       ),
                     ),
-                    description: Text(
-                      data['message'],
+                    description: TranslatedText(
+                      text: data['message'],
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyM_Bold,
                         color: FontColor.White,
@@ -204,15 +205,15 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
                 } else {
                   toastification.show(
                     backgroundColor: customColors().danger,
-                    title: Text(
-                      "Location Warning...!",
+                    title: TranslatedText(
+                      text: "Location Warning...!",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Bold,
                         color: FontColor.White,
                       ),
                     ),
-                    description: Text(
-                      data['message'],
+                    description: TranslatedText(
+                      text: data['message'],
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyM_Bold,
                         color: FontColor.White,

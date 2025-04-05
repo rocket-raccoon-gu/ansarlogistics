@@ -15,3 +15,4 @@ const _documentUploadPageRouteName = '/documentuplloadpageroute';
 const _viewOrderRoutePageRouteName = '/vieworderpageroute';
 const _homeSectionInchargePageRouteName = '/homesectioninchargepageroutename';
 const _newScanBarcodePageRouteName = 'newscanbarcodepageroutename';
+const _selectRegionsPageRouteName = '/selectregionspageroutename';

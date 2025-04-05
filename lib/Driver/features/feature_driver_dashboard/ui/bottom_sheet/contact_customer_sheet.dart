@@ -1,4 +1,5 @@
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +32,8 @@ class ContactCustomerSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                "Contact Customer",
+              TranslatedText(
+                text: "Contact Customer",
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_Bold,
                   color: FontColor.FontPrimary,
@@ -58,8 +59,8 @@ class ContactCustomerSheet extends StatelessWidget {
                           Image.asset("assets/telephone.png", height: 60.0),
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              "Call Direct",
+                            child: TranslatedText(
+                              text: "Call Direct",
                               style: customTextStyle(
                                 fontStyle: FontStyle.BodyM_Bold,
                                 color: FontColor.FontPrimary,
@@ -88,8 +89,8 @@ class ContactCustomerSheet extends StatelessWidget {
                           Image.asset("assets/whatsapp.png", height: 60.0),
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              "WhatsApp",
+                            child: TranslatedText(
+                              text: "Whats App",
                               style: customTextStyle(
                                 fontStyle: FontStyle.BodyM_Bold,
                                 color: FontColor.FontPrimary,

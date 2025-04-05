@@ -128,4 +128,10 @@ class NavigationService {
       context,
     ).pushNamed(_newScanBarcodePageRouteName, arguments: MapArguments(data));
   }
+
+  // Future<void> openSelectRegionsPage(
+  //   BuildContext context
+  // ){
+  //  return Navigator.of(context)
+  // }
 }

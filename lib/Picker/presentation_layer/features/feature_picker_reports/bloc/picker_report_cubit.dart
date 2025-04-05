@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_reports/bloc/picker_report_state.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
@@ -67,8 +68,8 @@ class PickerReportCubit extends Cubit<PickerReportState> {
         toastification.show(
           context: context,
           backgroundColor: customColors().carnationRed,
-          title: Text(
-            "Request Failed Please try Again...!",
+          title: TranslatedText(
+            text: "Request Failed Please try Again...!",
             style: customTextStyle(
               fontStyle: FontStyle.BodyL_Bold,
               color: FontColor.White,
@@ -80,8 +81,8 @@ class PickerReportCubit extends Cubit<PickerReportState> {
       toastification.show(
         context: context,
         backgroundColor: customColors().carnationRed,
-        title: Text(
-          "Request Failed Please try Again...!",
+        title: TranslatedText(
+          text: "Request Failed Please try Again...!",
           style: customTextStyle(
             fontStyle: FontStyle.BodyL_Bold,
             color: FontColor.White,

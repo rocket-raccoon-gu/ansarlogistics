@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/bloc/driver_order_inner_page_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -148,8 +149,8 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
 
         toastification.show(
           backgroundColor: customColors().secretGarden,
-          title: Text(
-            "Order Status Updated",
+          title: TranslatedText(
+            text: "Order Status Updated",
             style: customTextStyle(
               fontStyle: FontStyle.BodyL_Bold,
               color: FontColor.White,
@@ -168,8 +169,8 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
 
         toastification.show(
           backgroundColor: customColors().carnationRed,
-          title: Text(
-            "${jsonDecode(resp.body)['message']}",
+          title: TranslatedText(
+            text: "${jsonDecode(resp.body)['message']}",
             textAlign: TextAlign.justify,
             maxLines: 3,
             style: customTextStyle(
@@ -185,8 +186,8 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
     } catch (e) {
       toastification.show(
         backgroundColor: customColors().carnationRed,
-        title: Text(
-          "Status Update Failed Please Try Again..!.",
+        title: TranslatedText(
+          text: "Status Update Failed Please Try Again..!.",
           style: customTextStyle(
             fontStyle: FontStyle.BodyL_Bold,
             color: FontColor.White,

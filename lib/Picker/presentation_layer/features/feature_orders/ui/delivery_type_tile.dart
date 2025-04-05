@@ -1,4 +1,5 @@
 import 'package:ansarlogistics/components/custom_app_components/order_status_widget.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/foundation.dart';
@@ -29,9 +30,9 @@ class DeliveryTypeTile extends StatelessWidget {
               Row(
                 children: [
                   Image.asset('assets/express.png', height: 19.0),
-                  Text(
+                  TranslatedText(
                     // getTranslate(context, "Express"),
-                    "Express",
+                    text: "Express",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_ItalicBold,
                       color: FontColor.White,
@@ -63,8 +64,8 @@ class DeliveryTypeTile extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Normal Local",
+              TranslatedText(
+                text: "Normal Local",
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_SemiBold,
                   color: FontColor.White,
@@ -87,8 +88,8 @@ class DeliveryTypeTile extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Supplier",
+              TranslatedText(
+                text: "Supplier",
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_SemiBold,
                   color: FontColor.White,
@@ -111,8 +112,8 @@ class DeliveryTypeTile extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Vendor Pickup",
+              TranslatedText(
+                text: "Vendor Pickup",
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_SemiBold,
                   color: FontColor.White,
@@ -135,8 +136,8 @@ class DeliveryTypeTile extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Cake Orders",
+              TranslatedText(
+                text: "Cake Orders",
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_SemiBold,
                   color: FontColor.White,
@@ -159,8 +160,8 @@ class DeliveryTypeTile extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "WareHouse Order",
+              TranslatedText(
+                text: "WareHouse Order",
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_SemiBold,
                   color: FontColor.White,
@@ -183,8 +184,8 @@ class DeliveryTypeTile extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Abaya Order",
+              TranslatedText(
+                text: "Abaya Order",
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_SemiBold,
                   color: FontColor.White,

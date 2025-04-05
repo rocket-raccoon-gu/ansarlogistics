@@ -209,8 +209,8 @@ class _DriverCustomerDetailsTabState extends State<DriverCustomerDetailsTab> {
                         backgroundColor: customColors().secretGarden,
                         context: context,
                         autoCloseDuration: const Duration(seconds: 5),
-                        title: Text(
-                          "Order is on Customer Not Answer",
+                        title: TranslatedText(
+                          text: "Order is on Customer Not Answer",
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyL_Bold,
                             color: FontColor.White,

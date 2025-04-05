@@ -567,8 +567,8 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                                           autoCloseDuration: const Duration(
                                             seconds: 3,
                                           ),
-                                          title: Text(
-                                            "Order Rescheduled..!",
+                                          title: TranslatedText(
+                                            text: "Order Rescheduled..!",
                                             style: customTextStyle(
                                               fontStyle: FontStyle.BodyL_Bold,
                                               color: FontColor.White,

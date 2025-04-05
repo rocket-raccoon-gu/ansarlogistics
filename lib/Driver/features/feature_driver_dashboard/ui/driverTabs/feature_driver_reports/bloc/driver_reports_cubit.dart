@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_reports/bloc/driver_reports_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
@@ -68,8 +69,8 @@ class DriverReportCubit extends Cubit<DriverReportState> {
         toastification.show(
           context: context,
           backgroundColor: customColors().carnationRed,
-          title: Text(
-            "Request Failed Please try Again...!",
+          title: TranslatedText(
+            text: "Request Failed Please try Again...!",
             style: customTextStyle(
               fontStyle: FontStyle.BodyL_Bold,
               color: FontColor.White,
@@ -81,8 +82,8 @@ class DriverReportCubit extends Cubit<DriverReportState> {
       toastification.show(
         context: context,
         backgroundColor: customColors().carnationRed,
-        title: Text(
-          "Request Failed Please try Again...!",
+        title: TranslatedText(
+          text: "Request Failed Please try Again...!",
           style: customTextStyle(
             fontStyle: FontStyle.BodyL_Bold,
             color: FontColor.White,

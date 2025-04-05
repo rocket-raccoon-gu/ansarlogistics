@@ -3,6 +3,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/custom_text_form_field.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -404,8 +405,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                             backgroundColor: customColors().secretGarden,
                             context: context,
                             autoCloseDuration: const Duration(seconds: 5),
-                            title: Text(
-                              "Requested For Cancel...!",
+                            title: TranslatedText(
+                              text: "Requested For Cancel...!",
                               style: customTextStyle(
                                 fontStyle: FontStyle.BodyL_Bold,
                                 color: FontColor.White,
@@ -432,8 +433,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                             backgroundColor: customColors().carnationRed,
                             context: context,
                             autoCloseDuration: const Duration(seconds: 5),
-                            title: Text(
-                              "Send Request Failed Please Try Again...!",
+                            title: TranslatedText(
+                              text: "Send Request Failed Please Try Again...!",
                               style: customTextStyle(
                                 fontStyle: FontStyle.BodyL_Bold,
                                 color: FontColor.White,
@@ -450,8 +451,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                           backgroundColor: customColors().carnationRed,
                           context: context,
                           autoCloseDuration: const Duration(seconds: 5),
-                          title: Text(
-                            "Send Request Failed Please Try Again...!",
+                          title: TranslatedText(
+                            text: "Send Request Failed Please Try Again...!",
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.White,
@@ -464,8 +465,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                         backgroundColor: customColors().carnationRed,
                         context: context,
                         autoCloseDuration: const Duration(seconds: 2),
-                        title: Text(
-                          "Please Update Reason...!",
+                        title: TranslatedText(
+                          text: "Please Update Reason...!",
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyL_Bold,
                             color: FontColor.White,
@@ -523,8 +524,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                           backgroundColor: customColors().secretGarden,
                           context: context,
                           autoCloseDuration: const Duration(seconds: 5),
-                          title: Text(
-                            "Order is On Hold",
+                          title: TranslatedText(
+                            text: "Order is On Hold",
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.White,
@@ -550,8 +551,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                           backgroundColor: customColors().carnationRed,
                           context: context,
                           autoCloseDuration: const Duration(seconds: 5),
-                          title: Text(
-                            "Send Request Failed Please Try Again...!",
+                          title: TranslatedText(
+                            text: "Send Request Failed Please Try Again...!",
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.White,
@@ -568,8 +569,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                         backgroundColor: customColors().carnationRed,
                         context:
                             context, // optional if you use ToastificationWrapper
-                        title: Text(
-                          'Please Update The Reason...!',
+                        title: TranslatedText(
+                          text: 'Please Update The Reason...!',
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyM_Bold,
                             color: FontColor.White,

@@ -214,8 +214,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                             MainAxisAlignment
                                                                 .spaceBetween,
                                                         children: [
-                                                          Text(
-                                                            "Camera",
+                                                          TranslatedText(
+                                                            text: "Camera",
                                                             style: customTextStyle(
                                                               fontStyle:
                                                                   FontStyle
@@ -257,8 +257,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                             MainAxisAlignment
                                                                 .spaceBetween,
                                                         children: [
-                                                          Text(
-                                                            "Gallery",
+                                                          TranslatedText(
+                                                            text: "Gallery",
                                                             style: customTextStyle(
                                                               fontStyle:
                                                                   FontStyle
@@ -628,8 +628,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                 toastification.show(
                   backgroundColor: customColors().carnationRed,
                   context: context,
-                  title: Text(
-                    "Failed To Upload Bill Please Try Again...!",
+                  title: TranslatedText(
+                    text: "Failed To Upload Bill Please Try Again...!",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_Bold,
                       color: FontColor.White,

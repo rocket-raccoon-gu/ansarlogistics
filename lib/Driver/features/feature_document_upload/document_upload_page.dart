@@ -5,6 +5,7 @@ import 'package:ansarlogistics/Driver/features/feature_document_upload/bloc/docu
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,8 +109,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(left: 8.0),
-                                  child: Text(
-                                    "Upload Documents",
+                                  child: TranslatedText(
+                                    text: "Upload Documents",
                                     style: customTextStyle(
                                       fontStyle: FontStyle.BodyL_SemiBold,
                                       color: FontColor.FontSecondary,
@@ -206,8 +207,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -297,8 +298,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Draw Sign",
+                                                    TranslatedText(
+                                                      text: "Draw Sign",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -351,8 +352,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Camera",
+                                                    TranslatedText(
+                                                      text: "Camera",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -397,8 +398,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -452,8 +453,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -544,8 +545,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Draw Sign",
+                                                    TranslatedText(
+                                                      text: "Draw Sign",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -667,8 +668,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -758,8 +759,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Draw Sign",
+                                                    TranslatedText(
+                                                      text: "Draw Sign",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -812,8 +813,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Camera",
+                                                    TranslatedText(
+                                                      text: "Camera",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -858,8 +859,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -913,8 +914,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -1005,8 +1006,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Draw Sign",
+                                                    TranslatedText(
+                                                      text: "Draw Sign",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -1090,8 +1091,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(left: 12.0),
-                                  child: Text(
-                                    state.optionslist[index]['name'],
+                                  child: TranslatedText(
+                                    text: state.optionslist[index]['name'],
                                     style: customTextStyle(
                                       fontStyle: FontStyle.BodyL_SemiBold,
                                       color: FontColor.FontPrimary,
@@ -1128,8 +1129,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -1219,8 +1220,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Draw Sign",
+                                                    TranslatedText(
+                                                      text: "Draw Sign",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -1273,8 +1274,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Camera",
+                                                    TranslatedText(
+                                                      text: "Camera",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -1319,8 +1320,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -1374,8 +1375,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Gallery",
+                                                    TranslatedText(
+                                                      text: "Gallery",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
@@ -1466,8 +1467,8 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text(
-                                                      "Draw Sign",
+                                                    TranslatedText(
+                                                      text: "Draw Sign",
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle

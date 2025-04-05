@@ -1,5 +1,6 @@
 import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart';
 import 'package:ansarlogistics/common_features/feature_profile/bloc/profile_page_state.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -68,8 +69,8 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
 
         toastification.show(
           backgroundColor: customColors().secretGarden,
-          title: Text(
-            "User Status Updated",
+          title: TranslatedText(
+            text: "User Status Updated",
             style: customTextStyle(
               fontStyle: FontStyle.BodyL_Bold,
               color: FontColor.White,
@@ -82,8 +83,8 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
       } else {
         toastification.show(
           backgroundColor: customColors().warning,
-          title: Text(
-            "status update failed please try again...",
+          title: TranslatedText(
+            text: "status update failed please try again...",
             style: customTextStyle(
               fontStyle: FontStyle.BodyL_Bold,
               color: FontColor.White,
@@ -97,8 +98,8 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
     } catch (e) {
       toastification.show(
         backgroundColor: customColors().warning,
-        title: Text(
-          "status update failed please try again...",
+        title: TranslatedText(
+          text: "status update failed please try again...",
           style: customTextStyle(
             fontStyle: FontStyle.BodyL_Bold,
             color: FontColor.White,

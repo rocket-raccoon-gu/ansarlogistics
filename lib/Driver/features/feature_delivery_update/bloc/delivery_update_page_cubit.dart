@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:ansarlogistics/Driver/features/feature_delivery_update/bloc/delivery_update_page_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -133,8 +134,8 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         if (data['message'] == "Please mark order from delivered location") {
           toastification.show(
             backgroundColor: customColors().warning,
-            title: Text(
-              "Please mark order from \n delivered location",
+            title: TranslatedText(
+              text: "Please mark order from \n delivered location",
               maxLines: 2,
               style: customTextStyle(
                 fontStyle: FontStyle.BodyL_Bold,
@@ -150,8 +151,8 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         } else {
           toastification.show(
             backgroundColor: customColors().secretGarden,
-            title: Text(
-              "Order Status Updated",
+            title: TranslatedText(
+              text: "Order Status Updated",
               style: customTextStyle(
                 fontStyle: FontStyle.BodyL_Bold,
                 color: FontColor.White,
@@ -169,8 +170,8 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
       } else {
         toastification.show(
           backgroundColor: customColors().warning,
-          title: Text(
-            "Status Update Failed Please Try Again..!.",
+          title: TranslatedText(
+            text: "Status Update Failed Please Try Again..!.",
             style: customTextStyle(
               fontStyle: FontStyle.BodyL_Bold,
               color: FontColor.White,
@@ -184,8 +185,8 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
     } catch (e) {
       toastification.show(
         backgroundColor: customColors().warning,
-        title: Text(
-          "Status Update Failed Please Try Again..!.",
+        title: TranslatedText(
+          text: "Status Update Failed Please Try Again..!.",
           style: customTextStyle(
             fontStyle: FontStyle.BodyL_Bold,
             color: FontColor.White,

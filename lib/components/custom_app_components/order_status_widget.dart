@@ -1,3 +1,4 @@
+import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/foundation.dart';
@@ -20,9 +21,9 @@ class OrderStatusWidget extends StatelessWidget {
         ),
       ),
       child: Center(
-        child: Text(
+        child: TranslatedText(
           // getTranslate(context, getStatus(status)),
-          getStatus(status),
+          text: getStatus(status),
           style: customTextStyle(
             fontStyle: FontStyle.BodyM_SemiBold,
             color: FontColor.White,

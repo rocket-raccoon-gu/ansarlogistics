@@ -321,8 +321,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                         text: "Payment Method",
                         style: customTextStyle(fontStyle: FontStyle.BodyM_Bold),
                       ),
-                      Text(
-                        widget.orderResponseItem.paymentMethod,
+                      TranslatedText(
+                        text: widget.orderResponseItem.paymentMethod,
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyM_Bold,
                           color: FontColor.FontPrimary,
