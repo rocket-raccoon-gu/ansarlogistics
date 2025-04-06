@@ -201,13 +201,13 @@ extension PDGeneralApi on PickerDriverApi {
     if (status == "all") {
       urlorder = Uri.parse(
         _endpointWithApplicationPathString(
-          'pickerDriverOrdersItemsV1.php?page_size=${pagesize}&current_page=${currentpage}',
+          'pickerDriverOrdersItems.php?page_size=${pagesize}&current_page=${currentpage}',
         ),
       );
     } else {
       urlorder = Uri.parse(
         _endpointWithApplicationPathString(
-          'pickerDriverOrdersItemsV1.php?page_size=${pagesize}&current_page=${currentpage}',
+          'pickerDriverOrdersItems.php?page_size=${pagesize}&current_page=${currentpage}',
         ),
       );
     }

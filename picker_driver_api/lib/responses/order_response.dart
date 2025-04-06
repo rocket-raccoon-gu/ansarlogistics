@@ -450,7 +450,7 @@ class EndPicking {
     isproduce: json["is_produce"].toString(),
     categoryid:
         json["category_id"] == null ? "2" : json["category_id"].toString(),
-    catename: json["catename"] ?? "",
+    catename: json["catname"] ?? "",
     productImages: List<String>.from(json["product_images"].map((x) => x)),
     // categoryListId:
     //     List<String>.from(json["category_list_id"].map((x) => x)
@@ -474,7 +474,7 @@ class EndPicking {
     "subtotal": subtotal,
     "is_produce": isproduce,
     "category_id": categoryid,
-    "catename": catename,
+    "catname": catename,
     "product_images": List<dynamic>.from(productImages.map((x) => x)),
     // "category_list_id": List<dynamic>.from(categoryListId.map((x) => x)),
   };

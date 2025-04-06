@@ -83,7 +83,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: HexColor('#F9FBFF'),
+          backgroundColor: Colors.white,
           appBar: PreferredSize(
             child: AppBar(
               elevation: 0,

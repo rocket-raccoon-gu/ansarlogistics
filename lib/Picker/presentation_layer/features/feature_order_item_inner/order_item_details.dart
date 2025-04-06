@@ -82,36 +82,49 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                 context,
               ).orderItem!.isproduce ==
               "1") {
-        String first7 = barcodeScanRes!.substring(0, 7);
+        // Minimum length check (need at least 7 digits to have 6 zeros + 1 digit)
+        if (barcodeScanRes!.length < 7) return barcodeScanRes;
 
-        if (BlocProvider.of<OrderItemDetailsCubit>(
-          context,
-        ).orderItem!.productSku.startsWith(first7)) {
-          //barcode matching
+        // Get the last 7 digits
+        String lastSeven = barcodeScanRes!.substring(
+          barcodeScanRes!.length - 7,
+        );
 
-          setState(() {
-            isScanner = false;
-          });
-
-          String lastsix = barcodeScanRes.toString().substring(
-            barcodeScanRes.toString().length - 6,
-          );
-          if (barcodeScanRes != null) {
-            onTapScan(barcodeScanRes!, getPrice(lastsix), true);
-          }
+        // Check if the first 6 of the last 7 digits are '0'
+        if (lastSeven.substring(0, 6) == '000000') {
+          log("barcode with end 1 digit");
         } else {
-          // onTapScan(barcodeScanRes, "", false);
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(
-              errorMessage: "Barcode not matching ...!",
-            ),
-          );
+          String first7 = barcodeScanRes!.substring(0, 7);
+
+          if (BlocProvider.of<OrderItemDetailsCubit>(
+            context,
+          ).orderItem!.productSku.startsWith(first7)) {
+            //barcode matching
+
+            setState(() {
+              isScanner = false;
+            });
+
+            String lastsix = barcodeScanRes.toString().substring(
+              barcodeScanRes.toString().length - 6,
+            );
+            if (barcodeScanRes != null) {
+              onTapScan(barcodeScanRes!, getPrice(lastsix), true);
+            }
+          } else {
+            // onTapScan(barcodeScanRes, "", false);
+            showSnackBar(
+              context: context,
+              snackBar: showErrorDialogue(
+                errorMessage: "Barcode not matching ...!",
+              ),
+            );
+          }
         }
       } else {
         log(barcodeScanRes.toString());
 
-        barcodeScanRes = normalizeSpecialBarcode(barcodeScanRes!);
+        // barcodeScanRes = normalizeSpecialBarcode(barcodeScanRes!);
 
         log("scanned barcode.............");
 
@@ -530,7 +543,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
           backgroundColor: Color.fromRGBO(183, 214, 53, 1),
         ),
       ),
-      backgroundColor: customColors().backgroundPrimary,
+      backgroundColor: Colors.white,
       body:
       // !isScanner
       //     ?
@@ -543,7 +556,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
               horizontal: 10.0,
             ),
             decoration: BoxDecoration(
-              color: HexColor('#F9FBFF'),
+              color: Colors.white,
               border: Border(
                 bottom: BorderSide(
                   width: 2.0,
@@ -610,7 +623,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                         // });
 
                         return Container(
-                          color: HexColor('#F9FBFF'),
+                          color: Colors.white,
                           child: Column(
                             children: [
                               state.orderItem.productImages.isNotEmpty

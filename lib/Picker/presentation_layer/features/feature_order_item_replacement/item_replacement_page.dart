@@ -142,7 +142,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(elevation: 0, backgroundColor: HexColor('#F9FBFF')),
       ),
-      backgroundColor: HexColor('#F9FBFF'),
+      backgroundColor: Colors.white,
       body: Builder(
         builder: (context) {
           if (isScanner) {
@@ -241,7 +241,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                     horizontal: 10.0,
                   ),
                   decoration: BoxDecoration(
-                    color: HexColor('#F9FBFF'),
+                    color: Colors.white,
                     border: Border(
                       bottom: BorderSide(
                         width: 2.0,
@@ -630,20 +630,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                             ),
                                             child: Container(
                                               decoration: BoxDecoration(
-                                                color: HexColor('#F9FBFF'),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: customColors()
-                                                        .backgroundTertiary
-                                                        .withOpacity(0.7),
-                                                    spreadRadius: 1,
-                                                    blurRadius: 8,
-                                                    offset: Offset(
-                                                      0,
-                                                      8,
-                                                    ), // changes the position of the shadow
-                                                  ),
-                                                ],
+                                                color: Colors.white,
                                               ),
                                               child: Padding(
                                                 padding:
@@ -813,7 +800,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                           ),
                                           Container(
                                             decoration: BoxDecoration(
-                                              color: HexColor('#F9FBFF'),
+                                              color: Colors.white,
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: customColors()
@@ -1318,7 +1305,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                         ),
                                         Container(
                                           decoration: BoxDecoration(
-                                            color: HexColor('#F9FBFF'),
+                                            color: Colors.white,
                                             boxShadow: [
                                               BoxShadow(
                                                 color: customColors()
