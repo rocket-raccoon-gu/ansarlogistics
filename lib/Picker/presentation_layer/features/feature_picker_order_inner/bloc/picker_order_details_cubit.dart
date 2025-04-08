@@ -213,7 +213,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
         itemslist = Items.fromJson(data['items']);
 
-        log(itemslist.toString());
+        // log(itemslist.toString());
 
         updateSelectedItem(tabindex);
       } else {

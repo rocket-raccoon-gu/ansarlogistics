@@ -19,6 +19,7 @@ import 'package:ansarlogistics/components/custom_app_components/scrollable_botto
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
+import 'package:ansarlogistics/utils/permission_service.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -78,45 +79,25 @@ class _PickerDashboardPageState extends State<PickerDashboardPage> {
   }
 
   Future<void> requestPermissions() async {
-    await Permission.location.request();
+    // await Permission.location.request();
     // await Permission.locationWhenInUse.request();
     // await Permission.locationAlways.request();
-    await Permission.notification.request();
-    await Permission.microphone.request();
-    await Permission.phone.request();
-    await Permission.storage.request();
+    if (!await Permission.notification.isGranted) {
+      await Permission.notification.request();
+    }
+    // if (!await Permission.microphone.isGranted) {
+    //   await Permission.microphone.request();
+    // }
+    if (!await Permission.storage.isGranted) {
+      await Permission.storage.request();
+    }
+    // await Permission.phone.request();
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    init();
-    networkSubscription = NetworkStatusService.networkStatusController.stream
-        .listen((NetworkStatus status) {
-          log("NETWORK : $status");
-          if (status == NetworkStatus.Online) {
-            log("NETWORK : Inernet connection restored");
-            ScaffoldMessenger.of(context).showSnackBar(
-              showSuccessDialogue(message: "Inernet connection restored"),
-            );
-          } else if (status == NetworkStatus.Offline) {
-            log("NETWORK : Inernet connection lost");
-            ScaffoldMessenger.of(context).showSnackBar(
-              showErrorDialogue(errorMessage: "Inernet connection lost"),
-            );
-          }
-        });
-
-    navSubscription = context
-        .read<NavigationCubit>()
-        .adcontroller
-        .stream
-        .listen((event) {
-          pageIndex = event.currIndex;
-        });
-
-    requestPermissions();
+  void _showToast(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override

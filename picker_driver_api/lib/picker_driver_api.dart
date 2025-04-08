@@ -776,7 +776,7 @@ extension PDGeneralApi on PickerDriverApi {
         "android": {
           "notification": {
             "channel_id":
-                "channel_id_6", // Ensure correct spelling for channel_id
+                "channel_id_5", // Ensure correct spelling for channel_id
           },
         },
       },

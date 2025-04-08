@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 
@@ -41,6 +42,8 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
   List<String> barcodelist = [];
 
   late CameraController _cameraController;
+
+  bool isScan = false;
 
   @override
   void initState() {
@@ -67,35 +70,8 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
   Future<void> scanBarcodeNormal(BuildContext ctx) async {
     String? barcodescanRes;
 
-    // ScanResult scanResult;
-
-    // final cameras = await availableCameras();
-    // final firstCamera = cameras.first;
-    // int cameralist = await BarcodeScanner.numberOfCameras;
-
-    // _cameraController = CameraController(firstCamera, ResolutionPreset.medium);
-
-    // await _cameraController.initialize();
-
     try {
       await requestCameraPermission();
-      // scanResult = await BarcodeScanner.scan();
-
-      // log(scanResult.rawContent);
-
-      // // var result = await BarcodeScanner.scan(
-      // //     options: ScanOptions(useCamera: cameralist - 2));
-      // if (UserController.userController.scanselection == false) {
-      //   if (scanResult.rawContent.length >= 5) {
-      //     barcodescanRes =
-      //         '${scanResult.rawContent.substring(0, scanResult.rawContent.length - 5)}00000';
-      //   }
-      // }
-
-      // setState(() {
-      //   // barcodescanRes = result.rawContent;
-      //   _scanBarcode = barcodescanRes!;
-      // });
 
       ScanResult scanResult = await BarcodeScanner.scan();
       setState(() {
@@ -1046,179 +1022,6 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
         ),
       ),
       backgroundColor: customColors().backgroundPrimary,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Color.fromRGBO(183, 214, 53, 1)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        height: 80.0,
-                        width: 80.0,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: customColors().backgroundPrimary,
-                        ),
-                        child: Center(
-                          child: Text(
-                            UserController.userController.profile.name[0]
-                                .toUpperCase(),
-                            style: customTextStyle(
-                              fontStyle: FontStyle.HeaderL_Bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      // CustomToggleButton(
-                      //   currentval: context
-                      //       .read<NewScanBarcodePageCubit>()
-                      //       .onlinestatus,
-                      //   onChanged: (p0) {
-                      //     BlocProvider.of<NewScanBarcodePageCubit>(context)
-                      //         .updatedutystatus(context
-                      //                     .read<NewScanBarcodePageCubit>()
-                      //                     .onlinestatus ==
-                      //                 1
-                      //             ? 0
-                      //             : 1);
-
-                      //     setState(() {});
-                      //   },
-                      // )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          UserController.userController.profile.name,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    UserController().profile.email,
-                    style: customTextStyle(fontStyle: FontStyle.BodyM_SemiBold),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-              decoration: BoxDecoration(
-                color:
-                    UserController.userController.scanselection
-                        ? customColors().accent
-                        : null,
-                border: Border.all(color: customColors().backgroundTertiary),
-              ),
-              child: Row(
-                children: [
-                  Image.asset('assets/products_inactive.png', height: 20.0),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: InkWell(
-                      onTap: () async {
-                        // await BlocProvider.of<NewScanBarcodePageCubit>(context)
-                        //     .updatelogoutstat(0);
-
-                        setState(() {
-                          UserController.userController.scanselection = true;
-                        });
-                        Navigator.pop(context);
-                        // await logout(context);
-                      },
-                      child: Text(
-                        "Scan Normal",
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_SemiBold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-              decoration: BoxDecoration(
-                color:
-                    UserController.userController.scanselection == false
-                        ? customColors().accent
-                        : null,
-                border: Border.all(color: customColors().backgroundTertiary),
-              ),
-              child: Row(
-                children: [
-                  Image.asset('assets/order_new_inactive.png', height: 20.0),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: InkWell(
-                      onTap: () async {
-                        // await BlocProvider.of<NewScanBarcodePageCubit>(context)
-                        //     .updatelogoutstat(0);
-                        setState(() {
-                          UserController.userController.scanselection = false;
-                        });
-                        Navigator.pop(context);
-                        // await logout(context);
-                      },
-                      child: Text(
-                        "Scan Produce",
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_SemiBold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: customColors().backgroundTertiary),
-              ),
-              child: Row(
-                children: [
-                  Image.asset('assets/logout.png', height: 20),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: InkWell(
-                      onTap: () async {
-                        await BlocProvider.of<NewScanBarcodePageCubit>(
-                          context,
-                        ).updatelogoutstat(0);
-
-                        // await logout(context);
-                      },
-                      child: Text(
-                        "Logout",
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_SemiBold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
       body: BlocBuilder<NewScanBarcodePageCubit, NewScanBarcodePageState>(
         builder: (context, state) {
           return Column(
@@ -1236,9 +1039,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                           Row(
                             children: [
                               IconButton(
-                                onPressed: () {
-                                  Scaffold.of(context).openDrawer();
-                                },
+                                onPressed: () {},
                                 icon: Icon(Icons.menu),
                               ),
                               Padding(
@@ -1308,19 +1109,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                             padding: const EdgeInsets.only(left: 16.0),
                             child: InkWell(
                               onTap: () {
-                                // if (UserController
-                                //     .userController.orderstatusupdated) {
-                                //   UserController.userController
-                                //       .orderstatusupdated = false;
-                                // Map<String, dynamic> data = {"selected": 0};
-                                // context.gNavigationService.openWorkspacePage(
-                                //   context,
-                                //   data,
-                                // );
-                                // } else {
-                                //   context.gNavigationService.back(context);
-                                //   // context.gNavigationService.openOrderPage(context);
-                                // }
+                                context.gNavigationService.back(context);
                               },
                               child: Icon(Icons.arrow_back_ios, size: 17.0),
                             ),
@@ -1347,10 +1136,6 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // CustomToggleButton(
-                    //     currentval:
-                    //         UserController.userController.scanselection ? 0 : 1,
-                    //     onChanged: (v) async {}),
                     UserController.userController.scanselection
                         ? Text(
                           "Scan Normal",
@@ -1369,232 +1154,251 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                   ],
                 ),
               ),
-              Expanded(
-                child:
-                    context.read<NewScanBarcodePageCubit>().skulist.isEmpty
-                        ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Stack(
-                              children: [
-                                Center(
-                                  child: Image.asset(
-                                    'assets/barcode_scan.png',
-                                    height: 120.0,
-                                  ),
-                                ),
-                                Positioned(
-                                  child: Center(
-                                    child: Container(
-                                      height: 120,
-                                      width: 120,
-                                      decoration: BoxDecoration(
-                                        color: customColors().backgroundPrimary
-                                            .withOpacity(0.8),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Text(
-                                "Tap To Scan For Add Barcodes...",
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyM_Bold,
-                                  color: FontColor.FontTertiary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                        : ListView.builder(
-                          itemCount:
-                              context
-                                  .read<NewScanBarcodePageCubit>()
-                                  .skulist
-                                  .length,
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 5.0,
-                              ),
-                              child: ExpandableNotifier(
-                                // initialExpanded: context
-                                //     .read<NewScanBarcodePageCubit>()
-                                //     .alwaysopenpanel,
-                                child: ScrollOnExpand(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16.0,
-                                      horizontal: 3.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: customColors().grey,
-                                      ),
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                    child: Builder(
-                                      builder: (context) {
-                                        var controller =
-                                            ExpandableController.of(
-                                              context,
-                                              required: true,
-                                            );
 
-                                        return InkWell(
-                                          onTap: () {
-                                            controller!.toggle();
-                                          },
-                                          child: Column(
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8.0,
-                                                    ),
-                                                child: Container(
-                                                  child: Column(
-                                                    children: [
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Expanded(
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets.only(
-                                                                    left: 8.0,
+              if (isScan)
+                Expanded(
+                  child: MobileScanner(
+                    controller: MobileScannerController(
+                      facing: CameraFacing.back,
+                    ),
+                    onDetect: (capture) {
+                      final List<Barcode> barcodes = capture.barcodes;
+                      for (final barcode in barcodes) {
+                        print('Barcode found! ${barcode.rawValue}');
+                      }
+                    },
+                  ),
+                )
+              else
+                Expanded(
+                  child:
+                      context.read<NewScanBarcodePageCubit>().skulist.isEmpty
+                          ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Stack(
+                                children: [
+                                  Center(
+                                    child: Image.asset(
+                                      'assets/barcode_scan.png',
+                                      height: 120.0,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    child: Center(
+                                      child: Container(
+                                        height: 120,
+                                        width: 120,
+                                        decoration: BoxDecoration(
+                                          color: customColors()
+                                              .backgroundPrimary
+                                              .withOpacity(0.8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: Text(
+                                  "Tap To Scan For Add Barcodes...",
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyM_Bold,
+                                    color: FontColor.FontTertiary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                          : ListView.builder(
+                            itemCount:
+                                context
+                                    .read<NewScanBarcodePageCubit>()
+                                    .skulist
+                                    .length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                  vertical: 5.0,
+                                ),
+                                child: ExpandableNotifier(
+                                  // initialExpanded: context
+                                  //     .read<NewScanBarcodePageCubit>()
+                                  //     .alwaysopenpanel,
+                                  child: ScrollOnExpand(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16.0,
+                                        horizontal: 3.0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: customColors().grey,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                          5.0,
+                                        ),
+                                      ),
+                                      child: Builder(
+                                        builder: (context) {
+                                          var controller =
+                                              ExpandableController.of(
+                                                context,
+                                                required: true,
+                                              );
+
+                                          return InkWell(
+                                            onTap: () {
+                                              controller!.toggle();
+                                            },
+                                            child: Column(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 8.0,
+                                                      ),
+                                                  child: Container(
+                                                    child: Column(
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Expanded(
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets.only(
+                                                                      left: 8.0,
+                                                                    ),
+                                                                child:
+                                                                // SizedBox(
+                                                                //   child:
+                                                                //       TextFormField(
+                                                                //     initialValue: context
+                                                                //             .read<
+                                                                //                 NewScanBarcodePageCubit>()
+                                                                //             .skulist[
+                                                                //         index]['sku'],
+                                                                //     onChanged:
+                                                                //         (value) {
+                                                                //       setState(
+                                                                //           () {
+                                                                //         context
+                                                                //             .read<
+                                                                //                 NewScanBarcodePageCubit>()
+                                                                //             .skulist[index]['sku'] = value;
+                                                                //       });
+                                                                //     },
+                                                                //   ),
+                                                                // )
+                                                                Text(
+                                                                  context
+                                                                      .read<
+                                                                        NewScanBarcodePageCubit
+                                                                      >()
+                                                                      .skulist[index]['sku'],
+                                                                  style: customTextStyle(
+                                                                    fontStyle:
+                                                                        FontStyle
+                                                                            .BodyL_Bold,
                                                                   ),
-                                                              child:
-                                                              // SizedBox(
-                                                              //   child:
-                                                              //       TextFormField(
-                                                              //     initialValue: context
-                                                              //             .read<
-                                                              //                 NewScanBarcodePageCubit>()
-                                                              //             .skulist[
-                                                              //         index]['sku'],
-                                                              //     onChanged:
-                                                              //         (value) {
-                                                              //       setState(
-                                                              //           () {
-                                                              //         context
-                                                              //             .read<
-                                                              //                 NewScanBarcodePageCubit>()
-                                                              //             .skulist[index]['sku'] = value;
-                                                              //       });
-                                                              //     },
-                                                              //   ),
-                                                              // )
-                                                              Text(
-                                                                context
-                                                                    .read<
-                                                                      NewScanBarcodePageCubit
-                                                                    >()
-                                                                    .skulist[index]['sku'],
-                                                                style: customTextStyle(
-                                                                  fontStyle:
-                                                                      FontStyle
-                                                                          .BodyL_Bold,
                                                                 ),
                                                               ),
                                                             ),
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              InkWell(
-                                                                onTap: () {
-                                                                  controller!
-                                                                      .toggle();
-                                                                },
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets.only(
-                                                                        right:
-                                                                            8.0,
-                                                                      ),
-                                                                  child: Image.asset(
-                                                                    'assets/edit.png',
-                                                                    height:
-                                                                        21.0,
+                                                            Row(
+                                                              children: [
+                                                                InkWell(
+                                                                  onTap: () {
+                                                                    controller!
+                                                                        .toggle();
+                                                                  },
+                                                                  child: Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.only(
+                                                                          right:
+                                                                              8.0,
+                                                                        ),
+                                                                    child: Image.asset(
+                                                                      'assets/edit.png',
+                                                                      height:
+                                                                          21.0,
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                              InkWell(
-                                                                onTap: () {
-                                                                  BlocProvider.of<
-                                                                    NewScanBarcodePageCubit
-                                                                  >(
-                                                                    context,
-                                                                  ).removefromlist(
-                                                                    context
-                                                                        .read<
-                                                                          NewScanBarcodePageCubit
-                                                                        >()
-                                                                        .skulist[index]['sku'],
-                                                                  );
-                                                                },
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .delete_sharp,
-                                                                  size: 20.0,
-                                                                  color:
-                                                                      customColors()
-                                                                          .carnationRed,
+                                                                InkWell(
+                                                                  onTap: () {
+                                                                    BlocProvider.of<
+                                                                      NewScanBarcodePageCubit
+                                                                    >(
+                                                                      context,
+                                                                    ).removefromlist(
+                                                                      context
+                                                                          .read<
+                                                                            NewScanBarcodePageCubit
+                                                                          >()
+                                                                          .skulist[index]['sku'],
+                                                                    );
+                                                                  },
+                                                                  child: Icon(
+                                                                    Icons
+                                                                        .delete_sharp,
+                                                                    size: 20.0,
+                                                                    color:
+                                                                        customColors()
+                                                                            .carnationRed,
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              ExpandableSection(
-                                                index: index,
-                                                skulist:
-                                                    context
-                                                        .read<
-                                                          NewScanBarcodePageCubit
-                                                        >()
-                                                        .skulist,
-                                                trigger: () {
-                                                  controller!.toggle();
-                                                },
-                                                removetrigger: () {
-                                                  BlocProvider.of<
-                                                    NewScanBarcodePageCubit
-                                                  >(context).removefromlist(
-                                                    context
-                                                        .read<
-                                                          NewScanBarcodePageCubit
-                                                        >()
-                                                        .skulist[index]['sku'],
-                                                  );
-                                                },
-                                                sliderController:
-                                                    _sliderController,
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
+                                                ExpandableSection(
+                                                  index: index,
+                                                  skulist:
+                                                      context
+                                                          .read<
+                                                            NewScanBarcodePageCubit
+                                                          >()
+                                                          .skulist,
+                                                  trigger: () {
+                                                    controller!.toggle();
+                                                  },
+                                                  removetrigger: () {
+                                                    BlocProvider.of<
+                                                      NewScanBarcodePageCubit
+                                                    >(context).removefromlist(
+                                                      context
+                                                          .read<
+                                                            NewScanBarcodePageCubit
+                                                          >()
+                                                          .skulist[index]['sku'],
+                                                    );
+                                                  },
+                                                  sliderController:
+                                                      _sliderController,
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-              ),
+                              );
+                            },
+                          ),
+                ),
             ],
           );
         },
@@ -1603,10 +1407,20 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
       floatingActionButton: FloatingActionButton(
         backgroundColor: customColors().backgroundTertiary,
         elevation: 10.0,
-        onPressed: () {
-          scanBarcodeNormal(context);
-          // BlocProvider.of<NewScanBarcodePageCubit>(context)
-          //     .scanBarcode(context);
+        onPressed: () async {
+          int sdkVersion = await getAndroidSdkVersion();
+
+          log('Android SDK version: $sdkVersion');
+
+          // scanBarcodeNormal(context);
+
+          if (sdkVersion > 29) {
+            scanBarcodeNormal(context);
+          } else {
+            setState(() {
+              isScan = true;
+            });
+          }
         },
         child: Image.asset('assets/barcode_scan.png', height: 25.0),
       ),

@@ -5,6 +5,7 @@ import 'package:ansarlogistics/app.dart';
 import 'package:ansarlogistics/common_features/force_update_screen.dart';
 import 'package:ansarlogistics/common_features/update_checker.dart';
 import 'package:ansarlogistics/components/restart_widget.dart';
+import 'package:ansarlogistics/firebase_configs/init_notification.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/custom_theme.dart';
@@ -12,6 +13,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
@@ -60,6 +62,20 @@ Future<void> main() async {
       if (Firebase.apps.isEmpty) {
         await initializeFirebase();
       }
+
+      // Initialize notifications plugin
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+
+      await flutterLocalNotificationsPlugin.initialize(
+        InitializationSettings(android: initializationSettingsAndroid),
+      );
+
+      // Create notification channel
+      await createNotificationChannel();
+
+      // Initialize Firebase messaging
+      await initializeFirebasenotification();
 
       final needsUpdate = await UpdateChecker.isUpdateRequired();
       if (needsUpdate) {

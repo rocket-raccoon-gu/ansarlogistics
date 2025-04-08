@@ -113,7 +113,7 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
 
         return InkWell(
           onTap: () {
-            log(index.toString());
+            // log(index.toString());
             context.gNavigationService.openOrderItemDetailsPage(
               context,
               arg: {

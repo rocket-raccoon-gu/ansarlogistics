@@ -67,19 +67,19 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
           branchdata = branchSectionDataResponse.branchdata;
 
           // UserController().branchdatalist = branchdata;
-          // } else {
+        } else {
           //   log(response.toString());
 
-          //   map = jsonDecode(response);
+          map = jsonDecode(response);
 
-          //   if (map["items"].isNotEmpty) {
-          //     SectionItemResponse sectionItemResponse =
-          //         await SectionItemResponse.fromJson(map);
+          if (map["data"].isNotEmpty) {
+            SectionItemResponse sectionItemResponse =
+                await SectionItemResponse.fromJson(map);
 
-          //     sectionitems = sectionItemResponse.sectionitems;
+            sectionitems = sectionItemResponse.data;
 
-          UserController().sectionitems = sectionitems;
-          //   }
+            UserController().sectionitems = sectionitems;
+          }
         }
 
         emit(
@@ -197,7 +197,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
       map = jsonDecode(response);
 
-      if (map["items"].isNotEmpty) {
+      if (map["data"].isNotEmpty) {
         SectionItemResponse sectionItemResponse =
             await SectionItemResponse.fromJson(map);
 

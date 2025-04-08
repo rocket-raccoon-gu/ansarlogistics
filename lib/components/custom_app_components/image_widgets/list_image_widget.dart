@@ -15,14 +15,14 @@ class ListImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('${mainimageurl}${imageurl}');
+    // log('${mainimageurl}${imageurl}');
 
     return FutureBuilder<Map<String, dynamic>>(
       future: getData(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           Map<String, dynamic> data = snapshot.data!;
-          log('${data['imagepath']}${imageurl}');
+          // log('${data['imagepath']}${imageurl}');
           return CachedNetworkImage(
             imageUrl: '${data['imagepath']}${imageurl}',
             imageBuilder: (context, imageProvider) {

@@ -8,6 +8,7 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as crypto;
@@ -721,4 +722,10 @@ String normalizeSpecialBarcode(String barcode) {
   }
 
   return barcode;
+}
+
+Future<int> getAndroidSdkVersion() async {
+  final deviceInfo = DeviceInfoPlugin();
+  final androidInfo = await deviceInfo.androidInfo;
+  return androidInfo.version.sdkInt;
 }
