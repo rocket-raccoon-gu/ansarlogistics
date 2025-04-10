@@ -1,0 +1,5 @@
+-keep class com.dexterous.** { *; }
+-keep class androidx.core.app.NotificationCompat** { *; }
+-keep class com.google.firebase.messaging.RemoteMessage { *; }
+-keep class * extends java.util.ListResourceBundle { *; }
+-keep public class * extends android.content.BroadcastReceiver

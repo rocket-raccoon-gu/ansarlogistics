@@ -15,6 +15,9 @@ swithcnavigate(BuildContext context, String role) {
     case "3":
       context.gNavigationService.openDriverDashBoardPage(context);
       break;
+    case "5":
+      context.gNavigationService.openPhotoGrpahyDashboard(context);
+      break;
     case "6":
       context.gNavigationService.openSectionInChargePage(context);
       break;

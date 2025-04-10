@@ -499,7 +499,7 @@ class PDApiGateway implements AuthenticationService {
       final responce = await pickerDriverApi
           .generalProductService(endpoint: endpoint, token: token11)
           .catchError((e) {
-            // networkStreamController.sink.add(e.toString());
+            networkStreamController.sink.add(e.toString());
             // throw e;
           });
       return responce;

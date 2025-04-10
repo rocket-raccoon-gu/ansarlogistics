@@ -47,6 +47,8 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
         return routesFactory.createNewScanBarcodePageRoute(arg.data);
       case _selectRegionsPageRouteName:
         return routesFactory.createSelectRegionsPageRoute();
+      case _photographyDashBorardPageRouteName:
+        return routesFactory.createPhotoGrpahyDashBoardPageRoute();
       default:
         return null;
     }

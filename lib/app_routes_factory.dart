@@ -15,6 +15,7 @@ import 'package:ansarlogistics/common_features/feature_select_region/select_regi
 import 'package:ansarlogistics/common_features/feature_signup/signup_page_routebuilder.dart';
 import 'package:ansarlogistics/common_features/feature_splash/splash_route_builder.dart';
 import 'package:ansarlogistics/navigations/navigation.dart';
+import 'package:ansarlogistics/photography/feature_photography/photography_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/navigator.dart';
@@ -152,6 +153,16 @@ class AppRoutesFactory extends RoutesFactory {
   Route createSelectRegionsPageRoute() {
     // TODO: implement createSelectRegionsPageRoute
     return CustomRoute(builder: SelectRegionRootBuilder(_serviceLocator));
+  }
+
+  @override
+  Route createPhotoGrpahyDashBoardPageRoute() {
+    // TODO: implement createPhotoGrpahyDashBoardPageRoute
+    return CustomRoute(
+      builder: PhotographyDashboardPageRouteBuilder(
+        serviceLocator: _serviceLocator,
+      ),
+    );
   }
 }
 

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/bloc/new_scan_barcode_page_cubit.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/bloc/new_scan_barcode_page_state.dart';
+import 'package:ansarlogistics/components/custom_app_components/app_bar/custom_app_bar.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -154,29 +155,306 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
 
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
-      final productresponse = await widget.serviceLocator.tradingApi
-          .getProductServiceGet(endpoint: barcodescanRes!, token11: token!);
+      String response = await widget.serviceLocator.tradingApi
+          .checkbarcodeavailablity(sku: barcodescanRes!);
 
-      if (productresponse.statusCode == 200) {
-        //     //
-        //     // Product Avaialable
-        //     //
+      log(response);
+
+      Map<String, dynamic> mdata = jsonDecode(response);
+
+      if (mdata['success'] == 1) {
         Navigator.pop(context);
+
+        showGeneralDialog(
+          context: context,
+          pageBuilder: (context, animation, secondaryanimation) {
+            return Container();
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            var curves = Curves.easeInOut.transform(animation.value);
+
+            return Transform.scale(
+              scale: curves,
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                content: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Lottie.asset(
+                    //   'assets/animation_list.json',
+                    //   height: 100.0,
+                    // ),
+                    Text(
+                      barcodescanRes!.toString(),
+                      style: customTextStyle(
+                        fontStyle: FontStyle.BodyM_Bold,
+                        color: FontColor.FontPrimary,
+                      ),
+                    ),
+                    Text(
+                      "Barcode Already Scanned on ${mdata['data']['date']}",
+                      style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      "Product Upload in Processing...",
+                      style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 50,
+                                vertical: 10.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: customColors().carnationRed,
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "OK",
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyM_Bold,
+                                    color: FontColor.White,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      } else {
+        final productresponse = await widget.serviceLocator.tradingApi
+            .generalProductServiceGet(
+              endpoint: barcodescanRes!,
+              token11: token!,
+            );
+
         Map<String, dynamic> data = jsonDecode(productresponse.body);
 
-        log(productresponse.body);
+        if (!data.containsKey('message')) {
+          Navigator.pop(context);
 
-        if (data.containsKey('message')) {
-          //       // check barcode avilablity in db
+          log(productresponse.body);
 
-          String response = await widget.serviceLocator.tradingApi
-              .checkbarcodeavailablity(sku: barcodescanRes!);
+          setState(() {
+            _productResponse = ProductResponse.fromJson(data);
+          });
 
-          log(response);
+          showGeneralDialog(
+            context: context,
+            pageBuilder: (context, animation, secondaryanimation) {
+              return Container();
+            },
+            transitionBuilder: (context, animation, secondaryAnimation, child) {
+              var curves = Curves.easeInOut.transform(animation.value);
 
-          Map<String, dynamic> mdata = jsonDecode(response);
+              return Transform.scale(
+                scale: curves,
+                child: AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  content: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Lottie.asset('assets/animation_list.json', height: 100.0),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Container(
+                                height: 90.0,
+                                width: 90.0,
+                                child:
+                                    _productResponse!
+                                            .mediaGalleryEntries
+                                            .isEmpty
+                                        ? Image.asset('assets/placeholder.png')
+                                        : InkWell(
+                                          onTap: () {
+                                            getImageViewver(
+                                              _productResponse!
+                                                  .mediaGalleryEntries,
+                                              context,
+                                              _sliderController,
+                                            );
+                                          },
+                                          child: Image.network(
+                                            "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                      ),
+                                      child: Text(
+                                        _productResponse!.name,
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyM_Bold,
+                                          color: FontColor.FontPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                        vertical: 3.0,
+                                      ),
+                                      child: Text(
+                                        "SKU: ${_productResponse!.sku}",
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyM_Bold,
+                                          color: FontColor.FontPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
-          if (mdata['success'] == 1) {
+                      // Text(
+                      //   barcodescanRes!.toString(),
+                      //   style: customTextStyle(
+                      //       fontStyle: FontStyle.BodyM_Bold,
+                      //       color: FontColor.FontPrimary),
+                      // ),
+                      // Text(
+                      //   "Barcode Already Scanned on ${mdata['data']['date']}",
+                      //   style: customTextStyle(
+                      //     fontStyle: FontStyle.BodyL_Bold,
+                      //   ),
+                      //   textAlign: TextAlign.center,
+                      // ),
+                      Text(
+                        "Do you want to add ...?",
+                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0,
+                                    horizontal: 8.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: customColors().secretGarden,
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Ok",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  ctx.read<NewScanBarcodePageCubit>().addtolist(
+                                    _productResponse!.sku,
+                                    "",
+                                    "",
+                                    "",
+                                  );
+
+                                  Navigator.pop(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 8.0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: customColors().islandAqua,
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Add This Item",
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyM_Bold,
+                                          color: FontColor.White,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        } else {
+          if (context
+              .read<NewScanBarcodePageCubit>()
+              .skulist
+              .where((element) => element.containsValue(barcodescanRes))
+              .isEmpty) {
+            // ignore: use_build_context_synchronously
+            ctx.read<NewScanBarcodePageCubit>().addtolist(
+              barcodescanRes!,
+              "",
+              "",
+              "",
+            );
+
             // ignore: use_build_context_synchronously
             showGeneralDialog(
               context: context,
@@ -201,44 +479,145 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Lottie.asset(
-                        //   'assets/animation_list.json',
-                        //   height: 100.0,
-                        // ),
                         Text(
-                          barcodescanRes!.toString(),
+                          "Do you Want to Add More...?",
+                          textAlign: TextAlign.center,
                           style: customTextStyle(
-                            fontStyle: FontStyle.BodyM_Bold,
+                            fontStyle: FontStyle.BodyL_Bold,
                             color: FontColor.FontPrimary,
                           ),
                         ),
-                        Text(
-                          "Barcode Already Scanned on ${mdata['data']['date']}",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 8.0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: customColors().carnationRed,
+                                    ),
+                                    child: Center(
+                                      child: Center(
+                                        child: Text(
+                                          "No",
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyM_Bold,
+                                            color: FontColor.White,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    // ctx
+                                    //     .read<NewScanBarcodePageCubit>()
+                                    //     .addtolist(barcodescanRes);
+
+                                    scanBarcodeNormal(ctx);
+
+                                    Navigator.pop(context);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                        vertical: 8.0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: customColors().secretGarden,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Yes",
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyM_Bold,
+                                            color: FontColor.White,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          textAlign: TextAlign.center,
                         ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          } else {
+            showGeneralDialog(
+              context: context,
+              pageBuilder: (context, animation, secondaryanimation) {
+                return Container();
+              },
+              transitionBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) {
+                var curves = Curves.easeInOut.transform(animation.value);
+
+                return Transform.scale(
+                  scale: curves,
+                  child: AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    content: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         Text(
-                          "Product Upload in Processing...",
+                          barcodescanRes.toString(),
+                          textAlign: TextAlign.center,
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.FontPrimary,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 12.0),
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "You Already Added This Barcode in List...!",
+                            textAlign: TextAlign.center,
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 10.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               InkWell(
                                 onTap: () {
-                                  Navigator.pop(context);
+                                  context.gNavigationService.back(context);
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 50,
-                                    vertical: 10.0,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 35.0,
+                                    vertical: 8.0,
                                   ),
                                   decoration: BoxDecoration(
                                     color: customColors().carnationRed,
@@ -264,737 +643,851 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                 );
               },
             );
-          } else {
-            //need to add
-
-            // ignore: use_build_context_synchronously
-            if (context
-                .read<NewScanBarcodePageCubit>()
-                .skulist
-                .where((element) => element.containsValue(barcodescanRes))
-                .isEmpty) {
-              // adding to list
-
-              // ignore: use_build_context_synchronously
-              ctx.read<NewScanBarcodePageCubit>().addtolist(
-                barcodescanRes!,
-                "",
-                "",
-                "",
-              );
-
-              // ignore: use_build_context_synchronously
-              showGeneralDialog(
-                context: context,
-                pageBuilder: (context, animation, secondaryanimation) {
-                  return Container();
-                },
-                transitionBuilder: (
-                  context,
-                  animation,
-                  secondaryAnimation,
-                  child,
-                ) {
-                  var curves = Curves.easeInOut.transform(animation.value);
-
-                  return Transform.scale(
-                    scale: curves,
-                    child: AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      content: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Do you Want to Add More...?",
-                            textAlign: TextAlign.center,
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.FontPrimary,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 15.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 8.0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: customColors().carnationRed,
-                                      ),
-                                      child: Center(
-                                        child: Center(
-                                          child: Text(
-                                            "No",
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyM_Bold,
-                                              color: FontColor.White,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: InkWell(
-                                    onTap: () {
-                                      // ctx
-                                      //     .read<NewScanBarcodePageCubit>()
-                                      //     .addtolist(barcodescanRes);
-
-                                      scanBarcodeNormal(ctx);
-
-                                      Navigator.pop(context);
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                          vertical: 8.0,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: customColors().secretGarden,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "Yes",
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyM_Bold,
-                                              color: FontColor.White,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            } else {
-              // ignore: use_build_context_synchronously
-              showGeneralDialog(
-                context: context,
-                pageBuilder: (context, animation, secondaryanimation) {
-                  return Container();
-                },
-                transitionBuilder: (
-                  context,
-                  animation,
-                  secondaryAnimation,
-                  child,
-                ) {
-                  var curves = Curves.easeInOut.transform(animation.value);
-
-                  return Transform.scale(
-                    scale: curves,
-                    child: AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      content: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            barcodescanRes.toString(),
-                            textAlign: TextAlign.center,
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.FontPrimary,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              "You Already Added This Barcode in List...!",
-                              textAlign: TextAlign.center,
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.FontPrimary,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    context.gNavigationService.back(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 35.0,
-                                      vertical: 8.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: customColors().carnationRed,
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "OK",
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.BodyM_Bold,
-                                          color: FontColor.White,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            }
-          }
-        } else {
-          setState(() {
-            _productResponse = ProductResponse.fromJson(data);
-          });
-
-          // check barcode avilablity in db
-
-          String response = await widget.serviceLocator.tradingApi
-              .checkbarcodeavailablity(sku: barcodescanRes!);
-
-          log(response);
-
-          Map<String, dynamic> mdata = jsonDecode(response);
-
-          if (mdata['success'] == 1) {
-            // ignore: use_build_context_synchronously
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
-
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Lottie.asset('assets/animation_list.json', height: 100.0),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Container(
-                                  height: 90.0,
-                                  width: 90.0,
-                                  child:
-                                      _productResponse!
-                                              .mediaGalleryEntries
-                                              .isEmpty
-                                          ? Image.asset(
-                                            'assets/placeholder.png',
-                                          )
-                                          : InkWell(
-                                            onTap: () {
-                                              getImageViewver(
-                                                _productResponse!
-                                                    .mediaGalleryEntries,
-                                                context,
-                                                _sliderController,
-                                              );
-                                            },
-                                            child: Image.network(
-                                              "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
-                                              fit: BoxFit.contain,
-                                            ),
-                                          ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                        ),
-                                        child: Text(
-                                          _productResponse!.name,
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.FontPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                          vertical: 3.0,
-                                        ),
-                                        child: Text(
-                                          "SKU: ${_productResponse!.sku}",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.FontPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Text(
-                        //   barcodescanRes!.toString(),
-                        //   style: customTextStyle(
-                        //       fontStyle: FontStyle.BodyM_Bold,
-                        //       color: FontColor.FontPrimary),
-                        // ),
-                        Text(
-                          "Barcode Already Scanned on ${mdata['data']['date']}",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Text(
-                          "Do you want to add it again...?",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0,
-                                      horizontal: 8.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: customColors().secretGarden,
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Ok",
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.BodyM_Bold,
-                                          color: FontColor.White,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    ctx
-                                        .read<NewScanBarcodePageCubit>()
-                                        .addtolist(
-                                          _productResponse!.sku,
-                                          "",
-                                          "",
-                                          "",
-                                        );
-
-                                    Navigator.pop(context);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 8.0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: customColors().islandAqua,
-                                        borderRadius: BorderRadius.circular(
-                                          5.0,
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Add This Item",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.White,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          } else {
-            // ignore: use_build_context_synchronously
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
-
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Lottie.asset('assets/animation_list.json', height: 100.0),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Container(
-                                  height: 90.0,
-                                  width: 90.0,
-                                  child:
-                                      _productResponse!
-                                              .mediaGalleryEntries
-                                              .isEmpty
-                                          ? Image.asset(
-                                            'assets/placeholder.png',
-                                          )
-                                          : InkWell(
-                                            onTap: () {
-                                              getImageViewver(
-                                                _productResponse!
-                                                    .mediaGalleryEntries,
-                                                context,
-                                                _sliderController,
-                                              );
-                                            },
-                                            child: Image.network(
-                                              "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
-                                              fit: BoxFit.contain,
-                                            ),
-                                          ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                        ),
-                                        child: Text(
-                                          _productResponse!.name,
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.FontPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                          vertical: 3.0,
-                                        ),
-                                        child: Text(
-                                          "SKU: ${_productResponse!.sku}",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.FontPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Text(
-                          barcodescanRes!.toString(),
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyM_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                        Text(
-                          "This Product is not in the List...!",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Text(
-                          "Do you want to Add ?",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0,
-                                      horizontal: 8.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: customColors().secretGarden,
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Ok",
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.BodyM_Bold,
-                                          color: FontColor.White,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    ctx
-                                        .read<NewScanBarcodePageCubit>()
-                                        .addtolist(
-                                          _productResponse!.sku,
-                                          "",
-                                          "",
-                                          "",
-                                        );
-
-                                    Navigator.pop(context);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 8.0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: customColors().islandAqua,
-                                        borderRadius: BorderRadius.circular(
-                                          5.0,
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Add This Item",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.White,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
           }
         }
-      } else {
-        //
-        // Product Not Available
-        //
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
-
-        // ignore: use_build_context_synchronously
-        showGeneralDialog(
-          context: context,
-          pageBuilder: (context, animation, secondaryanimation) {
-            return Container();
-          },
-          transitionBuilder: (context, animation, secondaryAnimation, child) {
-            var curves = Curves.easeInOut.transform(animation.value);
-
-            return Transform.scale(
-              scale: curves,
-              child: AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                content: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Product Not Found in Our Record Do you want to Add...?",
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyL_Bold,
-                        color: FontColor.FontPrimary,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                  vertical: 8.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: customColors().carnationRed,
-                                ),
-                                child: Center(
-                                  child: Center(
-                                    child: Text(
-                                      "No",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyM_Bold,
-                                        color: FontColor.White,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: InkWell(
-                                onTap: () {
-                                  print(barcodescanRes);
-                                  Navigator.pop(context);
-                                  ctx.read<NewScanBarcodePageCubit>().addtolist(
-                                    barcodescanRes!,
-                                    "",
-                                    "",
-                                    "",
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0,
-                                    vertical: 8.0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: customColors().secretGarden,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Yes",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyM_Bold,
-                                        color: FontColor.White,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
       }
+
+      // final productresponse = await widget.serviceLocator.tradingApi
+      //     .getProductServiceGet(endpoint: barcodescanRes!, token11: token!);
+
+      // if (productresponse.statusCode == 200) {
+      //   //     //
+      //   //     // Product Avaialable
+      //   //     //
+      //   Navigator.pop(context);
+      //   Map<String, dynamic> data = jsonDecode(productresponse.body);
+
+      //   log(productresponse.body);
+
+      //   if (data.containsKey('message')) {
+      //     //       // check barcode avilablity in db
+
+      //     String response = await widget.serviceLocator.tradingApi
+      //         .checkbarcodeavailablity(sku: barcodescanRes!);
+
+      //     log(response);
+
+      //     Map<String, dynamic> mdata = jsonDecode(response);
+
+      //     if (mdata['success'] == 1) {
+      //       // ignore: use_build_context_synchronously
+      //       showGeneralDialog(
+      //         context: context,
+      //         pageBuilder: (context, animation, secondaryanimation) {
+      //           return Container();
+      //         },
+      //         transitionBuilder: (
+      //           context,
+      //           animation,
+      //           secondaryAnimation,
+      //           child,
+      //         ) {
+      //           var curves = Curves.easeInOut.transform(animation.value);
+
+      //           return Transform.scale(
+      //             scale: curves,
+      //             child: AlertDialog(
+      //               shape: RoundedRectangleBorder(
+      //                 borderRadius: BorderRadius.circular(8.0),
+      //               ),
+      //               content: Column(
+      //                 mainAxisAlignment: MainAxisAlignment.center,
+      //                 mainAxisSize: MainAxisSize.min,
+      //                 children: [
+      //                   // Lottie.asset(
+      //                   //   'assets/animation_list.json',
+      //                   //   height: 100.0,
+      //                   // ),
+      //                   Text(
+      //                     barcodescanRes!.toString(),
+      //                     style: customTextStyle(
+      //                       fontStyle: FontStyle.BodyM_Bold,
+      //                       color: FontColor.FontPrimary,
+      //                     ),
+      //                   ),
+      //                   Text(
+      //                     "Barcode Already Scanned on ${mdata['data']['date']}",
+      //                     style: customTextStyle(
+      //                       fontStyle: FontStyle.BodyL_Bold,
+      //                     ),
+      //                     textAlign: TextAlign.center,
+      //                   ),
+      //                   Text(
+      //                     "Product Upload in Processing...",
+      //                     style: customTextStyle(
+      //                       fontStyle: FontStyle.BodyL_Bold,
+      //                     ),
+      //                     textAlign: TextAlign.center,
+      //                   ),
+      //                   Padding(
+      //                     padding: const EdgeInsets.only(top: 12.0),
+      //                     child: Row(
+      //                       mainAxisAlignment: MainAxisAlignment.center,
+      //                       children: [
+      //                         InkWell(
+      //                           onTap: () {
+      //                             Navigator.pop(context);
+      //                           },
+      //                           child: Container(
+      //                             padding: EdgeInsets.symmetric(
+      //                               horizontal: 50,
+      //                               vertical: 10.0,
+      //                             ),
+      //                             decoration: BoxDecoration(
+      //                               color: customColors().carnationRed,
+      //                               borderRadius: BorderRadius.circular(5.0),
+      //                             ),
+      //                             child: Center(
+      //                               child: Text(
+      //                                 "OK",
+      //                                 style: customTextStyle(
+      //                                   fontStyle: FontStyle.BodyM_Bold,
+      //                                   color: FontColor.White,
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ],
+      //                     ),
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //           );
+      //         },
+      //       );
+      //     } else {
+      //       //need to add
+
+      //       // ignore: use_build_context_synchronously
+      //       if (context
+      //           .read<NewScanBarcodePageCubit>()
+      //           .skulist
+      //           .where((element) => element.containsValue(barcodescanRes))
+      //           .isEmpty) {
+      //         // adding to list
+
+      //         // ignore: use_build_context_synchronously
+      //         ctx.read<NewScanBarcodePageCubit>().addtolist(
+      //           barcodescanRes!,
+      //           "",
+      //           "",
+      //           "",
+      //         );
+
+      //         // ignore: use_build_context_synchronously
+      //         showGeneralDialog(
+      //           context: context,
+      //           pageBuilder: (context, animation, secondaryanimation) {
+      //             return Container();
+      //           },
+      //           transitionBuilder: (
+      //             context,
+      //             animation,
+      //             secondaryAnimation,
+      //             child,
+      //           ) {
+      //             var curves = Curves.easeInOut.transform(animation.value);
+
+      //             return Transform.scale(
+      //               scale: curves,
+      //               child: AlertDialog(
+      //                 shape: RoundedRectangleBorder(
+      //                   borderRadius: BorderRadius.circular(8.0),
+      //                 ),
+      //                 content: Column(
+      //                   mainAxisAlignment: MainAxisAlignment.center,
+      //                   mainAxisSize: MainAxisSize.min,
+      //                   children: [
+      //                     Text(
+      //                       "Do you Want to Add More...?",
+      //                       textAlign: TextAlign.center,
+      //                       style: customTextStyle(
+      //                         fontStyle: FontStyle.BodyL_Bold,
+      //                         color: FontColor.FontPrimary,
+      //                       ),
+      //                     ),
+      //                     Padding(
+      //                       padding: const EdgeInsets.only(top: 15.0),
+      //                       child: Row(
+      //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //                         children: [
+      //                           Expanded(
+      //                             child: InkWell(
+      //                               onTap: () {
+      //                                 Navigator.pop(context);
+      //                               },
+      //                               child: Container(
+      //                                 padding: const EdgeInsets.symmetric(
+      //                                   horizontal: 8.0,
+      //                                   vertical: 8.0,
+      //                                 ),
+      //                                 decoration: BoxDecoration(
+      //                                   color: customColors().carnationRed,
+      //                                 ),
+      //                                 child: Center(
+      //                                   child: Center(
+      //                                     child: Text(
+      //                                       "No",
+      //                                       style: customTextStyle(
+      //                                         fontStyle: FontStyle.BodyM_Bold,
+      //                                         color: FontColor.White,
+      //                                       ),
+      //                                     ),
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                           Expanded(
+      //                             child: InkWell(
+      //                               onTap: () {
+      //                                 // ctx
+      //                                 //     .read<NewScanBarcodePageCubit>()
+      //                                 //     .addtolist(barcodescanRes);
+
+      //                                 scanBarcodeNormal(ctx);
+
+      //                                 Navigator.pop(context);
+      //                               },
+      //                               child: Padding(
+      //                                 padding: const EdgeInsets.only(left: 8.0),
+      //                                 child: Container(
+      //                                   padding: const EdgeInsets.symmetric(
+      //                                     horizontal: 8.0,
+      //                                     vertical: 8.0,
+      //                                   ),
+      //                                   decoration: BoxDecoration(
+      //                                     color: customColors().secretGarden,
+      //                                   ),
+      //                                   child: Center(
+      //                                     child: Text(
+      //                                       "Yes",
+      //                                       style: customTextStyle(
+      //                                         fontStyle: FontStyle.BodyM_Bold,
+      //                                         color: FontColor.White,
+      //                                       ),
+      //                                     ),
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //             );
+      //           },
+      //         );
+      //       } else {
+      //         // ignore: use_build_context_synchronously
+      //         showGeneralDialog(
+      //           context: context,
+      //           pageBuilder: (context, animation, secondaryanimation) {
+      //             return Container();
+      //           },
+      //           transitionBuilder: (
+      //             context,
+      //             animation,
+      //             secondaryAnimation,
+      //             child,
+      //           ) {
+      //             var curves = Curves.easeInOut.transform(animation.value);
+
+      //             return Transform.scale(
+      //               scale: curves,
+      //               child: AlertDialog(
+      //                 shape: RoundedRectangleBorder(
+      //                   borderRadius: BorderRadius.circular(8.0),
+      //                 ),
+      //                 content: Column(
+      //                   mainAxisAlignment: MainAxisAlignment.center,
+      //                   mainAxisSize: MainAxisSize.min,
+      //                   children: [
+      //                     Text(
+      //                       barcodescanRes.toString(),
+      //                       textAlign: TextAlign.center,
+      //                       style: customTextStyle(
+      //                         fontStyle: FontStyle.BodyL_Bold,
+      //                         color: FontColor.FontPrimary,
+      //                       ),
+      //                     ),
+      //                     Padding(
+      //                       padding: const EdgeInsets.only(top: 8.0),
+      //                       child: Text(
+      //                         "You Already Added This Barcode in List...!",
+      //                         textAlign: TextAlign.center,
+      //                         style: customTextStyle(
+      //                           fontStyle: FontStyle.BodyL_Bold,
+      //                           color: FontColor.FontPrimary,
+      //                         ),
+      //                       ),
+      //                     ),
+      //                     Padding(
+      //                       padding: EdgeInsets.only(top: 10.0),
+      //                       child: Row(
+      //                         mainAxisAlignment: MainAxisAlignment.center,
+      //                         children: [
+      //                           InkWell(
+      //                             onTap: () {
+      //                               context.gNavigationService.back(context);
+      //                             },
+      //                             child: Container(
+      //                               padding: const EdgeInsets.symmetric(
+      //                                 horizontal: 35.0,
+      //                                 vertical: 8.0,
+      //                               ),
+      //                               decoration: BoxDecoration(
+      //                                 color: customColors().carnationRed,
+      //                                 borderRadius: BorderRadius.circular(5.0),
+      //                               ),
+      //                               child: Center(
+      //                                 child: Text(
+      //                                   "OK",
+      //                                   style: customTextStyle(
+      //                                     fontStyle: FontStyle.BodyM_Bold,
+      //                                     color: FontColor.White,
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //             );
+      //           },
+      //         );
+      //       }
+      //     }
+      //   } else {
+      //     setState(() {
+      //       _productResponse = ProductResponse.fromJson(data);
+      //     });
+
+      //     // check barcode avilablity in db
+
+      //     String response = await widget.serviceLocator.tradingApi
+      //         .checkbarcodeavailablity(sku: barcodescanRes!);
+
+      //     log(response);
+
+      //     Map<String, dynamic> mdata = jsonDecode(response);
+
+      //     if (mdata['success'] == 1) {
+      //       // ignore: use_build_context_synchronously
+      //       showGeneralDialog(
+      //         context: context,
+      //         pageBuilder: (context, animation, secondaryanimation) {
+      //           return Container();
+      //         },
+      //         transitionBuilder: (
+      //           context,
+      //           animation,
+      //           secondaryAnimation,
+      //           child,
+      //         ) {
+      //           var curves = Curves.easeInOut.transform(animation.value);
+
+      //           return Transform.scale(
+      //             scale: curves,
+      //             child: AlertDialog(
+      //               shape: RoundedRectangleBorder(
+      //                 borderRadius: BorderRadius.circular(8.0),
+      //               ),
+      //               content: Column(
+      //                 mainAxisAlignment: MainAxisAlignment.center,
+      //                 mainAxisSize: MainAxisSize.min,
+      //                 children: [
+      //                   // Lottie.asset('assets/animation_list.json', height: 100.0),
+      //                   Padding(
+      //                     padding: const EdgeInsets.only(top: 8.0),
+      //                     child: Row(
+      //                       children: [
+      //                         Padding(
+      //                           padding: const EdgeInsets.only(right: 8.0),
+      //                           child: Container(
+      //                             height: 90.0,
+      //                             width: 90.0,
+      //                             child:
+      //                                 _productResponse!
+      //                                         .mediaGalleryEntries
+      //                                         .isEmpty
+      //                                     ? Image.asset(
+      //                                       'assets/placeholder.png',
+      //                                     )
+      //                                     : InkWell(
+      //                                       onTap: () {
+      //                                         getImageViewver(
+      //                                           _productResponse!
+      //                                               .mediaGalleryEntries,
+      //                                           context,
+      //                                           _sliderController,
+      //                                         );
+      //                                       },
+      //                                       child: Image.network(
+      //                                         "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+      //                                         fit: BoxFit.contain,
+      //                                       ),
+      //                                     ),
+      //                           ),
+      //                         ),
+      //                         Expanded(
+      //                           child: Container(
+      //                             child: Column(
+      //                               mainAxisAlignment: MainAxisAlignment.center,
+      //                               crossAxisAlignment:
+      //                                   CrossAxisAlignment.start,
+      //                               children: [
+      //                                 Padding(
+      //                                   padding: const EdgeInsets.symmetric(
+      //                                     horizontal: 8.0,
+      //                                   ),
+      //                                   child: Text(
+      //                                     _productResponse!.name,
+      //                                     style: customTextStyle(
+      //                                       fontStyle: FontStyle.BodyM_Bold,
+      //                                       color: FontColor.FontPrimary,
+      //                                     ),
+      //                                   ),
+      //                                 ),
+      //                                 Padding(
+      //                                   padding: const EdgeInsets.symmetric(
+      //                                     horizontal: 8.0,
+      //                                     vertical: 3.0,
+      //                                   ),
+      //                                   child: Text(
+      //                                     "SKU: ${_productResponse!.sku}",
+      //                                     style: customTextStyle(
+      //                                       fontStyle: FontStyle.BodyM_Bold,
+      //                                       color: FontColor.FontPrimary,
+      //                                     ),
+      //                                   ),
+      //                                 ),
+      //                               ],
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ],
+      //                     ),
+      //                   ),
+
+      //                   // Text(
+      //                   //   barcodescanRes!.toString(),
+      //                   //   style: customTextStyle(
+      //                   //       fontStyle: FontStyle.BodyM_Bold,
+      //                   //       color: FontColor.FontPrimary),
+      //                   // ),
+      //                   Text(
+      //                     "Barcode Already Scanned on ${mdata['data']['date']}",
+      //                     style: customTextStyle(
+      //                       fontStyle: FontStyle.BodyL_Bold,
+      //                     ),
+      //                     textAlign: TextAlign.center,
+      //                   ),
+      //                   Text(
+      //                     "Do you want to add it again...?",
+      //                     style: customTextStyle(
+      //                       fontStyle: FontStyle.BodyL_Bold,
+      //                     ),
+      //                     textAlign: TextAlign.center,
+      //                   ),
+      //                   Padding(
+      //                     padding: const EdgeInsets.only(top: 10.0),
+      //                     child: Row(
+      //                       children: [
+      //                         Expanded(
+      //                           child: InkWell(
+      //                             onTap: () {
+      //                               Navigator.pop(context);
+      //                             },
+      //                             child: Container(
+      //                               padding: const EdgeInsets.symmetric(
+      //                                 vertical: 8.0,
+      //                                 horizontal: 8.0,
+      //                               ),
+      //                               decoration: BoxDecoration(
+      //                                 color: customColors().secretGarden,
+      //                                 borderRadius: BorderRadius.circular(5.0),
+      //                               ),
+      //                               child: Center(
+      //                                 child: Text(
+      //                                   "Ok",
+      //                                   style: customTextStyle(
+      //                                     fontStyle: FontStyle.BodyM_Bold,
+      //                                     color: FontColor.White,
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                         Expanded(
+      //                           child: InkWell(
+      //                             onTap: () {
+      //                               ctx
+      //                                   .read<NewScanBarcodePageCubit>()
+      //                                   .addtolist(
+      //                                     _productResponse!.sku,
+      //                                     "",
+      //                                     "",
+      //                                     "",
+      //                                   );
+
+      //                               Navigator.pop(context);
+      //                             },
+      //                             child: Padding(
+      //                               padding: const EdgeInsets.only(left: 8.0),
+      //                               child: Container(
+      //                                 padding: const EdgeInsets.symmetric(
+      //                                   horizontal: 8.0,
+      //                                   vertical: 8.0,
+      //                                 ),
+      //                                 decoration: BoxDecoration(
+      //                                   color: customColors().islandAqua,
+      //                                   borderRadius: BorderRadius.circular(
+      //                                     5.0,
+      //                                   ),
+      //                                 ),
+      //                                 child: Center(
+      //                                   child: Text(
+      //                                     "Add This Item",
+      //                                     style: customTextStyle(
+      //                                       fontStyle: FontStyle.BodyM_Bold,
+      //                                       color: FontColor.White,
+      //                                     ),
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ],
+      //                     ),
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //           );
+      //         },
+      //       );
+      //     } else {
+      //       // ignore: use_build_context_synchronously
+      //       showGeneralDialog(
+      //         context: context,
+      //         pageBuilder: (context, animation, secondaryanimation) {
+      //           return Container();
+      //         },
+      //         transitionBuilder: (
+      //           context,
+      //           animation,
+      //           secondaryAnimation,
+      //           child,
+      //         ) {
+      //           var curves = Curves.easeInOut.transform(animation.value);
+
+      //           return Transform.scale(
+      //             scale: curves,
+      //             child: AlertDialog(
+      //               shape: RoundedRectangleBorder(
+      //                 borderRadius: BorderRadius.circular(8.0),
+      //               ),
+      //               content: Column(
+      //                 mainAxisAlignment: MainAxisAlignment.center,
+      //                 mainAxisSize: MainAxisSize.min,
+      //                 children: [
+      //                   // Lottie.asset('assets/animation_list.json', height: 100.0),
+      //                   Padding(
+      //                     padding: const EdgeInsets.only(top: 8.0),
+      //                     child: Row(
+      //                       children: [
+      //                         Padding(
+      //                           padding: const EdgeInsets.only(right: 8.0),
+      //                           child: Container(
+      //                             height: 90.0,
+      //                             width: 90.0,
+      //                             child:
+      //                                 _productResponse!
+      //                                         .mediaGalleryEntries
+      //                                         .isEmpty
+      //                                     ? Image.asset(
+      //                                       'assets/placeholder.png',
+      //                                     )
+      //                                     : InkWell(
+      //                                       onTap: () {
+      //                                         getImageViewver(
+      //                                           _productResponse!
+      //                                               .mediaGalleryEntries,
+      //                                           context,
+      //                                           _sliderController,
+      //                                         );
+      //                                       },
+      //                                       child: Image.network(
+      //                                         "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+      //                                         fit: BoxFit.contain,
+      //                                       ),
+      //                                     ),
+      //                           ),
+      //                         ),
+      //                         Expanded(
+      //                           child: Container(
+      //                             child: Column(
+      //                               mainAxisAlignment: MainAxisAlignment.center,
+      //                               crossAxisAlignment:
+      //                                   CrossAxisAlignment.start,
+      //                               children: [
+      //                                 Padding(
+      //                                   padding: const EdgeInsets.symmetric(
+      //                                     horizontal: 8.0,
+      //                                   ),
+      //                                   child: Text(
+      //                                     _productResponse!.name,
+      //                                     style: customTextStyle(
+      //                                       fontStyle: FontStyle.BodyM_Bold,
+      //                                       color: FontColor.FontPrimary,
+      //                                     ),
+      //                                   ),
+      //                                 ),
+      //                                 Padding(
+      //                                   padding: const EdgeInsets.symmetric(
+      //                                     horizontal: 8.0,
+      //                                     vertical: 3.0,
+      //                                   ),
+      //                                   child: Text(
+      //                                     "SKU: ${_productResponse!.sku}",
+      //                                     style: customTextStyle(
+      //                                       fontStyle: FontStyle.BodyM_Bold,
+      //                                       color: FontColor.FontPrimary,
+      //                                     ),
+      //                                   ),
+      //                                 ),
+      //                               ],
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ],
+      //                     ),
+      //                   ),
+
+      //                   Text(
+      //                     barcodescanRes!.toString(),
+      //                     style: customTextStyle(
+      //                       fontStyle: FontStyle.BodyM_Bold,
+      //                       color: FontColor.FontPrimary,
+      //                     ),
+      //                   ),
+      //                   Text(
+      //                     "This Product is not in the List...!",
+      //                     style: customTextStyle(
+      //                       fontStyle: FontStyle.BodyL_Bold,
+      //                     ),
+      //                     textAlign: TextAlign.center,
+      //                   ),
+      //                   Text(
+      //                     "Do you want to Add ?",
+      //                     style: customTextStyle(
+      //                       fontStyle: FontStyle.BodyL_Bold,
+      //                     ),
+      //                     textAlign: TextAlign.center,
+      //                   ),
+      //                   Padding(
+      //                     padding: const EdgeInsets.only(top: 10.0),
+      //                     child: Row(
+      //                       children: [
+      //                         Expanded(
+      //                           child: InkWell(
+      //                             onTap: () {
+      //                               Navigator.pop(context);
+      //                             },
+      //                             child: Container(
+      //                               padding: const EdgeInsets.symmetric(
+      //                                 vertical: 8.0,
+      //                                 horizontal: 8.0,
+      //                               ),
+      //                               decoration: BoxDecoration(
+      //                                 color: customColors().secretGarden,
+      //                                 borderRadius: BorderRadius.circular(5.0),
+      //                               ),
+      //                               child: Center(
+      //                                 child: Text(
+      //                                   "Ok",
+      //                                   style: customTextStyle(
+      //                                     fontStyle: FontStyle.BodyM_Bold,
+      //                                     color: FontColor.White,
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                         Expanded(
+      //                           child: InkWell(
+      //                             onTap: () {
+      //                               ctx
+      //                                   .read<NewScanBarcodePageCubit>()
+      //                                   .addtolist(
+      //                                     _productResponse!.sku,
+      //                                     "",
+      //                                     "",
+      //                                     "",
+      //                                   );
+
+      //                               Navigator.pop(context);
+      //                             },
+      //                             child: Padding(
+      //                               padding: const EdgeInsets.only(left: 8.0),
+      //                               child: Container(
+      //                                 padding: const EdgeInsets.symmetric(
+      //                                   horizontal: 8.0,
+      //                                   vertical: 8.0,
+      //                                 ),
+      //                                 decoration: BoxDecoration(
+      //                                   color: customColors().islandAqua,
+      //                                   borderRadius: BorderRadius.circular(
+      //                                     5.0,
+      //                                   ),
+      //                                 ),
+      //                                 child: Center(
+      //                                   child: Text(
+      //                                     "Add This Item",
+      //                                     style: customTextStyle(
+      //                                       fontStyle: FontStyle.BodyM_Bold,
+      //                                       color: FontColor.White,
+      //                                     ),
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ],
+      //                     ),
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //           );
+      //         },
+      //       );
+      //     }
+      //   }
+      // } else {
+      //   //
+      //   // Product Not Available
+      //   //
+      //   // ignore: use_build_context_synchronously
+      //   Navigator.pop(context);
+
+      //   // ignore: use_build_context_synchronously
+      //   showGeneralDialog(
+      //     context: context,
+      //     pageBuilder: (context, animation, secondaryanimation) {
+      //       return Container();
+      //     },
+      //     transitionBuilder: (context, animation, secondaryAnimation, child) {
+      //       var curves = Curves.easeInOut.transform(animation.value);
+
+      //       return Transform.scale(
+      //         scale: curves,
+      //         child: AlertDialog(
+      //           shape: RoundedRectangleBorder(
+      //             borderRadius: BorderRadius.circular(8.0),
+      //           ),
+      //           content: Column(
+      //             mainAxisAlignment: MainAxisAlignment.center,
+      //             mainAxisSize: MainAxisSize.min,
+      //             children: [
+      //               Text(
+      //                 "Product Not Found in Our Record Do you want to Add...?",
+      //                 style: customTextStyle(
+      //                   fontStyle: FontStyle.BodyL_Bold,
+      //                   color: FontColor.FontPrimary,
+      //                 ),
+      //               ),
+      //               Padding(
+      //                 padding: const EdgeInsets.only(top: 15.0),
+      //                 child: Row(
+      //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //                   children: [
+      //                     Expanded(
+      //                       child: InkWell(
+      //                         onTap: () {
+      //                           Navigator.pop(context);
+      //                         },
+      //                         child: Container(
+      //                           padding: const EdgeInsets.symmetric(
+      //                             horizontal: 8.0,
+      //                             vertical: 8.0,
+      //                           ),
+      //                           decoration: BoxDecoration(
+      //                             color: customColors().carnationRed,
+      //                           ),
+      //                           child: Center(
+      //                             child: Center(
+      //                               child: Text(
+      //                                 "No",
+      //                                 style: customTextStyle(
+      //                                   fontStyle: FontStyle.BodyM_Bold,
+      //                                   color: FontColor.White,
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ),
+      //                     ),
+      //                     Expanded(
+      //                       child: Padding(
+      //                         padding: const EdgeInsets.only(left: 8.0),
+      //                         child: InkWell(
+      //                           onTap: () {
+      //                             print(barcodescanRes);
+      //                             Navigator.pop(context);
+      //                             ctx.read<NewScanBarcodePageCubit>().addtolist(
+      //                               barcodescanRes!,
+      //                               "",
+      //                               "",
+      //                               "",
+      //                             );
+      //                           },
+      //                           child: Container(
+      //                             padding: const EdgeInsets.symmetric(
+      //                               horizontal: 8.0,
+      //                               vertical: 8.0,
+      //                             ),
+      //                             decoration: BoxDecoration(
+      //                               color: customColors().secretGarden,
+      //                             ),
+      //                             child: Center(
+      //                               child: Text(
+      //                                 "Yes",
+      //                                 style: customTextStyle(
+      //                                   fontStyle: FontStyle.BodyM_Bold,
+      //                                   color: FontColor.White,
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       );
+      //     },
+      //   );
+      // }
     } catch (e) {
       //   // log(e.toString(), stackTrace: StackTrace.current);
       showSnackBar(
@@ -1028,67 +1521,10 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               UserController().profile.role == "5"
-                  ? Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(color: HexColor('#b9d737')),
-                    child: Padding(
-                      padding: EdgeInsets.only(top: mheight * .012),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              IconButton(
-                                onPressed: () {},
-                                icon: Icon(Icons.menu),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 6.0),
-                                child: Text(
-                                  "Report Missing Products",
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                    color: FontColor.FontSecondary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          // Text(AppLocalizations.of(context).helloWorld),
-                          Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 14.0),
-                                child: Text(
-                                  context
-                                      .read<NewScanBarcodePageCubit>()
-                                      .skulist
-                                      .length
-                                      .toString(),
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                    color: FontColor.DodgerBlue,
-                                  ),
-                                ),
-                                // child: InkWell(
-                                //   onTap: () async {
-                                //     BlocProvider.of<NewScanBarcodePageCubit>(
-                                //             context)
-                                //         .updatelogoutstat(0);
-
-                                //     // await logout(context);
-                                //   },
-                                //   child: Image.asset(
-                                //     'assets/logout.png',
-                                //     height: 25,
-                                //   ),
-                                // ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  ? CustomAppBar(
+                    onpressfind: () {},
+                    ispicker: true,
+                    isphoto: true,
                   )
                   : Container(
                     width: MediaQuery.of(context).size.width,
@@ -1128,32 +1564,6 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                       ),
                     ),
                   ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 5.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    UserController.userController.scanselection
-                        ? Text(
-                          "Scan Normal",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.MattPurple,
-                          ),
-                        )
-                        : Text(
-                          "Scan Produce",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.SecretGarden,
-                          ),
-                        ),
-                  ],
-                ),
-              ),
 
               if (isScan)
                 Expanded(
@@ -1424,6 +1834,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
         },
         child: Image.asset('assets/barcode_scan.png', height: 25.0),
       ),
+
       bottomNavigationBar: Container(
         height: screenSize.height * 0.12,
         padding: const EdgeInsets.symmetric(vertical: 10.0),
