@@ -73,6 +73,10 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
       log(barcodeScanRes!);
 
+      BlocProvider.of<ItemReplacementPageCubit>(
+        context,
+      ).updateBarcodeLog('', barcodeScanRes!);
+
       if (producebarcode) {
         // produce barcode
 

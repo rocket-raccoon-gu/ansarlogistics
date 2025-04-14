@@ -3,6 +3,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/customer_details_sheet.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/ar_branch_section.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/home_section.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/other_branch_section.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -728,4 +731,28 @@ Future<int> getAndroidSdkVersion() async {
   final deviceInfo = DeviceInfoPlugin();
   final androidInfo = await deviceInfo.androidInfo;
   return androidInfo.version.sdkInt;
+}
+
+Widget getSection(String branchCode) {
+  switch (branchCode) {
+    case 'Q013':
+      return HomeSection();
+    case 'Q009':
+      return OtherBranchSection();
+    case 'Q015':
+      if (UserController.userController.profile.empId == "veg_rawdah") {
+        return ArBranchSection();
+      } else {
+        return OtherBranchSection();
+      }
+    case 'Q008':
+      if (UserController.userController.profile.empId == "veg_rayyan") {
+        return ArBranchSection();
+      } else {
+        return OtherBranchSection();
+      }
+
+    default:
+      return HomeSection();
+  }
 }

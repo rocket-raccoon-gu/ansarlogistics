@@ -53,6 +53,8 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     orderItemsResponse = data['order'];
 
     if (sku != "") {
+      updateBarcodeLog('', sku);
+
       if (produce) {
         // Replace the last 4 digits with '0'
         String updatedBarcode = sku.substring(0, sku.length - 6) + '000000';
@@ -70,6 +72,23 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         context: context,
         snackBar: showErrorDialogue(errorMessage: "Please Scan Barcode ...!"),
       );
+    }
+  }
+
+  updateBarcodeLog(String sku, String scannedsku) async {
+    try {
+      final response = await serviceLocator.tradingApi.updateBarcodeLog(
+        orderid: orderItemsResponse!.subgroupIdentifier,
+        sku: sku,
+        scanned_sku: scannedsku,
+        user_id: UserController().profile.id,
+      );
+
+      if (response.statusCode == 200) {
+        log("Barcode Log Data Updated");
+      }
+    } catch (e) {
+      log("Barcode Log Update Failed ${e.toString()}");
     }
   }
 

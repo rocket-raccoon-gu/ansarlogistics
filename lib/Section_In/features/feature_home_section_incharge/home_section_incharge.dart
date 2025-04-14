@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/Section_In/features/components/ar_branch_section_product_list_item.dart';
 import 'package:ansarlogistics/Section_In/features/components/section_list_item.dart';
@@ -9,6 +11,7 @@ import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -23,8 +26,6 @@ class HomeSectionIncharge extends StatefulWidget {
 class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
   bool searchactive = false;
 
-  final _searchcontroller = TextEditingController();
-
   List<Map<String, dynamic>> maplist = [
     {"name": "All", "id": 17},
     {"name": "Fresh Chickens", "id": 18},
@@ -34,9 +35,6 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
   ];
 
   int selectedcat = -1;
-
-  GlobalKey<FormFieldState<String>> _ordersearchFormKey =
-      GlobalKey<FormFieldState<String>>();
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +84,7 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
                                 await PreferenceUtils.removeDataFromShared(
                                   "profiledetails",
                                 );
-                                await PreferenceUtils.clear();
+                                // await PreferenceUtils.clear();
 
                                 await logout(context);
 
@@ -105,743 +103,771 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
                   ],
                 ),
               ),
-              if (UserController.userController.profile.branchCode == "Q013" ||
-                  UserController.userController.profile.branchCode == "Q009")
-                Expanded(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0,
-                          vertical: 15.0,
+
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    if (selectedcat != -1) {
+                      BlocProvider.of<HomeSectionInchargeCubit>(
+                        context,
+                      ).updateloadProducts(maplist[selectedcat]['id']);
+                    } else {
+                      BlocProvider.of<HomeSectionInchargeCubit>(
+                        context,
+                      ).loadProducts();
+                    }
+                  },
+                  child: Container(
+                    color: customColors().backgroundPrimary,
+                    child: Stack(
+                      children: [
+                        getSection(
+                          UserController.userController.profile.branchCode,
                         ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: customColors().fontTertiary,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: CustomSearchField(
-                            searchFormKey: _ordersearchFormKey,
-                            keyboardType: TextInputType.text,
-                            focus: searchactive,
-                            onFilter: () {},
-                            onSearch: (p0) {
-                              BlocProvider.of<HomeSectionInchargeCubit>(
-                                context,
-                              ).updatesearchorder(
-                                UserController().sectionitems,
-                                p0.toString(),
-                              );
-                            },
-                            controller: _searchcontroller,
-                          ),
-                        ),
-                      ),
-                      UserController.userController.profile.empId ==
-                                  "ahqa_butch" ||
-                              UserController.userController.profile.empId ==
-                                  "alkhor_butch" ||
-                              UserController.userController.profile.empId ==
-                                  "rawdah_butch"
-                          ? Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: SizedBox(
-                              height: 30.0,
-                              child: MediaQuery.removePadding(
-                                removeTop: true,
-                                removeBottom: true,
-                                context: context,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: maplist.length,
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.horizontal,
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 3.0,
-                                            ),
-                                            child: InkWell(
-                                              onTap: () {
-                                                setState(() {
-                                                  selectedcat = index;
-                                                  BlocProvider.of<
-                                                    HomeSectionInchargeCubit
-                                                  >(context).updateloadProducts(
-                                                    maplist[selectedcat]['id'],
-                                                  );
-                                                });
-                                              },
-                                              child: Container(
-                                                padding:
-                                                    index == 0
-                                                        ? const EdgeInsets.symmetric(
-                                                          horizontal: 12.0,
-                                                        )
-                                                        : const EdgeInsets.symmetric(
-                                                          horizontal: 15.0,
-                                                        ),
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      selectedcat == index
-                                                          ? customColors()
-                                                              .green4
-                                                          : null,
-                                                  border: Border.all(
-                                                    color:
-                                                        customColors()
-                                                            .fontSecondary,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        3.0,
-                                                      ),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    maplist[index]['name'],
-                                                    style: customTextStyle(
-                                                      fontStyle:
-                                                          FontStyle.BodyL_Bold,
-                                                      color:
-                                                          FontColor.FontPrimary,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                          : SizedBox(),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            if (state is HomeSectionInchargeLoading)
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [loadingindecator()],
-                                ),
-                              )
-                            else if (state is HomeSectionInchargeInitial)
-                              Expanded(
-                                child: RefreshIndicator(
-                                  onRefresh: () async {
-                                    if (selectedcat != -1) {
-                                      BlocProvider.of<HomeSectionInchargeCubit>(
-                                        context,
-                                      ).updateloadProducts(
-                                        maplist[selectedcat]['id'],
-                                      );
-                                    } else {
-                                      BlocProvider.of<HomeSectionInchargeCubit>(
-                                        context,
-                                      ).loadProducts();
-                                    }
-                                  },
-                                  child: Container(
-                                    color: customColors().backgroundPrimary,
-                                    child: Stack(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16.0,
-                                            vertical: 10.0,
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              state.sectionitems.isEmpty
-                                                  ? Expanded(
-                                                    child: ListView(
-                                                      physics:
-                                                          AlwaysScrollableScrollPhysics(),
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets.only(
-                                                                top: 80.0,
-                                                              ),
-                                                          child: Column(
-                                                            children: [
-                                                              Image.network(
-                                                                '${noimageurl}',
-                                                                height: 180.0,
-                                                                width: 180.0,
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                      top: 8.0,
-                                                                    ),
-                                                                child: Text(
-                                                                  "No Products Found..!",
-                                                                  style: customTextStyle(
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .HeaderXS_SemiBold,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                  : Expanded(
-                                                    child: MediaQuery.removePadding(
-                                                      removeTop: true,
-                                                      context: context,
-                                                      child: ListView.builder(
-                                                        itemCount:
-                                                            state
-                                                                .sectionitems
-                                                                .length,
-                                                        shrinkWrap: true,
-                                                        itemBuilder: (
-                                                          context,
-                                                          index,
-                                                        ) {
-                                                          if (UserController
-                                                                      .userController
-                                                                      .profile
-                                                                      .branchCode ==
-                                                                  "Q013" ||
-                                                              UserController
-                                                                      .userController
-                                                                      .profile
-                                                                      .branchCode ==
-                                                                  "Q009") {
-                                                            return SectionProductListItem(
-                                                              sectionitem:
-                                                                  state
-                                                                      .sectionitems[index],
-                                                              onSectionChanged: (
-                                                                p0,
-                                                                p1,
-                                                                p2,
-                                                              ) {
-                                                                context
-                                                                    .read<
-                                                                      HomeSectionInchargeCubit
-                                                                    >()
-                                                                    .addToStockStatusList(
-                                                                      p0,
-                                                                      p1,
-                                                                      p2,
-                                                                    );
-                                                              },
-                                                            );
-                                                          } else {
-                                                            return Container();
-                                                            // return BranchSectionProductListItem(
-                                                            //     sectionitem: state
-                                                            //             .sectionitems[
-                                                            //         index],
-                                                            //     onSectionChanged:
-                                                            //         (p0, p1, p2) {
-                                                            //       context
-                                                            //           .read<
-                                                            //               HomeSectionInchargeCubit>()
-                                                            //           .addToStockStatusList(
-                                                            //               p0, p1, p2);
-                                                            //     },
-                                                            //     branchdatum: context
-                                                            //         .read<
-                                                            //             HomeSectionInchargeCubit>()
-                                                            //         .branchdata);
-                                                          }
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else if (UserController.userController.profile.empId ==
-                      "rayyan_butch" ||
-                  UserController.userController.profile.empId ==
-                      "rawdah_butch" ||
-                  UserController.userController.profile.empId ==
-                      "fish_rayyan" ||
-                  UserController.userController.profile.empId ==
-                      "alkhor_butch" ||
-                  UserController.userController.profile.empId ==
-                      "fish_alkhor" ||
-                  UserController.userController.profile.empId ==
-                      "fish_rawdah" ||
-                  UserController.userController.profile.empId ==
-                      "rayyan_deli" ||
-                  UserController.userController.profile.empId == "rawdah_deli")
-                Expanded(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0,
-                          vertical: 15.0,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: customColors().fontTertiary,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: CustomSearchField(
-                            searchFormKey: _ordersearchFormKey,
-                            keyboardType: TextInputType.text,
-                            focus: searchactive,
-                            onFilter: () {},
-                            onSearch: (p0) {
-                              BlocProvider.of<HomeSectionInchargeCubit>(
-                                context,
-                              ).updatesearchorder(
-                                UserController().sectionitems,
-                                p0.toString(),
-                              );
-                            },
-                            controller: _searchcontroller,
-                          ),
-                        ),
-                      ),
-                      UserController.userController.profile.empId ==
-                                  "ahqa_butch" ||
-                              UserController.userController.profile.empId ==
-                                  "alkhor_butch" ||
-                              UserController.userController.profile.empId ==
-                                  "rawdah_butch" ||
-                              UserController.userController.profile.empId ==
-                                  "rayyan_butch"
-                          ? Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: SizedBox(
-                              height: 30.0,
-                              child: MediaQuery.removePadding(
-                                removeTop: true,
-                                removeBottom: true,
-                                context: context,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: maplist.length,
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.horizontal,
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 3.0,
-                                            ),
-                                            child: InkWell(
-                                              onTap: () {
-                                                setState(() {
-                                                  selectedcat = index;
-                                                  BlocProvider.of<
-                                                    HomeSectionInchargeCubit
-                                                  >(context).updateloadProducts(
-                                                    maplist[selectedcat]['id'],
-                                                  );
-                                                });
-                                              },
-                                              child: Container(
-                                                padding:
-                                                    index == 0
-                                                        ? const EdgeInsets.symmetric(
-                                                          horizontal: 12.0,
-                                                        )
-                                                        : const EdgeInsets.symmetric(
-                                                          horizontal: 15.0,
-                                                        ),
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      selectedcat == index
-                                                          ? customColors()
-                                                              .green4
-                                                          : null,
-                                                  border: Border.all(
-                                                    color:
-                                                        customColors()
-                                                            .fontSecondary,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        3.0,
-                                                      ),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    maplist[index]['name'],
-                                                    style: customTextStyle(
-                                                      fontStyle:
-                                                          FontStyle.BodyL_Bold,
-                                                      color:
-                                                          FontColor.FontPrimary,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                          : SizedBox(),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            if (state is HomeSectionInchargeLoading)
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [loadingindecator()],
-                                ),
-                              )
-                            else if (state is HomeSectionInchargeInitial)
-                              Expanded(
-                                child: RefreshIndicator(
-                                  onRefresh: () async {
-                                    if (selectedcat != -1) {
-                                      BlocProvider.of<HomeSectionInchargeCubit>(
-                                        context,
-                                      ).updateloadProducts(
-                                        maplist[selectedcat]['id'],
-                                      );
-                                    } else {
-                                      BlocProvider.of<HomeSectionInchargeCubit>(
-                                        context,
-                                      ).loadProducts();
-                                    }
-                                  },
-                                  child: Container(
-                                    color: customColors().backgroundPrimary,
-                                    child: Stack(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16.0,
-                                            vertical: 10.0,
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              state.sectionitems.isEmpty
-                                                  ? Expanded(
-                                                    child: ListView(
-                                                      physics:
-                                                          AlwaysScrollableScrollPhysics(),
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets.only(
-                                                                top: 80.0,
-                                                              ),
-                                                          child: Column(
-                                                            children: [
-                                                              Image.network(
-                                                                '${noimageurl}',
-                                                                height: 180.0,
-                                                                width: 180.0,
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                      top: 8.0,
-                                                                    ),
-                                                                child: Text(
-                                                                  "No Products Found..!",
-                                                                  style: customTextStyle(
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .HeaderXS_SemiBold,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                  : Expanded(
-                                                    child: MediaQuery.removePadding(
-                                                      removeTop: true,
-                                                      context: context,
-                                                      child: ListView.builder(
-                                                        itemCount:
-                                                            state
-                                                                .sectionitems
-                                                                .length,
-                                                        shrinkWrap: true,
-                                                        itemBuilder: (
-                                                          context,
-                                                          index,
-                                                        ) {
-                                                          if (UserController
-                                                                      .userController
-                                                                      .profile
-                                                                      .branchCode ==
-                                                                  "Q013" ||
-                                                              UserController
-                                                                      .userController
-                                                                      .profile
-                                                                      .branchCode ==
-                                                                  "Q008" ||
-                                                              UserController
-                                                                      .userController
-                                                                      .profile
-                                                                      .branchCode ==
-                                                                  "Q009" ||
-                                                              UserController
-                                                                      .userController
-                                                                      .profile
-                                                                      .branchCode ==
-                                                                  "Q015") {
-                                                            return SectionProductListItem(
-                                                              sectionitem:
-                                                                  state
-                                                                      .sectionitems[index],
-                                                              onSectionChanged: (
-                                                                p0,
-                                                                p1,
-                                                                p2,
-                                                              ) {
-                                                                context
-                                                                    .read<
-                                                                      HomeSectionInchargeCubit
-                                                                    >()
-                                                                    .addToStockStatusList(
-                                                                      p0,
-                                                                      p1,
-                                                                      p2,
-                                                                    );
-                                                              },
-                                                            );
-                                                          } else {
-                                                            return Container();
-                                                            // return BranchSectionProductListItem(
-                                                            //     sectionitem: state
-                                                            //             .sectionitems[
-                                                            //         index],
-                                                            //     onSectionChanged:
-                                                            //         (p0, p1, p2) {
-                                                            //       context
-                                                            //           .read<
-                                                            //               HomeSectionInchargeCubit>()
-                                                            //           .addToStockStatusList(
-                                                            //               p0, p1, p2);
-                                                            //     },
-                                                            //     branchdatum: context
-                                                            //         .read<
-                                                            //             HomeSectionInchargeCubit>()
-                                                            //         .branchdata);
-                                                          }
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                Expanded(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0,
-                          vertical: 15.0,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: customColors().fontTertiary,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: CustomSearchField(
-                            searchFormKey: _ordersearchFormKey,
-                            keyboardType: TextInputType.text,
-                            focus: searchactive,
-                            onFilter: () {},
-                            onSearch: (p0) {
-                              // BlocProvider.of<HomeSectionInchargeCubit>(context)
-                              //     .updatesearchorderar(
-                              //         UserController().branchdatalist,
-                              //         p0.toString());
-                            },
-                            controller: _searchcontroller,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            if (state is HomeSectionInchargeLoading)
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [loadingindecator()],
-                                ),
-                              )
-                            else if (state is HomeSectionInchargeInitial)
-                              Expanded(
-                                child: RefreshIndicator(
-                                  onRefresh: () async {
-                                    if (selectedcat != -1) {
-                                      BlocProvider.of<HomeSectionInchargeCubit>(
-                                        context,
-                                      ).updateloadProducts(
-                                        maplist[selectedcat]['id'],
-                                      );
-                                    } else {
-                                      BlocProvider.of<HomeSectionInchargeCubit>(
-                                        context,
-                                      ).loadProducts();
-                                    }
-                                  },
-                                  child: Container(
-                                    color: customColors().backgroundPrimary,
-                                    child: Stack(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16.0,
-                                            vertical: 10.0,
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              state.branchdata.isEmpty
-                                                  ? Expanded(
-                                                    child: ListView(
-                                                      physics:
-                                                          AlwaysScrollableScrollPhysics(),
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets.only(
-                                                                top: 80.0,
-                                                              ),
-                                                          child: Column(
-                                                            children: [
-                                                              Lottie.asset(
-                                                                'assets/nofound_data.json',
-                                                                height: 180.0,
-                                                                width: 180.0,
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                      top: 8.0,
-                                                                    ),
-                                                                child: Text(
-                                                                  "No Products Found..!",
-                                                                  style: customTextStyle(
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .HeaderXS_SemiBold,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                  : Expanded(
-                                                    child: MediaQuery.removePadding(
-                                                      context: context,
-                                                      removeTop: true,
-                                                      child: ListView.builder(
-                                                        itemCount:
-                                                            state
-                                                                .branchdata
-                                                                .length,
-                                                        shrinkWrap: true,
-                                                        itemBuilder: (
-                                                          context,
-                                                          index,
-                                                        ) {
-                                                          return ArBranchSectionProductListItem(
-                                                            branchdatum:
-                                                                state
-                                                                    .branchdata[index],
-                                                            onSectionChanged: (
-                                                              p0,
-                                                              p1,
-                                                              p2,
-                                                            ) {
-                                                              context
-                                                                  .read<
-                                                                    HomeSectionInchargeCubit
-                                                                  >()
-                                                                  .addToStockStatusList(
-                                                                    p0,
-                                                                    p1,
-                                                                    p2,
-                                                                  );
-                                                            },
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
+              ),
+
+              // if (UserController.userController.profile.branchCode == "Q013" ||
+              //     UserController.userController.profile.branchCode == "Q009")
+              //   Expanded(
+              //     child: Column(
+              //       children: [
+              //         Padding(
+              //           padding: const EdgeInsets.symmetric(
+              //             horizontal: 20.0,
+              //             vertical: 15.0,
+              //           ),
+              //           child: Container(
+              //             decoration: BoxDecoration(
+              //               border: Border.all(
+              //                 color: customColors().fontTertiary,
+              //               ),
+              //               borderRadius: BorderRadius.circular(8.0),
+              //             ),
+              //             child: CustomSearchField(
+              //               searchFormKey: _ordersearchFormKey,
+              //               keyboardType: TextInputType.text,
+              //               focus: searchactive,
+              //               onFilter: () {},
+              //               onSearch: (p0) {
+              //                 BlocProvider.of<HomeSectionInchargeCubit>(
+              //                   context,
+              //                 ).updatesearchorder(
+              //                   UserController().sectionitems,
+              //                   p0.toString(),
+              //                 );
+              //               },
+              //               controller: _searchcontroller,
+              //             ),
+              //           ),
+              //         ),
+              //         UserController.userController.profile.empId ==
+              //                     "ahqa_butch" ||
+              //                 UserController.userController.profile.empId ==
+              //                     "alkhor_butch" ||
+              //                 UserController.userController.profile.empId ==
+              //                     "rawdah_butch"
+              //             ? Padding(
+              //               padding: const EdgeInsets.symmetric(
+              //                 horizontal: 16.0,
+              //               ),
+              //               child: SizedBox(
+              //                 height: 30.0,
+              //                 child: MediaQuery.removePadding(
+              //                   removeTop: true,
+              //                   removeBottom: true,
+              //                   context: context,
+              //                   child: Row(
+              //                     children: [
+              //                       Expanded(
+              //                         child: ListView.builder(
+              //                           itemCount: maplist.length,
+              //                           shrinkWrap: true,
+              //                           scrollDirection: Axis.horizontal,
+              //                           itemBuilder: (context, index) {
+              //                             return Padding(
+              //                               padding: const EdgeInsets.symmetric(
+              //                                 horizontal: 3.0,
+              //                               ),
+              //                               child: InkWell(
+              //                                 onTap: () {
+              //                                   setState(() {
+              //                                     selectedcat = index;
+              //                                     BlocProvider.of<
+              //                                       HomeSectionInchargeCubit
+              //                                     >(context).updateloadProducts(
+              //                                       maplist[selectedcat]['id'],
+              //                                     );
+              //                                   });
+              //                                 },
+              //                                 child: Container(
+              //                                   padding:
+              //                                       index == 0
+              //                                           ? const EdgeInsets.symmetric(
+              //                                             horizontal: 12.0,
+              //                                           )
+              //                                           : const EdgeInsets.symmetric(
+              //                                             horizontal: 15.0,
+              //                                           ),
+              //                                   decoration: BoxDecoration(
+              //                                     color:
+              //                                         selectedcat == index
+              //                                             ? customColors()
+              //                                                 .green4
+              //                                             : null,
+              //                                     border: Border.all(
+              //                                       color:
+              //                                           customColors()
+              //                                               .fontSecondary,
+              //                                     ),
+              //                                     borderRadius:
+              //                                         BorderRadius.circular(
+              //                                           3.0,
+              //                                         ),
+              //                                   ),
+              //                                   child: Center(
+              //                                     child: Text(
+              //                                       maplist[index]['name'],
+              //                                       style: customTextStyle(
+              //                                         fontStyle:
+              //                                             FontStyle.BodyL_Bold,
+              //                                         color:
+              //                                             FontColor.FontPrimary,
+              //                                       ),
+              //                                     ),
+              //                                   ),
+              //                                 ),
+              //                               ),
+              //                             );
+              //                           },
+              //                         ),
+              //                       ),
+              //                     ],
+              //                   ),
+              //                 ),
+              //               ),
+              //             )
+              //             : SizedBox(),
+              //         Expanded(
+              //           child: Column(
+              //             children: [
+              //               if (state is HomeSectionInchargeLoading)
+              //                 Expanded(
+              //                   child: Column(
+              //                     mainAxisAlignment: MainAxisAlignment.center,
+              //                     children: [loadingindecator()],
+              //                   ),
+              //                 )
+              //               else if (state is HomeSectionInchargeInitial)
+              //                 Expanded(
+              //                   child: RefreshIndicator(
+              //                     onRefresh: () async {
+              //                       if (selectedcat != -1) {
+              //                         BlocProvider.of<HomeSectionInchargeCubit>(
+              //                           context,
+              //                         ).updateloadProducts(
+              //                           maplist[selectedcat]['id'],
+              //                         );
+              //                       } else {
+              //                         BlocProvider.of<HomeSectionInchargeCubit>(
+              //                           context,
+              //                         ).loadProducts();
+              //                       }
+              //                     },
+              //                     child: Container(
+              //                       color: customColors().backgroundPrimary,
+              //                       child: Stack(
+              //                         children: [
+              //                           Padding(
+              //                             padding: const EdgeInsets.symmetric(
+              //                               horizontal: 16.0,
+              //                               vertical: 10.0,
+              //                             ),
+              //                             child: Column(
+              //                               children: [
+              //                                 state.sectionitems.isEmpty
+              //                                     ? Expanded(
+              //                                       child: ListView(
+              //                                         physics:
+              //                                             AlwaysScrollableScrollPhysics(),
+              //                                         children: [
+              //                                           Padding(
+              //                                             padding:
+              //                                                 const EdgeInsets.only(
+              //                                                   top: 80.0,
+              //                                                 ),
+              //                                             child: Column(
+              //                                               children: [
+              //                                                 Image.network(
+              //                                                   '${noimageurl}',
+              //                                                   height: 180.0,
+              //                                                   width: 180.0,
+              //                                                 ),
+              //                                                 Padding(
+              //                                                   padding:
+              //                                                       const EdgeInsets.only(
+              //                                                         top: 8.0,
+              //                                                       ),
+              //                                                   child: Text(
+              //                                                     "No Products Found..!",
+              //                                                     style: customTextStyle(
+              //                                                       fontStyle:
+              //                                                           FontStyle
+              //                                                               .HeaderXS_SemiBold,
+              //                                                     ),
+              //                                                   ),
+              //                                                 ),
+              //                                               ],
+              //                                             ),
+              //                                           ),
+              //                                         ],
+              //                                       ),
+              //                                     )
+              //                                     : Expanded(
+              //                                       child: MediaQuery.removePadding(
+              //                                         removeTop: true,
+              //                                         context: context,
+              //                                         child: ListView.builder(
+              //                                           itemCount:
+              //                                               state
+              //                                                   .sectionitems
+              //                                                   .length,
+              //                                           shrinkWrap: true,
+              //                                           itemBuilder: (
+              //                                             context,
+              //                                             index,
+              //                                           ) {
+              //                                             if (UserController
+              //                                                         .userController
+              //                                                         .profile
+              //                                                         .branchCode ==
+              //                                                     "Q013" ||
+              //                                                 UserController
+              //                                                         .userController
+              //                                                         .profile
+              //                                                         .branchCode ==
+              //                                                     "Q009") {
+              //                                               return SectionProductListItem(
+              //                                                 sectionitem:
+              //                                                     state
+              //                                                         .sectionitems[index],
+              //                                                 onSectionChanged: (
+              //                                                   p0,
+              //                                                   p1,
+              //                                                   p2,
+              //                                                 ) {
+              //                                                   context
+              //                                                       .read<
+              //                                                         HomeSectionInchargeCubit
+              //                                                       >()
+              //                                                       .addToStockStatusList(
+              //                                                         p0,
+              //                                                         p1,
+              //                                                         p2,
+              //                                                       );
+              //                                                 },
+              //                                               );
+              //                                             } else {
+              //                                               return Container();
+              //                                               // return BranchSectionProductListItem(
+              //                                               //     sectionitem: state
+              //                                               //             .sectionitems[
+              //                                               //         index],
+              //                                               //     onSectionChanged:
+              //                                               //         (p0, p1, p2) {
+              //                                               //       context
+              //                                               //           .read<
+              //                                               //               HomeSectionInchargeCubit>()
+              //                                               //           .addToStockStatusList(
+              //                                               //               p0, p1, p2);
+              //                                               //     },
+              //                                               //     branchdatum: context
+              //                                               //         .read<
+              //                                               //             HomeSectionInchargeCubit>()
+              //                                               //         .branchdata);
+              //                                             }
+              //                                           },
+              //                                         ),
+              //                                       ),
+              //                                     ),
+              //                               ],
+              //                             ),
+              //                           ),
+              //                         ],
+              //                       ),
+              //                     ),
+              //                   ),
+              //                 ),
+              //             ],
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   )
+              // else if (UserController.userController.profile.empId ==
+              //         "rayyan_butch" ||
+              //     UserController.userController.profile.empId ==
+              //         "rawdah_butch" ||
+              //     UserController.userController.profile.empId ==
+              //         "fish_rayyan" ||
+              //     UserController.userController.profile.empId ==
+              //         "alkhor_butch" ||
+              //     UserController.userController.profile.empId ==
+              //         "fish_alkhor" ||
+              //     UserController.userController.profile.empId ==
+              //         "fish_rawdah" ||
+              //     UserController.userController.profile.empId ==
+              //         "rayyan_deli" ||
+              //     UserController.userController.profile.empId == "rawdah_deli")
+              //   Expanded(
+              //     child: Column(
+              //       children: [
+              //         Padding(
+              //           padding: const EdgeInsets.symmetric(
+              //             horizontal: 20.0,
+              //             vertical: 15.0,
+              //           ),
+              //           child: Container(
+              //             decoration: BoxDecoration(
+              //               border: Border.all(
+              //                 color: customColors().fontTertiary,
+              //               ),
+              //               borderRadius: BorderRadius.circular(8.0),
+              //             ),
+              //             child: CustomSearchField(
+              //               searchFormKey: _ordersearchFormKey,
+              //               keyboardType: TextInputType.text,
+              //               focus: searchactive,
+              //               onFilter: () {},
+              //               onSearch: (p0) {
+              //                 BlocProvider.of<HomeSectionInchargeCubit>(
+              //                   context,
+              //                 ).updatesearchorder(
+              //                   UserController().sectionitems,
+              //                   p0.toString(),
+              //                 );
+              //               },
+              //               controller: _searchcontroller,
+              //             ),
+              //           ),
+              //         ),
+              //         UserController.userController.profile.empId ==
+              //                     "ahqa_butch" ||
+              //                 UserController.userController.profile.empId ==
+              //                     "alkhor_butch" ||
+              //                 UserController.userController.profile.empId ==
+              //                     "rawdah_butch" ||
+              //                 UserController.userController.profile.empId ==
+              //                     "rayyan_butch"
+              //             ? Padding(
+              //               padding: const EdgeInsets.symmetric(
+              //                 horizontal: 16.0,
+              //               ),
+              //               child: SizedBox(
+              //                 height: 30.0,
+              //                 child: MediaQuery.removePadding(
+              //                   removeTop: true,
+              //                   removeBottom: true,
+              //                   context: context,
+              //                   child: Row(
+              //                     children: [
+              //                       Expanded(
+              //                         child: ListView.builder(
+              //                           itemCount: maplist.length,
+              //                           shrinkWrap: true,
+              //                           scrollDirection: Axis.horizontal,
+              //                           itemBuilder: (context, index) {
+              //                             return Padding(
+              //                               padding: const EdgeInsets.symmetric(
+              //                                 horizontal: 3.0,
+              //                               ),
+              //                               child: InkWell(
+              //                                 onTap: () {
+              //                                   setState(() {
+              //                                     selectedcat = index;
+              //                                     BlocProvider.of<
+              //                                       HomeSectionInchargeCubit
+              //                                     >(context).updateloadProducts(
+              //                                       maplist[selectedcat]['id'],
+              //                                     );
+              //                                   });
+              //                                 },
+              //                                 child: Container(
+              //                                   padding:
+              //                                       index == 0
+              //                                           ? const EdgeInsets.symmetric(
+              //                                             horizontal: 12.0,
+              //                                           )
+              //                                           : const EdgeInsets.symmetric(
+              //                                             horizontal: 15.0,
+              //                                           ),
+              //                                   decoration: BoxDecoration(
+              //                                     color:
+              //                                         selectedcat == index
+              //                                             ? customColors()
+              //                                                 .green4
+              //                                             : null,
+              //                                     border: Border.all(
+              //                                       color:
+              //                                           customColors()
+              //                                               .fontSecondary,
+              //                                     ),
+              //                                     borderRadius:
+              //                                         BorderRadius.circular(
+              //                                           3.0,
+              //                                         ),
+              //                                   ),
+              //                                   child: Center(
+              //                                     child: Text(
+              //                                       maplist[index]['name'],
+              //                                       style: customTextStyle(
+              //                                         fontStyle:
+              //                                             FontStyle.BodyL_Bold,
+              //                                         color:
+              //                                             FontColor.FontPrimary,
+              //                                       ),
+              //                                     ),
+              //                                   ),
+              //                                 ),
+              //                               ),
+              //                             );
+              //                           },
+              //                         ),
+              //                       ),
+              //                     ],
+              //                   ),
+              //                 ),
+              //               ),
+              //             )
+              //             : SizedBox(),
+              //         Expanded(
+              //           child: Column(
+              //             children: [
+              //               if (state is HomeSectionInchargeLoading)
+              //                 Expanded(
+              //                   child: Column(
+              //                     mainAxisAlignment: MainAxisAlignment.center,
+              //                     children: [loadingindecator()],
+              //                   ),
+              //                 )
+              //               else if (state is HomeSectionInchargeInitial)
+              //                 Expanded(
+              //                   child: RefreshIndicator(
+              //                     onRefresh: () async {
+              //                       if (selectedcat != -1) {
+              //                         BlocProvider.of<HomeSectionInchargeCubit>(
+              //                           context,
+              //                         ).updateloadProducts(
+              //                           maplist[selectedcat]['id'],
+              //                         );
+              //                       } else {
+              //                         BlocProvider.of<HomeSectionInchargeCubit>(
+              //                           context,
+              //                         ).loadProducts();
+              //                       }
+              //                     },
+              //                     child: Container(
+              //                       color: customColors().backgroundPrimary,
+              //                       child: Stack(
+              //                         children: [
+              //                           Padding(
+              //                             padding: const EdgeInsets.symmetric(
+              //                               horizontal: 16.0,
+              //                               vertical: 10.0,
+              //                             ),
+              //                             child: Column(
+              //                               children: [
+              //                                 state.sectionitems.isEmpty
+              //                                     ? Expanded(
+              //                                       child: ListView(
+              //                                         physics:
+              //                                             AlwaysScrollableScrollPhysics(),
+              //                                         children: [
+              //                                           Padding(
+              //                                             padding:
+              //                                                 const EdgeInsets.only(
+              //                                                   top: 80.0,
+              //                                                 ),
+              //                                             child: Column(
+              //                                               children: [
+              //                                                 Image.network(
+              //                                                   '${noimageurl}',
+              //                                                   height: 180.0,
+              //                                                   width: 180.0,
+              //                                                 ),
+              //                                                 Padding(
+              //                                                   padding:
+              //                                                       const EdgeInsets.only(
+              //                                                         top: 8.0,
+              //                                                       ),
+              //                                                   child: Text(
+              //                                                     "No Products Found..!",
+              //                                                     style: customTextStyle(
+              //                                                       fontStyle:
+              //                                                           FontStyle
+              //                                                               .HeaderXS_SemiBold,
+              //                                                     ),
+              //                                                   ),
+              //                                                 ),
+              //                                               ],
+              //                                             ),
+              //                                           ),
+              //                                         ],
+              //                                       ),
+              //                                     )
+              //                                     : Expanded(
+              //                                       child: MediaQuery.removePadding(
+              //                                         removeTop: true,
+              //                                         context: context,
+              //                                         child: ListView.builder(
+              //                                           itemCount:
+              //                                               state
+              //                                                   .sectionitems
+              //                                                   .length,
+              //                                           shrinkWrap: true,
+              //                                           itemBuilder: (
+              //                                             context,
+              //                                             index,
+              //                                           ) {
+              //                                             if (UserController
+              //                                                         .userController
+              //                                                         .profile
+              //                                                         .branchCode ==
+              //                                                     "Q013" ||
+              //                                                 UserController
+              //                                                         .userController
+              //                                                         .profile
+              //                                                         .branchCode ==
+              //                                                     "Q008" ||
+              //                                                 UserController
+              //                                                         .userController
+              //                                                         .profile
+              //                                                         .branchCode ==
+              //                                                     "Q009" ||
+              //                                                 UserController
+              //                                                         .userController
+              //                                                         .profile
+              //                                                         .branchCode ==
+              //                                                     "Q015") {
+              //                                               return SectionProductListItem(
+              //                                                 sectionitem:
+              //                                                     state
+              //                                                         .sectionitems[index],
+              //                                                 onSectionChanged: (
+              //                                                   p0,
+              //                                                   p1,
+              //                                                   p2,
+              //                                                 ) {
+              //                                                   context
+              //                                                       .read<
+              //                                                         HomeSectionInchargeCubit
+              //                                                       >()
+              //                                                       .addToStockStatusList(
+              //                                                         p0,
+              //                                                         p1,
+              //                                                         p2,
+              //                                                       );
+              //                                                 },
+              //                                               );
+              //                                             } else {
+              //                                               return Container();
+              //                                               // return BranchSectionProductListItem(
+              //                                               //     sectionitem: state
+              //                                               //             .sectionitems[
+              //                                               //         index],
+              //                                               //     onSectionChanged:
+              //                                               //         (p0, p1, p2) {
+              //                                               //       context
+              //                                               //           .read<
+              //                                               //               HomeSectionInchargeCubit>()
+              //                                               //           .addToStockStatusList(
+              //                                               //               p0, p1, p2);
+              //                                               //     },
+              //                                               //     branchdatum: context
+              //                                               //         .read<
+              //                                               //             HomeSectionInchargeCubit>()
+              //                                               //         .branchdata);
+              //                                             }
+              //                                           },
+              //                                         ),
+              //                                       ),
+              //                                     ),
+              //                               ],
+              //                             ),
+              //                           ),
+              //                         ],
+              //                       ),
+              //                     ),
+              //                   ),
+              //                 ),
+              //             ],
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   )
+              // else
+              //   Expanded(
+              //     child: Column(
+              //       children: [
+              //         Padding(
+              //           padding: const EdgeInsets.symmetric(
+              //             horizontal: 20.0,
+              //             vertical: 15.0,
+              //           ),
+              //           child: Container(
+              //             decoration: BoxDecoration(
+              //               border: Border.all(
+              //                 color: customColors().fontTertiary,
+              //               ),
+              //               borderRadius: BorderRadius.circular(8.0),
+              //             ),
+              //             child: CustomSearchField(
+              //               searchFormKey: _ordersearchFormKey,
+              //               keyboardType: TextInputType.text,
+              //               focus: searchactive,
+              //               onFilter: () {},
+              //               onSearch: (p0) {
+              //                 log(p0);
+              //                 // BlocProvider.of<HomeSectionInchargeCubit>(context)
+              //                 //     .updatesearchorderar(
+              //                 //         UserController().branchdatalist,
+              //                 //         p0.toString());
+              //               },
+              //               controller: _searchcontroller,
+              //             ),
+              //           ),
+              //         ),
+              //         Expanded(
+              //           child: Column(
+              //             children: [
+              //               if (state is HomeSectionInchargeLoading)
+              //                 Expanded(
+              //                   child: Column(
+              //                     mainAxisAlignment: MainAxisAlignment.center,
+              //                     children: [loadingindecator()],
+              //                   ),
+              //                 )
+              //               else if (state is HomeSectionInchargeInitial)
+              //                 Expanded(
+              //                   child: RefreshIndicator(
+              //                     onRefresh: () async {
+              //                       if (selectedcat != -1) {
+              //                         BlocProvider.of<HomeSectionInchargeCubit>(
+              //                           context,
+              //                         ).updateloadProducts(
+              //                           maplist[selectedcat]['id'],
+              //                         );
+              //                       } else {
+              //                         BlocProvider.of<HomeSectionInchargeCubit>(
+              //                           context,
+              //                         ).loadProducts();
+              //                       }
+              //                     },
+              //                     child: Container(
+              //                       color: customColors().backgroundPrimary,
+              //                       child: Stack(
+              //                         children: [
+              //                           Padding(
+              //                             padding: const EdgeInsets.symmetric(
+              //                               horizontal: 16.0,
+              //                               vertical: 10.0,
+              //                             ),
+              //                             child: Column(
+              //                               children: [
+              //                                 state.branchdata.isEmpty
+              //                                     ? Expanded(
+              //                                       child: ListView(
+              //                                         physics:
+              //                                             AlwaysScrollableScrollPhysics(),
+              //                                         children: [
+              //                                           Padding(
+              //                                             padding:
+              //                                                 const EdgeInsets.only(
+              //                                                   top: 80.0,
+              //                                                 ),
+              //                                             child: Column(
+              //                                               children: [
+              //                                                 Lottie.asset(
+              //                                                   'assets/nofound_data.json',
+              //                                                   height: 180.0,
+              //                                                   width: 180.0,
+              //                                                 ),
+              //                                                 Padding(
+              //                                                   padding:
+              //                                                       const EdgeInsets.only(
+              //                                                         top: 8.0,
+              //                                                       ),
+              //                                                   child: Text(
+              //                                                     "No Products Found..!",
+              //                                                     style: customTextStyle(
+              //                                                       fontStyle:
+              //                                                           FontStyle
+              //                                                               .HeaderXS_SemiBold,
+              //                                                     ),
+              //                                                   ),
+              //                                                 ),
+              //                                               ],
+              //                                             ),
+              //                                           ),
+              //                                         ],
+              //                                       ),
+              //                                     )
+              //                                     : Expanded(
+              //                                       child: MediaQuery.removePadding(
+              //                                         context: context,
+              //                                         removeTop: true,
+              //                                         child: ListView.builder(
+              //                                           itemCount:
+              //                                               state
+              //                                                   .branchdata
+              //                                                   .length,
+              //                                           shrinkWrap: true,
+              //                                           itemBuilder: (
+              //                                             context,
+              //                                             index,
+              //                                           ) {
+              //                                             return ArBranchSectionProductListItem(
+              //                                               branchdatum:
+              //                                                   state
+              //                                                       .branchdata[index],
+              //                                               onSectionChanged: (
+              //                                                 p0,
+              //                                                 p1,
+              //                                                 p2,
+              //                                               ) {
+              //                                                 context
+              //                                                     .read<
+              //                                                       HomeSectionInchargeCubit
+              //                                                     >()
+              //                                                     .addToStockStatusList(
+              //                                                       p0,
+              //                                                       p1,
+              //                                                       p2,
+              //                                                     );
+              //                                               },
+              //                                             );
+              //                                           },
+              //                                         ),
+              //                                       ),
+              //                                     ),
+              //                               ],
+              //                             ),
+              //                           ),
+              //                         ],
+              //                       ),
+              //                     ),
+              //                   ),
+              //                 ),
+              //             ],
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
             ],
           );
         },

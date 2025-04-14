@@ -5,6 +5,7 @@ import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,10 +40,21 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
   List<Branchdatum> searchbranchlist = [];
 
+  bool searchactive = false;
+
+  List<Map<String, dynamic>> updateHistory = [];
+
   loadProducts() async {
     try {
       sectionitems.clear();
       emit(HomeSectionInchargeLoading());
+
+      updateHistory =
+          (await PreferenceUtils.getstoremap(
+            'updates_history',
+          )).cast<Map<String, dynamic>>(); //
+
+      log("history list : ${updateHistory}");
 
       // Rawdah Branch && Al Rayyan Branch data Fetch
 
@@ -65,6 +77,10 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
           log(map1.toString());
 
           branchdata = branchSectionDataResponse.branchdata;
+
+          if (branchdata.isNotEmpty) {
+            UserController().branchdata = branchdata;
+          }
 
           // UserController().branchdatalist = branchdata;
         } else {
@@ -252,7 +268,42 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       );
 
       if (response.statusCode == 200) {
-        // ignore: use_build_context_synchronously
+        if (UserController.userController.profile.branchCode != 'Q013') {
+          // ignore: use_build_context_synchronously
+          List<Map<String, dynamic>> existingUpdates =
+              (await PreferenceUtils.getstoremap(
+                'updates_history',
+              )).cast<Map<String, dynamic>>();
+
+          // Check if this SKU already exists in history
+          final existingIndex = existingUpdates.indexWhere(
+            (item) => item['sku'] == sku,
+          );
+
+          if (existingIndex >= 0) {
+            // Update existing entry
+            existingUpdates[existingIndex] = {
+              ...existingUpdates[existingIndex], // Keep other fields
+              'status': status, // Update status
+              'timestamp': DateTime.now().toIso8601String(), // Update timestamp
+            };
+          } else {
+            // Add new entry
+            existingUpdates.add({
+              'sku': sku,
+              'status': status,
+              'productname': productname,
+              'branch': UserController.userController.profile.branchCode,
+              'timestamp': DateTime.now().toIso8601String(),
+            });
+          }
+
+          await PreferenceUtils.storeListmap(
+            'updates_history',
+            existingUpdates,
+          );
+        }
+
         showSnackBar(
           context: context,
           snackBar: showSuccessDialogue(message: "Stock Updated..!"),
@@ -268,26 +319,73 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     }
   }
 
+  updateSearchOrderAR(List<Branchdatum> branchdata, String keyword) async {
+    searchbranchlist.clear();
+
+    if (keyword.isNotEmpty) {
+      searchactive = true;
+
+      branchdata.forEach((element) {
+        if (isNumeric(keyword)) {
+          if (element.sku.startsWith(keyword.toString())) {
+            searchbranchlist.add(element);
+          }
+        } else {
+          if (element.productName.contains(
+            capitalizeFirstLetter(keyword).toString(),
+          )) {
+            searchbranchlist.add(element);
+            // searchresult.add(element);
+          }
+        }
+      });
+    }
+
+    if (searchbranchlist.isNotEmpty) {
+      emit(
+        HomeSectionInchargeInitial(
+          sectionitems: searchresult,
+          branchdata: searchbranchlist,
+        ),
+      );
+    } else if (keyword.isNotEmpty && searchresult.isEmpty) {
+      emit(
+        HomeSectionInchargeInitial(
+          sectionitems: searchresult,
+          branchdata: searchbranchlist,
+        ),
+      );
+    } else if (keyword.isEmpty) {
+      // searchvisible = false;
+      branchdata = UserController().branchdata;
+
+      searchactive = false;
+      // orderslist.forEach(
+      //   (element) {
+      //     orderlist
+      //         .add(NewOrdersModel.updateOrderModel(element, serviceLocator));
+      //   },
+      // );
+      emit(
+        HomeSectionInchargeInitial(
+          sectionitems: UserController().sectionitems,
+          branchdata: branchdata,
+        ),
+      );
+    }
+  }
+
   updatesearchorder(List<Sectionitem> sectionlist, String keyword) async {
     searchresult.clear();
     searchsectionresult.clear();
 
     final currentstate = state;
 
-    // searchsectionresult = sectionlist;
-
-    // print(UserController().mainlist);
-
-    // if (currentstate is NewOrderPageLoaded) {
-    //   searchvisible = true;
-    // }
-    // if (sectionlist.isEmpty) {
-    //   sectionitems = UserController().sectionitems;
-    // }
-
     log(sectionlist.toString());
 
     if (keyword.isNotEmpty) {
+      searchactive = true;
+
       sectionlist.forEach((element) {
         if (isNumeric(keyword)) {
           if (element.sku.startsWith(keyword.toString())) {
@@ -324,6 +422,8 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     } else if (keyword.isEmpty) {
       // searchvisible = false;
       sectionlist = UserController().sectionitems;
+
+      searchactive = false;
       // orderslist.forEach(
       //   (element) {
       //     orderlist

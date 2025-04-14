@@ -50,6 +50,23 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
   DateTime? specialFromDate;
   DateTime? specialToDate;
 
+  updateBarcodeLog(String sku, String scannedsku) async {
+    try {
+      final response = await serviceLocator.tradingApi.updateBarcodeLog(
+        orderid: orderItemsResponse!.subgroupIdentifier,
+        sku: sku,
+        scanned_sku: scannedsku,
+        user_id: UserController().profile.id,
+      );
+
+      if (response.statusCode == 200) {
+        log("Barcode Log Data Updated");
+      }
+    } catch (e) {
+      log("Barcode Log Update Failed ${e.toString()}");
+    }
+  }
+
   updatedata() async {
     itemdata = data['item'];
     orderItemsResponse = data['order'];

@@ -49,4 +49,15 @@ class PreferenceUtils {
 
     _prefInstance.setString(key, encodelist);
   }
+
+  Future<List<Map<String, dynamic>>> getSavedUpdates() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? updatesJsonList = prefs.getStringList('updates_list');
+
+    if (updatesJsonList == null) return [];
+
+    return updatesJsonList
+        .map((jsonString) => jsonDecode(jsonString) as Map<String, dynamic>)
+        .toList();
+  }
 }

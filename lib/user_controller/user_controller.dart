@@ -1,3 +1,4 @@
+import 'package:picker_driver_api/responses/branch_section_data_response.dart';
 import 'package:picker_driver_api/responses/login_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
@@ -34,6 +35,7 @@ class UserController {
   List<String> pickerindexlist = [];
   List<String> notavailableindexlist = [];
   List<Sectionitem> sectionitems = [];
+  List<Branchdatum> branchdata = [];
   String base = "";
   String producturl = "";
   String applicationpath = "";
