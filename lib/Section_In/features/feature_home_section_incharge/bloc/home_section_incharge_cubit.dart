@@ -126,56 +126,6 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
         UserController.userController.sectionitems = sectionitems;
 
-        // if (UserController.userController.loginResponse.profile.branchCode ==
-        //     "Q009") {
-        //   // Get the current date and time
-        //   DateTime now = DateTime.now();
-
-        //   // Get the date for the previous day and set the time to 00:00:00
-        //   DateTime lastDay =
-        //       DateTime(now.year, now.month, now.day - 1, 0, 0, 0);
-
-        //   // Define the format
-        //   DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
-
-        //   // Format the dates
-        //   String formattedNow = dateFormat.format(now);
-        //   String formattedLastDay = dateFormat.format(lastDay);
-
-        //   // Print the results
-        //   print('Today\'s Date and Time: $formattedNow');
-        //   print('Yesterday\'s Date and Time: $formattedLastDay');
-
-        //   int category =
-        //       getUserCategory(UserController().loginResponse.profile.empId);
-
-        //   final sresponse = await serviceLocator.tradingApi
-        //       .getBranchSectionRequest(
-        //           category.toString(),
-        //           formattedLastDay,
-        //           formattedNow,
-        //           UserController.userController.loginResponse.profile.empId);
-
-        //   map1 = {"branchdata": jsonDecode(sresponse)};
-
-        //   BranchSectionDataResponse branchSectionDataResponse =
-        //       BranchSectionDataResponse.fromJson(map1);
-
-        //   branchdata = branchSectionDataResponse.branchdata;
-
-        //   // sectionitems.forEach((element) {
-        //   //   branchdata.forEach((element1) {
-        //   //     if (element.sku == element1.sku) {
-        //   //       element.status = int.parse(element1.status);
-        //   //     }
-        //   //   });
-        //   // });
-
-        //   //
-        //   // Barwa Branch and Al Khor Branch data Fetch
-        //   //
-        // }
-
         emit(
           HomeSectionInchargeInitial(
             sectionitems: sectionitems,
@@ -323,7 +273,9 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     searchbranchlist.clear();
 
     if (keyword.isNotEmpty) {
-      searchactive = true;
+      if (!searchactive) {
+        searchactive = true;
+      }
 
       branchdata.forEach((element) {
         if (isNumeric(keyword)) {
@@ -384,7 +336,9 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     log(sectionlist.toString());
 
     if (keyword.isNotEmpty) {
-      searchactive = true;
+      if (!searchactive) {
+        searchactive = true;
+      }
 
       sectionlist.forEach((element) {
         if (isNumeric(keyword)) {
@@ -453,5 +407,20 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       return s;
     }
     return s[0].toUpperCase() + s.substring(1);
+  }
+
+  clearSectionData() async {
+    try {
+      await PreferenceUtils.removeDataFromShared('updates_history');
+
+      loadProducts();
+
+      showSnackBar(
+        context: context,
+        snackBar: showSuccessDialogue(message: "All data cleared"),
+      );
+    } catch (e) {
+      log("console error ${e.toString()}");
+    }
   }
 }

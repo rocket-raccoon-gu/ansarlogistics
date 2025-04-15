@@ -1,13 +1,17 @@
 import 'package:ansarlogistics/Section_In/features/components/ar_branch_section_product_list_item.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_cubit.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
+import 'package:ansarlogistics/components/custom_app_components/buttons/animation_switch.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/custom_search_field.dart';
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ArBranchSection extends StatefulWidget {
-  const ArBranchSection({super.key});
+  HomeSectionInchargeState state;
+  ArBranchSection({super.key, required this.state});
 
   @override
   State<ArBranchSection> createState() => _ArBranchSectionState();
@@ -47,89 +51,105 @@ class _ArBranchSectionState extends State<ArBranchSection> {
                   UserController().branchdata,
                   p0.toString(),
                 );
-                // if (p0 != '') {
-                //   setState(() {
-                //     searchactive = true;
-                //   });
-                // } else {
-                //   setState(() {
-                //     searchactive = false;
-                //   });
-                // }
               },
               controller: _searchcontroller,
             ),
           ),
         ),
 
-        Expanded(
-          child: MediaQuery.removePadding(
-            context: context,
-            removeTop: true,
-            child: ListView(
-              physics: AlwaysScrollableScrollPhysics(),
-              children: [
-                if (BlocProvider.of<HomeSectionInchargeCubit>(
-                      context,
-                    ).searchactive &&
-                    BlocProvider.of<HomeSectionInchargeCubit>(
-                      context,
-                    ).branchdata.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                    child: ListView.builder(
-                      itemCount:
-                          BlocProvider.of<HomeSectionInchargeCubit>(
-                            context,
-                          ).branchdata.length,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        return ArBranchSectionProductListItem(
-                          branchdatum:
-                              BlocProvider.of<HomeSectionInchargeCubit>(
-                                context,
-                              ).branchdata[index],
-                          onSectionChanged: (p0, p1, p2) {},
-                        );
-                      },
+        if (widget.state is HomeSectionInchargeLoading)
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [loadingindecator()],
+            ),
+          )
+        else
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  if (BlocProvider.of<HomeSectionInchargeCubit>(
+                        context,
+                      ).searchactive &&
+                      BlocProvider.of<HomeSectionInchargeCubit>(
+                        context,
+                      ).searchbranchlist.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: ListView.builder(
+                        itemCount:
+                            BlocProvider.of<HomeSectionInchargeCubit>(
+                              context,
+                            ).searchbranchlist.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return ArBranchSectionProductListItem(
+                            branchdatum:
+                                BlocProvider.of<HomeSectionInchargeCubit>(
+                                  context,
+                                ).searchbranchlist[index],
+                            onSectionChanged: (p0, p1, p2) {},
+                          );
+                        },
+                      ),
+                    )
+                  else if (BlocProvider.of<HomeSectionInchargeCubit>(
+                        context,
+                      ).searchactive &&
+                      BlocProvider.of<HomeSectionInchargeCubit>(
+                        context,
+                      ).searchresult.isEmpty)
+                    Column(
+                      children: [
+                        Image.network(
+                          '${noimageurl}',
+                          height: 180.0,
+                          width: 180.0,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "No Products Found..!",
+                            style: customTextStyle(
+                              fontStyle: FontStyle.HeaderXS_SemiBold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: ListView.builder(
+                        itemCount:
+                            BlocProvider.of<HomeSectionInchargeCubit>(
+                              context,
+                            ).branchdata.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return ArBranchSectionProductListItem(
+                            branchdatum:
+                                BlocProvider.of<HomeSectionInchargeCubit>(
+                                  context,
+                                ).branchdata[index],
+                            onSectionChanged: (p0, p1, p2) {
+                              context
+                                  .read<HomeSectionInchargeCubit>()
+                                  .addToStockStatusList(p0, p1, p2);
+                            },
+                          );
+                        },
+                      ),
                     ),
-                  )
-                else if (BlocProvider.of<HomeSectionInchargeCubit>(
-                      context,
-                    ).searchactive &&
-                    BlocProvider.of<HomeSectionInchargeCubit>(
-                      context,
-                    ).searchresult.isEmpty)
-                  Column(children: [])
-                else
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                    child: ListView.builder(
-                      itemCount:
-                          BlocProvider.of<HomeSectionInchargeCubit>(
-                            context,
-                          ).branchdata.length,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return ArBranchSectionProductListItem(
-                          branchdatum:
-                              BlocProvider.of<HomeSectionInchargeCubit>(
-                                context,
-                              ).branchdata[index],
-                          onSectionChanged: (p0, p1, p2) {
-                            context
-                                .read<HomeSectionInchargeCubit>()
-                                .addToStockStatusList(p0, p1, p2);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
       ],
     );
   }

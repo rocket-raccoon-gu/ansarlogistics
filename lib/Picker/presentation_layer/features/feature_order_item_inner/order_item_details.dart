@@ -3,12 +3,10 @@ import 'dart:typed_data';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
-import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
-import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/barcode_change_sheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/price_change_sheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
@@ -23,8 +21,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:toastification/toastification.dart';
 
@@ -176,20 +172,20 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
             context: context,
             snackBar: showSuccessDialogue(message: "Barcode Matching.."),
           );
-        } else if (BlocProvider.of<OrderItemDetailsCubit>(
-          context,
-        ).orderItem!.productSku.contains(barcodeScanRes!)) {
-          setState(() {
-            isScanner = false;
-          });
+          // } else if (BlocProvider.of<OrderItemDetailsCubit>(
+          //   context,
+          // ).orderItem!.productSku.contains(barcodeScanRes!)) {
+          // setState(() {
+          //   isScanner = false;
+          // });
 
-          showBarcodeChangeDialogue(
-            BlocProvider.of<OrderItemDetailsCubit>(
-              context,
-            ).orderItem!.productSku,
-            actualquantity,
-            BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.price,
-          );
+          // showBarcodeChangeDialogue(
+          //   BlocProvider.of<OrderItemDetailsCubit>(
+          //     context,
+          //   ).orderItem!.productSku,
+          //   actualquantity,
+          //   BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.price,
+          // );
         } else {
           showSnackBar(
             context: context,
@@ -228,75 +224,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
       double.parse(
         BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.qtyOrdered,
       ).toInt(),
-    );
-  }
-
-  Future<void> requestCameraPermission() async {
-    var status = await Permission.camera.request();
-    if (status.isDenied || status.isPermanentlyDenied) {
-      openAppSettings();
-    }
-  }
-
-  ////
-
-  //// barcode change dialogue
-  ///
-  showBarcodeChangeDialogue(String barcode, int mainqty, String price) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: "",
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Container();
-      },
-      transitionBuilder: (context0, animation, secondaryAnimation, child) {
-        var curve = Curves.easeInOut.transform(animation.value);
-
-        return BarcodeChangeSheet(
-          curve: curve,
-          scannedbarcode: barcode,
-          confirmTap: (bar) {
-            // load = true;
-
-            log(bar);
-
-            log(barcode);
-            if (bar == barcode) {
-              double pr = double.parse(price) / mainqty;
-
-              print(pr);
-
-              print(mainqty);
-
-              if (editquantity != 0) {
-                BlocProvider.of<OrderItemDetailsCubit>(
-                  context,
-                ).updateitemstatus(
-                  "end_picking",
-                  editquantity.toString(),
-                  "",
-                  pr.toString(),
-                );
-              } else {
-                BlocProvider.of<OrderItemDetailsCubit>(
-                  context,
-                ).updateitemstatus(
-                  "end_picking",
-                  mainqty.toString(),
-                  "",
-                  pr.toString(),
-                );
-              }
-
-              showSnackBar(
-                context: context,
-                snackBar: showSuccessDialogue(message: "Barcode Matching"),
-              );
-            }
-          },
-        );
-      },
     );
   }
 
@@ -454,79 +381,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
         },
       );
     }
-  }
-
-  showQuantityCheckDialogue(int mainqty) {
-    showGeneralDialog(
-      barrierDismissible: true,
-      barrierLabel: "",
-      context: context,
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Container();
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        var curve = Curves.easeInOut.transform(animation.value);
-
-        return Transform.scale(
-          scale: curve,
-          child: AlertDialog(
-            content: StatefulBuilder(
-              builder: (context, StateSetter state) {
-                return SizedBox(
-                  height: 150,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Confirm Quantity",
-                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0),
-                        child: CounterDropdown(
-                          initNumber: 0,
-                          counterCallback: (v) {
-                            setState(() {
-                              // qtylist[index]['qty'] = v;
-                              // editquantity = v;
-
-                              editquantity = v;
-                            });
-                          },
-                          maxNumber: 100,
-                          minNumber: 0,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: BasketButton(
-                                  bgcolor: customColors().carnationRed,
-                                  text: "Confirm",
-                                  textStyle: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                    color: FontColor.White,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
   }
 
   bool isScanner = false;
@@ -1195,10 +1049,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         )
                                         : SizedBox(),
 
+                                    // state.orderItem.itemStatus ==
+                                    //             "end_picking" ||
                                     state.orderItem.itemStatus ==
-                                                "end_picking" ||
-                                            state.orderItem.itemStatus ==
-                                                "item_not_available"
+                                            "item_not_available"
                                         ? Padding(
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 12.0,
@@ -1247,7 +1101,17 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                             vertical: 12.0,
                                           ),
                                           child: CounterDropdown(
-                                            initNumber: 0,
+                                            initNumber:
+                                                (double.parse(
+                                                      state
+                                                          .orderItem
+                                                          .qtyOrdered,
+                                                    ).toInt() -
+                                                    double.parse(
+                                                      state
+                                                          .orderItem
+                                                          .qtyCanceled,
+                                                    ).toInt()),
                                             counterCallback: (v) {
                                               setState(() {
                                                 // qtylist[index]['qty'] = v;
@@ -1677,10 +1541,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
       ),
 
       bottomNavigationBar:
-          // BlocProvider.of<OrderItemDetailsCubit>(
-          //               context,
-          //             ).orderItem!.itemStatus ==
-          //             "end_picking" ||
           BlocProvider.of<OrderItemDetailsCubit>(
                         context,
                       ).orderItem!.itemStatus ==
@@ -1692,10 +1552,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                   UserController.userController.itemnotavailablelist.contains(
                     BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
                   )
-              // ||
-              // UserController.userController.indexlist.contains(
-              //   BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
-              // )
               ? SizedBox()
               : SizedBox(
                 height: screenSize.height * 0.095,
@@ -1858,9 +1714,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                             child: InkWell(
                               onTap: () async {
                                 if (editquantity != 0) {
-                                  // setState(() {
-                                  //   isScanner = true;
-                                  // });
                                   scanBarcodeNormal();
                                 } else {
                                   showSnackBar(
@@ -1871,86 +1724,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                     ),
                                   );
                                 }
-
-                                // setState(() {
-                                //   loading = true;
-                                // });
-
-                                // int actualquantity = double.parse(BlocProvider.of<
-                                //                 OrderItemDetailsCubit>(context)
-                                //             .orderItem!
-                                //             .qtyOrdered)
-                                //         .toInt() -
-                                //     double.parse(BlocProvider.of<
-                                //                 OrderItemDetailsCubit>(context)
-                                //             .orderItem!
-                                //             .qtyCanceled)
-                                //         .toInt();
-
-                                // if (editquantity == 0) {
-                                //   log("pick");
-
-                                //   if (BlocProvider.of<OrderItemDetailsCubit>(
-                                //                   context)
-                                //               .orderItem!
-                                //               .itemStatus ==
-                                //           'assigned_picker' ||
-                                //       BlocProvider.of<OrderItemDetailsCubit>(
-                                //                   context)
-                                //               .orderItem!
-                                //               .itemStatus ==
-                                //           'start_picking') {
-                                //     BlocProvider.of<OrderItemDetailsCubit>(
-                                //             context)
-                                //         .updateitemstatus(
-                                //             "end_picking",
-                                //             actualquantity.toString(),
-                                //             "",
-                                //             BlocProvider.of<
-                                //                         OrderItemDetailsCubit>(
-                                //                     context)
-                                //                 .orderItem!
-                                //                 .price);
-                                //   } else {
-                                //     BlocProvider.of<OrderItemDetailsCubit>(
-                                //             context)
-                                //         .updateitemstatus(
-                                //             "end_picking",
-                                //             actualquantity.toString(),
-                                //             "",
-                                //             BlocProvider.of<
-                                //                         OrderItemDetailsCubit>(
-                                //                     context)
-                                //                 .orderItem!
-                                //                 .price);
-                                //   }
-                                // } else {
-                                //   // quantity change
-
-                                //   // int actualquantity = double.parse(BlocProvider
-                                //   //                 .of<OrderItemDetailsCubit>(
-                                //   //                     context)
-                                //   //             .orderItem!
-                                //   //             .qtyOrdered)
-                                //   //         .toInt() -
-                                //   //     editquantity;
-
-                                //   BlocProvider.of<OrderItemDetailsCubit>(context)
-                                //       .updateitemstatus(
-                                //           "end_picking",
-                                //           editquantity.toString(),
-                                //           "",
-                                //           BlocProvider.of<OrderItemDetailsCubit>(
-                                //                   context)
-                                //               .orderItem!
-                                //               .price);
-                                // }
-
-                                // BlocProvider.of<PickerOrdersCubit>(context)
-                                //     .loadPosts(
-                                //         1,
-                                //         statuslist[UserController().selectedindex]
-                                //             ['status']);
                               },
                               child: BasketButtonwithIcon(
                                 loading: loading,

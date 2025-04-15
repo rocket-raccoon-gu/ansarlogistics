@@ -29,30 +29,11 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   getUserCode() async {
-    // await Future.delayed(Duration(seconds: 5));
-
-    // if (UserController().userName.isEmpty ||
-    //     UserSettings().userPersonalSettings.username == null) {
     if (await PreferenceUtils.preferenceHasKey("userCode")) {
       String id =
           UserController().userName =
               (await PreferenceUtils.getDataFromShared("userCode")) ?? "";
       String val = await PreferenceUtils.getDataFromShared("password") ?? "";
-      // if (id != "" && val != "") {
-      //   String pass = decryptStringForUser(val, keyVal(id));
-      //   if (pass != "") {
-      //     if (await sendLoginRequest(
-      //       context: context,
-      //       userId: id,
-      //       password: pass,
-      //     ))
-      //       return;
-      //   } else {
-      //     // showSnackBar(
-      //     //     context: context,
-      //     //     snackBar: showErrorDialogue(errorMessage: "relogin"));
-      //   }
-      // }
 
       if (id != "" && val != "") {
         // Validate the encrypted password
@@ -133,7 +114,7 @@ class LoginCubit extends Cubit<LoginState> {
               password: password,
               token: value,
               bearertoken: serverkey,
-              appversion: "2.0.6",
+              appversion: "2.0.7",
             );
         DateTime responseTime = DateTime.now();
 

@@ -47,7 +47,7 @@ class _CustomSearchFieldState extends State<CustomSearchField> {
 
     return Container(
       decoration: BoxDecoration(
-        color: customColors().backgroundPrimary,
+        // color: customColors().backgroundPrimary,
         border: Border.all(color: customColors().fontTertiary),
         borderRadius: BorderRadius.circular(10.0),
       ),

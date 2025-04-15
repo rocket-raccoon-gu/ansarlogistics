@@ -3,10 +3,13 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/customer_details_sheet.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/ar_branch_section.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/home_section.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/other_branch_section.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -733,26 +736,33 @@ Future<int> getAndroidSdkVersion() async {
   return androidInfo.version.sdkInt;
 }
 
-Widget getSection(String branchCode) {
+Widget getSection(String branchCode, HomeSectionInchargeState state) {
   switch (branchCode) {
     case 'Q013':
-      return HomeSection();
+      return HomeSection(state: state);
     case 'Q009':
-      return OtherBranchSection();
+      return OtherBranchSection(state: state);
     case 'Q015':
       if (UserController.userController.profile.empId == "veg_rawdah") {
-        return ArBranchSection();
+        return ArBranchSection(state: state);
       } else {
-        return OtherBranchSection();
+        return OtherBranchSection(state: state);
       }
     case 'Q008':
       if (UserController.userController.profile.empId == "veg_rayyan") {
-        return ArBranchSection();
+        return ArBranchSection(state: state);
       } else {
-        return OtherBranchSection();
+        return OtherBranchSection(state: state);
       }
 
     default:
-      return HomeSection();
+      return HomeSection(state: state);
+  }
+}
+
+Future<void> requestCameraPermission() async {
+  var status = await Permission.camera.request();
+  if (status.isDenied || status.isPermanentlyDenied) {
+    openAppSettings();
   }
 }
