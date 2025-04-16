@@ -9,6 +9,7 @@ import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:picker_driver_api/responses/check_section_status_list.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
 import 'package:picker_driver_api/requests/update_section_request.dart';
 import 'package:picker_driver_api/responses/branch_section_data_response.dart';
@@ -28,6 +29,8 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
   Map<String, dynamic> map1 = {};
 
+  Map<String, dynamic> map3 = {};
+
   List<Sectionitem> sectionitems = [];
 
   List<Sectionitem> searchresult = [];
@@ -44,6 +47,8 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
   List<Map<String, dynamic>> updateHistory = [];
 
+  List<StatusHistory> statusHistories = [];
+
   loadProducts() async {
     try {
       sectionitems.clear();
@@ -55,6 +60,24 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
           )).cast<Map<String, dynamic>>(); //
 
       log("history list : ${updateHistory}");
+
+      final respdata = await serviceLocator.tradingApi.getSectionDataCheckList(
+        UserController().profile.empId,
+        UserController().profile.branchCode,
+      );
+
+      if (UserController.userController.profile.branchCode != "Q0113") {
+        map3 = jsonDecode(respdata);
+
+        if (map3.containsKey('data')) {
+          CheckSectionstatusList checkSectionstatusList =
+              CheckSectionstatusList.fromJson(map3);
+
+          statusHistories = checkSectionstatusList.data;
+        }
+      }
+
+      log(statusHistories.toString());
 
       // Rawdah Branch && Al Rayyan Branch data Fetch
 
@@ -413,12 +436,19 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     try {
       await PreferenceUtils.removeDataFromShared('updates_history');
 
-      loadProducts();
-
-      showSnackBar(
-        context: context,
-        snackBar: showSuccessDialogue(message: "All data cleared"),
+      final resp = await serviceLocator.tradingApi.cleatSectionData(
+        UserController.userController.profile.empId,
+        UserController.userController.profile.branchCode,
       );
+
+      if (jsonDecode(resp)['success']) {
+        loadProducts();
+
+        showSnackBar(
+          context: context,
+          snackBar: showSuccessDialogue(message: "All data cleared"),
+        );
+      }
     } catch (e) {
       log("console error ${e.toString()}");
     }

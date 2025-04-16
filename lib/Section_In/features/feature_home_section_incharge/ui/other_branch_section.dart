@@ -106,6 +106,10 @@ class _OtherBranchSectionState extends State<OtherBranchSection> {
                                 BlocProvider.of<HomeSectionInchargeCubit>(
                                   context,
                                 ).updateHistory,
+                            statusHistory:
+                                BlocProvider.of<HomeSectionInchargeCubit>(
+                                  context,
+                                ).statusHistories,
                             onSectionChanged: (p0, p1, p2) {
                               context
                                   .read<HomeSectionInchargeCubit>()
@@ -159,6 +163,10 @@ class _OtherBranchSectionState extends State<OtherBranchSection> {
                                 BlocProvider.of<HomeSectionInchargeCubit>(
                                   context,
                                 ).updateHistory,
+                            statusHistory:
+                                BlocProvider.of<HomeSectionInchargeCubit>(
+                                  context,
+                                ).statusHistories,
                             onSectionChanged: (p0, p1, p2) {
                               context
                                   .read<HomeSectionInchargeCubit>()

@@ -929,6 +929,58 @@ extension PDGeneralApi on PickerDriverApi {
     }
   }
 
+  Future<String> getSectionDataCheckList({
+    required String branchcode,
+    required String userid,
+  }) {
+    final url = _endpointWithApplicationPath('/check_status.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    final Map<String, dynamic> body = {
+      "branchcode": branchcode,
+      "user_id": userid,
+    };
+
+    serviceSend("Check Barcode Status Availablity..!");
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
+  }
+
+  Future<String> clearStockData({
+    required String userid,
+    required String branchcode,
+  }) {
+    final url = _endpointWithApplicationPath('/clear_stock_items.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    final Map<String, dynamic> body = {
+      "branch_code": branchcode,
+      "user_id": userid,
+    };
+
+    serviceSend("Clear All Stock Data..!");
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
+  }
+
   Future addtoproductlist({
     required List<Map<String, dynamic>> dynamiclist,
   }) async {

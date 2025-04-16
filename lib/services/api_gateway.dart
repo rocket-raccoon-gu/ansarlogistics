@@ -436,6 +436,38 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
+  Future getSectionDataCheckList(String user, String branch) async {
+    try {
+      final response = await pickerDriverApi
+          .getSectionDataCheckList(branchcode: branch, userid: user)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      //
+      return response;
+    } catch (e) {
+      serviceSendError("get Section Data Request Error");
+      rethrow;
+    }
+  }
+
+  Future cleatSectionData(String user, String branch) async {
+    try {
+      final response = await pickerDriverApi
+          .clearStockData(branchcode: branch, userid: user)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      //
+      return response;
+    } catch (e) {
+      serviceSendError("get Section Data Request Error");
+      rethrow;
+    }
+  }
+
   Future updateSectionDataRequest({
     required UpdateSectionRequest updateSectionRequest,
     required String branch,

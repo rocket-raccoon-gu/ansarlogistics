@@ -98,49 +98,6 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
                     children: [LoadingIndecator()],
                   ),
                 ),
-
-              // Expanded(
-              //     child: Stack(
-              //   children: [
-              //     Column(
-              //       children: [
-              //         if (state is DriverOrderInitialPageState)
-              //           Padding(
-              //             padding: const EdgeInsets.symmetric(vertical: 10.0),
-              //             child: Expanded(
-              //               child: ListView.builder(
-              //                   itemCount: state.assignedDriver.length,
-              //                   shrinkWrap: true,
-              //                   itemBuilder: (context, index) {
-              //                     return DriverOrderInnerListItem(
-              //                         orderItem: state.assignedDriver[index]);
-              //                   }),
-              //             ),
-              //           )
-              //         else if (state is DriverOrderInitialErrorState)
-              //           Padding(
-              //             padding: const EdgeInsets.symmetric(vertical: 10.0),
-              //             child: Expanded(
-              //               child: ListView.builder(
-              //                   itemCount: state.assignedDriver.length,
-              //                   shrinkWrap: true,
-              //                   itemBuilder: (context, index) {
-              //                     return DriverOrderInnerListItem(
-              //                         orderItem: state.assignedDriver[index]);
-              //                   }),
-              //             ),
-              //           )
-              //         else
-              //           Expanded(
-              //             child: Column(
-              //               mainAxisAlignment: MainAxisAlignment.center,
-              //               children: [LoadingIndecator()],
-              //             ),
-              //           ),
-              //       ],
-              //     ),
-              //   ],
-              // ))
             ],
           ),
           bottomNavigationBar: SizedBox(

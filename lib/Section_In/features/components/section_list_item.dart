@@ -5,17 +5,20 @@ import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:picker_driver_api/responses/check_section_status_list.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class SectionProductListItem extends StatefulWidget {
   Sectionitem sectionitem;
   List<Map<String, dynamic>> existingUpdates;
+  List<StatusHistory> statusHistory;
   Function(String, String, String) onSectionChanged;
   SectionProductListItem({
     super.key,
     required this.sectionitem,
     required this.existingUpdates,
+    required this.statusHistory,
     required this.onSectionChanged,
   });
 
@@ -37,17 +40,47 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
 
   int get _currentStatus {
     final currentBranch = UserController.userController.profile.branchCode;
+    final currentSku = widget.sectionitem.sku;
 
-    final existingItem = widget.existingUpdates.firstWhere(
-      (item) =>
-          item['sku'] == widget.sectionitem.sku &&
-          item['branch'] == currentBranch,
-      orElse: () => <String, dynamic>{},
-    );
+    if (UserController.userController.profile.branchCode != 'Q013') {
+      // 1. Check statusHistory for all matching entries
+      final statusHistoryItems =
+          widget.statusHistory
+              .where(
+                (item) =>
+                    item.sku == currentSku && item.branchCode == currentBranch,
+              )
+              .toList();
 
-    return existingItem.isNotEmpty
-        ? int.parse(existingItem['status'].toString())
-        : widget.sectionitem.isInStock;
+      if (statusHistoryItems.isNotEmpty) {
+        // Sort by timestamp descending (newest first) and take the first item
+        statusHistoryItems.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        return statusHistoryItems.first.status;
+      }
+
+      // 2. Check existingUpdates for all matching entries
+      final existingItems =
+          widget.existingUpdates
+              .where(
+                (item) =>
+                    item['sku'] == currentSku &&
+                    item['branch'] == currentBranch,
+              )
+              .toList();
+
+      if (existingItems.isNotEmpty) {
+        // Sort by timestamp if available (newest first)
+        existingItems.sort((a, b) {
+          final aTime = a['updated_at'] ?? '';
+          final bTime = b['updated_at'] ?? '';
+          return bTime.compareTo(aTime); // Descending sort
+        });
+        return int.parse(existingItems.first['status'].toString());
+      }
+    }
+
+    // 3. Fall back to default status
+    return widget.sectionitem.isInStock;
   }
 
   @override
@@ -231,12 +264,20 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
               isSelected: val,
               onChanged: (v) {
                 setState(() {
-                  // widget.sectionitem.status = v;
                   widget.sectionitem.isInStock = v;
                   val = v;
 
                   if (UserController.userController.profile.branchCode !=
                       'Q013') {
+                    // Remove from statusHistory if exists
+                    widget.statusHistory.removeWhere(
+                      (item) =>
+                          item.sku == widget.sectionitem.sku &&
+                          item.branchCode ==
+                              UserController.userController.profile.branchCode,
+                    );
+
+                    // Update existingUpdates
                     final index = widget.existingUpdates.indexWhere(
                       (item) => item['sku'] == widget.sectionitem.sku,
                     );
@@ -245,9 +286,16 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                         ...widget.existingUpdates[index],
                         'status': v,
                       };
+                    } else {
+                      widget.existingUpdates.add({
+                        'sku': widget.sectionitem.sku,
+                        'status': v,
+                        'branch':
+                            UserController.userController.profile.branchCode,
+                        'productName': widget.sectionitem.productName,
+                      });
                     }
 
-                    // Save to SharedPreferences
                     PreferenceUtils.storeListmap(
                       'updates_history',
                       widget.existingUpdates,

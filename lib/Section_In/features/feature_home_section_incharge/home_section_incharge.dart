@@ -69,10 +69,14 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           if (UserController
-                                  .userController
-                                  .profile
-                                  .branchCode !=
-                              'Q013')
+                                      .userController
+                                      .profile
+                                      .branchCode !=
+                                  'Q013' &&
+                              (UserController.userController.profile.empId ==
+                                      "veg_rayyan" ||
+                                  UserController.userController.profile.empId ==
+                                      "veg_rawdah"))
                             InkWell(
                               onTap: () {
                                 context
