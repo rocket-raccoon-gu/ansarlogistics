@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_login/bloc/login_cubit.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/order_warning_bottomsheet.dart';
@@ -161,6 +162,26 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                             ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: InkWell(
+                                onTap: () async {
+                                  context.gNavigationService.openSignupPage(
+                                    context,
+                                    arg: {},
+                                  );
+                                },
+                                child: Text(
+                                  "Create New Account",
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyL_Bold,
+                                    color: FontColor.DodgerBlue,
+                                  ),
+                                ),
+                              ),
+                            ),
+
                             if (UserController().userName != "")
                               userNameAndTradeCode(
                                 UserController().userName,
@@ -201,77 +222,9 @@ class _LoginPageState extends State<LoginPage> {
                                             customColors().backgroundTertiary,
                                         inputFormatter: [
                                           LengthLimitingTextInputFormatter(15),
-                                          // UpperCaseFormatter(),
-                                          // FilteringTextInputFormatter.allow(
-                                          //   RegExp("[0-9a-zA-Z]"),
-                                          // ),
                                         ],
-                                        onFieldSubmit: (value) async {
-                                          // if (idFormKey
-                                          //         .currentState!
-                                          //         .validate() &&
-                                          //     passwordcontroller
-                                          //         .text.isNotEmpty &&
-                                          //     (!state.needOtp ||
-                                          //         (state.needOtp &&
-                                          //             otpcontroller
-                                          //                 .text.isNotEmpty))) {
-                                          //   BlocProvider.of<LoginCubit>(context)
-                                          //       .sendLoginRequest(
-                                          //           context: context,
-                                          //           userId: idcontroller
-                                          //                   .text.isEmpty
-                                          //               ? UserController().userId
-                                          //               : idcontroller.text,
-                                          //           password:
-                                          //               passwordcontroller.text,
-                                          //           otp: otpcontroller.text != ""
-                                          //               ? otpcontroller.text
-                                          //               : "");
-                                          // } else if (idcontroller
-                                          //     .text.isNotEmpty) {
-                                          //   if (state.needOtp) {
-                                          //     focus3.requestFocus();
-                                          //   } else {
-                                          //     focus2.requestFocus();
-                                          //   }
-                                          // } else {
-                                          //   focus1.requestFocus();
-                                          // }
-                                        },
-                                        keyboardAction: () async {
-                                          // if (idFormKey
-                                          //         .currentState!
-                                          //         .validate() &&
-                                          //     passwordcontroller
-                                          //         .text.isNotEmpty &&
-                                          //     (!state.needOtp ||
-                                          //         (state.needOtp &&
-                                          //             otpcontroller
-                                          //                 .text.isNotEmpty))) {
-                                          //   BlocProvider.of<LoginCubit>(context)
-                                          //       .sendLoginRequest(
-                                          //           context: context,
-                                          //           userId: idcontroller
-                                          //                   .text.isEmpty
-                                          //               ? UserController().userId
-                                          //               : idcontroller.text,
-                                          //           password:
-                                          //               passwordcontroller.text,
-                                          //           otp: otpcontroller.text != ""
-                                          //               ? otpcontroller.text
-                                          //               : "");
-                                          // } else if (idcontroller
-                                          //     .text.isNotEmpty) {
-                                          //   if (state.needOtp) {
-                                          //     focus3.requestFocus();
-                                          //   } else {
-                                          //     focus2.requestFocus();
-                                          //   }
-                                          // } else {
-                                          //   focus1.requestFocus();
-                                          // }
-                                        },
+                                        onFieldSubmit: (value) async {},
+                                        keyboardAction: () async {},
                                       ),
                                     ),
                                     Padding(

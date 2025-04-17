@@ -637,4 +637,21 @@ class PDApiGateway implements AuthenticationService {
       return "Retry";
     }
   }
+
+  Future getCompanyList() async {
+    try {
+      final response = await pickerDriverApi.getCompanyList().catchError((
+        e,
+        trace,
+      ) {
+        networkStreamController.sink.add(e.toString());
+      });
+
+      return response;
+    } catch (e) {
+      serviceSendError("get Company List Api Error");
+
+      return "Retry";
+    }
+  }
 }

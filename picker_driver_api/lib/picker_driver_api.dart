@@ -1034,6 +1034,23 @@ extension PDGeneralApi on PickerDriverApi {
       },
     );
   }
+
+  Future<http.Response> getCompanyList() async {
+    final url = _endpointWithApplicationPath('/get_driver_companies.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    serviceSend("get Company Data...!");
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
 }
 
 extension on PickerDriverApi {

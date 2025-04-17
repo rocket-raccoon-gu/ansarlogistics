@@ -18,30 +18,58 @@ class SignupPageCubit extends Cubit<SignupPageState> {
 
   String currentid = "";
 
-  loadpage() async {
+  List<Map<String, dynamic>> companylist = [];
+
+  Future<void> loadpage() async {
     try {
+      // First get the ID
       final response = await serviceLocator.tradingApi.getLastId();
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
+        final data = jsonDecode(response.body);
+        final currentId = "0" + (data['last_id'] + 1).toString();
 
-        currentid = "0" + (data['last_id'] + 1).toString();
+        // Then get company details
+        final companyList = await getCompanyDetails();
 
-        log(currentid.toString());
+        // Only emit when we have all data
+        emit(
+          SignupPageInitialState(
+            companyList: companyList,
+            currentId: currentId,
+          ),
+        );
       } else {
+        emit(SignupPageErrorState("Error generating Id"));
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(errorMessage: "Error generating Id"),
         );
       }
     } catch (e) {
+      emit(SignupPageErrorState(e.toString()));
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(errorMessage: e.toString()),
       );
     }
+  }
 
-    emit(SignupPageInitialState());
+  Future<List<Map<String, dynamic>>> getCompanyDetails() async {
+    try {
+      final response = await serviceLocator.tradingApi.getCompanyList();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['data'] is List) {
+          return List<Map<String, dynamic>>.from(data['data']);
+        }
+      }
+      return []; // Return empty list if no data
+    } catch (e) {
+      emit(SignupPageErrorState("Error loading companies"));
+      return [];
+    }
   }
 
   signUpDriver(Map<String, dynamic> data) async {
@@ -79,3 +107,18 @@ class SignupPageCubit extends Cubit<SignupPageState> {
     }
   }
 }
+ 
+    // getCompanyDetails() async {
+  //   final companyresp = await serviceLocator.tradingApi.getCompanyList();
+
+  //   if (companyresp.statusCode == 200) {
+  //     Map<String, dynamic> data = jsonDecode(companyresp.body);
+
+  //     if (data['data'].isNotEmpty) {
+  //       companylist = List<Map<String, dynamic>>.from(data['data']);
+  //     }
+  //   }
+
+  //   log(companylist.toString());
+  // }
+// }

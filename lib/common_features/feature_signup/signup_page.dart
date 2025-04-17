@@ -51,15 +51,6 @@ class _SignupPageState extends State<SignupPage> {
 
   final roles = ["Select Role", "Picker", "Driver", "Rider"];
 
-  final companys = [
-    "Select Company",
-    "RAD",
-    "SFD",
-    "LFD",
-    "AL-SAAD",
-    "Delivex",
-  ];
-
   String role = "Select Role";
 
   String company = "Select Company";
@@ -120,614 +111,826 @@ class _SignupPageState extends State<SignupPage> {
       ),
       body: BlocBuilder<SignupPageCubit, SignupPageState>(
         builder: (context, state) {
-          employeeidController = TextEditingController(
-            text: context.read<SignupPageCubit>().currentid,
-          );
+          if (state is SignupPageLoadingState) {
+            return const CircularProgressIndicator();
+          }
 
-          return Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 15.0,
-                  horizontal: 10.0,
-                ),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      width: 2.0,
-                      color: customColors().backgroundTertiary,
-                    ),
+          if (state is SignupPageErrorState) {
+            return Text('Error: ${state.message}');
+          }
+
+          if (state is SignupPageInitialState) {
+            employeeidController = TextEditingController(
+              text: context.read<SignupPageCubit>().currentid,
+            );
+
+            return Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 15.0,
+                    horizontal: 10.0,
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        context.gNavigationService.back(context);
-
-                        //
-                      },
-                      child: Icon(
-                        Icons.arrow_back,
-                        size: 23,
-                        color: HexColor("#A3A3A3"),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        width: 2.0,
+                        color: customColors().backgroundTertiary,
                       ),
                     ),
-                    Expanded(
-                      child: Center(
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          context.gNavigationService.back(context);
+
+                          //
+                        },
+                        child: Icon(
+                          Icons.arrow_back,
+                          size: 23,
+                          color: HexColor("#A3A3A3"),
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            "Picker/Driver Registration",
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                //
+                //
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22.0,
+                    vertical: 6.0,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
                         child: Text(
-                          "Picker/Driver Registration",
+                          "Please fill up the form below to complete signup.",
                           style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
+                            fontStyle: FontStyle.BodyL_Regular,
                             color: FontColor.FontPrimary,
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22.0,
+                      vertical: 12.0,
                     ),
-                  ],
-                ),
-              ),
-              //
-              //
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 22.0,
-                  vertical: 6.0,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Please fill up the form below to complete signup.",
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Regular,
-                          color: FontColor.FontPrimary,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: idFormKey,
+                        child: Column(
+                          children: [
+                            //
+                            //
+                            // enter your name
+                            CustomTextFormField(
+                              context: context,
+                              controller: nameController,
+                              fieldName: "Name",
+                              hintText: "Enter your name here",
+                              validator: Validator.defaultValidator,
+                            ),
+                            //
+                            //
+                            // enter your contact number
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(children: [Text("Contact number")]),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 15.0,
+                                          horizontal: 5.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              customColors().backgroundPrimary,
+                                          border: Border.all(
+                                            color: customColors().fontTertiary,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            5.0,
+                                          ),
+                                        ),
+                                        child: Text("+974"),
+                                      ),
+                                      Expanded(
+                                        child: CustomTextFormField(
+                                          context: context,
+                                          controller: contactnumberController,
+                                          fieldName: "",
+                                          keyboardType: TextInputType.phone,
+                                          hintText: "Enter your phone number",
+                                          minimumValueLimit: 9,
+                                          validator:
+                                              Validator.minimumValueLimit,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //
+                            //
+                            // Upload ID Photo
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(children: [Text("Upload ID Photo")]),
+                                  Row(
+                                    children: [
+                                      // Expanded(
+                                      //   child: ElevatedButton(
+                                      //     onPressed: pickIdPhoto,
+                                      //     child: Text(idPhotoFile == null ? "Select ID Photo" : "ID Photo Selected"),
+                                      //   ),
+                                      // ),
+                                    ],
+                                  ),
+                                  if (idPhotoFile != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text("File: ${idPhotoFile!.path}"),
+                                    ),
+                                ],
+                              ),
+                            ),
+
+                            //
+                            //
+                            // enter your password
+                            CustomTextFormField(
+                              context: context,
+                              controller: passwordController,
+                              fieldName: "Password",
+                              hintText: "Enter your password",
+                              obscureIcon: true,
+                              validator: Validator.password,
+                            ),
+                            //
+                            //
+                            // employee id
+                            CustomTextFormField(
+                              context: context,
+                              controller: employeeidController,
+                              fieldName: "Employee ID",
+                              hintText: "Enter your employee ID",
+                              validator: Validator.defaultValidator,
+                              enabled: false,
+                            ),
+                            //
+                            //
+                            // emailid
+                            CustomTextFormField(
+                              context: context,
+                              controller: emailidController,
+                              fieldName: "Email ID",
+                              hintText: "Enter your email ID",
+                              keyboardType: TextInputType.emailAddress,
+                              validator: Validator.none,
+                            ),
+                            //
+                            //
+                            //
+                            // address
+                            CustomTextFormField(
+                              context: context,
+                              controller: addressController,
+                              fieldName: "Address",
+                              hintText: "Enter your Address",
+                              keyboardType: TextInputType.streetAddress,
+                              // validator: Validator.defaultValidator,
+                            ),
+                            //
+                            //
+                            // role
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(children: [Text("Role")]),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                              border: Border.all(
+                                                color:
+                                                    customColors().fontTertiary,
+                                              ),
+                                            ),
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2(
+                                                items:
+                                                    roles
+                                                        .map(
+                                                          (
+                                                            e,
+                                                          ) => DropdownMenuItem<
+                                                            String
+                                                          >(
+                                                            value: e,
+                                                            child: Text(
+                                                              e.toString(),
+                                                              style: customTextStyle(
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .BodyM_Bold,
+                                                                color:
+                                                                    FontColor
+                                                                        .FontPrimary,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                value: role,
+                                                onChanged: (value) {
+                                                  if (value != "Select Role") {
+                                                    setState(() {
+                                                      role =
+                                                          value
+                                                              .toString(); // Update the dropdown value
+                                                      roleId = getUserType(
+                                                        value.toString(),
+                                                      ); // Store the mapped value
+                                                    });
+                                                  } else {
+                                                    showSnackBar(
+                                                      context: context,
+                                                      snackBar: showErrorDialogue(
+                                                        errorMessage:
+                                                            "Please Select Role..!",
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            //
+                            //
+                            // company
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  const Row(children: [Text("Company")]),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                              border: Border.all(
+                                                color:
+                                                    customColors().fontTertiary,
+                                              ),
+                                            ),
+                                            child: BlocBuilder<
+                                              SignupPageCubit,
+                                              SignupPageState
+                                            >(
+                                              builder: (context, state) {
+                                                final cubit =
+                                                    context
+                                                        .read<
+                                                          SignupPageCubit
+                                                        >();
+
+                                                // Create a unique key for each company by combining id and name
+                                                final companyItems =
+                                                    cubit.companylist.map((
+                                                      company,
+                                                    ) {
+                                                      final uniqueValue =
+                                                          '${company['id']}_${company['name']}';
+                                                      return DropdownMenuItem<
+                                                        String
+                                                      >(
+                                                        value: uniqueValue,
+                                                        child: Text(
+                                                          company['name']
+                                                                  ?.toString() ??
+                                                              'Unknown',
+                                                          style: customTextStyle(
+                                                            fontStyle:
+                                                                FontStyle
+                                                                    .BodyM_Bold,
+                                                            color:
+                                                                FontColor
+                                                                    .FontPrimary,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }).toList();
+
+                                                // Add default option with unique null value
+                                                companyItems.insert(
+                                                  0,
+                                                  DropdownMenuItem<String>(
+                                                    value:
+                                                        'null_select_company',
+                                                    child: Text(
+                                                      "Select Company",
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .BodyM_Bold,
+                                                        color:
+                                                            FontColor
+                                                                .FontPrimary,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+
+                                                // Convert current company value to unique key if needed
+                                                String? currentValue;
+                                                if (company == null ||
+                                                    company ==
+                                                        "Select Company") {
+                                                  currentValue =
+                                                      'null_select_company';
+                                                } else {
+                                                  final matchingCompany = cubit
+                                                      .companylist
+                                                      .firstWhere(
+                                                        (c) =>
+                                                            c['name'] ==
+                                                            company,
+                                                        orElse: () => {},
+                                                      );
+                                                  if (matchingCompany
+                                                      .isNotEmpty) {
+                                                    currentValue =
+                                                        '${matchingCompany['id']}_${matchingCompany['name']}';
+                                                  }
+                                                }
+
+                                                return DropdownButtonHideUnderline(
+                                                  child: DropdownButton2<
+                                                    String
+                                                  >(
+                                                    isExpanded: true,
+                                                    hint: Text(
+                                                      "Select Company",
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .BodyM_Bold,
+                                                        color:
+                                                            FontColor
+                                                                .FontPrimary,
+                                                      ),
+                                                    ),
+                                                    items: companyItems,
+                                                    value: currentValue,
+                                                    onChanged: (
+                                                      String? selectedValue,
+                                                    ) {
+                                                      if (selectedValue !=
+                                                              null &&
+                                                          selectedValue !=
+                                                              'null_select_company') {
+                                                        // Extract the company name from the unique value
+                                                        final companyName =
+                                                            selectedValue
+                                                                .split('_')
+                                                                .sublist(1)
+                                                                .join('_');
+                                                        setState(() {
+                                                          company = companyName;
+                                                        });
+                                                      } else {
+                                                        showSnackBar(
+                                                          context: context,
+                                                          snackBar:
+                                                              showErrorDialogue(
+                                                                errorMessage:
+                                                                    "Please Select Company..!",
+                                                              ),
+                                                        );
+                                                      }
+                                                    },
+                                                    buttonStyleData:
+                                                        const ButtonStyleData(
+                                                          padding:
+                                                              EdgeInsets.symmetric(
+                                                                horizontal: 16,
+                                                              ),
+                                                        ),
+                                                    dropdownStyleData:
+                                                        DropdownStyleData(
+                                                          maxHeight: 200,
+                                                          decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  5,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Padding(
+                            //   padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            //   child: Column(
+                            //     children: [
+                            //       Row(children: [Text("Company")]),
+                            //       Padding(
+                            //         padding: const EdgeInsets.symmetric(
+                            //           vertical: 12.0,
+                            //         ),
+                            //         child: Row(
+                            //           children: [
+                            //             Expanded(
+                            //               child: Container(
+                            //                 decoration: BoxDecoration(
+                            //                   borderRadius: BorderRadius.circular(
+                            //                     5.0,
+                            //                   ),
+                            //                   border: Border.all(
+                            //                     color:
+                            //                         customColors().fontTertiary,
+                            //                   ),
+                            //                 ),
+                            //                 child: DropdownButtonHideUnderline(
+                            //                   child: DropdownButton2(
+                            //                     items:
+                            //                         BlocProvider.of<
+                            //                               SignupPageCubit
+                            //                             >(context).companylist
+                            //                             .map(
+                            //                               (e) => DropdownMenuItem<
+                            //                                 String
+                            //                               >(
+                            //                                 value: e['name'],
+                            //                                 child: Text(
+                            //                                   e['name']
+                            //                                       .toString(),
+                            //                                   style: customTextStyle(
+                            //                                     fontStyle:
+                            //                                         FontStyle
+                            //                                             .BodyM_Bold,
+                            //                                     color:
+                            //                                         FontColor
+                            //                                             .FontPrimary,
+                            //                                   ),
+                            //                                 ),
+                            //                               ),
+                            //                             )
+                            //                             .toList(),
+                            //                     value: company,
+                            //                     onChanged: (value) {
+                            //                       if (value != "Select Company") {
+                            //                         setState(() {
+                            //                           company =
+                            //                               value
+                            //                                   .toString(); // Update the dropdown value
+                            //                           // Store the mapped value
+                            //                         });
+                            //                       } else {
+                            //                         showSnackBar(
+                            //                           context: context,
+                            //                           snackBar: showErrorDialogue(
+                            //                             errorMessage:
+                            //                                 "Please Select Company..!",
+                            //                           ),
+                            //                         );
+                            //                       }
+                            //                     },
+                            //                   ),
+                            //                 ),
+                            //               ),
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+
+                            //
+                            //
+                            // regular shift
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(children: [Text("Regular Shifts")]),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                              border: Border.all(
+                                                color:
+                                                    customColors().fontTertiary,
+                                              ),
+                                            ),
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2(
+                                                dropdownStyleData:
+                                                    DropdownStyleData(
+                                                      maxHeight: 250.0,
+                                                    ),
+                                                items:
+                                                    regular_shifts
+                                                        .map(
+                                                          (
+                                                            e,
+                                                          ) => DropdownMenuItem<
+                                                            String
+                                                          >(
+                                                            value: e,
+                                                            child: Text(
+                                                              e.toString(),
+                                                              style: customTextStyle(
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .BodyM_Bold,
+                                                                color:
+                                                                    FontColor
+                                                                        .FontPrimary,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                value: shiftr,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    shiftr = value!;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //
+                            //
+                            // friday shift
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(children: [Text("Friday Shifts")]),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                              border: Border.all(
+                                                color:
+                                                    customColors().fontTertiary,
+                                              ),
+                                            ),
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2(
+                                                dropdownStyleData:
+                                                    DropdownStyleData(
+                                                      maxHeight: 250,
+                                                    ),
+                                                items:
+                                                    friday_shifts
+                                                        .map(
+                                                          (
+                                                            e,
+                                                          ) => DropdownMenuItem<
+                                                            String
+                                                          >(
+                                                            value: e,
+                                                            child: Text(
+                                                              e.toString(),
+                                                              style: customTextStyle(
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .BodyM_Bold,
+                                                                color:
+                                                                    FontColor
+                                                                        .FontPrimary,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                value: fridr,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    fridr = value!;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            //
+                            //
+                            // Day Off
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(children: [Text("Day Off")]),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                              border: Border.all(
+                                                color:
+                                                    customColors().fontTertiary,
+                                              ),
+                                            ),
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2(
+                                                dropdownStyleData:
+                                                    DropdownStyleData(
+                                                      maxHeight: 250,
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                            vertical: 2.0,
+                                                          ),
+                                                    ),
+                                                items:
+                                                    dayoffs
+                                                        .map(
+                                                          (
+                                                            e,
+                                                          ) => DropdownMenuItem<
+                                                            String
+                                                          >(
+                                                            value: e,
+                                                            child: Text(
+                                                              e.toString(),
+                                                              style: customTextStyle(
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .BodyM_Bold,
+                                                                color:
+                                                                    FontColor
+                                                                        .FontPrimary,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                value: off,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    off = value!;
+                                                  });
+                                                },
+
+                                                // buttonHeight: 50,
+                                                // itemHeight: 40,
+                                                // dropdownMaxHeight: 200, // Set max height for the dropdown
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            //
+                            //
+                            // Vehicle Number
+                            CustomTextFormField(
+                              context: context,
+                              controller: vehiclenumController,
+                              fieldName: "Vehicle Number",
+                              hintText: "Enter your vehicle number",
+                            ),
+                            //
+                            //
+                            // Vehicle Type
+                            CustomTextFormField(
+                              context: context,
+                              controller: vehicletypeController,
+                              fieldName: "Vehicle Type",
+                              hintText: "Enter your vehicle type",
+                            ),
+                            //
+                            //
+                            //
+                            SizedBox(height: 100),
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22.0,
-                    vertical: 12.0,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: idFormKey,
-                      child: Column(
-                        children: [
-                          //
-                          //
-                          // enter your name
-                          CustomTextFormField(
-                            context: context,
-                            controller: nameController,
-                            fieldName: "Name",
-                            hintText: "Enter your name here",
-                            validator: Validator.defaultValidator,
-                          ),
-                          //
-                          //
-                          // enter your contact number
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12.0),
-                            child: Column(
-                              children: [
-                                Row(children: [Text("Contact number")]),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 15.0,
-                                        horizontal: 5.0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: customColors().backgroundPrimary,
-                                        border: Border.all(
-                                          color: customColors().fontTertiary,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          5.0,
-                                        ),
-                                      ),
-                                      child: Text("+974"),
-                                    ),
-                                    Expanded(
-                                      child: CustomTextFormField(
-                                        context: context,
-                                        controller: contactnumberController,
-                                        fieldName: "",
-                                        keyboardType: TextInputType.phone,
-                                        hintText: "Enter your phone number",
-                                        minimumValueLimit: 9,
-                                        validator: Validator.minimumValueLimit,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          //
-                          //
-                          // Upload ID Photo
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12.0),
-                            child: Column(
-                              children: [
-                                Row(children: [Text("Upload ID Photo")]),
-                                Row(
-                                  children: [
-                                    // Expanded(
-                                    //   child: ElevatedButton(
-                                    //     onPressed: pickIdPhoto,
-                                    //     child: Text(idPhotoFile == null ? "Select ID Photo" : "ID Photo Selected"),
-                                    //   ),
-                                    // ),
-                                  ],
-                                ),
-                                if (idPhotoFile != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: Text("File: ${idPhotoFile!.path}"),
-                                  ),
-                              ],
-                            ),
-                          ),
-
-                          //
-                          //
-                          // enter your password
-                          CustomTextFormField(
-                            context: context,
-                            controller: passwordController,
-                            fieldName: "Password",
-                            hintText: "Enter your password",
-                            obscureIcon: true,
-                            validator: Validator.password,
-                          ),
-                          //
-                          //
-                          // employee id
-                          CustomTextFormField(
-                            context: context,
-                            controller: employeeidController,
-                            fieldName: "Employee ID",
-                            hintText: "Enter your employee ID",
-                            validator: Validator.defaultValidator,
-                            enabled: false,
-                          ),
-                          //
-                          //
-                          // emailid
-                          CustomTextFormField(
-                            context: context,
-                            controller: emailidController,
-                            fieldName: "Email ID",
-                            hintText: "Enter your email ID",
-                            keyboardType: TextInputType.emailAddress,
-                            validator: Validator.none,
-                          ),
-                          //
-                          //
-                          //
-                          // address
-                          CustomTextFormField(
-                            context: context,
-                            controller: addressController,
-                            fieldName: "Address",
-                            hintText: "Enter your Address",
-                            keyboardType: TextInputType.streetAddress,
-                            // validator: Validator.defaultValidator,
-                          ),
-                          //
-                          //
-                          // role
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Column(
-                              children: [
-                                Row(children: [Text("Role")]),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              5.0,
-                                            ),
-                                            border: Border.all(
-                                              color:
-                                                  customColors().fontTertiary,
-                                            ),
-                                          ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton2(
-                                              items:
-                                                  roles
-                                                      .map(
-                                                        (e) => DropdownMenuItem<
-                                                          String
-                                                        >(
-                                                          value: e,
-                                                          child: Text(
-                                                            e.toString(),
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyM_Bold,
-                                                              color:
-                                                                  FontColor
-                                                                      .FontPrimary,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                              value: role,
-                                              onChanged: (value) {
-                                                if (value != "Select Role") {
-                                                  setState(() {
-                                                    role =
-                                                        value
-                                                            .toString(); // Update the dropdown value
-                                                    roleId = getUserType(
-                                                      value.toString(),
-                                                    ); // Store the mapped value
-                                                  });
-                                                } else {
-                                                  showSnackBar(
-                                                    context: context,
-                                                    snackBar: showErrorDialogue(
-                                                      errorMessage:
-                                                          "Please Select Role..!",
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          //
-                          //
-                          // company
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Column(
-                              children: [
-                                Row(children: [Text("Company")]),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              5.0,
-                                            ),
-                                            border: Border.all(
-                                              color:
-                                                  customColors().fontTertiary,
-                                            ),
-                                          ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton2(
-                                              items:
-                                                  companys
-                                                      .map(
-                                                        (e) => DropdownMenuItem<
-                                                          String
-                                                        >(
-                                                          value: e,
-                                                          child: Text(
-                                                            e.toString(),
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyM_Bold,
-                                                              color:
-                                                                  FontColor
-                                                                      .FontPrimary,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                              value: company,
-                                              onChanged: (value) {
-                                                if (value != "Select Company") {
-                                                  setState(() {
-                                                    company =
-                                                        value
-                                                            .toString(); // Update the dropdown value
-                                                    // Store the mapped value
-                                                  });
-                                                } else {
-                                                  showSnackBar(
-                                                    context: context,
-                                                    snackBar: showErrorDialogue(
-                                                      errorMessage:
-                                                          "Please Select Company..!",
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          //
-                          //
-                          // regular shift
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Column(
-                              children: [
-                                Row(children: [Text("Regular Shifts")]),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              5.0,
-                                            ),
-                                            border: Border.all(
-                                              color:
-                                                  customColors().fontTertiary,
-                                            ),
-                                          ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton2(
-                                              dropdownStyleData:
-                                                  DropdownStyleData(
-                                                    maxHeight: 250.0,
-                                                  ),
-                                              items:
-                                                  regular_shifts
-                                                      .map(
-                                                        (e) => DropdownMenuItem<
-                                                          String
-                                                        >(
-                                                          value: e,
-                                                          child: Text(
-                                                            e.toString(),
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyM_Bold,
-                                                              color:
-                                                                  FontColor
-                                                                      .FontPrimary,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                              value: shiftr,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  shiftr = value!;
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          //
-                          //
-                          // friday shift
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Column(
-                              children: [
-                                Row(children: [Text("Friday Shifts")]),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              5.0,
-                                            ),
-                                            border: Border.all(
-                                              color:
-                                                  customColors().fontTertiary,
-                                            ),
-                                          ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton2(
-                                              dropdownStyleData:
-                                                  DropdownStyleData(
-                                                    maxHeight: 250,
-                                                  ),
-                                              items:
-                                                  friday_shifts
-                                                      .map(
-                                                        (e) => DropdownMenuItem<
-                                                          String
-                                                        >(
-                                                          value: e,
-                                                          child: Text(
-                                                            e.toString(),
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyM_Bold,
-                                                              color:
-                                                                  FontColor
-                                                                      .FontPrimary,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                              value: fridr,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  fridr = value!;
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          //
-                          //
-                          // Day Off
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Column(
-                              children: [
-                                Row(children: [Text("Day Off")]),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12.0,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              5.0,
-                                            ),
-                                            border: Border.all(
-                                              color:
-                                                  customColors().fontTertiary,
-                                            ),
-                                          ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton2(
-                                              dropdownStyleData:
-                                                  DropdownStyleData(
-                                                    maxHeight: 250,
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                          vertical: 2.0,
-                                                        ),
-                                                  ),
-                                              items:
-                                                  dayoffs
-                                                      .map(
-                                                        (e) => DropdownMenuItem<
-                                                          String
-                                                        >(
-                                                          value: e,
-                                                          child: Text(
-                                                            e.toString(),
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyM_Bold,
-                                                              color:
-                                                                  FontColor
-                                                                      .FontPrimary,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                              value: off,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  off = value!;
-                                                });
-                                              },
-
-                                              // buttonHeight: 50,
-                                              // itemHeight: 40,
-                                              // dropdownMaxHeight: 200, // Set max height for the dropdown
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          //
-                          //
-                          // Vehicle Number
-                          CustomTextFormField(
-                            context: context,
-                            controller: vehiclenumController,
-                            fieldName: "Vehicle Number",
-                            hintText: "Enter your vehicle number",
-                          ),
-                          //
-                          //
-                          // Vehicle Type
-                          CustomTextFormField(
-                            context: context,
-                            controller: vehicletypeController,
-                            fieldName: "Vehicle Type",
-                            hintText: "Enter your vehicle type",
-                          ),
-                          //
-                          //
-                          //
-                          SizedBox(height: 100),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
-              ),
-            ],
-          );
+              ],
+            );
+          }
+
+          return Container(); //
         },
       ),
       bottomNavigationBar: SizedBox(
