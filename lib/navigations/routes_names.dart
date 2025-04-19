@@ -18,3 +18,4 @@ const _newScanBarcodePageRouteName = 'newscanbarcodepageroutename';
 const _selectRegionsPageRouteName = '/selectregionspageroutename';
 const _photographyDashBorardPageRouteName =
     '/photographydashboardpageroutename';
+const _salesStaffDashboardPageRouteName = '/salesstaffdashboardpageroutename';

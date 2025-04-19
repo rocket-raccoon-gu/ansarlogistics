@@ -90,6 +90,7 @@ dependencies:
   barcode_scan2: any
   upgrader: ^11.3.1
   firebase_remote_config: ^5.4.2
+  animated_text_kit: ^4.2.3
 
   picker_driver_api:
     path: ./picker_driver_api/

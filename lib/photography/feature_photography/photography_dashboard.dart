@@ -53,20 +53,6 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
     WidgetsBinding.instance.addObserver(this);
   }
 
-  Future<void> requestCameraPermission() async {
-    var status = await Permission.camera.status;
-
-    if (status.isGranted) {
-      print("Camera permission already granted.");
-      return; // No need to request again
-    }
-
-    var newStatus = await Permission.camera.request();
-    if (newStatus.isDenied || newStatus.isPermanentlyDenied) {
-      openAppSettings(); // Redirect user to app settings
-    }
-  }
-
   Future<void> scanBarcodeNormal(BuildContext ctx) async {
     String? barcodescanRes;
 

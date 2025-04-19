@@ -42,6 +42,13 @@ class NavigationService {
     );
   }
 
+  Future<void> openSalesDashboard(BuildContext context) {
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      _salesStaffDashboardPageRouteName,
+      (Route<dynamic> route) => false,
+    );
+  }
+
   dynamic back(BuildContext context, {Map<String, dynamic>? arg}) {
     return Navigator.pop(context, arg);
   }

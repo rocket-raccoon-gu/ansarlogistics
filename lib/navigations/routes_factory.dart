@@ -19,4 +19,5 @@ abstract class RoutesFactory {
   Route<dynamic> createNewScanBarcodePageRoute(Map<String, dynamic> data);
   Route<dynamic> createSelectRegionsPageRoute();
   Route<dynamic> createPhotoGrpahyDashBoardPageRoute();
+  Route<dynamic> createSalesSectionDashBoardPageRoute();
 }

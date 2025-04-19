@@ -539,13 +539,6 @@ class PDApiGateway implements AuthenticationService {
       serviceSendError("customer request Failed");
       return "";
     }
-    // return await tradingApi
-    //     .generalProductService(
-    //         endpoint: endpoint, token: UserController().usertoken)
-    //     .catchError((e) {
-    //   networkStreamController.sink.add(e.toString());
-    //   throw e;
-    // });
   }
 
   @override
@@ -554,26 +547,14 @@ class PDApiGateway implements AuthenticationService {
     required String token11,
   }) async {
     try {
-      // String? token11 = await PreferenceUtils.getDataFromShared("usertoken");
-
       final responce = await pickerDriverApi
           .getProductService(endpoint: endpoint, token: token11)
-          .catchError((e) {
-            // networkStreamController.sink.add(e.toString());
-            // throw e;
-          });
+          .catchError((e) {});
       return responce;
     } catch (e) {
       serviceSendError("product request Failed");
       return "";
     }
-    // return await tradingApi
-    //     .generalProductService(
-    //         endpoint: endpoint, token: UserController().usertoken)
-    //     .catchError((e) {
-    //   networkStreamController.sink.add(e.toString());
-    //   throw e;
-    // });
   }
 
   Future checkbarcodeavailablity({required String sku}) async {
@@ -590,6 +571,24 @@ class PDApiGateway implements AuthenticationService {
       serviceSendError("Product Barcode Check Error..!");
 
       return "Retry";
+    }
+  }
+
+  @override
+  Future generalPromotionService({required String endpoint}) async {
+    String? token11 = await PreferenceUtils.getDataFromShared("usertoken");
+    try {
+      final response = await pickerDriverApi
+          .checkPromotionService(endpoint: endpoint)
+          .catchError((e) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("general PromotionService Error");
+      return "";
     }
   }
 

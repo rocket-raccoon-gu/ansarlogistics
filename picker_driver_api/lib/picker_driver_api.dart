@@ -902,6 +902,25 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future checkPromotionService({required String endpoint}) async {
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/scan_barcode_percentage.php?barcode=$endpoint',
+    );
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
+  }
+
   Future<String> getSectionData(String user, int catid) async {
     // Uri urlorder;
     String url = _endpointWithApplicationPathSection(user, catid);

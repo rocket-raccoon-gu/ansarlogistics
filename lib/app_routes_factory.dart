@@ -8,6 +8,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/item_replacement_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_dashboard/picker_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/picker_order_details_page_route_builder.dart';
+import 'package:ansarlogistics/Sales_staff/features/sales_staff_dashboard_root_builder.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/home_section_incharge_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_login/login_page_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/new_scan_page_route_builder.dart';
@@ -162,6 +163,14 @@ class AppRoutesFactory extends RoutesFactory {
       builder: PhotographyDashboardPageRouteBuilder(
         serviceLocator: _serviceLocator,
       ),
+    );
+  }
+
+  @override
+  Route createSalesSectionDashBoardPageRoute() {
+    // TODO: implement createSalesSectionDashBoardPageRoute
+    return CustomRoute(
+      builder: SalesStaffDashboardRootBuilder(_serviceLocator),
     );
   }
 }

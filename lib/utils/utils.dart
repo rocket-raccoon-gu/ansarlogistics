@@ -19,6 +19,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as crypto;
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
@@ -764,5 +765,58 @@ Future<void> requestCameraPermission() async {
   var status = await Permission.camera.request();
   if (status.isDenied || status.isPermanentlyDenied) {
     openAppSettings();
+  }
+}
+
+sholoadingIndicator(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: "",
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Container();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      var curve = Curves.easeInOut.transform(animation.value);
+
+      return Transform.scale(
+        scale: curve,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 25.0, bottom: 25.0),
+                child: Text(
+                  "Fetching data....!",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+              Lottie.asset('assets/lottie_files/loading.json'),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+String getcurrencyfromurl(String url) {
+  switch (url) {
+    case 'https://uae.ahmarket.com/':
+      return 'AED';
+    case 'https://oman.ahmarket.com/':
+      return 'OMR';
+    case 'https://bahrain.ahmarket.com/':
+      return 'BHD';
+    default:
+      return 'QAR';
   }
 }
