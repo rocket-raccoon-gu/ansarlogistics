@@ -78,43 +78,68 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                 context,
               ).orderItem!.isproduce ==
               "1") {
-        // Minimum length check (need at least 7 digits to have 6 zeros + 1 digit)
-        if (barcodeScanRes!.length < 7) return barcodeScanRes;
+        // First check if the barcode starts with the product SKU's first 7 digits
+        String first71 =
+            barcodeScanRes!.length >= 7
+                ? barcodeScanRes!.substring(0, 7)
+                : barcodeScanRes!;
 
-        // Get the last 7 digits
-        String lastSeven = barcodeScanRes!.substring(
-          barcodeScanRes!.length - 7,
-        );
-
-        // Check if the first 6 of the last 7 digits are '0'
-        if (lastSeven.substring(0, 6) == '000000') {
-          log("barcode with end 1 digit");
+        if (!BlocProvider.of<OrderItemDetailsCubit>(
+          context,
+        ).orderItem!.productSku.startsWith(first71)) {
+          // Barcode doesn't match product SKU
+          showSnackBar(
+            context: context,
+            snackBar: showErrorDialogue(
+              errorMessage: "Barcode not matching ...!",
+            ),
+          );
+          return;
         } else {
-          String first7 = barcodeScanRes!.substring(0, 7);
+          // Minimum length check (need at least 7 digits to have 6 zeros + 1 digit)
+          if (barcodeScanRes!.length < 7) return barcodeScanRes;
 
-          if (BlocProvider.of<OrderItemDetailsCubit>(
-            context,
-          ).orderItem!.productSku.startsWith(first7)) {
-            //barcode matching
+          // Get the last 7 digits
+          String lastSeven = barcodeScanRes!.substring(
+            barcodeScanRes!.length - 7,
+          );
 
-            setState(() {
-              isScanner = false;
-            });
-
-            String lastsix = barcodeScanRes.toString().substring(
-              barcodeScanRes.toString().length - 6,
+          // Check if the first 6 of the last 7 digits are '0'
+          if (lastSeven.substring(0, 6) == '000000') {
+            log("barcode with end 1 digit");
+            BlocProvider.of<OrderItemDetailsCubit>(context).updateitemstatus(
+              "end_picking",
+              editquantity.toString(),
+              "",
+              BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.price,
             );
-            if (barcodeScanRes != null) {
-              onTapScan(barcodeScanRes!, getPrice(lastsix), true);
-            }
           } else {
-            // onTapScan(barcodeScanRes, "", false);
-            showSnackBar(
-              context: context,
-              snackBar: showErrorDialogue(
-                errorMessage: "Barcode not matching ...!",
-              ),
-            );
+            String first7 = barcodeScanRes!.substring(0, 7);
+
+            if (BlocProvider.of<OrderItemDetailsCubit>(
+              context,
+            ).orderItem!.productSku.startsWith(first7)) {
+              //barcode matching
+
+              setState(() {
+                isScanner = false;
+              });
+
+              String lastsix = barcodeScanRes.toString().substring(
+                barcodeScanRes.toString().length - 6,
+              );
+              if (barcodeScanRes != null) {
+                onTapScan(barcodeScanRes!, getPrice(lastsix), true);
+              }
+            } else {
+              // onTapScan(barcodeScanRes, "", false);
+              showSnackBar(
+                context: context,
+                snackBar: showErrorDialogue(
+                  errorMessage: "Barcode not matching ...!",
+                ),
+              );
+            }
           }
         }
       } else {
@@ -157,35 +182,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
             }
           }
 
-          // BlocProvider.of<PickerOrdersCubit>(
-          //   context,
-          // ).loadPosts(1, statuslist[UserController().selectedindex]['status']);
-
-          // setState(() {
-          //   isScanner = false;
-          // });
-
-          // showQuantityCheckDialogue(
-          //     editquantity != 0 ? editquantity : actualquantity);
-
           showSnackBar(
             context: context,
             snackBar: showSuccessDialogue(message: "Barcode Matching.."),
           );
-          // } else if (BlocProvider.of<OrderItemDetailsCubit>(
-          //   context,
-          // ).orderItem!.productSku.contains(barcodeScanRes!)) {
-          // setState(() {
-          //   isScanner = false;
-          // });
-
-          // showBarcodeChangeDialogue(
-          //   BlocProvider.of<OrderItemDetailsCubit>(
-          //     context,
-          //   ).orderItem!.productSku,
-          //   actualquantity,
-          //   BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.price,
-          // );
         } else {
           showSnackBar(
             context: context,
