@@ -1765,6 +1765,8 @@ int getUserCategory(String user) {
       return 23;
     case "alkhor_deli":
       return 36762;
+    case "ah_grabgo":
+      return 101;
     default:
       return 14;
   }
