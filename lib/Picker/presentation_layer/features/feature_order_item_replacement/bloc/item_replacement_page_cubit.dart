@@ -11,9 +11,11 @@ import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:picker_driver_api/responses/erp_data_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 import 'package:picker_driver_api/responses/similiar_item_response.dart';
+import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 
 class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
   ServiceLocator serviceLocator;
@@ -49,6 +51,10 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
   double? specialPrice;
   DateTime? specialFromDate;
   DateTime? specialToDate;
+
+  ErPdata? erPdata;
+
+  ProductDBdata? productDBdata;
 
   updateBarcodeLog(String sku, String scannedsku) async {
     try {
@@ -120,97 +126,27 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     int editqty,
     BuildContext ctxt,
     String price,
+    String scannedsku1,
   ) async {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
-      SimiliarItems? si;
-
       Map<String, dynamic> body = {};
 
-      if (selectedindex != -1) {
-        si = relatableitems[selectedindex];
+      body = {
+        "item_status": "replaced",
+        "item_id": itemdata!.itemId,
+        "canceled_sku": itemdata!.productSku,
+        "new_sku": scannedsku1,
+        "new_product_qty": editqty != 0 ? editqty : itemdata!.qtyOrdered,
+        "order_id": orderItemsResponse!.subgroupIdentifier,
+        "picker_id": UserController.userController.profile.id,
+        "shipping": 0,
+        "reason": reason,
+        "sp_price": price,
+      };
 
-        if (getDelivery(si.deliveryType) == "EXP" ||
-            getDelivery(si.deliveryType) == "NOL") {
-          // body = {
-          //   "item_status": "replaced",
-          //   "item_id": itemdata!.itemId,
-          //   "canceled_sku": itemdata!.productSku,
-          //   "new_sku": selectedindex != -1 ? si.sku : scannedsku,
-          //   "new_product_qty": editqty != 0 ? editqty : itemdata!.qtyOrdered,
-          //   "order_id": orderItemsResponse!.subgroupIdentifier,
-          //   "picker_id": UserController.userController.profile.id,
-          //   "shipping": "0",
-          //   "reason": reason
-          // };
-
-          body = {
-            "item_status": "replaced",
-            "item_id": itemdata!.itemId,
-            "canceled_sku": itemdata!.productSku,
-            "new_sku": selectedindex != -1 ? si.sku : scannedsku,
-            "new_product_qty": editqty != 0 ? editqty : itemdata!.qtyOrdered,
-            "order_id": orderItemsResponse!.subgroupIdentifier,
-            "picker_id": UserController.userController.profile.id,
-            "shipping": 0,
-            "reason": reason,
-            "sp_price": selectedindex != -1 ? si.price : price,
-          };
-
-          loadking = true;
-        } else {
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(
-              errorMessage: "Delivery Type Not Matching...",
-            ),
-          );
-        }
-      } else {
-        String pdtype =
-            prwork!.customAttributes
-                .where((x) => x.attributeCode == "delivery_type")
-                .first
-                .value;
-
-        if (getDelivery(pdtype) == "EXP" || getDelivery(pdtype) == "NOL") {
-          // body = {
-          //   "item_status": "replaced",
-          //   "item_id": itemdata!.itemId,
-          //   "canceled_sku": itemdata!.productSku,
-          //   "new_sku": selectedindex != -1 ? si!.sku : scannedsku,
-          //   "new_product_qty": editqty != 0 ? editqty : itemdata!.qtyOrdered,
-          //   "order_id": orderItemsResponse!.subgroupIdentifier,
-          //   "picker_id": UserController.userController.profile.id,
-          //   "shipping": "0",
-          //   "reason": reason
-          // };
-
-          body = {
-            "item_status": "replaced",
-            "item_id": itemdata!.itemId,
-            "canceled_sku": itemdata!.productSku,
-            "new_sku": selectedindex != -1 ? si!.sku : scannedsku,
-            "new_product_qty": editqty != 0 ? editqty : itemdata!.qtyOrdered,
-            "order_id": orderItemsResponse!.subgroupIdentifier,
-            "picker_id": UserController.userController.profile.id,
-            "shipping": 0,
-            "reason": reason,
-            "sp_price": price,
-          };
-
-          loadking = true;
-        } else {
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(
-              errorMessage:
-                  "${getDelivery(pdtype)} Type item can't replace with ${orderItemsResponse!.type}",
-            ),
-          );
-        }
-      }
+      loadking = true;
 
       if (loadking) {
         log(body.toString());
@@ -283,9 +219,9 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
   }
 
   getScannedProductData(String barcodeString, bool produce) async {
-    if (!isClosed) {
-      emit(ItemLoading());
-    }
+    // if (!isClosed) {
+    //   emit(ItemLoading());
+    // }
 
     if (produce) {
       // Replace the last 4 digits with '0'
@@ -314,9 +250,8 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
-      final response = await serviceLocator.tradingApi.getProductdata(
-        product_id: sku,
-        token: token,
+      final response = await serviceLocator.tradingApi.checkBarcodeDBService(
+        endpoint: sku,
       );
 
       if (response.statusCode == 200) {
@@ -324,73 +259,86 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
         showsku = sku;
 
-        if (item.containsKey('message')) {
-          print("not ok");
-          // Navigator.pop(context);
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(errorMessage: item['message']),
-          );
+        if (item.containsKey('message') && item['priority'] == 1) {
+          erPdata = ErPdata.fromJson(item);
         } else {
-          prvalue = 1;
-
-          prwork = ProductResponse.fromJson(jsonDecode(response.body));
-
-          scannedsku = prwork!.sku;
-
-          final fromDateString =
-              prwork!.customAttributes
-                  .firstWhere(
-                    (attr) => attr.attributeCode == 'special_from_date',
-                    orElse:
-                        () => CustomAttribute(
-                          attributeCode: '',
-                          value: '',
-                        ), // Provide a default CustomAttribute
-                  )
-                  .value;
-
-          final toDateString =
-              prwork!.customAttributes
-                  .firstWhere(
-                    (attr) => attr.attributeCode == 'special_to_date',
-                    orElse:
-                        () => CustomAttribute(
-                          attributeCode: '',
-                          value: '',
-                        ), // Provide a default CustomAttribute
-                  )
-                  .value;
-
-          final specialPriceString =
-              prwork!.customAttributes
-                  .firstWhere(
-                    (attr) => attr.attributeCode == 'special_price',
-                    orElse: () => CustomAttribute(attributeCode: '', value: ''),
-                  )
-                  .value;
-
-          specialFromDate =
-              fromDateString != ''
-                  ? DateTime.tryParse(fromDateString)
-                  : DateTime.tryParse('0000-00-00 00:00:00');
-
-          specialToDate =
-              toDateString != ''
-                  ? DateTime.tryParse(toDateString)
-                  : DateTime.tryParse('0000-00-00 00:00:00');
-
-          specialPrice =
-              specialPriceString != ''
-                  ? double.parse(specialPriceString.toString())
-                  : 0.00;
-
-          log(specialFromDate.toString());
-
-          log(specialToDate.toString());
-
-          log(specialPrice.toString());
+          productDBdata = ProductDBdata.fromJson(item);
         }
+        if (!isClosed) {
+          emit(
+            ItemReplacementLoaded(
+              erPdata: erPdata,
+              productDBdata: productDBdata,
+            ),
+          );
+        }
+        // if (item.containsKey('message')) {
+        //   print("not ok");
+        //   // Navigator.pop(context);
+        //   showSnackBar(
+        //     context: context,
+        //     snackBar: showErrorDialogue(errorMessage: item['message']),
+        //   );
+        // } else {
+        //   prvalue = 1;
+
+        //   prwork = ProductResponse.fromJson(jsonDecode(response.body));
+
+        //   scannedsku = prwork!.sku;
+
+        //   final fromDateString =
+        //       prwork!.customAttributes
+        //           .firstWhere(
+        //             (attr) => attr.attributeCode == 'special_from_date',
+        //             orElse:
+        //                 () => CustomAttribute(
+        //                   attributeCode: '',
+        //                   value: '',
+        //                 ), // Provide a default CustomAttribute
+        //           )
+        //           .value;
+
+        //   final toDateString =
+        //       prwork!.customAttributes
+        //           .firstWhere(
+        //             (attr) => attr.attributeCode == 'special_to_date',
+        //             orElse:
+        //                 () => CustomAttribute(
+        //                   attributeCode: '',
+        //                   value: '',
+        //                 ), // Provide a default CustomAttribute
+        //           )
+        //           .value;
+
+        //   final specialPriceString =
+        //       prwork!.customAttributes
+        //           .firstWhere(
+        //             (attr) => attr.attributeCode == 'special_price',
+        //             orElse: () => CustomAttribute(attributeCode: '', value: ''),
+        //           )
+        //           .value;
+
+        //   specialFromDate =
+        //       fromDateString != ''
+        //           ? DateTime.tryParse(fromDateString)
+        //           : DateTime.tryParse('0000-00-00 00:00:00');
+
+        //   specialToDate =
+        //       toDateString != ''
+        //           ? DateTime.tryParse(toDateString)
+        //           : DateTime.tryParse('0000-00-00 00:00:00');
+
+        //   specialPrice =
+        //       specialPriceString != ''
+        //           ? double.parse(specialPriceString.toString())
+        //           : 0.00;
+
+        //   log(specialFromDate.toString());
+
+        //   log(specialToDate.toString());
+
+        //   log(specialPrice.toString());
+        // }
       } else {
         showSnackBar(
           context: context,
@@ -406,14 +354,14 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
       );
     }
 
-    emit(
-      ItemReplacementInitail(
-        itemdata: itemdata,
-        replacements: relatableitems,
-        prwork: prwork,
-        loading: false,
-      ),
-    );
+    // emit(
+    //   ItemReplacementInitail(
+    //     itemdata: itemdata,
+    //     replacements: relatableitems,
+    //     prwork: prwork,
+    //     loading: false,
+    //   ),
+    // );
   }
 
   bool get isSpecialPriceActive {

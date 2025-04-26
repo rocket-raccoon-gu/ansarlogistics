@@ -32,13 +32,15 @@ class SignupPageCubit extends Cubit<SignupPageState> {
         // Then get company details
         final companyList = await getCompanyDetails();
 
-        // Only emit when we have all data
-        emit(
-          SignupPageInitialState(
-            companyList: companyList,
-            currentId: currentId,
-          ),
-        );
+        if (companyList.isNotEmpty) {
+          // Only emit when we have all data
+          emit(
+            SignupPageInitialState(
+              companyList: companyList,
+              currentId: currentId,
+            ),
+          );
+        }
       } else {
         emit(SignupPageErrorState("Error generating Id"));
         showSnackBar(

@@ -571,10 +571,11 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     Map<String, dynamic> body = {};
 
     body = {
-      "item_id": endpicking.itemId,
+      "item_id": int.parse(endpicking.itemId),
       "item_status": item_status,
       "shipping": "0",
-      "price": price != "0" ? price : endpicking.price,
+      "price":
+          price != "0" ? double.parse(price) : double.parse(endpicking.price),
       "qty": endpicking.qtyOrdered,
       "reason": "",
       "picker_id": UserController.userController.profile.id,

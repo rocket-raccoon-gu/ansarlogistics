@@ -243,7 +243,7 @@ extension PDGeneralApi on PickerDriverApi {
   }) {
     //
     Uri url = Uri.parse(
-      _endpointWithApplicationPathString('updateOrderItemV2.php'),
+      'https://pickerdriver.testuatah.com/v1/api/qatar/updateOrderItemV1.php',
     );
     //
     //
@@ -265,7 +265,7 @@ extension PDGeneralApi on PickerDriverApi {
         },
       );
     } catch (e) {
-      serviceSendError("update items status service Error");
+      serviceSendError("update items status service Error $e");
       rethrow;
     }
   }
@@ -917,6 +917,23 @@ extension PDGeneralApi on PickerDriverApi {
       onRequest: () => _client.get(url, headers: headers),
       onResponse: (response) {
         return response.body;
+      },
+    );
+  }
+
+  Future<http.Response> checkBarcodeDB({required String endpoint}) async {
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+    };
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
       },
     );
   }

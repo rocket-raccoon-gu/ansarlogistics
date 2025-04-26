@@ -808,6 +808,60 @@ sholoadingIndicator(BuildContext context) {
   );
 }
 
+showPickConfirmDialogue(BuildContext context, String data, Function()? onTap) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: "",
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Container();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      var curve = Curves.easeInOut.transform(animation.value);
+
+      return Transform.scale(
+        scale: curve,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 25.0, bottom: 25.0),
+                child: Text(
+                  "${data}",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+
+              InkWell(
+                onTap: onTap,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 5.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: customColors().accent,
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Center(child: Text("Confirm Pick")),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 String getcurrencyfromurl(String url) {
   switch (url) {
     case 'https://uae.ahmarket.com/':

@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:picker_driver_api/responses/erp_data_response.dart';
 
 class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   ServiceLocator serviceLocator;
@@ -121,25 +123,23 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     }
   }
 
-  updateitemstatus(
-    String item_status,
-    String qty,
-    String reason,
-    String price,
-  ) async {
+  updateitemstatuspick(String qty, String scannedSku, String price) async {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
       Map<String, dynamic> body = {};
 
       body = {
-        "item_id": orderItem!.itemId,
-        "item_status": item_status,
-        "shipping": "0",
-        "price": price,
-        "qty": qty,
+        "item_id": int.parse(orderItem!.itemId),
+        "scanned_sku": scannedSku,
+        "item_status": "end_picking",
+        "shipping": "",
+        "price": double.parse(orderItem!.price),
+        "qty": int.parse(qty),
         "reason": "",
-        "picker_id": UserController().profile.id,
+        "picker_id": int.parse(UserController().profile.id),
+        "is_produce": int.parse(orderItem!.isproduce),
+        "qty_orderd": double.parse(orderItem!.qtyOrdered).toInt(),
       };
 
       loading = true;
@@ -152,15 +152,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       if (response.statusCode == 200) {
         loading = false;
 
-        if (item_status == "end_picking") {
-          UserController.userController.indexlist.add(orderItem!);
-          UserController.userController.pickerindexlist.add(orderItem!.itemId);
-        } else if (item_status == "item_not_available") {
-          UserController.userController.itemnotavailablelist.add(orderItem!);
-          UserController.userController.notavailableindexlist.add(
-            orderItem!.itemId,
-          );
-        }
+        UserController.userController.indexlist.add(orderItem!);
+        UserController.userController.pickerindexlist.add(orderItem!.itemId);
 
         // UserController.userController.alloworderupdated = true;
 
@@ -212,6 +205,99 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     }
   }
 
+  updateitemstatus(
+    String item_status,
+    String qty,
+    String reason,
+    String price,
+  ) async {
+    try {
+      String? token = await PreferenceUtils.getDataFromShared("usertoken");
+
+      Map<String, dynamic> body = {};
+
+      body = {
+        "item_id": orderItem!.itemId,
+        "item_status": item_status,
+        "shipping": "",
+        "price": orderItem!.price,
+        "qty": qty,
+        "reason": "",
+        "picker_id": UserController().profile.id,
+        "is_produce": orderItem!.isproduce,
+        "qty_orderd": orderItem!.qtyOrdered,
+      };
+
+      loading = true;
+
+      final response = await serviceLocator.tradingApi.updateItemStatusService(
+        body: body,
+        token: token,
+      );
+
+      if (response.statusCode == 200) {
+        // loading = false;
+
+        // if (item_status == "end_picking") {
+        //   UserController.userController.indexlist.add(orderItem!);
+        //   UserController.userController.pickerindexlist.add(orderItem!.itemId);
+        // } else if (item_status == "item_not_available") {
+        //   UserController.userController.itemnotavailablelist.add(orderItem!);
+        //   UserController.userController.notavailableindexlist.add(
+        //     orderItem!.itemId,
+        //   );
+        // }
+
+        // // UserController.userController.alloworderupdated = true;
+
+        // showSnackBar(
+        //   context: context,
+        //   snackBar: showSuccessDialogue(message: "status updted"),
+        // );
+
+        // eventBus.fire(DataChangedEvent("New Data from Screen B"));
+
+        // Navigator.of(context).popUntil((route) => route.isFirst);
+
+        // // context.read<PickerOrdersCubit>().loadPosts(0, 'all');
+
+        // context.gNavigationService.openPickerOrderInnerPage(
+        //   context,
+        //   arg: {'orderitem': orderResponseItem},
+        // );
+      } else {
+        loading = false;
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(
+            errorMessage: "status update failed try again...",
+          ),
+        );
+
+        if (!isClosed) {
+          emit(
+            OrderItemDetailErrorState(loading: loading, orderItem: orderItem!),
+          );
+        }
+      }
+    } catch (e) {
+      loading = false;
+
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(
+          errorMessage: "status update failed try again...",
+        ),
+      );
+
+      if (!isClosed) {
+        emit(
+          OrderItemDetailErrorState(loading: loading, orderItem: orderItem!),
+        );
+      }
+    }
+  }
+
   void searchOnGoogle(String keyword) async {
     final searchUrl =
         "https://www.google.com/search?q=${Uri.encodeQueryComponent(keyword)}";
@@ -224,6 +310,49 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       }
     } catch (e) {
       print("Error launching URL: $e");
+    }
+  }
+
+  checkitemdb(String qty, String scannedSku, EndPicking? orderItem) async {
+    try {
+      final response = await serviceLocator.tradingApi.checkBarcodeDBService(
+        endpoint: scannedSku,
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+
+        if (data.containsKey('message') &&
+            data['message'] == 'ERP product found') {
+          ErPdata erPdata = ErPdata.fromJson(data);
+
+          showPickConfirmDialogue(
+            context,
+            '${erPdata.message} $scannedSku',
+            () {
+              updateitemstatuspick(qty, scannedSku, erPdata.erpPrice);
+            },
+          );
+        } else {
+          showPickConfirmDialogue(context, 'Barcode Found in DB', () {
+            updateitemstatuspick(qty, scannedSku, orderItem!.price);
+          });
+        }
+      } else {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(
+            errorMessage: "Barcode Not Scanned Please Retry!",
+          ),
+        );
+      }
+    } catch (e) {
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(
+          errorMessage: "Barcode Not Scanned Please Retry!",
+        ),
+      );
     }
   }
 }

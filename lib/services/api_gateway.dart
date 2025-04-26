@@ -112,8 +112,9 @@ class PDApiGateway implements AuthenticationService {
           })
           .timeout(Duration(seconds: 10));
       return response;
-    } catch (e) {
-      serviceSendError('update order item status Error');
+    } catch (e, stackTrace) {
+      log('$stackTrace');
+      serviceSendError('update order item status Error $e');
       rethrow;
     }
   }
@@ -588,6 +589,23 @@ class PDApiGateway implements AuthenticationService {
       return response;
     } catch (e) {
       serviceSendError("general PromotionService Error");
+      return "";
+    }
+  }
+
+  @override
+  Future checkBarcodeDBService({required String endpoint}) async {
+    try {
+      final response = await pickerDriverApi
+          .checkBarcodeDB(endpoint: endpoint)
+          .catchError((e) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("get BarcodeDB Error");
       return "";
     }
   }

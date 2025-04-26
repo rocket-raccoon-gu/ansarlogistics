@@ -141,7 +141,7 @@ void showLocalNotification(RemoteMessage message) {
                     child: BasketButton(
                       onpress: () {
                         entry.dismiss();
-                        RestartWidget.restartApp(context);
+                        // RestartWidget.restartApp(context);
                       },
                       text: "OK",
                       bgcolor: customColors().dodgerBlue,
