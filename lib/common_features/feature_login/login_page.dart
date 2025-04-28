@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'dart:io'; // internet connectivity
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_login/bloc/login_cubit.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
@@ -89,14 +88,14 @@ class _LoginPageState extends State<LoginPage> {
       padding: const EdgeInsets.only(top: 35.0, right: 16.0, left: 16.0),
       child: Column(
         children: [
-          Text(
-            username,
-            textAlign: TextAlign.center,
-            style: customTextStyle(
-              fontStyle: FontStyle.HeaderS_SemiBold,
-              color: FontColor.FontPrimary,
-            ),
-          ),
+          // Text(
+          //   username,
+          //   textAlign: TextAlign.center,
+          //   style: customTextStyle(
+          //     fontStyle: FontStyle.HeaderS_SemiBold,
+          //     color: FontColor.FontPrimary,
+          //   ),
+          // ),
           const SizedBox(height: 8.0),
           Text(
             password,
@@ -210,6 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                                         textCapitalization:
                                             TextCapitalization.sentences,
                                         onChange: (val) {
+                                          print(val.isNotEmpty);
                                           if (val.isNotEmpty) {
                                             idFormKey.currentState!.validate();
                                           }

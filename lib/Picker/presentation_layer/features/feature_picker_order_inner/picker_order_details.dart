@@ -1,6 +1,7 @@
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/canceled_items_page.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/endpick_barcode.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/not_found_items_page.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/picked_items_page.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/to_pick_items_page.dart';
@@ -206,11 +207,12 @@ Widget getBody(
       );
 
     case 3:
-      return CanceledItemsPage(
-        canceleditems: state.canceleditems,
-        orderResponseItem: orderResponseItem,
-        catlist: state.catlist,
-      );
+      // return CanceledItemsPage(
+      //   canceleditems: state.canceleditems,
+      //   orderResponseItem: orderResponseItem,
+      //   catlist: state.catlist,
+      // );
+      return EndpickBarcode();
     default:
       return Container();
   }
