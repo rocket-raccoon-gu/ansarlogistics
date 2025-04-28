@@ -28,7 +28,8 @@ class _ProductDataState extends State<ProductData> {
           height: 275.0,
           width: 275.0,
           child:
-              widget.productResponse!.productImages.isNotEmpty
+              widget.productResponse!.productImages.isNotEmpty &&
+                      widget.productResponse!.productImages[0] != ""
                   ? Image.network(
                     '${mainimageurl}${widget.productResponse!.productImages[0]}',
                     fit: BoxFit.fill,

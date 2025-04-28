@@ -27,7 +27,9 @@ class SignupPageCubit extends Cubit<SignupPageState> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final currentId = "0" + (data['last_id'] + 1).toString();
+        currentid = "0" + (data['last_id'] + 1).toString();
+
+        log(currentid);
 
         // Then get company details
         final companyList = await getCompanyDetails();
@@ -37,7 +39,7 @@ class SignupPageCubit extends Cubit<SignupPageState> {
           emit(
             SignupPageInitialState(
               companyList: companyList,
-              currentId: currentId,
+              currentId: currentid,
             ),
           );
         }
@@ -76,6 +78,7 @@ class SignupPageCubit extends Cubit<SignupPageState> {
 
   signUpDriver(Map<String, dynamic> data) async {
     try {
+      log(data.toString());
       final response = await serviceLocator.tradingApi.setDriverRegister(
         driverdata: data,
       );

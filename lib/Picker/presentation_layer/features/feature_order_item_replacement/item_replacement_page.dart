@@ -5,6 +5,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/db_data_container.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/dynamic_grid.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/erp_data_container.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/manual_form.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/product_data.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
@@ -42,6 +43,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
   late GlobalKey<FormState> idFormKey = GlobalKey<FormState>();
 
+  MobileScannerController cameraController = MobileScannerController();
+
   int selectedindex = -1;
 
   bool loading = false;
@@ -61,18 +64,18 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
     }
   }
 
-  Future<void> scanBarcodeNormal() async {
-    String? barcodeScanRes;
+  Future<void> scanBarcodeNormal(String barcodeScanRes) async {
+    // String? barcodeScanRes;
 
-    ScanResult scanResult;
+    // ScanResult scanResult;
 
     try {
-      await requestCameraPermission();
+      // await requestCameraPermission();
 
-      scanResult = await BarcodeScanner.scan();
-      setState(() {
-        barcodeScanRes = scanResult.rawContent;
-      });
+      // scanResult = await BarcodeScanner.scan();
+      // setState(() {
+      //   barcodeScanRes = scanResult.rawContent;
+      // });
 
       log(barcodeScanRes!);
 
@@ -112,7 +115,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
         await BlocProvider.of<ItemReplacementPageCubit>(
           context,
-        ).getScannedProductData(barcodeScanRes!, producebarcode);
+        ).getScannedProductData(barcodeScanRes, producebarcode);
 
         if (mounted) {
           setState(() {
@@ -153,56 +156,15 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
       body: Builder(
         builder: (context) {
           if (isScanner) {
-            return Container();
-          } else if (istextbarcode) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    children: [
-                      Row(children: [Text("Enter product barcode")]),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomTextFormField(
-                              keyboardType: TextInputType.number,
-                              bordercolor: customColors().fontTertiary,
-                              context: context,
-                              controller: barcodeController,
-                              fieldName: "",
-                              hintText: "Type here...",
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12.0),
-                        child: BasketButton(
-                          onpress: () async {
-                            // context.read<ItemAddPageCubit>().updatedata(
-                            //     barcodeController.text, producebarcode);
-                            // scanBarcodeNormal(barcodeController.text);
-                            await BlocProvider.of<ItemReplacementPageCubit>(
-                              context,
-                            ).getScannedProductData(
-                              barcodeController.text,
-                              producebarcode,
-                            );
-                          },
-                          bgcolor: customColors().dodgerBlue,
-                          text: "Enter",
-                          textStyle: customTextStyle(
-                            fontStyle: FontStyle.HeaderXS_Bold,
-                            color: FontColor.White,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            return MobileScanner(
+              controller: MobileScannerController(facing: CameraFacing.back),
+              onDetect: (capture) {
+                final List<Barcode> barcodes = capture.barcodes;
+                for (final barcode in barcodes) {
+                  print('Barcode found! ${barcode.rawValue}');
+                  scanBarcodeNormal(barcode.rawValue!);
+                }
+              },
             );
           } else {
             return Column(
@@ -374,6 +336,20 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                   }
                                 },
                                 builder: (context, state) {
+                                  if (state is ItemReplacementManualState) {
+                                    return ManualForm(
+                                      onpress: () async {
+                                        await BlocProvider.of<
+                                          ItemReplacementPageCubit
+                                        >(context).getScannedProductData(
+                                          barcodeController.text,
+                                          producebarcode,
+                                        );
+                                      },
+                                      controller: barcodeController,
+                                    );
+                                  }
+
                                   if (state is ItemReplacementInitail) {
                                     if (state.prwork != null) {
                                       return Column(
@@ -531,7 +507,16 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                       );
                                     }
 
-                                    return Column(children: []);
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 250.0,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [Text("No Data Found...!")],
+                                      ),
+                                    );
                                   } else {
                                     return Column(children: []);
                                   }
@@ -628,9 +613,23 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                           ItemReplacementPageCubit
                                         >(context).updatereplacement(
                                           selectedindex,
+                                          context
+                                              .read<ItemReplacementPageCubit>()
+                                              .erPdata!
+                                              .erpProductName,
                                           cancelreason,
                                           editquantity,
                                           context,
+                                          context
+                                              .read<ItemReplacementPageCubit>()
+                                              .erPdata!
+                                              .erpPrice
+                                              .toString(),
+                                          context
+                                              .read<ItemReplacementPageCubit>()
+                                              .erPdata!
+                                              .erpPrice
+                                              .toString(),
                                           context
                                               .read<ItemReplacementPageCubit>()
                                               .erPdata!
@@ -653,6 +652,10 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                           ItemReplacementPageCubit
                                         >(context).updatereplacement(
                                           selectedindex,
+                                          context
+                                              .read<ItemReplacementPageCubit>()
+                                              .productDBdata!
+                                              .skuName,
                                           cancelreason,
                                           editquantity,
                                           context,
@@ -662,7 +665,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                                       >()
                                                       .productDBdata!
                                                       .specialPrice !=
-                                                  null
+                                                  ""
                                               ? context
                                                   .read<
                                                     ItemReplacementPageCubit
@@ -677,6 +680,15 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                                   .productDBdata!
                                                   .regularPrice
                                                   .toString(),
+
+                                          context
+                                              .read<ItemReplacementPageCubit>()
+                                              .productDBdata!
+                                              .erpCurrentPrice,
+                                          context
+                                              .read<ItemReplacementPageCubit>()
+                                              .productDBdata!
+                                              .regularPrice,
                                           context
                                               .read<ItemReplacementPageCubit>()
                                               .productDBdata!
@@ -785,12 +797,23 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                       borderRadius: BorderRadius.circular(5.0),
                                     ),
                                     child: BasketButtonwithIcon(
-                                      onpress: () {
-                                        scanBarcodeNormal();
+                                      onpress: () async {
+                                        // scanBarcodeNormal();
 
-                                        // setState(() {
-                                        //   isScanner = true;
-                                        // });
+                                        // BlocProvider.of<
+                                        //   ItemReplacementPageCubit
+                                        // >(context).updateScannerState();
+
+                                        // Check camera permission
+                                        var status =
+                                            await Permission.camera.status;
+                                        if (!status.isGranted) {
+                                          await requestCameraPermission();
+                                        }
+
+                                        setState(() {
+                                          isScanner = true;
+                                        });
                                       },
                                       image: "assets/noun_scan.png",
                                       text: "Scan Item",
@@ -819,9 +842,9 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
                                   return BasketButtonwithIcon(
                                     onpress: () {
-                                      setState(() {
-                                        istextbarcode = true;
-                                      });
+                                      BlocProvider.of<ItemReplacementPageCubit>(
+                                        context,
+                                      ).updateManualState();
                                     },
                                     text: "Text Barcode",
                                     image: "assets/font.png",

@@ -1,18 +1,25 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_add/bloc/item_add_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_add/bloc/item_add_page_state.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/db_data_container.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/erp_data_container.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/custom_text_form_field.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/utils/utils.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 import 'package:camera/camera.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -44,28 +51,29 @@ class _ItemAddPageState extends State<ItemAddPage> {
 
   bool producebarcode = false;
 
-  Future<void> scanBarcodeNormal() async {
+  Future<void> scanBarcodeNormal(String barcodeScanRes) async {
     // String? barcodeScanRes;
     // ScanResult scanResult;
 
     // try {
-    //   scanResult = await BarcodeScanner.scan(
-    //       options: const ScanOptions(
-    //           restrictFormat: [BarcodeFormat.code128, BarcodeFormat.ean13]));
+    //   scanResult = await BarcodeScanner.scan();
 
     //   barcodeScanRes = scanResult.rawContent;
     // } on PlatformException {
     //   barcodeScanRes = 'Failed to get platform version.';
     // }
 
-    // if (!mounted) return;
+    log(barcodeScanRes);
 
-    // await BlocProvider.of<ItemReplacementPageCubit>(context)
-    //     .getScannedProductData(barcodeScanRes, producebarcode);
+    if (!mounted) return;
 
-    // setState(() {
-    //   isScanner = false;
-    // });
+    await BlocProvider.of<ItemAddPageCubit>(
+      context,
+    ).getScannedProductData(barcodeScanRes, producebarcode);
+
+    setState(() {
+      isScanner = false;
+    });
   }
 
   @override
@@ -136,34 +144,11 @@ class _ItemAddPageState extends State<ItemAddPage> {
                   ),
                 ),
               ),
-              if (state is ItemAddPageInitialState &&
-                  state.productResponse == null &&
-                  !isScanner)
+              if (state is ItemAddFormState)
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(
-                      //       horizontal: 12.0, vertical: 15.0),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: [
-                      //       Text(
-                      //         "Produce Barcode",
-                      //         style: customTextStyle(
-                      //             fontStyle: FontStyle.BodyL_SemiBold),
-                      //       ),
-                      //       Checkbox(
-                      //           value: producebarcode,
-                      //           onChanged: (val) {
-                      //             setState(() {
-                      //               producebarcode = val!;
-                      //             });
-                      //           })
-                      //     ],
-                      //   ),
-                      // ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: Column(
@@ -187,7 +172,14 @@ class _ItemAddPageState extends State<ItemAddPage> {
                               padding: const EdgeInsets.only(top: 12.0),
                               child: BasketButton(
                                 onpress: () async {
-                                  context.read<ItemAddPageCubit>().updatedata(
+                                  // context.read<ItemAddPageCubit>().updatedata(
+                                  //   barcodeController.text,
+                                  //   producebarcode,
+                                  // );
+
+                                  await BlocProvider.of<ItemAddPageCubit>(
+                                    context,
+                                  ).getScannedProductData(
                                     barcodeController.text,
                                     producebarcode,
                                   );
@@ -207,474 +199,56 @@ class _ItemAddPageState extends State<ItemAddPage> {
                   ),
                 )
               else if (state is ItemAddPageInitialState &&
-                  state.productResponse == null &&
-                  isScanner)
+                  (state.erPdata != null || state.productDBdata != null))
+                Column(
+                  children: [
+                    if (state.erPdata != null)
+                      ErpDataContainer(
+                        erPdata: state.erPdata,
+                        counterCallback: (v) {
+                          setState(() {
+                            editquantity = v;
+                          });
+                        },
+                      )
+                    else if (state.productDBdata != null)
+                      DbDataContainer(
+                        productDBdata: state.productDBdata,
+                        counterCallback: (v) {
+                          setState(() {
+                            editquantity = v;
+                          });
+                        },
+                      ),
+                  ],
+                )
+              else if (state is ItemAddPageInitialState &&
+                  (state.erPdata == null || state.productDBdata == null))
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Text("No Data Found...!")],
+                  ),
+                )
+              else if (state is MobileScannerState1)
                 Expanded(
                   child: MobileScanner(
-                    // allowDuplicates: false,
-                    // controller:
-                    //     MobileScannerController(facing: CameraFacing.back),
-                    // onDetect: (barcode, args) {
-                    //   if (barcode.rawValue == null) {
-                    //     debugPrint('Failed to scan Barcode');
-                    //   } else {
-                    //     final String code = barcode.rawValue!;
-                    //     debugPrint('Barcode found! $code');
-                    //     BlocProvider.of<ItemAddPageCubit>(context)
-                    //         .updatedata(code, producebarcode);
-                    //   }
-                    // }
-                    controller: MobileScannerController(
-                      detectionSpeed: DetectionSpeed.normal,
-                      returnImage: true,
-                      facing: CameraFacing.back,
-                    ),
-                    onDetect: (barcode) {
-                      final List<Barcode> barcodes = barcode.barcodes;
-                      final Uint8List? image = barcode.image;
-
+                    controller: cameraController,
+                    onDetect: (capture) {
+                      final List<Barcode> barcodes = capture.barcodes;
                       for (final barcode in barcodes) {
-                        print(barcode.rawValue ?? "No Data found in QR");
-
-                        if (barcode.rawValue == null) {
-                          debugPrint('Failed to scan Barcode');
-                        } else {
-                          final String code = barcode.rawValue!;
-                          debugPrint('Barcode found! $code');
-                          BlocProvider.of<ItemAddPageCubit>(
-                            context,
-                          ).updatedata(code, producebarcode);
-                        }
+                        print('Barcode found! ${barcode.rawValue}');
+                        scanBarcodeNormal(barcode.rawValue!);
                       }
                     },
                   ),
-                )
-              else if (state is ItemAddPageInitialState &&
-                  state.productResponse != null)
-                Column(
-                  children: [
-                    state.productResponse!.mediaGalleryEntries.isNotEmpty
-                        ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Container(
-                            height: 275.0,
-                            width: 275.0,
-                            child: Center(
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    "https://www.ansargallery.com/media/catalog/product/cache/d3078668c17a3fcf95f19e6d90a1909e/${state.productResponse!.mediaGalleryEntries[selectedindex].file}",
-                                imageBuilder: (context, imageProvider) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: imageProvider,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                placeholder:
-                                    (context, url) => Center(
-                                      child: Image.asset(
-                                        'assets/Iphone_spinner.gif',
-                                      ),
-                                    ),
-                                errorWidget: (context, url, error) {
-                                  return Image.asset('assets/placeholder.png');
-                                },
-                              ),
-                            ),
-                          ),
-                        )
-                        : Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Container(
-                            height: 275.0,
-                            width: 275.0,
-                            child: Image.asset("assets/placeholder.png"),
-                          ),
-                        ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: SizedBox(
-                        height: 60,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount:
-                              state.productResponse!.mediaGalleryEntries.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    selectedindex = index;
-                                  });
-                                },
-                                child: Container(
-                                  height: 60.0,
-                                  width: 60.0,
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        width: 3.0,
-                                        color:
-                                            selectedindex == index
-                                                ? Color.fromRGBO(
-                                                  183,
-                                                  214,
-                                                  53,
-                                                  1,
-                                                )
-                                                : Colors.transparent,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: CachedNetworkImage(
-                                      imageUrl:
-                                          "https://www.ansargallery.com/media/catalog/product/cache/d3078668c17a3fcf95f19e6d90a1909e/${state.productResponse!.mediaGalleryEntries[index].file}",
-                                      imageBuilder: (context, imageProvider) {
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      placeholder:
-                                          (context, url) => Center(
-                                            child: Image.asset(
-                                              'assets/Iphone_spinner.gif',
-                                            ),
-                                          ),
-                                      errorWidget: (context, url, error) {
-                                        return Image.asset(
-                                          'assets/placeholder.png',
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16.0,
-                        horizontal: 10.0,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  state.productResponse!.name,
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.HeaderXS_Bold,
-                                    color: FontColor.FontPrimary,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      // double.parse(state.productResponse!.price
-                                      //         .toString())
-                                      //     .toStringAsFixed(2),
-                                      context
-                                              .read<ItemAddPageCubit>()
-                                              .isSpecialPriceActive
-                                          ? context
-                                              .read<ItemAddPageCubit>()
-                                              .specialPrice
-                                              .toString()
-                                          : double.parse(
-                                            state.productResponse!.price
-                                                .toString(),
-                                          ).toStringAsFixed(2),
-
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.HeaderXS_Bold,
-                                        color: FontColor.FontPrimary,
-                                      ),
-                                    ),
-                                    Text(
-                                      "  QAR",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyL_Bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "SKU: ${state.productResponse!.sku}",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.HeaderXS_Bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12.0,
-                              horizontal: 14.0,
-                            ),
-                            child: CounterDropdown(
-                              initNumber: 1,
-                              counterCallback: (v) {
-                                setState(() {
-                                  editquantity = v;
-                                });
-                              },
-                              maxNumber: 100,
-                              minNumber: 0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-              else if (state is ItemAddPageErrorState)
-                Column(
-                  children: [
-                    state.productResponse!.mediaGalleryEntries.isNotEmpty
-                        ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Container(
-                            height: 275.0,
-                            width: 275.0,
-                            child: Center(
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    "https://media-qatar.ahmarket.com/media/catalog/product/cache/2b71e5a2b5266e17ec3596451a32baea/${state.productResponse!.mediaGalleryEntries[selectedindex].file}",
-                                imageBuilder: (context, imageProvider) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: imageProvider,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                placeholder:
-                                    (context, url) => Center(
-                                      child: Image.asset(
-                                        'assets/Iphone_spinner.gif',
-                                      ),
-                                    ),
-                                errorWidget: (context, url, error) {
-                                  return Image.asset('assets/placeholder.png');
-                                },
-                              ),
-                            ),
-                          ),
-                        )
-                        : Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Container(
-                            height: 275.0,
-                            width: 275.0,
-                            child: Image.asset("assets/placeholder.png"),
-                          ),
-                        ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: SizedBox(
-                        height: 60,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount:
-                              state.productResponse!.mediaGalleryEntries.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    selectedindex = index;
-                                  });
-                                },
-                                child: Container(
-                                  height: 60.0,
-                                  width: 60.0,
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        width: 3.0,
-                                        color:
-                                            selectedindex == index
-                                                ? Color.fromRGBO(
-                                                  183,
-                                                  214,
-                                                  53,
-                                                  1,
-                                                )
-                                                : Colors.transparent,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: CachedNetworkImage(
-                                      imageUrl:
-                                          "https://media-qatar.ahmarket.com/media/catalog/product/cache/2b71e5a2b5266e17ec3596451a32baea/${state.productResponse!.mediaGalleryEntries[index].file}",
-                                      imageBuilder: (context, imageProvider) {
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      placeholder:
-                                          (context, url) => Center(
-                                            child: Image.asset(
-                                              'assets/Iphone_spinner.gif',
-                                            ),
-                                          ),
-                                      errorWidget: (context, url, error) {
-                                        return Image.asset(
-                                          'assets/placeholder.png',
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16.0,
-                        horizontal: 10.0,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  state.productResponse!.name,
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.HeaderXS_Bold,
-                                    color: FontColor.FontPrimary,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      // double.parse(state.productResponse!.price
-                                      //         .toString())
-                                      //     .toStringAsFixed(2),
-                                      context
-                                              .read<ItemAddPageCubit>()
-                                              .isSpecialPriceActive
-                                          ? context
-                                              .read<ItemAddPageCubit>()
-                                              .specialPrice
-                                              .toString()
-                                          : double.parse(
-                                            state.productResponse!.price
-                                                .toString(),
-                                          ).toStringAsFixed(2),
-
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.HeaderXS_Bold,
-                                        color: FontColor.FontPrimary,
-                                      ),
-                                    ),
-                                    Text(
-                                      "  QAR",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyL_Bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "SKU: ${state.productResponse!.sku}",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.HeaderXS_Bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12.0,
-                              horizontal: 14.0,
-                            ),
-                            child: CounterDropdown(
-                              initNumber: 1,
-                              counterCallback: (v) {
-                                setState(() {
-                                  editquantity = v;
-                                });
-                              },
-                              maxNumber: 100,
-                              minNumber: 0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
             ],
           ),
           bottomNavigationBar: SizedBox(
             height:
-                context.read<ItemAddPageCubit>().productResponse != null
+                context.read<ItemAddPageCubit>().erPdata != null ||
+                        context.read<ItemAddPageCubit>().productDBdata != null
                     ? screenSize.height * 0.1
                     : screenSize.height * 0.18,
             child: Stack(
@@ -686,7 +260,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
                       thickness: 1.0,
                       color: customColors().backgroundTertiary,
                     ),
-                    context.read<ItemAddPageCubit>().productResponse != null
+                    context.read<ItemAddPageCubit>().erPdata != null ||
+                            context.read<ItemAddPageCubit>().productDBdata !=
+                                null
                         ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: Row(
@@ -695,29 +271,89 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                 child: BasketButton(
                                   loading: loading,
                                   onpress: () {
-                                    setState(() {
-                                      loading = true;
-                                    });
-
-                                    BlocProvider.of<ItemAddPageCubit>(
-                                      context,
-                                    ).updateItem(
-                                      editquantity,
-                                      context,
-                                      context
-                                              .read<ItemAddPageCubit>()
-                                              .isSpecialPriceActive
-                                          ? context
-                                              .read<ItemAddPageCubit>()
-                                              .specialPrice
-                                              .toString()
-                                          : double.parse(
-                                            context
+                                    // setState(() {
+                                    //   loading = true;
+                                    // });
+                                    if (BlocProvider.of<ItemAddPageCubit>(
+                                          context,
+                                        ).erPdata !=
+                                        null) {
+                                      BlocProvider.of<ItemAddPageCubit>(
+                                        context,
+                                      ).updateItem(
+                                        editquantity,
+                                        context,
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .erPdata!
+                                            .erpPrice
+                                            .toString(),
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .erPdata!
+                                            .erpPrice
+                                            .toString(),
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .erPdata!
+                                            .erpPrice
+                                            .toString(),
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .erPdata!
+                                            .erpSku
+                                            .toString(),
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .erPdata!
+                                            .erpProductName
+                                            .toString(),
+                                      );
+                                    } else if (BlocProvider.of<
+                                          ItemAddPageCubit
+                                        >(context).productDBdata !=
+                                        null) {
+                                      BlocProvider.of<ItemAddPageCubit>(
+                                        context,
+                                      ).updateItem(
+                                        editquantity,
+                                        context,
+                                        context
+                                                    .read<ItemAddPageCubit>()
+                                                    .productDBdata!
+                                                    .specialPrice !=
+                                                ""
+                                            ? context
                                                 .read<ItemAddPageCubit>()
-                                                .productResponse!
-                                                .price,
-                                          ).toStringAsFixed(2),
-                                    );
+                                                .productDBdata!
+                                                .specialPrice
+                                                .toString()
+                                            : context
+                                                .read<ItemAddPageCubit>()
+                                                .productDBdata!
+                                                .regularPrice
+                                                .toString(),
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .productDBdata!
+                                            .erpCurrentPrice,
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .productDBdata!
+                                            .regularPrice,
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .productDBdata!
+                                            .sku
+                                            .toString(),
+                                        context
+                                            .read<ItemAddPageCubit>()
+                                            .productDBdata!
+                                            .skuName
+                                            .toString(),
+                                      );
+                                    }
+
                                     // setState(() {
                                     //   loading = false;
                                     // });
@@ -773,7 +409,11 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                       right: 15.0,
                                     ),
                                     child: InkWell(
-                                      onTap: () async {},
+                                      onTap: () async {
+                                        BlocProvider.of<ItemAddPageCubit>(
+                                          context,
+                                        ).updateFormState();
+                                      },
                                       child: Container(
                                         decoration: BoxDecoration(
                                           border: Border.all(
@@ -803,9 +443,16 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                     child: InkWell(
                                       onTap: () async {
                                         // scanBarcodeNormal();
-                                        setState(() {
-                                          isScanner = true;
-                                        });
+
+                                        var status =
+                                            await Permission.camera.status;
+                                        if (!status.isGranted) {
+                                          await requestCameraPermission();
+                                        }
+
+                                        BlocProvider.of<ItemAddPageCubit>(
+                                          context,
+                                        ).updateScannerState();
                                       },
                                       child: BasketButtonwithIcon(
                                         bgcolor: customColors().dodgerBlue,

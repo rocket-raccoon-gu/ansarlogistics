@@ -1,6 +1,7 @@
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 
@@ -29,7 +30,7 @@ class _DbDataContainerState extends State<DbDataContainer> {
           child:
               widget.productDBdata!.images != null
                   ? Image.network(
-                    '${mainimageurl}${widget.productDBdata!.images}',
+                    '${mainimageurl}${getFirstImage(widget.productDBdata!.images)}',
                     fit: BoxFit.fill,
                   )
                   : Image.network(noimageurl, fit: BoxFit.fill),

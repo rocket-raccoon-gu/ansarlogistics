@@ -301,14 +301,14 @@ class _SignupPageState extends State<SignupPage> {
                             //
                             //
                             // employee id
-                            CustomTextFormField(
-                              context: context,
-                              controller: employeeidController,
-                              fieldName: "Employee ID",
-                              hintText: "Enter your employee ID",
-                              validator: Validator.defaultValidator,
-                              enabled: false,
-                            ),
+                            // CustomTextFormField(
+                            //   context: context,
+                            //   controller: employeeidController,
+                            //   fieldName: "Employee ID",
+                            //   hintText: "Enter your employee ID",
+                            //   validator: Validator.defaultValidator,
+                            //   enabled: false,
+                            // ),
                             //
                             //
                             // emailid
@@ -920,11 +920,11 @@ class _SignupPageState extends State<SignupPage> {
                             } else {
                               final info = await PackageInfo.fromPlatform();
 
-                              _packageInfo = info;
+                              // _packageInfo = info;
 
                               Map<String, dynamic> driverData = {
                                 "employee_id":
-                                    employeeidController.text.toString(),
+                                    context.read<SignupPageCubit>().currentid,
                                 "name": nameController.text.toString(),
                                 "email": emailidController.text.toString(),
                                 "mobile_number":

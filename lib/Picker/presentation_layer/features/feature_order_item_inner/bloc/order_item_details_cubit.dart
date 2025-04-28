@@ -13,6 +13,7 @@ import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picker_driver_api/responses/erp_data_response.dart';
 
@@ -47,6 +48,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   ColorInfo? colorInfo;
 
   CarpetSizeInfo? carpetSizeInfo;
+
+  bool povisvible = false;
 
   updatedata() {
     orderItem = data['item'];
@@ -134,7 +137,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         "scanned_sku": scannedSku,
         "item_status": "end_picking",
         "shipping": "",
-        "price": double.parse(orderItem!.price),
+        "price": double.parse(price),
         "qty": int.parse(qty),
         "reason": "",
         "picker_id": int.parse(UserController().profile.id),
@@ -315,28 +318,96 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
   checkitemdb(String qty, String scannedSku, EndPicking? orderItem) async {
     try {
+      String convertbarcode = '';
+
+      if (orderItem!.isproduce == "1") {
+        convertbarcode = replaceAfterFirstSixWithZero(scannedSku);
+      }
+
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
-        endpoint: scannedSku,
+        endpoint: convertbarcode != '' ? convertbarcode : scannedSku,
       );
 
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
 
-        if (data.containsKey('message') &&
-            data['message'] == 'ERP product found') {
+        if (data.containsKey('message') && data['priority'] == 1) {
           ErPdata erPdata = ErPdata.fromJson(data);
 
-          showPickConfirmDialogue(
-            context,
-            '${erPdata.message} $scannedSku',
-            () {
-              updateitemstatuspick(qty, scannedSku, erPdata.erpPrice);
-            },
+          if (!povisvible) {
+            povisvible = true;
+
+            showPickConfirmDialogue(
+              context,
+              '${erPdata.message} $scannedSku',
+              () {
+                if (orderItem.price == erPdata.erpPrice) {
+                  updateitemstatuspick(qty, scannedSku, erPdata.erpPrice);
+                } else {
+                  showSnackBar(
+                    context: context,
+                    snackBar: showErrorDialogue(
+                      errorMessage: "price not same please replace the item",
+                    ),
+                  );
+                }
+              },
+              erPdata.erpSku,
+              orderItem.isproduce == "1"
+                  ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                  : erPdata.erpPrice,
+              qty,
+              erPdata.erpProductName,
+              () {
+                context.gNavigationService.back(context);
+                povisvible = false;
+              },
+            );
+          }
+        } else if (data['priority'] == 2) {
+          ProductDBdata productDBdata = ProductDBdata.fromJson(data);
+
+          if (!povisvible) {
+            povisvible = true;
+
+            showPickConfirmDialogue(
+              context,
+              'Barcode Found in System',
+              () {
+                // if (orderItem.price == productDBdata.currentPromotionPrice) {
+                updateitemstatuspick(
+                  qty,
+                  scannedSku,
+                  productDBdata.currentPromotionPrice,
+                );
+                // } else {
+                //   showSnackBar(
+                //     context: context,
+                //     snackBar: showErrorDialogue(
+                //       errorMessage: "price not same please replace the item",
+                //     ),
+                //   );
+                // }
+              },
+              productDBdata.sku,
+              orderItem.isproduce == "1"
+                  ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                  : double.parse(
+                    productDBdata.currentPromotionPrice,
+                  ).toStringAsFixed(2),
+              qty,
+              productDBdata.skuName,
+              () {
+                context.gNavigationService.back(context);
+                povisvible = false;
+              },
+            );
+          }
+        } else if (data.containsKey('suggestion')) {
+          showSnackBar(
+            context: context,
+            snackBar: showErrorDialogue(errorMessage: data['message']),
           );
-        } else {
-          showPickConfirmDialogue(context, 'Barcode Found in DB', () {
-            updateitemstatuspick(qty, scannedSku, orderItem!.price);
-          });
         }
       } else {
         showSnackBar(

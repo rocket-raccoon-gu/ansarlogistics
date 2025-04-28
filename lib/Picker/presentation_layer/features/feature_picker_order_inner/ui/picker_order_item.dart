@@ -5,6 +5,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/image_widgets/list_image_widget.dart';
 import 'package:ansarlogistics/constants/methods.dart';
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -124,10 +125,11 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
           },
           child: Dismissible(
             key: Key(itemslistbackcategories[index].itemId),
-            direction:
-                itemslistbackcategories[index].itemStatus == "end_picking"
-                    ? DismissDirection.none
-                    : DismissDirection.endToStart,
+            // direction:
+            //     itemslistbackcategories[index].itemStatus == "end_picking"
+            //         ? DismissDirection.none
+            //         : DismissDirection.endToStart,
+            direction: DismissDirection.none,
             background: ColoredBox(color: customColors().carnationRed),
             secondaryBackground: ColoredBox(
               color: Color.fromRGBO(183, 214, 53, 1),
@@ -207,15 +209,18 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                                         ),
                                         child:
                                             itemslistbackcategories[index]
-                                                    .productImages
-                                                    .isNotEmpty
+                                                        .productImages
+                                                        .isNotEmpty &&
+                                                    itemslistbackcategories[index]
+                                                            .productImages[0] !=
+                                                        ""
                                                 ? ListImageWidget(
                                                   imageurl:
                                                       itemslistbackcategories[index]
                                                           .productImages[0],
                                                 )
-                                                : Image.asset(
-                                                  'assets/placeholder.png',
+                                                : Image.network(
+                                                  '${noimageurl}',
                                                 ),
                                       ),
                                     ),

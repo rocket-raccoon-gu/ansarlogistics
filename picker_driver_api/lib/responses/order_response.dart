@@ -447,7 +447,7 @@ class EndPicking {
     discountPercent: json["discount_percent"],
     discountAmount: json["discount_amount"],
     subtotal: json["subtotal"] ?? "",
-    isproduce: json["is_produce"].toString(),
+    isproduce: json["is_produce"] != null ? json["is_produce"].toString() : "0",
     categoryid:
         json["category_id"] == null ? "2" : json["category_id"].toString(),
     catename: json["catname"] ?? "",

@@ -28,4 +28,8 @@ class ItemReplacementLoaded extends ItemReplacementPageState {
   ItemReplacementLoaded({required this.erPdata, required this.productDBdata});
 }
 
+class ItemReplacementManualState extends ItemReplacementPageState {}
+
 class ItemLoading extends ItemReplacementPageState {}
+
+class ReplacementScannerState extends ItemReplacementPageState {}

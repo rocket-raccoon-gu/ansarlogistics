@@ -122,10 +122,13 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
   updatereplacement(
     int selectedindex,
+    String product_name,
     String reason,
     int editqty,
     BuildContext ctxt,
     String price,
+    String promo_price,
+    String regularprice,
     String scannedsku1,
   ) async {
     try {
@@ -138,12 +141,15 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
         "item_id": itemdata!.itemId,
         "canceled_sku": itemdata!.productSku,
         "new_sku": scannedsku1,
+        "product_name": product_name,
         "new_product_qty": editqty != 0 ? editqty : itemdata!.qtyOrdered,
         "order_id": orderItemsResponse!.subgroupIdentifier,
         "picker_id": UserController.userController.profile.id,
         "shipping": 0,
         "reason": reason,
-        "sp_price": price,
+        "price": price,
+        "promo_price": promo_price,
+        "regular_price": regularprice,
       };
 
       loadking = true;
@@ -259,10 +265,15 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
         showsku = sku;
 
-        if (item.containsKey('message') && item['priority'] == 1) {
+        if (item['priority'] == 1) {
           erPdata = ErPdata.fromJson(item);
-        } else {
+        } else if (item['priority'] == 2) {
           productDBdata = ProductDBdata.fromJson(item);
+        } else if (item.containsKey('suggestion')) {
+          showSnackBar(
+            context: context,
+            snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
+          );
         }
         if (!isClosed) {
           emit(
@@ -272,73 +283,6 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
             ),
           );
         }
-        // if (item.containsKey('message')) {
-        //   print("not ok");
-        //   // Navigator.pop(context);
-        //   showSnackBar(
-        //     context: context,
-        //     snackBar: showErrorDialogue(errorMessage: item['message']),
-        //   );
-        // } else {
-        //   prvalue = 1;
-
-        //   prwork = ProductResponse.fromJson(jsonDecode(response.body));
-
-        //   scannedsku = prwork!.sku;
-
-        //   final fromDateString =
-        //       prwork!.customAttributes
-        //           .firstWhere(
-        //             (attr) => attr.attributeCode == 'special_from_date',
-        //             orElse:
-        //                 () => CustomAttribute(
-        //                   attributeCode: '',
-        //                   value: '',
-        //                 ), // Provide a default CustomAttribute
-        //           )
-        //           .value;
-
-        //   final toDateString =
-        //       prwork!.customAttributes
-        //           .firstWhere(
-        //             (attr) => attr.attributeCode == 'special_to_date',
-        //             orElse:
-        //                 () => CustomAttribute(
-        //                   attributeCode: '',
-        //                   value: '',
-        //                 ), // Provide a default CustomAttribute
-        //           )
-        //           .value;
-
-        //   final specialPriceString =
-        //       prwork!.customAttributes
-        //           .firstWhere(
-        //             (attr) => attr.attributeCode == 'special_price',
-        //             orElse: () => CustomAttribute(attributeCode: '', value: ''),
-        //           )
-        //           .value;
-
-        //   specialFromDate =
-        //       fromDateString != ''
-        //           ? DateTime.tryParse(fromDateString)
-        //           : DateTime.tryParse('0000-00-00 00:00:00');
-
-        //   specialToDate =
-        //       toDateString != ''
-        //           ? DateTime.tryParse(toDateString)
-        //           : DateTime.tryParse('0000-00-00 00:00:00');
-
-        //   specialPrice =
-        //       specialPriceString != ''
-        //           ? double.parse(specialPriceString.toString())
-        //           : 0.00;
-
-        //   log(specialFromDate.toString());
-
-        //   log(specialToDate.toString());
-
-        //   log(specialPrice.toString());
-        // }
       } else {
         showSnackBar(
           context: context,
@@ -391,5 +335,13 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
   double get displayPrice {
     return isSpecialPriceActive && specialPrice != null ? specialPrice! : 0.00;
+  }
+
+  updateManualState() {
+    emit(ItemReplacementManualState());
+  }
+
+  updateScannerState() {
+    emit(ReplacementScannerState());
   }
 }

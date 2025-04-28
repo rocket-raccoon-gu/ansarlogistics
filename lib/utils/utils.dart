@@ -283,28 +283,38 @@ Widget getitemstat(EndPicking data, BuildContext context) {
   }
 }
 
-String getPrice(String code) {
+String getPriceFromBarcode(String code) {
   String last = code;
   String price = "00";
+
+  // Check if code starts with '00'
   if (code.startsWith('00')) {
     last = code.substring(2);
   }
+
+  // Convert to price value (divide by 1000)
   double parsedValue = double.parse(last) / 1000;
-  print(parsedValue);
-  // price = parsedValue.toString();
+
+  // Format the price string
   String priceString = parsedValue.toString();
   int dotIndex = priceString.indexOf('.');
+
   if (dotIndex != -1 && dotIndex < priceString.length - 2) {
-    // Decimal part is not zero
-    price = priceString.substring(
-      0,
-      dotIndex + 3,
-    ); // Include up to two decimal places
+    // Decimal part is not zero - include up to two decimal places
+    price = priceString.substring(0, dotIndex + 3);
   } else {
     // Decimal part is zero
     price = priceString;
   }
+
   return price;
+}
+
+String getLastSixDigits(String barcode) {
+  if (barcode.length <= 6) {
+    return barcode; // Return as-is if 6 or fewer characters
+  }
+  return barcode.substring(barcode.length - 6);
 }
 
 class ColorInfo {
@@ -731,6 +741,17 @@ String normalizeSpecialBarcode(String barcode) {
   return barcode;
 }
 
+String replaceAfterFirstSixWithZero(String barcode) {
+  if (barcode.isEmpty) return barcode; // Handle empty input
+
+  // Take first 6 digits, pad the rest with zeros
+  String firstSix = barcode.length >= 6 ? barcode.substring(0, 6) : barcode;
+  String zeros =
+      '0' * (barcode.length - firstSix.length).clamp(0, barcode.length);
+
+  return firstSix + zeros;
+}
+
 Future<int> getAndroidSdkVersion() async {
   final deviceInfo = DeviceInfoPlugin();
   final androidInfo = await deviceInfo.androidInfo;
@@ -808,7 +829,16 @@ sholoadingIndicator(BuildContext context) {
   );
 }
 
-showPickConfirmDialogue(BuildContext context, String data, Function()? onTap) {
+showPickConfirmDialogue(
+  BuildContext context,
+  String data,
+  Function()? onTap,
+  String sku,
+  String price,
+  String qty,
+  String name,
+  Function()? closeTap,
+) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -829,8 +859,12 @@ showPickConfirmDialogue(BuildContext context, String data, Function()? onTap) {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [InkWell(onTap: closeTap, child: Icon(Icons.close))],
+              ),
               Padding(
-                padding: const EdgeInsets.only(top: 25.0, bottom: 25.0),
+                padding: const EdgeInsets.only(top: 25.0, bottom: 10.0),
                 child: Text(
                   "${data}",
                   style: customTextStyle(
@@ -840,18 +874,51 @@ showPickConfirmDialogue(BuildContext context, String data, Function()? onTap) {
                 ),
               ),
 
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5.0),
+                child: Text(
+                  "$name",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5.0),
+                child: Text(
+                  "sku : $sku",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 15.0),
+                child: Text(
+                  "Price : $price",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+
               InkWell(
                 onTap: onTap,
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 10.0,
-                    vertical: 5.0,
+                    horizontal: 20.0,
+                    vertical: 10.0,
                   ),
                   decoration: BoxDecoration(
                     color: customColors().accent,
                     borderRadius: BorderRadius.circular(5.0),
                   ),
-                  child: Center(child: Text("Confirm Pick")),
+                  child: Center(child: Text("Confirm Item Pick")),
                 ),
               ),
             ],
@@ -860,6 +927,19 @@ showPickConfirmDialogue(BuildContext context, String data, Function()? onTap) {
       );
     },
   );
+}
+
+String getFirstImage(String imagesString) {
+  // Check if the string contains a comma
+  if (imagesString.contains(',')) {
+    // Split and get the first image
+    List<String> imagesList =
+        imagesString.split(',').map((img) => img.trim()).toList();
+    return imagesList.isNotEmpty ? imagesList[0] : '';
+  } else {
+    // No comma, return the string directly
+    return imagesString.trim();
+  }
 }
 
 String getcurrencyfromurl(String url) {
