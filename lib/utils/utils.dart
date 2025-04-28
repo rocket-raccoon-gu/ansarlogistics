@@ -14,15 +14,19 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as crypto;
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
+import 'package:barcode_widget/barcode_widget.dart';
 
 crypto.IV iv = crypto.IV.fromLength(16);
 
@@ -283,28 +287,38 @@ Widget getitemstat(EndPicking data, BuildContext context) {
   }
 }
 
-String getPrice(String code) {
+String getPriceFromBarcode(String code) {
   String last = code;
   String price = "00";
+
+  // Check if code starts with '00'
   if (code.startsWith('00')) {
     last = code.substring(2);
   }
+
+  // Convert to price value (divide by 1000)
   double parsedValue = double.parse(last) / 1000;
-  print(parsedValue);
-  // price = parsedValue.toString();
+
+  // Format the price string
   String priceString = parsedValue.toString();
   int dotIndex = priceString.indexOf('.');
+
   if (dotIndex != -1 && dotIndex < priceString.length - 2) {
-    // Decimal part is not zero
-    price = priceString.substring(
-      0,
-      dotIndex + 3,
-    ); // Include up to two decimal places
+    // Decimal part is not zero - include up to two decimal places
+    price = priceString.substring(0, dotIndex + 3);
   } else {
     // Decimal part is zero
     price = priceString;
   }
+
   return price;
+}
+
+String getLastSixDigits(String barcode) {
+  if (barcode.length <= 6) {
+    return barcode; // Return as-is if 6 or fewer characters
+  }
+  return barcode.substring(barcode.length - 6);
 }
 
 class ColorInfo {
@@ -731,6 +745,17 @@ String normalizeSpecialBarcode(String barcode) {
   return barcode;
 }
 
+String replaceAfterFirstSixWithZero(String barcode) {
+  if (barcode.isEmpty) return barcode; // Handle empty input
+
+  // Take first 6 digits, pad the rest with zeros
+  String firstSix = barcode.length >= 6 ? barcode.substring(0, 6) : barcode;
+  String zeros =
+      '0' * (barcode.length - firstSix.length).clamp(0, barcode.length);
+
+  return firstSix + zeros;
+}
+
 Future<int> getAndroidSdkVersion() async {
   final deviceInfo = DeviceInfoPlugin();
   final androidInfo = await deviceInfo.androidInfo;
@@ -806,6 +831,140 @@ sholoadingIndicator(BuildContext context) {
       );
     },
   );
+}
+
+showPickConfirmDialogue(
+  BuildContext context,
+  String data,
+  Function()? onTap,
+  String sku,
+  String price,
+  String qty,
+  String name,
+  Function()? closeTap,
+) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: "",
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Container();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      var curve = Curves.easeInOut.transform(animation.value);
+
+      return Transform.scale(
+        scale: curve,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [InkWell(onTap: closeTap, child: Icon(Icons.close))],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 25.0, bottom: 10.0),
+                child: Text(
+                  "${data}",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5.0),
+                child: Text(
+                  "$name",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5.0),
+                child: Text(
+                  "sku : $sku",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 15.0),
+                child: Text(
+                  "Price : $price",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ),
+
+              InkWell(
+                onTap: onTap,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 10.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: customColors().accent,
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Center(child: Text("Confirm Item Pick")),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+String getFirstImage(String imagesString) {
+  // Check if the string contains a comma
+  if (imagesString.contains(',')) {
+    // Split and get the first image
+    List<String> imagesList =
+        imagesString.split(',').map((img) => img.trim()).toList();
+    return imagesList.isNotEmpty ? imagesList[0] : '';
+  } else {
+    // No comma, return the string directly
+    return imagesString.trim();
+  }
+}
+
+class BarcodeUtils {
+  static const String _barcodeDataKey = 'barcode_data_list';
+
+  static Future<void> addBarcodeData(String data, String orderid) async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentList = await getBarcodeDataList(orderid);
+    currentList.add(data);
+    await prefs.setString(orderid, jsonEncode(currentList));
+  }
+
+  static Future<List<String>> getBarcodeDataList(String orderid) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(orderid);
+    return jsonString != null ? List<String>.from(jsonDecode(jsonString)) : [];
+  }
+
+  static String generateBarcodeSvg(String data) {
+    return Barcode.code128().toSvg(data, width: 300, height: 100);
+  }
 }
 
 String getcurrencyfromurl(String url) {

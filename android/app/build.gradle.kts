@@ -27,8 +27,8 @@ android {
         applicationId = "com.ansar.ansarlogistics"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
-        versionCode = 9
-        versionName = "2.0.8"
+        versionCode = 11
+        versionName = "2.0.10"
     }
 
     // Load keystore properties

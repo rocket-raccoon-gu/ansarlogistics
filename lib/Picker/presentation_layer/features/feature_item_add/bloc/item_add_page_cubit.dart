@@ -11,7 +11,9 @@ import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:picker_driver_api/responses/erp_data_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 import 'package:toastification/toastification.dart';
 
@@ -25,12 +27,12 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     required this.context,
     required this.data,
   }) : super(ItemAddPageStateLoading()) {
-    updatedata("", false);
+    updateFormState();
   }
 
-  // ScanResult? scanResult;
+  ErPdata? erPdata;
 
-  ProductResponse? productResponse;
+  ProductDBdata? productDBdata;
 
   Order? orderItemsResponse;
 
@@ -66,7 +68,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         getProduct(sku);
       }
     } else {
-      emit(ItemAddPageInitialState(productResponse));
+      emit(ItemAddPageInitialState(erPdata, productDBdata));
 
       showSnackBar(
         context: context,
@@ -98,88 +100,31 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
 
       log("scanned barcode.............");
 
-      final productresponse = await serviceLocator.tradingApi.getProductdata(
-        product_id: sku.toString(),
-        token: token,
-      );
+      final productresponse = await serviceLocator.tradingApi
+          .checkBarcodeDBService(endpoint: sku.toString());
 
       if (productresponse.statusCode == 200) {
         Map<String, dynamic> item = json.decode(productresponse.body);
 
-        if (item.containsKey('message')) {
+        if (item['priority'] == 1) {
+          erPdata = ErPdata.fromJson(item);
+        } else if (item['priority'] == 2) {
+          productDBdata = ProductDBdata.fromJson(item);
+        } else if (item.containsKey('suggestion')) {
           showSnackBar(
             context: context,
-            snackBar: showErrorDialogue(
-              errorMessage: item['message'],
-              duration: Duration(seconds: 10),
-            ),
+            snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
           );
-        } else {
-          productResponse = ProductResponse.fromJson(
-            jsonDecode(productresponse.body),
-          );
-          log(productresponse.toString());
-
-          final fromDateString =
-              productResponse!.customAttributes
-                  .firstWhere(
-                    (attr) => attr.attributeCode == 'special_from_date',
-                    orElse:
-                        () => CustomAttribute(
-                          attributeCode: '',
-                          value: '',
-                        ), // Provide a default CustomAttribute
-                  )
-                  .value;
-
-          final toDateString =
-              productResponse!.customAttributes
-                  .firstWhere(
-                    (attr) => attr.attributeCode == 'special_to_date',
-                    orElse:
-                        () => CustomAttribute(
-                          attributeCode: '',
-                          value: '',
-                        ), // Provide a default CustomAttribute
-                  )
-                  .value;
-
-          final specialPriceString =
-              productResponse!.customAttributes
-                  .firstWhere(
-                    (attr) => attr.attributeCode == 'special_price',
-                    orElse: () => CustomAttribute(attributeCode: '', value: ''),
-                  )
-                  .value;
-
-          specialFromDate =
-              fromDateString != ''
-                  ? DateTime.tryParse(fromDateString)
-                  : DateTime.tryParse('0000-00-00 00:00:00');
-
-          specialToDate =
-              toDateString != ''
-                  ? DateTime.tryParse(toDateString)
-                  : DateTime.tryParse('0000-00-00 00:00:00');
-
-          specialPrice =
-              specialPriceString != ''
-                  ? double.parse(specialPriceString.toString())
-                  : 0.00;
-
-          log(specialFromDate.toString());
-
-          log(specialToDate.toString());
-
-          log(specialPrice.toString());
         }
       } else {
         showSnackBar(
           context: context,
-          snackBar: showErrorDialogue(
-            errorMessage: "Barcode Not Found Please Check ..!",
-          ),
+          snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
         );
+      }
+
+      if (!isClosed) {
+        emit(ItemAddPageInitialState(erPdata, productDBdata));
       }
     } catch (e) {
       showSnackBar(
@@ -190,76 +135,78 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
       );
     }
 
-    emit(ItemAddPageInitialState(productResponse));
+    emit(ItemAddPageInitialState(erPdata, productDBdata));
   }
 
-  updateItem(int qty, BuildContext ctxt, String price) async {
+  updateItem(
+    int qty,
+    BuildContext ctxt,
+    String price,
+    String promo_price,
+    String regularprice,
+    String scannedsku1,
+    String itemname,
+  ) async {
     try {
-      String pdtype =
-          productResponse!.customAttributes
-              .where((x) => x.attributeCode == "delivery_type")
-              .first
-              .value;
+      Map<String, dynamic> body = {
+        "item_status": "new",
+        "item_id": "0",
+        "order_id": orderItemsResponse!.subgroupIdentifier,
+        "productSku": scannedsku1,
+        "productQty": qty,
+        "picker_id": UserController.userController.profile.id,
+        "shipping": 0,
+        "item_name": itemname,
+        "price": price,
+        "promo_price": promo_price,
+        "regular_price": regularprice,
+      };
 
-      if (getDelivery(pdtype) == orderItemsResponse!.type) {
-        Map<String, dynamic> body = {
-          "item_status": "new",
-          "item_id": "0",
-          "order_id": orderItemsResponse!.subgroupIdentifier,
-          "productSku": productResponse!.sku,
-          "productQty": qty,
-          "picker_id": UserController.userController.profile.id,
-          "shipping": 0,
-          "item_name": productResponse!.name,
-          "sp_price": price,
-        };
+      log(body.toString());
 
-        final response = await serviceLocator.tradingApi
-            .updateItemStatusService(body: body, token: token);
+      final response = await serviceLocator.tradingApi.updateItemStatusService(
+        body: body,
+        token: token,
+      );
 
-        if (response.statusCode == 200) {
-          showSnackBar(
-            context: context,
-            snackBar: showSuccessDialogue(message: "status updted"),
-          );
+      if (response.statusCode == 200) {
+        showSnackBar(
+          context: context,
+          snackBar: showSuccessDialogue(message: "status updted"),
+        );
 
-          eventBus.fire(DataChangedEvent("New Data from Screen B"));
+        eventBus.fire(DataChangedEvent("New Data from Screen B"));
 
-          UserController.userController.alloworderupdated = true;
+        UserController.userController.alloworderupdated = true;
 
-          // BlocProvider.of<PickerOrdersCubit>(ctxt).loadPosts(0, "");
+        // BlocProvider.of<PickerOrdersCubit>(ctxt).loadPosts(0, "");
 
-          Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(context).popUntil((route) => route.isFirst);
 
-          // context.gNavigationService.openPickerWorkspacePage(context);
+        // context.gNavigationService.openPickerWorkspacePage(context);
 
-          context.gNavigationService.openPickerOrderInnerPage(
-            context,
-            arg: {'orderitem': orderItemsResponse},
-          );
-        } else {
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(
-              errorMessage: 'Something went wrong try again....!',
-            ),
-          );
-        }
-
-        emit(ItemAddPageInitialState(productResponse));
+        context.gNavigationService.openPickerOrderInnerPage(
+          context,
+          arg: {'orderitem': orderItemsResponse},
+        );
       } else {
         showSnackBar(
           context: context,
-          snackBar: showErrorDialogue(errorMessage: 'Type Not Matching....!'),
+          snackBar: showErrorDialogue(
+            errorMessage: 'Something went wrong try again....!',
+          ),
         );
       }
-      emit(ItemAddPageErrorState(false, productResponse));
+
+      emit(ItemAddPageInitialState(erPdata, productDBdata));
+
+      // emit(ItemAddPageErrorState(false, erPdata, productDBdata));
     } catch (e) {
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(errorMessage: e.toString()),
       );
-      emit(ItemAddPageErrorState(false, productResponse));
+      emit(ItemAddPageInitialState(erPdata, productDBdata));
     }
   }
 
@@ -290,5 +237,36 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
 
   double get displayPrice {
     return isSpecialPriceActive && specialPrice != null ? specialPrice! : 0.00;
+  }
+
+  getScannedProductData(String barcodeString, bool produce) async {
+    // if (!isClosed) {
+    //   emit(ItemLoading());
+    // }
+
+    if (produce) {
+      // Replace the last 4 digits with '0'
+
+      String updatedBarcode =
+          '${barcodeString.substring(0, barcodeString.length - 6)}000000';
+
+      log(updatedBarcode);
+
+      getProduct(updatedBarcode);
+    } else {
+      getProduct(barcodeString);
+    }
+  }
+
+  updateFormState() async {
+    token = await PreferenceUtils.getDataFromShared("usertoken");
+
+    orderItemsResponse = data['order'];
+
+    emit(ItemAddFormState());
+  }
+
+  updateScannerState() {
+    emit(MobileScannerState1());
   }
 }

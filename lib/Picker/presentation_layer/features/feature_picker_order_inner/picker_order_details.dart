@@ -78,6 +78,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
                             state.tabindex,
                             state,
                             widget.orderResponseItem,
+                            state.mylist,
                           )
                         else
                           Expanded(
@@ -183,6 +184,7 @@ Widget getBody(
   int index,
   PickerOrderDetailsInitialState state,
   Order orderResponseItem,
+  List<String> list,
 ) {
   switch (index) {
     case 0:

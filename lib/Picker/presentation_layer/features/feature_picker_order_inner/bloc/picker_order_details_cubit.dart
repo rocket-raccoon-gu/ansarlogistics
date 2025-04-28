@@ -49,6 +49,8 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
   List<EndPicking> canceleditems = [];
 
+  List<String> list = [];
+
   int tabindex = 0;
 
   bool loading = false;
@@ -66,6 +68,8 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     notfounditems.clear();
     canceleditems.clear();
     tabindex = index;
+
+    list.clear();
 
     List.generate(itemslist!.assignedPicker!.length, (index) {
       if (!catlist.contains(itemslist!.assignedPicker![index].catename)) {
@@ -144,41 +148,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       topickitems.add(itemslist!.materialRequest![index]);
     });
 
-    // try {
-    //   // if (state is PickerOrderDetailsLoadingState) return;
-
-    //   if (!isClosed) {
-    //     emit(PickerOrderDetailsLoadingState());
-    //   }
-
-    // final response = await serviceLocator.tradingApi.orderItemRequestService(
-    //     orderid: orderItem.subgroupIdentifier,
-    //     pagesize: count,
-    //     currentpage: 1,
-    //     status: status,
-    //     token: token);
-
-    // if (response != null && response.statusCode == 200) {
-    //   Map<String, dynamic> data = jsonDecode(response.body);
-
-    //   if (data.containsKey('success') && data['success'] == 0) {
-    //     showSnackBar(
-    //         context: context,
-    //         snackBar: showErrorDialogue(
-    //             errorMessage: "Token got expired try again..."));
-    //   } else {
-    //     ItemListResponse itemListResponse =
-    //         ItemListResponse.fromJson(jsonDecode(response.body));
-    //     log("ok");
-
-    // log(itemslist.toString());
-
-    // splititems(itemslist!, index);
-    // } catch (e) {
-    //   log(e.toString());
-    //   if (!isClosed) {
-    //     emit(PickerOrderDetailsInitialState(index, catlist, groupedItems));
-    //   }
+    list = await BarcodeUtils.getBarcodeDataList(orderItem.subgroupIdentifier);
 
     if (!isClosed) {
       emit(
@@ -189,6 +159,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
           pickeditems,
           notfounditems,
           canceleditems,
+          list,
         ),
       );
     }
@@ -262,6 +233,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
               pickeditems,
               notfounditems,
               canceleditems,
+              list,
             ),
           );
         } else {
@@ -288,69 +260,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       );
     }
   }
-
-  // scanNormlBarcode(EndPicking endpicking) async {
-  //   ScanResult scanResult;
-
-  //   String? barcodeScanRes;
-
-  //   try {
-  //     scanResult = await BarcodeScanner.scan(
-  //         options: ScanOptions(
-  //             restrictFormat: [BarcodeFormat.code128, BarcodeFormat.ean13]));
-  //     print(scanResult.rawContent.toString() +
-  //         "------------------------------------------------------------------------");
-  //     barcodeScanRes = scanResult.rawContent;
-
-  //     if (barcodeScanRes.toString().startsWith(']C1')) {
-  //       log('contains c1');
-  //       barcodeScanRes = barcodeScanRes.toString().replaceAll(']C1', '');
-  //     } else if (barcodeScanRes.toString().startsWith('C1')) {
-  //       barcodeScanRes = barcodeScanRes.toString().replaceAll('C1', '');
-  //     }
-
-  //     log(barcodeScanRes + "---------------------");
-
-  //     String first7 = barcodeScanRes.substring(0, 7);
-
-  //     // if (endpicking.isproduce == "1" &&
-  //     //     endpicking.productSku.startsWith(first7)) {
-  //     //   // Produce Barcodes.....
-
-  //     //   String lastsix = barcodeScanRes
-  //     //       .toString()
-  //     //       .substring(barcodeScanRes.toString().length - 6);
-
-  //     //   if (barcodeScanRes != null) {
-  //     //     onTapScan(barcodeScanRes, getPrice(lastsix), true, endpicking);
-  //     //   }
-  //     // } else {
-  //     // Normal Barcodes......
-
-  //     if (barcodeScanRes.toString().trim() ==
-  //         endpicking.productSku.toString()) {
-  //       //barcode Matching....
-
-  //       showSnackBar(
-  //           context: context,
-  //           snackBar: showSuccessDialogue(message: "barcode matching"));
-
-  //       updateitemstatus('end_picking', endpicking, "0");
-  //     } else {
-  //       // barcode Not Matching...
-
-  //       showSnackBar(
-  //           context: context,
-  //           snackBar: showErrorDialogue(errorMessage: "Barcode Not Matching"));
-  //     }
-  //     // }
-  //   } catch (e) {
-  //     showSnackBar(
-  //         context: context,
-  //         snackBar: showErrorDialogue(
-  //             errorMessage: "Something went wrong please try again...!"));
-  //   }
-  // }
 
   onTapScan(String barcode, String price, bool matching, EndPicking end) {
     showPriceChangeDialogue(
@@ -571,10 +480,11 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     Map<String, dynamic> body = {};
 
     body = {
-      "item_id": endpicking.itemId,
+      "item_id": int.parse(endpicking.itemId),
       "item_status": item_status,
       "shipping": "0",
-      "price": price != "0" ? price : endpicking.price,
+      "price":
+          price != "0" ? double.parse(price) : double.parse(endpicking.price),
       "qty": endpicking.qtyOrdered,
       "reason": "",
       "picker_id": UserController.userController.profile.id,
@@ -626,6 +536,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
             pickeditems,
             notfounditems,
             canceleditems,
+            list,
           ),
         );
       }

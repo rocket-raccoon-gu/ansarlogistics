@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/ui/manual_pick.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
@@ -21,6 +22,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:toastification/toastification.dart';
 
@@ -38,161 +41,53 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
   bool loading = false;
 
+  bool ismanual = false;
+
   bool pricechange = false;
 
-  scanBarcodeNormal() async {
-    String? barcodeScanRes;
+  TextEditingController barcodeController = new TextEditingController();
 
-    ScanResult scanResult;
+  MobileScannerController cameraController = MobileScannerController();
+
+  scanBarcodeNormal(String? barcodeScanRes) async {
+    // String? barcodeScanRes;
+
+    // ScanResult scanResult;
     try {
-      await requestCameraPermission();
+      // await requestCameraPermission();
 
-      scanResult = await BarcodeScanner.scan();
-      setState(() {
-        barcodeScanRes = scanResult.rawContent;
-      });
+      // scanResult = await BarcodeScanner.scan();
+      // setState(() {
+      //   barcodeScanRes = scanResult.rawContent;
+      // });
 
-      log(barcodeScanRes!);
+      // log(barcodeScanRes!);
 
       if (barcodeScanRes != null) {
-        BlocProvider.of<OrderItemDetailsCubit>(context).updateBarcodeLog(
+        await BlocProvider.of<OrderItemDetailsCubit>(context).updateBarcodeLog(
           BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.productSku,
-          barcodeScanRes!,
+          barcodeScanRes,
+        );
+
+        await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
+          editquantity != 0
+              ? editquantity.toString()
+              : BlocProvider.of<OrderItemDetailsCubit>(
+                context,
+              ).orderItem!.qtyOrdered,
+          barcodeScanRes,
+          BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
         );
       }
 
-      int actualquantity =
-          double.parse(
-            BlocProvider.of<OrderItemDetailsCubit>(
-              context,
-            ).orderItem!.qtyOrdered,
-          ).toInt() -
-          double.parse(
-            BlocProvider.of<OrderItemDetailsCubit>(
-              context,
-            ).orderItem!.qtyCanceled,
-          ).toInt();
-
-      if (pricechange &&
-          BlocProvider.of<OrderItemDetailsCubit>(
-                context,
-              ).orderItem!.isproduce ==
-              "1") {
-        // First check if the barcode starts with the product SKU's first 7 digits
-        String first71 =
-            barcodeScanRes!.length >= 7
-                ? barcodeScanRes!.substring(0, 7)
-                : barcodeScanRes!;
-
-        if (!BlocProvider.of<OrderItemDetailsCubit>(
-          context,
-        ).orderItem!.productSku.startsWith(first71)) {
-          // Barcode doesn't match product SKU
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(
-              errorMessage: "Barcode not matching ...!",
-            ),
-          );
-          return;
-        } else {
-          // Minimum length check (need at least 7 digits to have 6 zeros + 1 digit)
-          if (barcodeScanRes!.length < 7) return barcodeScanRes;
-
-          // Get the last 7 digits
-          String lastSeven = barcodeScanRes!.substring(
-            barcodeScanRes!.length - 7,
-          );
-
-          // Check if the first 6 of the last 7 digits are '0'
-          if (lastSeven.substring(0, 6) == '000000') {
-            log("barcode with end 1 digit");
-            BlocProvider.of<OrderItemDetailsCubit>(context).updateitemstatus(
-              "end_picking",
-              editquantity.toString(),
-              "",
-              BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.price,
-            );
-          } else {
-            String first7 = barcodeScanRes!.substring(0, 7);
-
-            if (BlocProvider.of<OrderItemDetailsCubit>(
-              context,
-            ).orderItem!.productSku.startsWith(first7)) {
-              //barcode matching
-
-              setState(() {
-                isScanner = false;
-              });
-
-              String lastsix = barcodeScanRes.toString().substring(
-                barcodeScanRes.toString().length - 6,
-              );
-              if (barcodeScanRes != null) {
-                onTapScan(barcodeScanRes!, getPrice(lastsix), true);
-              }
-            } else {
-              // onTapScan(barcodeScanRes, "", false);
-              showSnackBar(
-                context: context,
-                snackBar: showErrorDialogue(
-                  errorMessage: "Barcode not matching ...!",
-                ),
-              );
-            }
-          }
-        }
-      } else {
-        log(barcodeScanRes.toString());
-
-        // barcodeScanRes = normalizeSpecialBarcode(barcodeScanRes!);
-
-        log("scanned barcode.............");
-
-        if (barcodeScanRes.toString().startsWith(']C1')) {
-          log('contains c1');
-          barcodeScanRes = barcodeScanRes.toString().replaceAll(']C1', '');
-        } else if (barcodeScanRes.toString().startsWith('C1')) {
-          barcodeScanRes = barcodeScanRes.toString().replaceAll('C1', '');
-        }
-
-        if (barcodeScanRes.toString().trim() ==
-            BlocProvider.of<OrderItemDetailsCubit>(
-              context,
-            ).orderItem!.productSku.toString()) {
-          if (mounted) {
-            if (editquantity != 0) {
-              BlocProvider.of<OrderItemDetailsCubit>(context).updateitemstatus(
-                "end_picking",
-                editquantity.toString(),
-                "",
-                BlocProvider.of<OrderItemDetailsCubit>(
-                  context,
-                ).orderItem!.price,
-              );
-            } else {
-              BlocProvider.of<OrderItemDetailsCubit>(context).updateitemstatus(
-                "end_picking",
-                actualquantity.toString(),
-                "",
-                BlocProvider.of<OrderItemDetailsCubit>(
-                  context,
-                ).orderItem!.price,
-              );
-            }
-          }
-
-          showSnackBar(
-            context: context,
-            snackBar: showSuccessDialogue(message: "Barcode Matching.."),
-          );
-        } else {
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(errorMessage: "Barcode Not Matching"),
-          );
-        }
+      if (mounted) {
+        setState(() {
+          isScanner = false;
+          // istextbarcode = false;
+        });
       }
+
+      // }
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
@@ -212,175 +107,25 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
     }
   }
 
-  /// price change dialogue
+  updateManualScan(String barcode) async {
+    try {
+      if (barcode != null) {
+        await BlocProvider.of<OrderItemDetailsCubit>(context).updateBarcodeLog(
+          BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.productSku,
+          barcode,
+        );
 
-  onTapScan(String barcode, String price, bool matching) {
-    showPriceChangeDialogue(
-      barcode,
-      price,
-      BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
-      BlocProvider.of<OrderItemDetailsCubit>(context).orderResponseItem!,
-      matching,
-      double.parse(
-        BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.qtyOrdered,
-      ).toInt(),
-    );
-  }
-
-  showPriceChangeDialogue(
-    String barcode,
-    String price,
-    EndPicking data,
-    Order order,
-    bool matching,
-    int mainqty,
-  ) {
-    if (matching) {
-      showGeneralDialog(
-        context: context,
-        barrierDismissible: true,
-        barrierLabel: "",
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return Container();
-        },
-        transitionBuilder: (context0, animation, secondaryAnimation, child) {
-          var curve = Curves.easeInOut.transform(animation.value);
-
-          return PriceChangeSheet(
-            mediaGalleryEntries: data.productImages,
-            data: data,
-            curve: curve,
-            price: price,
-            scannedbarcode: barcode,
-            confirmTap: (qty) {
-              // load = true;
-
-              double pr = double.parse(price) / mainqty;
-
-              print(pr);
-
-              print(mainqty);
-
-              if (editquantity != 0) {
-                BlocProvider.of<OrderItemDetailsCubit>(
-                  context,
-                ).updateitemstatus(
-                  "end_picking",
-                  editquantity.toString(),
-                  "",
-                  pr.toString(),
-                );
-              } else {
-                BlocProvider.of<OrderItemDetailsCubit>(
-                  context,
-                ).updateitemstatus(
-                  "end_picking",
-                  mainqty.toString(),
-                  "",
-                  pr.toString(),
-                );
-              }
-            },
-          );
-        },
-      );
-    } else {
-      showGeneralDialog(
-        context: context,
-        barrierDismissible: true,
-        barrierLabel: "",
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return Container();
-        },
-        transitionBuilder: (context, animation, secondaryAnimation, child) {
-          var curve = Curves.easeInOut.transform(animation.value);
-
-          return Transform.scale(
-            scale: curve,
-            child: AlertDialog(
-              content: StatefulBuilder(
-                builder: (context, StateSetter state) {
-                  return SizedBox(
-                    width: 100,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Stack(
-                          children: [
-                            Column(
-                              children: [
-                                // Lottie.asset('assets/update_error.json'),
-                                LoadingIndecator(),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10.0,
-                                  ),
-                                  child: Text(
-                                    "Scanned Barcode Not Matching Please Check...!",
-                                    textAlign: TextAlign.center,
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyL_Bold,
-                                      color: FontColor.FontPrimary,
-                                    ),
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        context.gNavigationService.back(
-                                          context,
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20.0,
-                                          vertical: 10.0,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: customColors().accent,
-                                          borderRadius: BorderRadius.circular(
-                                            8.0,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "Ok",
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyM_Bold,
-                                              color: FontColor.FontPrimary,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Positioned(
-                              right: 2.0,
-                              child: InkWell(
-                                onTap: () {
-                                  context.gNavigationService.back(context);
-                                },
-                                child: Icon(Icons.close),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          );
-        },
-      );
-    }
+        await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
+          editquantity != 0
+              ? editquantity.toString()
+              : BlocProvider.of<OrderItemDetailsCubit>(
+                context,
+              ).orderItem!.qtyOrdered,
+          barcode,
+          BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
+        );
+      }
+    } catch (e) {}
   }
 
   bool isScanner = false;
@@ -398,10 +143,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
         ),
       ),
       backgroundColor: Colors.white,
-      body:
-      // !isScanner
-      //     ?
-      Column(
+      body: Column(
         children: [
           Container(
             width: MediaQuery.of(context).size.width,
@@ -427,7 +169,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
               ],
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 InkWell(
                   onTap: () {
@@ -443,13 +185,38 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                 ),
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Product Details",
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
-                          color: FontColor.FontPrimary,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: Text(
+                          "Product Details",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10.0),
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              ismanual = !ismanual;
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 5.0,
+                              vertical: 5.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: customColors().accent,
+                            ),
+                            child: Center(
+                              child: Icon(Icons.barcode_reader, size: 30),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -458,602 +225,716 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
               ],
             ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  BlocConsumer<OrderItemDetailsCubit, OrderItemDetailsState>(
-                    listener: (context, state) {
-                      if (state is OrderItemDetailErrorState) {
-                        setState(() {
-                          loading = state.loading;
-                        });
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is OrderItemDetailInitialState) {
-                        // setState(() {
+          if (isScanner)
+            Expanded(
+              child: MobileScanner(
+                controller: cameraController,
+                onDetect: (capture) {
+                  final List<Barcode> barcodes = capture.barcodes;
+                  for (final barcode in barcodes) {
+                    print('Barcode found! ${barcode.rawValue}');
+                    scanBarcodeNormal(barcode.rawValue!);
+                  }
+                },
+              ),
+            )
+          else
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    BlocConsumer<OrderItemDetailsCubit, OrderItemDetailsState>(
+                      listener: (context, state) {
+                        if (state is OrderItemDetailErrorState) {
+                          setState(() {
+                            loading = state.loading;
+                          });
+                        }
+                      },
+                      builder: (context, state) {
+                        if (state is OrderItemDetailInitialState) {
+                          // setState(() {
 
-                        // });
+                          // });
 
-                        return Container(
-                          color: Colors.white,
-                          child: Column(
-                            children: [
-                              state.orderItem.productImages.isNotEmpty
-                                  ? Padding(
-                                    padding: const EdgeInsets.only(top: 6.0),
-                                    child: FutureBuilder<Map<String, dynamic>>(
-                                      future: getData(),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          Map<String, dynamic> data =
-                                              snapshot.data!;
+                          if (ismanual) {
+                            return ManualPick(
+                              orderItem: state.orderItem,
+                              counterCallback: (p0) {
+                                setState(() {
+                                  editquantity = p0;
+                                });
+                              },
+                              barcodeController: barcodeController,
+                            );
+                          } else {
+                            return Container(
+                              color: Colors.white,
+                              child: Column(
+                                children: [
+                                  state.orderItem.productImages.isNotEmpty
+                                      ? Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 6.0,
+                                        ),
+                                        child: FutureBuilder<
+                                          Map<String, dynamic>
+                                        >(
+                                          future: getData(),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasData) {
+                                              Map<String, dynamic> data =
+                                                  snapshot.data!;
 
-                                          log(data['mediapath']);
+                                              log(data['mediapath']);
 
-                                          log(
-                                            state
-                                                .orderItem
-                                                .productImages[selectedindex],
-                                          );
-
-                                          return SizedBox(
-                                            height: 275.0,
-                                            width: 275.0,
-                                            child: Center(
-                                              child: CachedNetworkImage(
-                                                imageUrl:
-                                                    "${data['mediapath']}${state.orderItem.productImages[selectedindex]}",
-                                                imageBuilder: (
-                                                  context,
-                                                  imageProvider,
-                                                ) {
-                                                  return Container(
-                                                    decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                        image: imageProvider,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                placeholder:
-                                                    (context, url) => Center(
-                                                      child: Image.asset(
-                                                        'assets/Iphone_spinner.gif',
-                                                      ),
-                                                    ),
-                                                errorWidget: (
-                                                  context,
-                                                  url,
-                                                  error,
-                                                ) {
-                                                  return Image.network(
-                                                    '${noimageurl}',
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        } else {
-                                          return SizedBox(
-                                            height: 275.0,
-                                            width: 275.0,
-                                            child: Center(
-                                              child: CachedNetworkImage(
-                                                imageUrl: "${noimageurl}",
-                                                imageBuilder: (
-                                                  context,
-                                                  imageProvider,
-                                                ) {
-                                                  return Container(
-                                                    decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                        image: imageProvider,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                placeholder:
-                                                    (context, url) => Center(
-                                                      child: Image.asset(
-                                                        'assets/Iphone_spinner.gif',
-                                                      ),
-                                                    ),
-                                                errorWidget: (
-                                                  context,
-                                                  url,
-                                                  error,
-                                                ) {
-                                                  return Image.network(
-                                                    '$noimageurl{}',
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  )
-                                  : Container(
-                                    height: 275.0,
-                                    width: 275.0,
-                                    child: Center(
-                                      child: Image.network("${noimageurl}"),
-                                    ),
-                                  ),
-                              Divider(color: customColors().fontTertiary),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                ),
-                                child: SizedBox(
-                                  height: 60,
-                                  child: FutureBuilder(
-                                    future: getData(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        Map<String, dynamic> data =
-                                            snapshot.data!;
-                                        return ListView.builder(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount:
-                                              state
-                                                  .orderItem
-                                                  .productImages
-                                                  .length +
-                                              1,
-                                          itemBuilder: (context, index) {
-                                            // return Text(state.datalist[index]['file']);
-
-                                            if (index ==
+                                              log(
                                                 state
                                                     .orderItem
-                                                    .productImages
-                                                    .length) {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8.0,
-                                                    ),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    BlocProvider.of<
-                                                      OrderItemDetailsCubit
-                                                    >(context).searchOnGoogle(
-                                                      "${state.orderItem.productName} images",
-                                                    );
-                                                  },
-                                                  child: Container(
-                                                    height: 60.0,
-                                                    width: 60.0,
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                        color: Color.fromRGBO(
-                                                          183,
-                                                          214,
-                                                          53,
-                                                          1,
+                                                    .productImages[selectedindex],
+                                              );
+
+                                              return SizedBox(
+                                                height: 275.0,
+                                                width: 275.0,
+                                                child: Center(
+                                                  child: CachedNetworkImage(
+                                                    imageUrl:
+                                                        "${data['mediapath']}${state.orderItem.productImages[selectedindex]}",
+                                                    imageBuilder: (
+                                                      context,
+                                                      imageProvider,
+                                                    ) {
+                                                      return Container(
+                                                        decoration: BoxDecoration(
+                                                          image: DecorationImage(
+                                                            image:
+                                                                imageProvider,
+                                                            fit: BoxFit.cover,
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        "More",
-                                                        style: customTextStyle(
-                                                          fontStyle:
-                                                              FontStyle
-                                                                  .BodyL_Bold,
-                                                          color:
-                                                              FontColor
-                                                                  .FontPrimary,
+                                                      );
+                                                    },
+                                                    placeholder:
+                                                        (
+                                                          context,
+                                                          url,
+                                                        ) => Center(
+                                                          child: Image.asset(
+                                                            'assets/Iphone_spinner.gif',
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
+                                                    errorWidget: (
+                                                      context,
+                                                      url,
+                                                      error,
+                                                    ) {
+                                                      return Image.network(
+                                                        '${noimageurl}',
+                                                      );
+                                                    },
                                                   ),
                                                 ),
                                               );
                                             } else {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8.0,
-                                                    ),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      selectedindex = index;
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                    height: 60.0,
-                                                    width: 60.0,
-                                                    decoration: BoxDecoration(
-                                                      border: Border(
-                                                        bottom: BorderSide(
-                                                          width: 3.0,
-                                                          color:
-                                                              selectedindex ==
-                                                                      index
-                                                                  ? Color.fromRGBO(
-                                                                    183,
-                                                                    214,
-                                                                    53,
-                                                                    1,
-                                                                  )
-                                                                  : Colors
-                                                                      .transparent,
+                                              return SizedBox(
+                                                height: 275.0,
+                                                width: 275.0,
+                                                child: Center(
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: "${noimageurl}",
+                                                    imageBuilder: (
+                                                      context,
+                                                      imageProvider,
+                                                    ) {
+                                                      return Container(
+                                                        decoration: BoxDecoration(
+                                                          image: DecorationImage(
+                                                            image:
+                                                                imageProvider,
+                                                            fit: BoxFit.cover,
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    child: Center(
-                                                      child: CachedNetworkImage(
-                                                        imageUrl:
-                                                            "${data['mediapath']}${state.orderItem.productImages[index]}",
-                                                        imageBuilder: (
-                                                          context,
-                                                          imageProvider,
-                                                        ) {
-                                                          return Container(
-                                                            decoration: BoxDecoration(
-                                                              image: DecorationImage(
-                                                                image:
-                                                                    imageProvider,
-                                                                fit:
-                                                                    BoxFit
-                                                                        .cover,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                        placeholder:
-                                                            (
-                                                              context,
-                                                              url,
-                                                            ) => Center(
-                                                              child: Image.asset(
-                                                                'assets/Iphone_spinner.gif',
-                                                              ),
-                                                            ),
-                                                        errorWidget: (
+                                                      );
+                                                    },
+                                                    placeholder:
+                                                        (
                                                           context,
                                                           url,
-                                                          error,
-                                                        ) {
-                                                          return Image.network(
-                                                            '${noimageurl}',
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
+                                                        ) => Center(
+                                                          child: Image.asset(
+                                                            'assets/Iphone_spinner.gif',
+                                                          ),
+                                                        ),
+                                                    errorWidget: (
+                                                      context,
+                                                      url,
+                                                      error,
+                                                    ) {
+                                                      return Image.network(
+                                                        '$noimageurl{}',
+                                                      );
+                                                    },
                                                   ),
                                                 ),
                                               );
                                             }
                                           },
-                                        );
-                                      } else {
-                                        return ListView.builder(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount:
-                                              state
-                                                  .orderItem
-                                                  .productImages
-                                                  .length +
-                                              1,
-                                          itemBuilder: (context, index) {
-                                            // return Text(state.datalist[index]['file']);
-
-                                            if (index ==
-                                                state
-                                                    .orderItem
-                                                    .productImages
-                                                    .length) {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8.0,
-                                                    ),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    BlocProvider.of<
-                                                      OrderItemDetailsCubit
-                                                    >(context).searchOnGoogle(
-                                                      "${state.orderItem.productName} images",
-                                                    );
-                                                  },
-                                                  child: Container(
-                                                    height: 60.0,
-                                                    width: 60.0,
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                        color: Color.fromRGBO(
-                                                          183,
-                                                          214,
-                                                          53,
-                                                          1,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        "More",
-                                                        style: customTextStyle(
-                                                          fontStyle:
-                                                              FontStyle
-                                                                  .BodyL_Bold,
-                                                          color:
-                                                              FontColor
-                                                                  .FontPrimary,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8.0,
-                                                    ),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      selectedindex = index;
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                    height: 60.0,
-                                                    width: 60.0,
-                                                    decoration: BoxDecoration(
-                                                      border: Border(
-                                                        bottom: BorderSide(
-                                                          width: 3.0,
-                                                          color:
-                                                              selectedindex ==
-                                                                      index
-                                                                  ? Color.fromRGBO(
-                                                                    183,
-                                                                    214,
-                                                                    53,
-                                                                    1,
-                                                                  )
-                                                                  : Colors
-                                                                      .transparent,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    child: Center(
-                                                      child: CachedNetworkImage(
-                                                        imageUrl:
-                                                            "${noimageurl}",
-                                                        imageBuilder: (
-                                                          context,
-                                                          imageProvider,
-                                                        ) {
-                                                          return Container(
-                                                            decoration: BoxDecoration(
-                                                              image: DecorationImage(
-                                                                image:
-                                                                    imageProvider,
-                                                                fit:
-                                                                    BoxFit
-                                                                        .cover,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                        placeholder:
-                                                            (
-                                                              context,
-                                                              url,
-                                                            ) => Center(
-                                                              child: Image.asset(
-                                                                'assets/Iphone_spinner.gif',
-                                                              ),
-                                                            ),
-                                                        errorWidget: (
-                                                          context,
-                                                          url,
-                                                          error,
-                                                        ) {
-                                                          return Image.network(
-                                                            '${noimageurl}',
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 15.0,
-                                  vertical: 10.0,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        state.orderItem.productName,
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.HeaderS_Bold,
-                                          color: FontColor.FontPrimary,
+                                        ),
+                                      )
+                                      : Container(
+                                        height: 275.0,
+                                        width: 275.0,
+                                        child: Center(
+                                          child: Image.network("${noimageurl}"),
                                         ),
                                       ),
+                                  Divider(color: customColors().fontTertiary),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
                                     ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14.0,
-                                ),
-                                child: Column(
-                                  children: [
-                                    Row(
+                                    child: SizedBox(
+                                      height: 60,
+                                      child: FutureBuilder(
+                                        future: getData(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            Map<String, dynamic> data =
+                                                snapshot.data!;
+                                            return ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount:
+                                                  state
+                                                      .orderItem
+                                                      .productImages
+                                                      .length +
+                                                  1,
+                                              itemBuilder: (context, index) {
+                                                // return Text(state.datalist[index]['file']);
+
+                                                if (index ==
+                                                    state
+                                                        .orderItem
+                                                        .productImages
+                                                        .length) {
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8.0,
+                                                        ),
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        BlocProvider.of<
+                                                          OrderItemDetailsCubit
+                                                        >(
+                                                          context,
+                                                        ).searchOnGoogle(
+                                                          "${state.orderItem.productName} images",
+                                                        );
+                                                      },
+                                                      child: Container(
+                                                        height: 60.0,
+                                                        width: 60.0,
+                                                        decoration: BoxDecoration(
+                                                          border: Border.all(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                  183,
+                                                                  214,
+                                                                  53,
+                                                                  1,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        child: Center(
+                                                          child: Text(
+                                                            "More",
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyL_Bold,
+                                                              color:
+                                                                  FontColor
+                                                                      .FontPrimary,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                } else {
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8.0,
+                                                        ),
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          selectedindex = index;
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        height: 60.0,
+                                                        width: 60.0,
+                                                        decoration: BoxDecoration(
+                                                          border: Border(
+                                                            bottom: BorderSide(
+                                                              width: 3.0,
+                                                              color:
+                                                                  selectedindex ==
+                                                                          index
+                                                                      ? Color.fromRGBO(
+                                                                        183,
+                                                                        214,
+                                                                        53,
+                                                                        1,
+                                                                      )
+                                                                      : Colors
+                                                                          .transparent,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        child: Center(
+                                                          child: CachedNetworkImage(
+                                                            imageUrl:
+                                                                "${data['mediapath']}${state.orderItem.productImages[index]}",
+                                                            imageBuilder: (
+                                                              context,
+                                                              imageProvider,
+                                                            ) {
+                                                              return Container(
+                                                                decoration: BoxDecoration(
+                                                                  image: DecorationImage(
+                                                                    image:
+                                                                        imageProvider,
+                                                                    fit:
+                                                                        BoxFit
+                                                                            .cover,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            placeholder:
+                                                                (
+                                                                  context,
+                                                                  url,
+                                                                ) => Center(
+                                                                  child: Image.asset(
+                                                                    'assets/Iphone_spinner.gif',
+                                                                  ),
+                                                                ),
+                                                            errorWidget: (
+                                                              context,
+                                                              url,
+                                                              error,
+                                                            ) {
+                                                              return Image.network(
+                                                                '${noimageurl}',
+                                                              );
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                            );
+                                          } else {
+                                            return ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount:
+                                                  state
+                                                      .orderItem
+                                                      .productImages
+                                                      .length +
+                                                  1,
+                                              itemBuilder: (context, index) {
+                                                // return Text(state.datalist[index]['file']);
+
+                                                if (index ==
+                                                    state
+                                                        .orderItem
+                                                        .productImages
+                                                        .length) {
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8.0,
+                                                        ),
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        BlocProvider.of<
+                                                          OrderItemDetailsCubit
+                                                        >(
+                                                          context,
+                                                        ).searchOnGoogle(
+                                                          "${state.orderItem.productName} images",
+                                                        );
+                                                      },
+                                                      child: Container(
+                                                        height: 60.0,
+                                                        width: 60.0,
+                                                        decoration: BoxDecoration(
+                                                          border: Border.all(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                  183,
+                                                                  214,
+                                                                  53,
+                                                                  1,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        child: Center(
+                                                          child: Text(
+                                                            "More",
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyL_Bold,
+                                                              color:
+                                                                  FontColor
+                                                                      .FontPrimary,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                } else {
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8.0,
+                                                        ),
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          selectedindex = index;
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        height: 60.0,
+                                                        width: 60.0,
+                                                        decoration: BoxDecoration(
+                                                          border: Border(
+                                                            bottom: BorderSide(
+                                                              width: 3.0,
+                                                              color:
+                                                                  selectedindex ==
+                                                                          index
+                                                                      ? Color.fromRGBO(
+                                                                        183,
+                                                                        214,
+                                                                        53,
+                                                                        1,
+                                                                      )
+                                                                      : Colors
+                                                                          .transparent,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        child: Center(
+                                                          child: CachedNetworkImage(
+                                                            imageUrl:
+                                                                "${noimageurl}",
+                                                            imageBuilder: (
+                                                              context,
+                                                              imageProvider,
+                                                            ) {
+                                                              return Container(
+                                                                decoration: BoxDecoration(
+                                                                  image: DecorationImage(
+                                                                    image:
+                                                                        imageProvider,
+                                                                    fit:
+                                                                        BoxFit
+                                                                            .cover,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            placeholder:
+                                                                (
+                                                                  context,
+                                                                  url,
+                                                                ) => Center(
+                                                                  child: Image.asset(
+                                                                    'assets/Iphone_spinner.gif',
+                                                                  ),
+                                                                ),
+                                                            errorWidget: (
+                                                              context,
+                                                              url,
+                                                              error,
+                                                            ) {
+                                                              return Image.network(
+                                                                '${noimageurl}',
+                                                              );
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 15.0,
+                                      vertical: 10.0,
+                                    ),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          "SKU: ${state.orderItem.productSku}",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.HeaderXS_Bold,
+                                        Expanded(
+                                          child: Text(
+                                            state.orderItem.productName,
+                                            style: customTextStyle(
+                                              fontStyle: FontStyle.HeaderS_Bold,
+                                              color: FontColor.FontPrimary,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            "Qty Ordered : ${double.parse(state.orderItem.qtyOrdered).toInt()}",
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyL_Bold,
-                                              color: FontColor.FontPrimary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14.0,
                                     ),
-
-                                    context
-                                            .read<OrderItemDetailsCubit>()
-                                            .productoptions!
-                                            .isNotEmpty
-                                        ? Column(
+                                    child: Column(
+                                      children: [
+                                        Row(
                                           children: [
-                                            Row(
+                                            Text(
+                                              "SKU: ${state.orderItem.productSku}",
+                                              style: customTextStyle(
+                                                fontStyle:
+                                                    FontStyle.HeaderXS_Bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "Qty Ordered : ${double.parse(state.orderItem.qtyOrdered).toInt()}",
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyL_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        context
+                                                .read<OrderItemDetailsCubit>()
+                                                .productoptions!
+                                                .isNotEmpty
+                                            ? Column(
                                               children: [
-                                                if (context
-                                                        .read<
-                                                          OrderItemDetailsCubit
-                                                        >()
-                                                        .colorOptionId !=
-                                                    "")
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        "Color",
-                                                        style: customTextStyle(
-                                                          fontStyle:
-                                                              FontStyle
-                                                                  .BodyL_Bold,
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 8.0,
+                                                Row(
+                                                  children: [
+                                                    if (context
+                                                            .read<
+                                                              OrderItemDetailsCubit
+                                                            >()
+                                                            .colorOptionId !=
+                                                        "")
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            "Color",
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyL_Bold,
                                                             ),
-                                                        child: Column(
-                                                          children: [
-                                                            Container(
-                                                              height: 20,
-                                                              width: 50,
-                                                              decoration: BoxDecoration(
-                                                                color: HexColor(
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      8.0,
+                                                                ),
+                                                            child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  height: 20,
+                                                                  width: 50,
+                                                                  decoration: BoxDecoration(
+                                                                    color: HexColor(
+                                                                      context
+                                                                          .read<
+                                                                            OrderItemDetailsCubit
+                                                                          >()
+                                                                          .colorInfo!
+                                                                          .colorCode,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Text(
                                                                   context
                                                                       .read<
                                                                         OrderItemDetailsCubit
                                                                       >()
                                                                       .colorInfo!
-                                                                      .colorCode,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              context
-                                                                  .read<
-                                                                    OrderItemDetailsCubit
-                                                                  >()
-                                                                  .colorInfo!
-                                                                  .label,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                else
-                                                  SizedBox(),
-
-                                                if (context
-                                                        .read<
-                                                          OrderItemDetailsCubit
-                                                        >()
-                                                        .carpetOptionId !=
-                                                    "")
-                                                  Row(
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 8.0,
-                                                            ),
-                                                        child: Column(
-                                                          children: [
-                                                            Container(
-                                                              padding:
-                                                                  const EdgeInsets.symmetric(
-                                                                    horizontal:
-                                                                        3.0,
-                                                                    vertical:
-                                                                        3.0,
-                                                                  ),
-                                                              decoration: BoxDecoration(
-                                                                border: Border.all(
-                                                                  color:
-                                                                      customColors()
-                                                                          .fontPrimary,
-                                                                ),
-                                                              ),
-                                                              child: Center(
-                                                                child: Text(
-                                                                  context
-                                                                      .read<
-                                                                        OrderItemDetailsCubit
-                                                                      >()
-                                                                      .carpetSizeInfo!
                                                                       .label,
                                                                 ),
-                                                              ),
+                                                              ],
                                                             ),
-                                                            Text("Size"),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                else
-                                                  SizedBox(),
-                                              ],
-                                            ),
-                                          ],
-                                        )
-                                        : SizedBox(),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    else
+                                                      SizedBox(),
 
-                                    // state.orderItem.itemStatus ==
-                                    //             "end_picking" ||
-                                    state.orderItem.itemStatus ==
-                                            "item_not_available"
-                                        ? Padding(
+                                                    if (context
+                                                            .read<
+                                                              OrderItemDetailsCubit
+                                                            >()
+                                                            .carpetOptionId !=
+                                                        "")
+                                                      Row(
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      8.0,
+                                                                ),
+                                                            child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding:
+                                                                      const EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            3.0,
+                                                                        vertical:
+                                                                            3.0,
+                                                                      ),
+                                                                  decoration: BoxDecoration(
+                                                                    border: Border.all(
+                                                                      color:
+                                                                          customColors()
+                                                                              .fontPrimary,
+                                                                    ),
+                                                                  ),
+                                                                  child: Center(
+                                                                    child: Text(
+                                                                      context
+                                                                          .read<
+                                                                            OrderItemDetailsCubit
+                                                                          >()
+                                                                          .carpetSizeInfo!
+                                                                          .label,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Text("Size"),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    else
+                                                      SizedBox(),
+                                                  ],
+                                                ),
+                                              ],
+                                            )
+                                            : SizedBox(),
+
+                                        // state.orderItem.itemStatus ==
+                                        //             "end_picking" ||
+                                        state.orderItem.itemStatus ==
+                                                "item_not_available"
+                                            ? Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12.0,
+                                                  ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    "Quantity",
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle
+                                                              .HeaderXS_Bold,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 15,
+                                                        ),
+                                                    child: Text(
+                                                      (double.parse(
+                                                                state
+                                                                    .orderItem
+                                                                    .qtyOrdered,
+                                                              ).toInt() -
+                                                              double.parse(
+                                                                state
+                                                                    .orderItem
+                                                                    .qtyCanceled,
+                                                              ).toInt())
+                                                          .toString(),
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .BodyL_Bold,
+                                                        color:
+                                                            FontColor
+                                                                .FontPrimary,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                            : Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12.0,
+                                                  ),
+                                              child: CounterDropdown(
+                                                initNumber: editquantity,
+                                                counterCallback: (v) {
+                                                  setState(() {
+                                                    // qtylist[index]['qty'] = v;
+                                                    // editquantity = v;
+
+                                                    editquantity = v;
+                                                  });
+                                                },
+                                                maxNumber: 100,
+                                                minNumber: 0,
+                                              ),
+                                            ),
+                                        Padding(
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 12.0,
                                           ),
@@ -1062,481 +943,422 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                "Quantity",
+                                                "Price",
                                                 style: customTextStyle(
                                                   fontStyle:
                                                       FontStyle.HeaderXS_Bold,
                                                 ),
                                               ),
                                               Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 15,
+                                                padding: const EdgeInsets.only(
+                                                  top: 5.0,
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                      double.parse(
+                                                        state.orderItem.price,
+                                                      ).toStringAsFixed(2),
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .HeaderXS_Bold,
+                                                        color:
+                                                            FontColor
+                                                                .FontPrimary,
+                                                      ),
                                                     ),
-                                                child: Text(
-                                                  (double.parse(
-                                                            state
-                                                                .orderItem
-                                                                .qtyOrdered,
-                                                          ).toInt() -
-                                                          double.parse(
-                                                            state
-                                                                .orderItem
-                                                                .qtyCanceled,
-                                                          ).toInt())
-                                                      .toString(),
-                                                  style: customTextStyle(
-                                                    fontStyle:
-                                                        FontStyle.BodyL_Bold,
-                                                    color:
-                                                        FontColor.FontPrimary,
-                                                  ),
+                                                    Text(
+                                                      " QAR",
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .HeaderXS_Bold,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
-                                          ),
-                                        )
-                                        : Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 12.0,
-                                          ),
-                                          child: CounterDropdown(
-                                            initNumber:
-                                                (double.parse(
-                                                      state
-                                                          .orderItem
-                                                          .qtyOrdered,
-                                                    ).toInt() -
-                                                    double.parse(
-                                                      state
-                                                          .orderItem
-                                                          .qtyCanceled,
-                                                    ).toInt()),
-                                            counterCallback: (v) {
-                                              setState(() {
-                                                // qtylist[index]['qty'] = v;
-                                                // editquantity = v;
-
-                                                editquantity = v;
-                                              });
-                                            },
-                                            maxNumber: 100,
-                                            minNumber: 0,
                                           ),
                                         ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12.0,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Price",
-                                            style: customTextStyle(
-                                              fontStyle:
-                                                  FontStyle.HeaderXS_Bold,
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 5.0,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  double.parse(
-                                                    state.orderItem.price,
-                                                  ).toStringAsFixed(2),
-                                                  style: customTextStyle(
-                                                    fontStyle:
-                                                        FontStyle.HeaderXS_Bold,
-                                                    color:
-                                                        FontColor.FontPrimary,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  " QAR",
-                                                  style: customTextStyle(
-                                                    fontStyle:
-                                                        FontStyle.HeaderXS_Bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
 
-                                    // widget.data['condition'] &&
-                                    state.orderItem.itemStatus !=
-                                                "end_picking" &&
-                                            !UserController
-                                                .userController
-                                                .itemnotavailablelist
-                                                .contains(state.orderItem) &&
-                                            !UserController
-                                                .userController
-                                                .indexlist
-                                                .contains(state.orderItem) &&
-                                            state.orderItem.isproduce == "1"
-                                        ? Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 5.0,
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                "Price Change ?",
-                                                style: customTextStyle(
-                                                  fontStyle:
-                                                      FontStyle.HeaderXS_Bold,
-                                                ),
+                                        // widget.data['condition'] &&
+                                        !UserController
+                                                    .userController
+                                                    .itemnotavailablelist
+                                                    .contains(
+                                                      state.orderItem,
+                                                    ) &&
+                                                state.orderItem.isproduce == "1"
+                                            ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 5.0,
                                               ),
-                                              Checkbox(
-                                                value: pricechange,
-                                                onChanged: (val) {
-                                                  setState(() {
-                                                    pricechange = val!;
-                                                  });
-                                                },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    "Is Produce ?",
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle
+                                                              .HeaderXS_Bold,
+                                                    ),
+                                                  ),
+                                                  Checkbox(
+                                                    value: pricechange,
+                                                    onChanged: (val) {
+                                                      setState(() {
+                                                        pricechange = val!;
+                                                      });
+                                                    },
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                        )
-                                        : SizedBox(),
-                                  ],
-                                ),
+                                            )
+                                            : SizedBox(),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      } else if (state is OrderItemDetailErrorState) {
-                        return Container(
-                          color: HexColor('#F9FBFF'),
-                          child: Column(
-                            children: [
-                              state.orderItem.productImages.isNotEmpty
-                                  ? Padding(
-                                    padding: const EdgeInsets.only(top: 6.0),
-                                    child: Container(
+                            );
+                          }
+                        } else if (state is OrderItemDetailErrorState) {
+                          return Container(
+                            color: HexColor('#F9FBFF'),
+                            child: Column(
+                              children: [
+                                state.orderItem.productImages.isNotEmpty
+                                    ? Padding(
+                                      padding: const EdgeInsets.only(top: 6.0),
+                                      child: Container(
+                                        height: 275.0,
+                                        width: 275.0,
+                                        child: Center(
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                "${mainimageurl}${state.orderItem.productImages[selectedindex]}",
+                                            imageBuilder: (
+                                              context,
+                                              imageProvider,
+                                            ) {
+                                              return Container(
+                                                decoration: BoxDecoration(
+                                                  image: DecorationImage(
+                                                    image: imageProvider,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            placeholder:
+                                                (context, url) => Center(
+                                                  child: Image.asset(
+                                                    'assets/Iphone_spinner.gif',
+                                                  ),
+                                                ),
+                                            errorWidget: (context, url, error) {
+                                              return Image.network(
+                                                '${noimageurl}',
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    : Container(
                                       height: 275.0,
                                       width: 275.0,
                                       child: Center(
-                                        child: CachedNetworkImage(
-                                          imageUrl:
-                                              "${mainimageurl}${state.orderItem.productImages[selectedindex]}",
-                                          imageBuilder: (
-                                            context,
-                                            imageProvider,
-                                          ) {
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                  image: imageProvider,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          placeholder:
-                                              (context, url) => Center(
-                                                child: Image.asset(
-                                                  'assets/Iphone_spinner.gif',
-                                                ),
-                                              ),
-                                          errorWidget: (context, url, error) {
-                                            return Image.network(
-                                              '${noimageurl}',
-                                            );
-                                          },
-                                        ),
+                                        child: Image.network("${noimageurl}"),
                                       ),
                                     ),
-                                  )
-                                  : Container(
-                                    height: 275.0,
-                                    width: 275.0,
-                                    child: Center(
-                                      child: Image.network("${noimageurl}"),
-                                    ),
+                                Divider(color: customColors().fontTertiary),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
                                   ),
-                              Divider(color: customColors().fontTertiary),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                ),
-                                child: SizedBox(
-                                  height: 60,
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount:
-                                        state.orderItem.productImages.length,
-                                    itemBuilder: (context, index) {
-                                      // return Text(state.datalist[index]['file']);
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                        ),
-                                        child: InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedindex = index;
-                                            });
-                                          },
-                                          child: Container(
-                                            height: 60.0,
-                                            width: 60.0,
-                                            decoration: BoxDecoration(
-                                              border: Border(
-                                                bottom: BorderSide(
-                                                  width: 3.0,
-                                                  color:
-                                                      selectedindex == index
-                                                          ? Color.fromRGBO(
-                                                            183,
-                                                            214,
-                                                            53,
-                                                            1,
-                                                          )
-                                                          : Colors.transparent,
-                                                ),
-                                              ),
-                                            ),
-                                            child: Center(
-                                              child: CachedNetworkImage(
-                                                imageUrl: "${noimageurl}",
-                                                imageBuilder: (
-                                                  context,
-                                                  imageProvider,
-                                                ) {
-                                                  return Container(
-                                                    decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                        image: imageProvider,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                placeholder:
-                                                    (context, url) => Center(
-                                                      child: Image.asset(
-                                                        'assets/Iphone_spinner.gif',
-                                                      ),
-                                                    ),
-                                                errorWidget: (
-                                                  context,
-                                                  url,
-                                                  error,
-                                                ) {
-                                                  return Image.network(
-                                                    '${noimageurl}',
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 15.0,
-                                  vertical: 10.0,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        state.orderItem.productName,
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.HeaderS_Bold,
-                                          color: FontColor.FontPrimary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14.0,
-                                ),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "SKU: ${state.orderItem.productSku}",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.HeaderXS_Bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    state.orderItem.itemStatus ==
-                                                "end_picking" ||
-                                            state.orderItem.itemStatus ==
-                                                "item_not_available"
-                                        ? Padding(
+                                  child: SizedBox(
+                                    height: 60,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount:
+                                          state.orderItem.productImages.length,
+                                      itemBuilder: (context, index) {
+                                        // return Text(state.datalist[index]['file']);
+                                        return Padding(
                                           padding: const EdgeInsets.symmetric(
-                                            vertical: 12.0,
+                                            horizontal: 8.0,
                                           ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                "Quantity",
-                                                style: customTextStyle(
-                                                  fontStyle:
-                                                      FontStyle.HeaderXS_Bold,
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 15,
-                                                    ),
-                                                child: Text(
-                                                  (double.parse(
-                                                            state
-                                                                .orderItem
-                                                                .qtyOrdered,
-                                                          ).toInt() -
-                                                          double.parse(
-                                                            state
-                                                                .orderItem
-                                                                .qtyCanceled,
-                                                          ).toInt())
-                                                      .toString(),
-                                                  style: customTextStyle(
-                                                    fontStyle:
-                                                        FontStyle.BodyL_Bold,
+                                          child: InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                selectedindex = index;
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 60.0,
+                                              width: 60.0,
+                                              decoration: BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(
+                                                    width: 3.0,
                                                     color:
-                                                        FontColor.FontPrimary,
+                                                        selectedindex == index
+                                                            ? Color.fromRGBO(
+                                                              183,
+                                                              214,
+                                                              53,
+                                                              1,
+                                                            )
+                                                            : Colors
+                                                                .transparent,
                                                   ),
                                                 ),
                                               ),
-                                            ],
+                                              child: Center(
+                                                child: CachedNetworkImage(
+                                                  imageUrl: "${noimageurl}",
+                                                  imageBuilder: (
+                                                    context,
+                                                    imageProvider,
+                                                  ) {
+                                                    return Container(
+                                                      decoration: BoxDecoration(
+                                                        image: DecorationImage(
+                                                          image: imageProvider,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  placeholder:
+                                                      (context, url) => Center(
+                                                        child: Image.asset(
+                                                          'assets/Iphone_spinner.gif',
+                                                        ),
+                                                      ),
+                                                  errorWidget: (
+                                                    context,
+                                                    url,
+                                                    error,
+                                                  ) {
+                                                    return Image.network(
+                                                      '${noimageurl}',
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        )
-                                        : Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 12.0,
-                                          ),
-                                          child: CounterDropdown(
-                                            initNumber: 0,
-                                            counterCallback: (v) {
-                                              setState(() {
-                                                // qtylist[index]['qty'] = v;
-                                                // editquantity = v;
-
-                                                editquantity = v;
-                                              });
-                                            },
-                                            maxNumber: 100,
-                                            minNumber: 0,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0,
+                                    vertical: 10.0,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          state.orderItem.productName,
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.HeaderS_Bold,
+                                            color: FontColor.FontPrimary,
                                           ),
                                         ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12.0,
                                       ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14.0,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Row(
                                         children: [
                                           Text(
-                                            "Price",
+                                            "SKU: ${state.orderItem.productSku}",
                                             style: customTextStyle(
                                               fontStyle:
                                                   FontStyle.HeaderXS_Bold,
                                             ),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 5.0,
+                                        ],
+                                      ),
+                                      state.orderItem.itemStatus ==
+                                                  "end_picking" ||
+                                              state.orderItem.itemStatus ==
+                                                  "item_not_available"
+                                          ? Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12.0,
                                             ),
                                             child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(
-                                                  double.parse(
-                                                    state.orderItem.price,
-                                                  ).toStringAsFixed(2),
+                                                  "Quantity",
                                                   style: customTextStyle(
                                                     fontStyle:
                                                         FontStyle.HeaderXS_Bold,
-                                                    color:
-                                                        FontColor.FontPrimary,
                                                   ),
                                                 ),
-                                                Text(
-                                                  " QAR",
-                                                  style: customTextStyle(
-                                                    fontStyle:
-                                                        FontStyle.HeaderXS_Bold,
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 15,
+                                                      ),
+                                                  child: Text(
+                                                    (double.parse(
+                                                              state
+                                                                  .orderItem
+                                                                  .qtyOrdered,
+                                                            ).toInt() -
+                                                            double.parse(
+                                                              state
+                                                                  .orderItem
+                                                                  .qtyCanceled,
+                                                            ).toInt())
+                                                        .toString(),
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle.BodyL_Bold,
+                                                      color:
+                                                          FontColor.FontPrimary,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
                                             ),
+                                          )
+                                          : Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12.0,
+                                            ),
+                                            child: CounterDropdown(
+                                              initNumber: 0,
+                                              counterCallback: (v) {
+                                                setState(() {
+                                                  // qtylist[index]['qty'] = v;
+                                                  // editquantity = v;
+
+                                                  editquantity = v;
+                                                });
+                                              },
+                                              maxNumber: 100,
+                                              minNumber: 0,
+                                            ),
                                           ),
-                                        ],
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12.0,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Price",
+                                              style: customTextStyle(
+                                                fontStyle:
+                                                    FontStyle.HeaderXS_Bold,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 5.0,
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    double.parse(
+                                                      state.orderItem.price,
+                                                    ).toStringAsFixed(2),
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle
+                                                              .HeaderXS_Bold,
+                                                      color:
+                                                          FontColor.FontPrimary,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    " QAR",
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle
+                                                              .HeaderXS_Bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    // widget.data['condition'] &&
-                                    state.orderItem.itemStatus != "end_picking"
-                                        ? Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 5.0,
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                "Update Price",
-                                                style: customTextStyle(
-                                                  fontStyle:
-                                                      FontStyle.HeaderXS_Bold,
+                                      // widget.data['condition'] &&
+                                      state.orderItem.itemStatus !=
+                                              "end_picking"
+                                          ? Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 5.0,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "Update Price",
+                                                  style: customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle.HeaderXS_Bold,
+                                                  ),
                                                 ),
-                                              ),
-                                              InkWell(
-                                                onTap: () {
-                                                  // scanBarcodeNormal();
-                                                },
-                                                child: Image.asset(
-                                                  "assets/scanner_icon.png",
+                                                InkWell(
+                                                  onTap: () {
+                                                    // scanBarcodeNormal();
+                                                    setState(() {
+                                                      isScanner = true;
+                                                    });
+                                                  },
+                                                  child: Image.asset(
+                                                    "assets/scanner_icon.png",
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                        : SizedBox(),
-                                  ],
+                                              ],
+                                            ),
+                                          )
+                                          : SizedBox(),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      } else {
-                        return Container();
-                      }
-                    },
-                  ),
-                ],
+                              ],
+                            ),
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
 
@@ -1714,7 +1536,21 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                             child: InkWell(
                               onTap: () async {
                                 if (editquantity != 0) {
-                                  scanBarcodeNormal();
+                                  if (ismanual) {
+                                    updateManualScan(
+                                      barcodeController.text.toString(),
+                                    );
+                                  } else {
+                                    var status = await Permission.camera.status;
+                                    if (!status.isGranted) {
+                                      await requestCameraPermission();
+                                    }
+
+                                    // scanBarcodeNormal();
+                                    setState(() {
+                                      isScanner = !isScanner;
+                                    });
+                                  }
                                 } else {
                                   showSnackBar(
                                     context: context,

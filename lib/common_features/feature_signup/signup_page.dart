@@ -112,7 +112,7 @@ class _SignupPageState extends State<SignupPage> {
       body: BlocBuilder<SignupPageCubit, SignupPageState>(
         builder: (context, state) {
           if (state is SignupPageLoadingState) {
-            return const CircularProgressIndicator();
+            return Center(child: const CircularProgressIndicator());
           }
 
           if (state is SignupPageErrorState) {
@@ -301,14 +301,14 @@ class _SignupPageState extends State<SignupPage> {
                             //
                             //
                             // employee id
-                            CustomTextFormField(
-                              context: context,
-                              controller: employeeidController,
-                              fieldName: "Employee ID",
-                              hintText: "Enter your employee ID",
-                              validator: Validator.defaultValidator,
-                              enabled: false,
-                            ),
+                            // CustomTextFormField(
+                            //   context: context,
+                            //   controller: employeeidController,
+                            //   fieldName: "Employee ID",
+                            //   hintText: "Enter your employee ID",
+                            //   validator: Validator.defaultValidator,
+                            //   enabled: false,
+                            // ),
                             //
                             //
                             // emailid
@@ -441,50 +441,28 @@ class _SignupPageState extends State<SignupPage> {
                                                     customColors().fontTertiary,
                                               ),
                                             ),
-                                            child: BlocBuilder<
-                                              SignupPageCubit,
-                                              SignupPageState
-                                            >(
-                                              builder: (context, state) {
-                                                final cubit =
-                                                    context
-                                                        .read<
-                                                          SignupPageCubit
-                                                        >();
-
-                                                // Create a unique key for each company by combining id and name
-                                                final companyItems =
-                                                    cubit.companylist.map((
-                                                      company,
-                                                    ) {
-                                                      final uniqueValue =
-                                                          '${company['id']}_${company['name']}';
-                                                      return DropdownMenuItem<
-                                                        String
-                                                      >(
-                                                        value: uniqueValue,
-                                                        child: Text(
-                                                          company['name']
-                                                                  ?.toString() ??
-                                                              'Unknown',
-                                                          style: customTextStyle(
-                                                            fontStyle:
-                                                                FontStyle
-                                                                    .BodyM_Bold,
-                                                            color:
-                                                                FontColor
-                                                                    .FontPrimary,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }).toList();
-
-                                                // Add default option with unique null value
-                                                companyItems.insert(
-                                                  0,
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton2<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  "Select Company",
+                                                  style: customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle.BodyM_Bold,
+                                                    color:
+                                                        FontColor.FontPrimary,
+                                                  ),
+                                                ),
+                                                value:
+                                                    company == null ||
+                                                            company ==
+                                                                "Select Company"
+                                                        ? null
+                                                        : company,
+                                                items: [
+                                                  // Default option
                                                   DropdownMenuItem<String>(
-                                                    value:
-                                                        'null_select_company',
+                                                    value: null,
                                                     child: Text(
                                                       "Select Company",
                                                       style: customTextStyle(
@@ -497,96 +475,67 @@ class _SignupPageState extends State<SignupPage> {
                                                       ),
                                                     ),
                                                   ),
-                                                );
-
-                                                // Convert current company value to unique key if needed
-                                                String? currentValue;
-                                                if (company == null ||
-                                                    company ==
-                                                        "Select Company") {
-                                                  currentValue =
-                                                      'null_select_company';
-                                                } else {
-                                                  final matchingCompany = cubit
-                                                      .companylist
-                                                      .firstWhere(
-                                                        (c) =>
-                                                            c['name'] ==
-                                                            company,
-                                                        orElse: () => {},
-                                                      );
-                                                  if (matchingCompany
-                                                      .isNotEmpty) {
-                                                    currentValue =
-                                                        '${matchingCompany['id']}_${matchingCompany['name']}';
+                                                  // Company options - accessed directly from your existing bloc state
+                                                  ...state.companyList.map((
+                                                    company,
+                                                  ) {
+                                                    return DropdownMenuItem<
+                                                      String
+                                                    >(
+                                                      value:
+                                                          company['name']
+                                                              ?.toString(),
+                                                      child: Text(
+                                                        company['name']
+                                                                ?.toString() ??
+                                                            'Unknown',
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .BodyM_Bold,
+                                                          color:
+                                                              FontColor
+                                                                  .FontPrimary,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                ],
+                                                onChanged: (
+                                                  String? selectedValue,
+                                                ) {
+                                                  if (selectedValue == null) {
+                                                    showSnackBar(
+                                                      context: context,
+                                                      snackBar: showErrorDialogue(
+                                                        errorMessage:
+                                                            "Please Select Company..!",
+                                                      ),
+                                                    );
+                                                    return;
                                                   }
-                                                }
-
-                                                return DropdownButtonHideUnderline(
-                                                  child: DropdownButton2<
-                                                    String
-                                                  >(
-                                                    isExpanded: true,
-                                                    hint: Text(
-                                                      "Select Company",
-                                                      style: customTextStyle(
-                                                        fontStyle:
-                                                            FontStyle
-                                                                .BodyM_Bold,
-                                                        color:
-                                                            FontColor
-                                                                .FontPrimary,
+                                                  setState(() {
+                                                    company = selectedValue;
+                                                  });
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                            horizontal: 16,
+                                                          ),
+                                                    ),
+                                                dropdownStyleData:
+                                                    DropdownStyleData(
+                                                      maxHeight: 200,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              5,
+                                                            ),
                                                       ),
                                                     ),
-                                                    items: companyItems,
-                                                    value: currentValue,
-                                                    onChanged: (
-                                                      String? selectedValue,
-                                                    ) {
-                                                      if (selectedValue !=
-                                                              null &&
-                                                          selectedValue !=
-                                                              'null_select_company') {
-                                                        // Extract the company name from the unique value
-                                                        final companyName =
-                                                            selectedValue
-                                                                .split('_')
-                                                                .sublist(1)
-                                                                .join('_');
-                                                        setState(() {
-                                                          company = companyName;
-                                                        });
-                                                      } else {
-                                                        showSnackBar(
-                                                          context: context,
-                                                          snackBar:
-                                                              showErrorDialogue(
-                                                                errorMessage:
-                                                                    "Please Select Company..!",
-                                                              ),
-                                                        );
-                                                      }
-                                                    },
-                                                    buttonStyleData:
-                                                        const ButtonStyleData(
-                                                          padding:
-                                                              EdgeInsets.symmetric(
-                                                                horizontal: 16,
-                                                              ),
-                                                        ),
-                                                    dropdownStyleData:
-                                                        DropdownStyleData(
-                                                          maxHeight: 200,
-                                                          decoration: BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  5,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                  ),
-                                                );
-                                              },
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -971,11 +920,11 @@ class _SignupPageState extends State<SignupPage> {
                             } else {
                               final info = await PackageInfo.fromPlatform();
 
-                              _packageInfo = info;
+                              // _packageInfo = info;
 
                               Map<String, dynamic> driverData = {
                                 "employee_id":
-                                    employeeidController.text.toString(),
+                                    context.read<SignupPageCubit>().currentid,
                                 "name": nameController.text.toString(),
                                 "email": emailidController.text.toString(),
                                 "mobile_number":

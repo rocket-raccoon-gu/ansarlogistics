@@ -243,7 +243,7 @@ extension PDGeneralApi on PickerDriverApi {
   }) {
     //
     Uri url = Uri.parse(
-      _endpointWithApplicationPathString('updateOrderItemV2.php'),
+      'https://pickerdriver.testuatah.com/v1/api/qatar/updateOrderItemV1.php',
     );
     //
     //
@@ -265,7 +265,7 @@ extension PDGeneralApi on PickerDriverApi {
         },
       );
     } catch (e) {
-      serviceSendError("update items status service Error");
+      serviceSendError("update items status service Error $e");
       rethrow;
     }
   }
@@ -921,6 +921,23 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future<http.Response> checkBarcodeDB({required String endpoint}) async {
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+    };
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
   Future<String> getSectionData(String user, int catid) async {
     // Uri urlorder;
     String url = _endpointWithApplicationPathSection(user, catid);
@@ -1113,7 +1130,7 @@ extension on PickerDriverApi {
         // return '${productUrl1}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=793,782,781&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,visibility,status,extension_attributes,media_gallery_entries]';
         return '${root}get_section_data.php?category_ids=793,782,781';
       case "ahqa_veg":
-        return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1215,1216,1207,1219,1226,1220,1230,1228,1231';
+        return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1214,1215,1216,1207,1219,1226,1220,1230,1228,1231';
       case "veg_rawdah":
         return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
       case "veg_rayyan":
