@@ -158,6 +158,18 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         UserController.userController.indexlist.add(orderItem!);
         UserController.userController.pickerindexlist.add(orderItem!.itemId);
 
+        // Generate and save barcode before making the API call
+        await BarcodeUtils.addBarcodeData(
+          scannedSku,
+          orderResponseItem!.subgroupIdentifier,
+        );
+
+        List<String> list = await BarcodeUtils.getBarcodeDataList(
+          orderResponseItem!.subgroupIdentifier,
+        );
+
+        log(list.toString());
+
         // UserController.userController.alloworderupdated = true;
 
         showSnackBar(

@@ -21,8 +21,17 @@ class PickerOrderDetailsInitialState extends PickerOrderDetailsState {
 
   List<EndPicking> canceleditems = [];
 
-  PickerOrderDetailsInitialState(this.tabindex, this.catlist, this.topickitems,
-      this.pickeditems, this.notfounditems, this.canceleditems);
+  List<String> mylist = [];
+
+  PickerOrderDetailsInitialState(
+    this.tabindex,
+    this.catlist,
+    this.topickitems,
+    this.pickeditems,
+    this.notfounditems,
+    this.canceleditems,
+    this.mylist,
+  );
 }
 
 class PickerOrderDetailsLoadingState extends PickerOrderDetailsState {

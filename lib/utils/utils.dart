@@ -14,15 +14,19 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as crypto;
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
+import 'package:barcode_widget/barcode_widget.dart';
 
 crypto.IV iv = crypto.IV.fromLength(16);
 
@@ -939,6 +943,27 @@ String getFirstImage(String imagesString) {
   } else {
     // No comma, return the string directly
     return imagesString.trim();
+  }
+}
+
+class BarcodeUtils {
+  static const String _barcodeDataKey = 'barcode_data_list';
+
+  static Future<void> addBarcodeData(String data, String orderid) async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentList = await getBarcodeDataList(orderid);
+    currentList.add(data);
+    await prefs.setString(orderid, jsonEncode(currentList));
+  }
+
+  static Future<List<String>> getBarcodeDataList(String orderid) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(orderid);
+    return jsonString != null ? List<String>.from(jsonDecode(jsonString)) : [];
+  }
+
+  static String generateBarcodeSvg(String data) {
+    return Barcode.code128().toSvg(data, width: 300, height: 100);
   }
 }
 
