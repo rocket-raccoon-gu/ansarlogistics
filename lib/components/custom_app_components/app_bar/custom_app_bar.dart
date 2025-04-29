@@ -10,6 +10,7 @@ import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomAppBar extends StatefulWidget {
@@ -44,33 +45,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
             children: [
               Flexible(
                 child: InkWell(
-                  onTap: () async {
-                    Position position = await Geolocator.getCurrentPosition(
-                      desiredAccuracy: LocationAccuracy.high,
-                    );
+                  onTap: () async {},
 
-                    showSnackBar(
-                      context: context,
-                      snackBar: showSuccessDialogue(
-                        message: '${position.latitude},${position.longitude}',
-                      ),
-                    );
-                  },
-                  // child: Text(
-                  //   // "${getTranslate(context, 'Hi')}, ${UserController.userController.profile.name}",
-                  //   "Hi, ${UserController.userController.profile.name}",
-                  //   style: customTextStyle(
-                  //     fontStyle: FontStyle.BodyL_SemiBold_lato,
-                  //     color: FontColor.FontPrimary,
-                  //   ),
-                  //   maxLines:
-                  //       2, // Allow the text to be displayed in up to 2 lines
-                  //   softWrap: true, // Enable text wrapping
-                  //   overflow:
-                  //       TextOverflow.ellipsis, // Handle overflow with ellipsis
-                  // ),
-                  child: TranslatedText(
-                    text: "Hi, ${UserController.userController.profile.name}",
+                  child: Text(
+                    "Hi, ${UserController.userController.profile.name}",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_SemiBold_lato,
                       color: FontColor.FontPrimary,
@@ -82,34 +60,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 ),
               ),
 
-              // Flexible(
-              //   child: FutureBuilder<String?>(
-              //     future: getTranslateto(UserController
-              //         .userController.profile.name), // Pass the keyword here
-              //     builder: (context, snapshot) {
-              //       if (snapshot.connectionState == ConnectionState.waiting) {
-              //         return CircularProgressIndicator(); // Show a loading indicator while waiting for translation
-              //       } else if (snapshot.hasError) {
-              //         return Text(
-              //             'Error: ${snapshot.error}'); // Handle any errors
-              //       } else if (snapshot.hasData) {
-              //         return Text(
-              //           "${getTranslate(context, 'Hi')},${snapshot.data}", // Display the translated text
-              //           style: customTextStyle(
-              //             fontStyle: FontStyle.BodyL_SemiBold_lato,
-              //             color: FontColor.FontPrimary,
-              //           ),
-              //           maxLines: 2,
-              //           softWrap: true,
-              //           overflow: TextOverflow.ellipsis,
-              //         );
-              //       } else {
-              //         return Text(
-              //             "Translation not available"); // Handle null or no translation
-              //       }
-              //     },
-              //   ),
-              // ),
               !widget.isphoto
                   ? Flexible(
                     child: Row(

@@ -16,7 +16,7 @@ class CustomTextFormField extends StatefulWidget {
   final String fieldName;
   final String? hintText;
   final String defaultErrorMessage;
-
+  final bool enablesuggesion;
   final Widget? maxLengthEnforcement;
   final TextInputType? keyboardType;
   // final ValueChanged<String>? onchangedAction;
@@ -67,6 +67,7 @@ class CustomTextFormField extends StatefulWidget {
     required this.fieldName,
     this.hintText = " ",
     this.defaultErrorMessage = "Please fill valid data",
+    this.enablesuggesion = false,
     this.maxLength,
     this.validator,
     this.prefixIcon,
@@ -142,7 +143,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             // onFieldSubmitted: (value) {
             //   //     if (widget.keyboardAction != null) widget.keyboardAction!();
             // },
-            enableSuggestions: false,
+            enableSuggestions: widget.enablesuggesion,
             autocorrect: false,
             keyboardType: widget.keyboardType,
             minLines: widget.maxLines ?? 1,

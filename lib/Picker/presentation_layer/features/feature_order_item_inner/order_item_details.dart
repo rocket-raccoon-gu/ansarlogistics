@@ -6,6 +6,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/ui/manual_pick.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/components/custom_app_components/app_bar/order_inner_app_bar.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/price_change_sheet.dart';
@@ -130,6 +131,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
   bool isScanner = false;
 
+  bool isTranslate = false;
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -197,6 +200,13 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                           ),
                         ),
                       ),
+                      TranslateWidget(
+                        onTaptranslate: () {
+                          setState(() {
+                            isTranslate = !isTranslate;
+                          });
+                        },
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(right: 10.0),
                         child: InkWell(
@@ -210,9 +220,9 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                               horizontal: 5.0,
                               vertical: 5.0,
                             ),
-                            decoration: BoxDecoration(
-                              color: customColors().accent,
-                            ),
+                            // decoration: BoxDecoration(
+                            //   color: customColors().accent,
+                            // ),
                             child: Center(
                               child: Icon(Icons.barcode_reader, size: 30),
                             ),
@@ -697,15 +707,55 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                     ),
                                     child: Row(
                                       children: [
-                                        Expanded(
-                                          child: Text(
-                                            state.orderItem.productName,
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.HeaderS_Bold,
-                                              color: FontColor.FontPrimary,
+                                        isTranslate
+                                            ? FutureBuilder(
+                                              future: getTranslateWord(
+                                                state.orderItem.productName,
+                                              ),
+                                              builder: (contex, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  return Expanded(
+                                                    child: Text(
+                                                      snapshot.data!,
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .HeaderS_Bold,
+                                                        color:
+                                                            FontColor
+                                                                .FontPrimary,
+                                                      ),
+                                                    ),
+                                                  );
+                                                } else {
+                                                  return Expanded(
+                                                    child: Text(
+                                                      state
+                                                          .orderItem
+                                                          .productName,
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .HeaderS_Bold,
+                                                        color:
+                                                            FontColor
+                                                                .FontPrimary,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                            )
+                                            : Expanded(
+                                              child: Text(
+                                                state.orderItem.productName,
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.HeaderS_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -1168,15 +1218,51 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Expanded(
-                                        child: Text(
-                                          state.orderItem.productName,
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.HeaderS_Bold,
-                                            color: FontColor.FontPrimary,
+                                      isTranslate
+                                          ? FutureBuilder(
+                                            future: getTranslateWord(
+                                              state.orderItem.productName,
+                                            ),
+                                            builder: (contex, snapshot) {
+                                              if (snapshot.hasData) {
+                                                return Expanded(
+                                                  child: Text(
+                                                    snapshot.data!,
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle
+                                                              .HeaderS_Bold,
+                                                      color:
+                                                          FontColor.FontPrimary,
+                                                    ),
+                                                  ),
+                                                );
+                                              } else {
+                                                return Expanded(
+                                                  child: Text(
+                                                    state.orderItem.productName,
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle
+                                                              .HeaderS_Bold,
+                                                      color:
+                                                          FontColor.FontPrimary,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          )
+                                          : Expanded(
+                                            child: Text(
+                                              state.orderItem.productName,
+                                              style: customTextStyle(
+                                                fontStyle:
+                                                    FontStyle.HeaderS_Bold,
+                                                color: FontColor.FontPrimary,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),

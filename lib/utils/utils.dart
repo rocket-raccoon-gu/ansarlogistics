@@ -900,30 +900,71 @@ showPickConfirmDialogue(
                 ),
               ),
 
-              Padding(
-                padding: const EdgeInsets.only(bottom: 15.0),
-                child: Text(
-                  "Price : $price",
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyM_Bold,
-                    color: FontColor.FontPrimary,
-                  ),
-                ),
-              ),
+              price != "0.00"
+                  ? Padding(
+                    padding: const EdgeInsets.only(bottom: 15.0),
+                    child: Text(
+                      "Price : $price",
+                      style: customTextStyle(
+                        fontStyle: FontStyle.BodyM_Bold,
+                        color: FontColor.FontPrimary,
+                      ),
+                    ),
+                  )
+                  : SizedBox(),
 
-              InkWell(
-                onTap: onTap,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 10.0,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  // Expanded(
+                  //   child: InkWell(
+                  //     onTap: closeTap,
+                  //     child: Container(
+                  //       padding: EdgeInsets.symmetric(
+                  //         horizontal: 20.0,
+                  //         vertical: 10.0,
+                  //       ),
+                  //       decoration: BoxDecoration(
+                  //         color: customColors().red1,
+                  //         borderRadius: BorderRadius.circular(5.0),
+                  //       ),
+                  //       child: Center(
+                  //         child: Text(
+                  //           "Cancel",
+                  //           style: customTextStyle(
+                  //             fontStyle: FontStyle.BodyM_Bold,
+                  //             color: FontColor.White,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: onTap,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 10.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: customColors().secretGarden,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Confirm Pick",
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyM_Bold,
+                              color: FontColor.White,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: customColors().accent,
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  child: Center(child: Text("Confirm Item Pick")),
-                ),
+                ],
               ),
             ],
           ),

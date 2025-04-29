@@ -7,6 +7,7 @@ import 'package:ansarlogistics/components/custom_app_components/image_widgets/li
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -20,12 +21,14 @@ class PickerOrderItem extends StatefulWidget {
   List<String> catlist;
   int index;
   Order orderResponseItem;
+  bool translate;
   PickerOrderItem({
     super.key,
     required this.catlist,
     required this.index,
     required this.orderResponseItem,
     required this.itemslistbackcategories,
+    required this.translate,
   });
 
   @override
@@ -261,22 +264,111 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                                             children: [
                                               Row(
                                                 children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      itemslistbackcategories[index]
-                                                          .productName,
-                                                      style: customTextStyle(
-                                                        fontStyle:
-                                                            FontStyle
-                                                                .Inter_Medium,
-                                                        color:
-                                                            FontColor
-                                                                .FontPrimary,
+                                                  widget.translate
+                                                      ? FutureBuilder(
+                                                        future: getTranslateWord(
+                                                          itemslistbackcategories[index]
+                                                              .productName,
+                                                        ),
+                                                        builder: (
+                                                          context,
+                                                          snapshot,
+                                                        ) {
+                                                          if (snapshot
+                                                              .hasData) {
+                                                            return Expanded(
+                                                              child: Text(
+                                                                snapshot.data!,
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .Inter_Medium,
+                                                                  color:
+                                                                      FontColor
+                                                                          .FontPrimary,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          } else {
+                                                            return Expanded(
+                                                              child: Text(
+                                                                itemslistbackcategories[index]
+                                                                    .productName,
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .Inter_Medium,
+                                                                  color:
+                                                                      FontColor
+                                                                          .FontPrimary,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                      )
+                                                      : Expanded(
+                                                        child: Text(
+                                                          itemslistbackcategories[index]
+                                                              .productName,
+                                                          style: customTextStyle(
+                                                            fontStyle:
+                                                                FontStyle
+                                                                    .Inter_Medium,
+                                                            color:
+                                                                FontColor
+                                                                    .FontPrimary,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ),
                                                 ],
                                               ),
+                                              // FutureBuilder(
+                                              //   future: getTranslateWord(
+                                              //     itemslistbackcategories[index]
+                                              //         .productName,
+                                              //   ),
+                                              //   builder: (context, snapshot) {
+                                              //     if (snapshot.hasData) {
+                                              //       return Row(
+                                              //         children: [
+                                              //           Expanded(
+                                              //             child: Text(
+                                              //               snapshot.data!,
+                                              //               style: customTextStyle(
+                                              //                 fontStyle:
+                                              //                     FontStyle
+                                              //                         .Inter_Medium,
+                                              //                 color:
+                                              //                     FontColor
+                                              //                         .FontPrimary,
+                                              //               ),
+                                              //             ),
+                                              //           ),
+                                              //         ],
+                                              //       );
+                                              //     } else {
+                                              //       return Row(
+                                              //         children: [
+                                              //           Expanded(
+                                              //             child: Text(
+                                              //               itemslistbackcategories[index]
+                                              //                   .productName,
+                                              //               style: customTextStyle(
+                                              //                 fontStyle:
+                                              //                     FontStyle
+                                              //                         .Inter_Medium,
+                                              //                 color:
+                                              //                     FontColor
+                                              //                         .FontPrimary,
+                                              //               ),
+                                              //             ),
+                                              //           ),
+                                              //         ],
+                                              //       );
+                                              //     }
+                                              //   },
+                                              // ),
                                               Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(

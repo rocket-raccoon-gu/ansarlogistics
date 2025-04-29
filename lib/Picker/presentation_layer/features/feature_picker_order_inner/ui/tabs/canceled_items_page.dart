@@ -47,6 +47,7 @@ class _CanceledItemsPageState extends State<CanceledItemsPage> {
                   index: index,
                   orderResponseItem: widget.orderResponseItem,
                   itemslistbackcategories: widget.canceleditems,
+                  translate: false,
                 )
                 : SizedBox();
           },

@@ -1,5 +1,6 @@
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
@@ -8,12 +9,16 @@ class OrderInnerAppBar extends StatelessWidget {
   Order orderResponseItem;
   Function()? onTapinfo;
   Function()? onTapBack;
+  final Function()? onTaptranslate;
   OrderInnerAppBar({
     super.key,
     required this.orderResponseItem,
     required this.onTapinfo,
     required this.onTapBack,
+    this.onTaptranslate,
   });
+
+  bool translate = false;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +93,48 @@ class OrderInnerAppBar extends StatelessWidget {
               ],
             ),
           ),
+
+          Positioned(
+            right: 10.0,
+            child: TranslateWidget(onTaptranslate: onTaptranslate),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class TranslateWidget extends StatefulWidget {
+  final Function()? onTaptranslate;
+  const TranslateWidget({super.key, required this.onTaptranslate});
+
+  @override
+  State<TranslateWidget> createState() => _TranslateWidgetState();
+}
+
+class _TranslateWidgetState extends State<TranslateWidget> {
+  bool translate = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: InkWell(
+        onTap: () {
+          widget.onTaptranslate!();
+          setState(() {
+            translate = !translate;
+          });
+        },
+        child: Container(
+          padding: EdgeInsets.all(4.0),
+          decoration: BoxDecoration(
+            color:
+                translate ? customColors().secretGarden : customColors().accent,
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Icon(Icons.translate),
+        ),
       ),
     );
   }

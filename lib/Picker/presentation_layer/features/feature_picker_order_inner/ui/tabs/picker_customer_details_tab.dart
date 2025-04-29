@@ -198,9 +198,11 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                       context: context,
                       maxLines: 3,
                       bordercolor: customColors().fontSecondary,
+                      enablesuggesion: true,
                       controller: commentcontroller,
                       fieldName: "Please fill the reason",
                       hintText: "Enter Reason..",
+
                       validator: Validator.defaultValidator,
                       onChange: (p0) {
                         UserController().cancelreason = p0;
@@ -267,6 +269,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                 controller: commentcontroller,
                 fieldName: "Please fill the reason",
                 hintText: "Enter Reason..",
+                enablesuggesion: true,
                 validator: Validator.defaultValidator,
                 onChange: (p0) {
                   UserController().cancelreason = p0;
