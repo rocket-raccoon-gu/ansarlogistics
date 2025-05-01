@@ -10,11 +10,14 @@ class PickedItemsPage extends StatefulWidget {
   List<EndPicking> pickeditems;
   Order orderResponseItem;
   List<String> catlist;
+  bool translate;
+
   PickedItemsPage({
     super.key,
     required this.pickeditems,
     required this.orderResponseItem,
     required this.catlist,
+    required this.translate,
   });
 
   @override
@@ -55,6 +58,7 @@ class _PickedItemsPageState extends State<PickedItemsPage> {
                     index: index,
                     orderResponseItem: widget.orderResponseItem,
                     itemslistbackcategories: widget.pickeditems,
+                    translate: widget.translate,
                   )
                   : SizedBox();
             },

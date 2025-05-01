@@ -88,9 +88,9 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
     WidgetsBinding.instance.addObserver(this);
 
     eventBus.on<DataChangedEvent>().listen((event) {
-      // setState(() {
-      //   data = event.newData;
-      // });
+      setState(() {
+        data = event.newData;
+      });
       BlocProvider.of<PickerOrdersCubit>(context).loadPosts(0, "");
     });
   }

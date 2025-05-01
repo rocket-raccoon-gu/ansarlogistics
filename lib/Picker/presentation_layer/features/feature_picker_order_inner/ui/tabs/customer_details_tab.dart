@@ -189,6 +189,7 @@ class _CustomerDetailsTabState extends State<CustomerDetailsTab> {
                         controller: commentcontroller,
                         fieldName: "Please fill the reason",
                         hintText: "Enter Reason..",
+                        enablesuggesion: true,
                         validator: Validator.defaultValidator,
                         onChange: (p0) {
                           UserController().cancelreason = p0;
@@ -255,6 +256,7 @@ class _CustomerDetailsTabState extends State<CustomerDetailsTab> {
                   controller: commentcontroller,
                   fieldName: "Please fill the reason",
                   hintText: "Enter Reason..",
+                  enablesuggesion: true,
                   validator: Validator.defaultValidator,
                   onChange: (p0) {
                     UserController().cancelreason = p0;

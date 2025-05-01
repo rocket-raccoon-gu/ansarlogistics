@@ -10,12 +10,14 @@ class NotFoundItemsPage extends StatefulWidget {
   List<EndPicking> notfounditems;
   Order orderResponseItem;
   List<String> catlist = [];
+  bool translate;
 
   NotFoundItemsPage({
     super.key,
     required this.notfounditems,
     required this.orderResponseItem,
     required this.catlist,
+    required this.translate,
   });
 
   @override
@@ -56,6 +58,7 @@ class _NotFoundItemsPageState extends State<NotFoundItemsPage> {
                     index: index,
                     orderResponseItem: widget.orderResponseItem,
                     itemslistbackcategories: widget.notfounditems,
+                    translate: widget.translate,
                   )
                   : SizedBox();
             },

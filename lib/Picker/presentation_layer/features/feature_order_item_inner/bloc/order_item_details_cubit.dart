@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -158,17 +159,19 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         UserController.userController.indexlist.add(orderItem!);
         UserController.userController.pickerindexlist.add(orderItem!.itemId);
 
+        eventBus.fire(DataChangedEvent("New Data from Screen B"));
+
         // Generate and save barcode before making the API call
-        await BarcodeUtils.addBarcodeData(
-          scannedSku,
-          orderResponseItem!.subgroupIdentifier,
-        );
+        // await BarcodeUtils.addBarcodeData(z
+        //   scannedSku,
+        //   orderResponseItem!.subgroupIdentifier,
+        // );
 
-        List<String> list = await BarcodeUtils.getBarcodeDataList(
-          orderResponseItem!.subgroupIdentifier,
-        );
+        // List<String> list = await BarcodeUtils.getBarcodeDataList(
+        //   orderResponseItem!.subgroupIdentifier,
+        // );
 
-        log(list.toString());
+        // log(list.toString());
 
         // UserController.userController.alloworderupdated = true;
 
@@ -176,8 +179,6 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
           context: context,
           snackBar: showSuccessDialogue(message: "status updted"),
         );
-
-        eventBus.fire(DataChangedEvent("New Data from Screen B"));
 
         Navigator.of(context).popUntil((route) => route.isFirst);
 
@@ -256,12 +257,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         // if (item_status == "end_picking") {
         //   UserController.userController.indexlist.add(orderItem!);
         //   UserController.userController.pickerindexlist.add(orderItem!.itemId);
-        // } else if (item_status == "item_not_available") {
-        //   UserController.userController.itemnotavailablelist.add(orderItem!);
-        //   UserController.userController.notavailableindexlist.add(
-        //     orderItem!.itemId,
-        //   );
-        // }
+        // } else
+        if (item_status == "item_not_available") {
+          UserController.userController.itemnotavailablelist.add(orderItem!);
+          UserController.userController.notavailableindexlist.add(
+            orderItem!.itemId,
+          );
+        }
 
         // // UserController.userController.alloworderupdated = true;
 
@@ -270,16 +272,16 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         //   snackBar: showSuccessDialogue(message: "status updted"),
         // );
 
-        // eventBus.fire(DataChangedEvent("New Data from Screen B"));
+        eventBus.fire(DataChangedEvent("New Data from Screen B"));
 
-        // Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(context).popUntil((route) => route.isFirst);
 
-        // // context.read<PickerOrdersCubit>().loadPosts(0, 'all');
+        // context.read<PickerOrdersCubit>().loadPosts(0, 'all');
 
-        // context.gNavigationService.openPickerOrderInnerPage(
-        //   context,
-        //   arg: {'orderitem': orderResponseItem},
-        // );
+        context.gNavigationService.openPickerOrderInnerPage(
+          context,
+          arg: {'orderitem': orderResponseItem},
+        );
       } else {
         loading = false;
         showSnackBar(
@@ -343,7 +345,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
 
-        if (data.containsKey('message') && data['priority'] == 1) {
+        if (data['priority'] == 1) {
           ErPdata erPdata = ErPdata.fromJson(data);
 
           if (!povisvible) {

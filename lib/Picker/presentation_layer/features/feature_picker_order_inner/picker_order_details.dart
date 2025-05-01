@@ -24,6 +24,7 @@ import 'package:picker_driver_api/responses/order_response.dart';
 class PickerOrderDetails extends StatefulWidget {
   Order orderResponseItem;
   ServiceLocator serviceLocator;
+
   PickerOrderDetails({
     super.key,
     required this.orderResponseItem,
@@ -36,6 +37,8 @@ class PickerOrderDetails extends StatefulWidget {
 
 class _PickerOrderDetailsState extends State<PickerOrderDetails> {
   bool loading = false;
+
+  bool translate = false;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +72,11 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
                         widget.orderResponseItem,
                       );
                     },
+                    onTaptranslate: () {
+                      setState(() {
+                        translate = !translate;
+                      });
+                    },
                   ),
                   Expanded(
                     child: Column(
@@ -79,6 +87,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
                             state,
                             widget.orderResponseItem,
                             state.mylist,
+                            translate,
                           )
                         else
                           Expanded(
@@ -185,6 +194,7 @@ Widget getBody(
   PickerOrderDetailsInitialState state,
   Order orderResponseItem,
   List<String> list,
+  bool translate,
 ) {
   switch (index) {
     case 0:
@@ -192,6 +202,7 @@ Widget getBody(
         topickitems: state.topickitems,
         orderResponseItem: orderResponseItem,
         catlist: state.catlist,
+        translate: translate,
       );
 
     case 1:
@@ -199,6 +210,7 @@ Widget getBody(
         pickeditems: state.pickeditems,
         orderResponseItem: orderResponseItem,
         catlist: state.catlist,
+        translate: translate,
       );
 
     case 2:
@@ -206,6 +218,7 @@ Widget getBody(
         notfounditems: state.notfounditems,
         orderResponseItem: orderResponseItem,
         catlist: state.catlist,
+        translate: translate,
       );
 
     case 3:
