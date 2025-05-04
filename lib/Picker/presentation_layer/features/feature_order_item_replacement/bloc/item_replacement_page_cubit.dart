@@ -256,6 +256,8 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
+      log("sku  :  $sku");
+
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
         endpoint: sku,
       );
