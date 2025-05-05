@@ -1033,50 +1033,56 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                           ),
                                         ),
 
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "Picker Price",
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyL_Bold,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                top: 5.0,
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    double.parse(
-                                                      state
-                                                          .orderItem
-                                                          .finalPrice,
-                                                    ).toStringAsFixed(2),
-                                                    style: customTextStyle(
-                                                      fontStyle:
-                                                          FontStyle
-                                                              .HeaderXS_Bold,
-                                                      color:
-                                                          FontColor.FontPrimary,
-                                                    ),
+                                        state.orderItem.itemStatus ==
+                                                'end_picking'
+                                            ? Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "Picker Price",
+                                                  style: customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle.BodyL_Bold,
                                                   ),
-                                                  Text(
-                                                    " QAR",
-                                                    style: customTextStyle(
-                                                      fontStyle:
-                                                          FontStyle
-                                                              .HeaderXS_Bold,
-                                                    ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        top: 5.0,
+                                                      ),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        double.parse(
+                                                          state
+                                                              .orderItem
+                                                              .finalPrice,
+                                                        ).toStringAsFixed(2),
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .HeaderXS_Bold,
+                                                          color:
+                                                              FontColor
+                                                                  .FontPrimary,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        " QAR",
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .HeaderXS_Bold,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-
+                                                ),
+                                              ],
+                                            )
+                                            : SizedBox(),
                                         // widget.data['condition'] &&
                                         !UserController
                                                     .userController

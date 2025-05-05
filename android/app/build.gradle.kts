@@ -29,6 +29,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = 11
         versionName = "2.0.10"
+        multiDexEnabled = true
     }
 
     // Load keystore properties
@@ -65,6 +66,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.gms:google-services:4.3.15")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }
 

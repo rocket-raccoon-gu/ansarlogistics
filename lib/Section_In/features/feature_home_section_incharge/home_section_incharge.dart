@@ -31,6 +31,16 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
   int selectedcat = -1;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // _loadInitialData();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     double mheight = MediaQuery.of(context).size.height * 1.222;
 

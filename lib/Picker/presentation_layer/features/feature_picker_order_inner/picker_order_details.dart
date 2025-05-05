@@ -15,6 +15,7 @@ import 'package:ansarlogistics/components/loading_indecator.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
 
   bool translate = false;
 
-  bool isProduce = false;
+  bool isPricechange = false;
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +142,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
   Widget getBottomContainer() {
     if (widget.orderResponseItem.status != "end_picking" &&
         BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex == 1 &&
-        isProduce) {
+        isPricechange) {
       return SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Padding(
@@ -176,8 +177,23 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
       );
     } else if (widget.orderResponseItem.status != "end_picking" &&
         BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex == 1 &&
-        !isProduce) {
-      return PriceWidget(orderResponseItem: widget.orderResponseItem);
+        !isPricechange) {
+      return PriceWidget(
+        orderResponseItem: widget.orderResponseItem,
+        pickerprice:
+            UserController.userController.orderdata.containsKey(
+                  widget.orderResponseItem.subgroupIdentifier,
+                )
+                ? UserController().orderdata[widget
+                    .orderResponseItem
+                    .subgroupIdentifier]
+                : context.read<PickerOrderDetailsCubit>().pickertotal,
+        onTapConfirm: () {
+          setState(() {
+            isPricechange = !isPricechange;
+          });
+        },
+      );
     } else {
       return SizedBox();
     }

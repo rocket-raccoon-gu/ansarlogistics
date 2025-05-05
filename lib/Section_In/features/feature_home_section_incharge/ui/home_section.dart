@@ -26,6 +26,16 @@ class _HomeSectionState extends State<HomeSection> {
   final _searchcontroller = TextEditingController();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // _loadInitialData();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
