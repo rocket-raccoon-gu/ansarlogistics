@@ -159,7 +159,11 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         UserController.userController.indexlist.add(orderItem!);
         UserController.userController.pickerindexlist.add(orderItem!.itemId);
 
-        eventBus.fire(DataChangedEvent("New Data from Screen B"));
+        eventBus.fire(
+          DataChangedEvent(
+            "New Data from Screen B",
+          ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
+        );
 
         // Generate and save barcode before making the API call
         // await BarcodeUtils.addBarcodeData(z

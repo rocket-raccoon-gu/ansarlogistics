@@ -105,6 +105,7 @@ class _HomeSectionState extends State<HomeSection> {
                               context,
                             ).searchresult.length,
                         shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return SectionProductListItem(
                             sectionitem:

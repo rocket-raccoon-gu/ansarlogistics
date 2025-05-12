@@ -26,6 +26,8 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     required this.context,
     required this.orderItem,
   }) : super(PickerOrderDetailsLoadingState()) {
+    loadOrderDataFromPrefs();
+
     if (UserController.userController.alloworderupdated) {
       UserController.userController.alloworderupdated = false;
 
@@ -60,8 +62,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
   int page = 1;
 
-  double pickertotal = 00.0;
-
   updateSelectedItem(int index) async {
     groupedItems.clear();
 
@@ -72,8 +72,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     tabindex = index;
 
     list.clear();
-
-    pickertotal = 00.0;
 
     List.generate(itemslist!.assignedPicker!.length, (index) {
       if (!catlist.contains(itemslist!.assignedPicker![index].catename)) {
@@ -122,15 +120,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       }
 
       pickeditems.add(itemslist!.endPicking[index]);
-
-      // ignore: unrelated_type_equality_checks
-      if (itemslist!.endPicking[index].finalPrice != 0) {
-        pickertotal =
-            pickertotal + double.parse(itemslist!.endPicking[index].finalPrice);
-      } else {
-        pickertotal =
-            pickertotal + double.parse(itemslist!.endPicking[index].subtotal);
-      }
     });
 
     List.generate(itemslist!.itemNotAvailable!.length, (index) {
@@ -575,6 +564,19 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
         // emit(OrderItemDetailErrorState(
         //     loading: loading, orderItem: orderItem!));
       }
+    }
+  }
+
+  Future<void> loadOrderDataFromPrefs() async {
+    // final prefs = await SharedPreferences.getInstance();
+    String? jsonString = await PreferenceUtils.getDataFromShared('orderdata');
+    if (jsonString != null) {
+      Map<String, dynamic> map = json.decode(jsonString);
+      log("----------");
+      log(map.toString());
+      UserController.userController.orderdata = Map<String, double>.from(
+        map.map((key, value) => MapEntry(key, double.parse(value.toString()))),
+      );
     }
   }
 }

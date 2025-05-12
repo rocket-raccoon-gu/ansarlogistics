@@ -177,17 +177,17 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
       );
     } else if (widget.orderResponseItem.status != "end_picking" &&
         BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex == 1 &&
-        !isPricechange) {
+        !isPricechange &&
+        UserController.userController.orderdata.containsKey(
+          widget.orderResponseItem.subgroupIdentifier,
+        )) {
       return PriceWidget(
         orderResponseItem: widget.orderResponseItem,
-        pickerprice:
-            UserController.userController.orderdata.containsKey(
-                  widget.orderResponseItem.subgroupIdentifier,
-                )
-                ? UserController().orderdata[widget
-                    .orderResponseItem
-                    .subgroupIdentifier]
-                : context.read<PickerOrderDetailsCubit>().pickertotal,
+        pickerprice: double.parse(
+          UserController()
+              .orderdata[widget.orderResponseItem.subgroupIdentifier]
+              .toString(),
+        ),
         onTapConfirm: () {
           setState(() {
             isPricechange = !isPricechange;

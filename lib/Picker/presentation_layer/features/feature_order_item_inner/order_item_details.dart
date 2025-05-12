@@ -1034,7 +1034,9 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         ),
 
                                         state.orderItem.itemStatus ==
-                                                'end_picking'
+                                                    'end_picking' &&
+                                                state.orderItem.finalPrice !=
+                                                    "0.0000"
                                             ? Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
