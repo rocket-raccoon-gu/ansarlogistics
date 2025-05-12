@@ -245,241 +245,412 @@ String getcatecoryname(String id) {
   switch (id) {
     case "3":
       return "Grocery";
-    case "14":
+    case "8":
       return "Fruits & Vegetables";
-    case "16":
+    case "10":
       return "Vegetables";
-    case "15":
+    case "9":
       return "Fruits";
-    case "17":
+    case "11":
       return "Herbs";
-    case "36722":
+    case "744":
       return "Cut Fruits & Salads";
-    case "23":
+    case "17":
       return "Fresh Chicken & Meat";
-    case "24":
-      return "Fresh Chicken";
-    case "25":
-      return "Beef";
-    case "27":
-      return "Mutton";
-    case "28":
-      return "Lamb";
-    case "29":
-      return "Camel";
-    case "36741":
-      return "Fish & Sea Food";
-    case "36742":
-      return "Fish";
-    case "36744":
-      return "Prawns & Shellfish";
-    case "36743":
-      return "Fish Fillet & Steak";
-    case "1120":
-      return "Dairy - Egg & Cheese";
-    case "1146":
-      return "Milk & Flavored Milk";
-    case "1145":
-      return "Eggs";
-    case "36723":
-      return "Powdered, Evaporated & Condensed Milk";
-    case "1144":
-      return "Yoghurt";
-    case "1212":
-      return "Cheese & Labneh";
-    case "1202":
-      return "Butter & Margarine";
-    case "36726":
-      return "Laban";
-    case "2511":
-      return "Cream";
-    case "1121":
-      return "Desserts";
-    case "36725":
-      return "Soy & Milk Alternatives";
-    case "30":
-      return "Beverages";
-    case "31":
-      return "Water";
-    case "36":
-      return "Soft Drinks";
-    case "34":
-      return "Juices";
-    case "35":
-      return "Energy & Sports Drinks";
-    case "37":
-      return "Powdered Drinks";
-    case "33":
-      return "Syrups & Concentrates";
-    case "32":
-      return "Ice Cubes";
-    case "36544":
-      return "Sparkling Water";
-    case "36778":
-      return "Fresh Juice";
-    case "61":
-      return "Bakery - Breads & Cakes";
-    case "62":
-      return "Breads - Buns & Rolls";
-    case "64":
-      return "Arabic Bread & Flat Bread";
-    case "36731":
-      return "Cakes & Pastries";
-    case "36705":
-      return "Arabic & Indian Sweets";
-    case "36831":
-      return "Puff & Croissant";
-    case "36762":
-      return "Delicatessen";
-    case "36777":
-      return "Deli Cheese & Labneh";
-    case "56":
-      return "Olives & Pickles";
-    case "36763":
-      return "Deli Meat & Seafood";
     case "18":
-      return "Dry Fruits - Dates & Nuts";
-    case "21":
-      return "Nuts";
+      return "Fresh Chicken";
     case "19":
-      return "Dates";
+      return "Beef";
     case "20":
-      return "Dry Fruits";
+      return "Mutton";
     case "22":
-      return "Seeds";
-    case "65":
-      return "Snacks & Candy";
-    case "66":
-      return "Chocolates & Wafers";
-    case "68":
-      return "Chips & Dips";
-    case "69":
-      return "Biscuits - Crackers & Cakes";
-    case "67":
-      return "Candy";
-    case "70":
-      return "Candies & Gums";
-    case "72":
-      return "Popcorn";
-    case "82":
-      return "Frozen Food";
-    case "84":
-      return "Frozen Chicken & Poultry";
-    case "86":
-      return "Frozen Meat";
-    case "36733":
-      return "Frozen Seafood";
-    case "83":
-      return "Frozen Fruits & Vegetables";
-    case "85":
-      return "Frozen Desserts";
-    case "87":
-      return "Frozen Ready Meals";
-    case "79":
-      return "Ice Cream";
-    case "80":
-      return "Bars - Cones & Sticks";
-    case "81":
-      return "Cups & Tubs";
-    case "36732":
-      return "Family Packs";
-    case "57":
-      return "Breakfast Food";
-    case "58":
-      return "Cereals";
-    case "59":
-      return "Spreads & Honey";
-    case "60":
-      return "Syrups";
-    case "36745":
-      return "Coffee - Tea & Sugar";
-    case "36784":
-      return "Tea";
-    case "36746":
-      return "Coffee";
-    case "36749":
-      return "Sugar & Sweeteners";
-    case "36748":
-      return "Creamers";
-    case "36727":
-      return "Cooking & Baking";
-    case "47":
-      return "Rice";
-    case "36728":
-      return "Noodles & Soups";
-    case "48":
-      return "Cooking Oil & Ghee";
-    case "52":
-      return "Pastas";
-    case "36789":
-      return "Flours";
-    case "50":
-      return "Pulses & Grains";
-    case "51":
-      return "Cooking Supplies";
-    case "36729":
-      return "Baking Products";
+      return "Lamb";
+    case "21":
+      return "Camel";
+    case "761":
+      return "Fish & Sea Food";
+    case "762":
+    case "764":
+    case "763":
+      return "Fish";
+    case "239":
+    case "242":
+      return "Dairy - Egg & Cheese";
+    case "243":
+    case "745":
+      return "Milk & Flavored Milk";
+    case "241":
+    case "932":
+    case "933":
+    case "934":
+      return "Yoghurt";
+    case "781":
+    case "793":
+    case "41":
+    case "782":
+    case "747":
+    case "944":
+      return "Delicatessen";
+    case "945":
+      return "Flavoured Laban";
+    case "246":
+    case "941":
+    case "942":
+    case "943":
+      return "Cream";
+    case "240":
+    case "947":
+      return "Desserts";
+    case "23":
+    case "24":
+    case "1055":
+    case "1056":
+    case "29":
+    case "1057":
+    case "1058":
+    case "1059":
+    case "1060":
+    case "1061":
+      return "Beverages";
+    case "26":
+    case "27":
+    case "1062":
+    case "1063":
+    case "28":
+    case "1064":
+    case "1065":
+    case "30":
+    case "1067":
+    case "1068":
+    case "1054":
+    case "1066":
+    case "794":
+    case "1069":
+    case "1070":
+    case "1071":
+    case "1072":
+    case "1073":
+      return "Fresh Juice";
     case "46":
-      return "Condiments & Seasoning";
-    case "53":
-      return "Salt & Spices";
-    case "54":
-      return "Sauces & Dressings";
+    case "47":
+    case "1233":
+    case "1234":
+    case "1235":
+    case "1236":
+    case "1237":
     case "49":
-      return "Herbs & Seasonings";
+    case "1238":
+    case "1239":
+    case "1281":
+    case "1282":
+    case "751":
+    case "1283":
+    case "1285":
+    case "1286":
+    case "1287":
+    case "1288":
+    case "1289":
+    case "1290":
+    case "48":
+    case "1291":
+    case "830":
+    case "739":
+    case "1292":
+    case "1284":
+      return "Bakery";
+    case "50":
+    case "51":
+    case "1074":
+    case "1075":
+    case "1076":
+    case "1077":
+    case "53":
+    case "1088":
+    case "1089":
+    case "1090":
+    case "1091":
+    case "1092":
+    case "1093":
+    case "54":
+    case "52":
+    case "1082":
+    case "1083":
+    case "1084":
     case "55":
+    case "1078":
+    case "1079":
+    case "1080":
+    case "1081":
+    case "56":
+    case "1085":
+    case "1086":
+    case "1087":
+      return "Snacks & Candy";
+    case "1094":
+    case "16":
+    case "15":
+      return "Seeds & Nuts";
+    case "14":
+      return "Dry Fruits";
+    case "65":
+    case "67":
+    case "1165":
+    case "1166":
+    case "1168":
+    case "69":
+    case "1169":
+    case "1170":
+    case "1171":
+    case "753":
+    case "1173":
+    case "1174":
+    case "66":
+    case "1200":
+    case "1201":
+    case "1202":
+    case "1203":
+    case "1204":
+    case "70":
+    case "1175":
+    case "1176":
+    case "1177":
+    case "1178":
+    case "1179":
+    case "1167":
+    case "1180":
+    case "1181":
+    case "1182":
+    case "1183":
+    case "1186":
+    case "1187":
+      return "Frozen Food";
+    case "68":
+    case "1184":
+    case "1185":
+      return "Bakery & Desserts";
+    case "62":
+    case "63":
+    case "64":
+    case "752":
+      return "Ice Cream";
+    case "42":
+    case "43":
+    case "968":
+    case "969":
+    case "970":
+    case "971":
+    case "972":
+    case "973":
+    case "44":
+    case "45":
+    case "974":
+    case "975":
+    case "976":
+    case "977":
+    case "978":
+      return "Breakfast Food";
+    case "765":
+    case "797":
+    case "1050":
+    case "1051":
+    case "1052":
+    case "1053":
+    case "766":
+    case "1044":
+    case "1045":
+    case "1046":
+    case "1047":
+    case "1048":
+    case "1049":
+      return "Coffee - Tea & Sugar";
+    case "767":
+      return "Creamers";
+    case "32":
+    case "995":
+    case "996":
+    case "997":
+    case "998":
+    case "1299":
+      return "Rice";
+    case "35":
+    case "1009":
+    case "1010":
+    case "1011":
+    case "1012":
+    case "1013":
+    case "1014":
+    case "1015":
+    case "1016":
+    case "1017":
+      return "Pulses & Grains";
+    case "37":
+    case "999":
+    case "1000":
+    case "1001":
+    case "1002":
+    case "1003":
+      return "Pastas";
+    case "749":
+    case "1004":
+    case "1005":
+    case "1006":
+    case "1007":
+    case "1008":
+      return "Noodles & Soups";
+    case "748":
+    case "768":
+    case "1018":
+    case "1019":
+    case "1020":
+    case "1021":
+    case "33":
+    case "988":
+    case "989":
+    case "990":
+    case "991":
+    case "992":
+    case "993":
+    case "994":
+    case "799":
+    case "36":
+    case "750":
+    case "979":
+    case "980":
+    case "981":
+    case "982":
+    case "983":
+    case "984":
+    case "985":
+    case "986":
+    case "987":
+      return "Cooking & Baking";
+    case "31":
+      return "Condiments & Seasoning";
+    case "38":
+    case "1095":
+    case "1096":
+    case "1097":
+    case "1098":
+    case "1099":
+    case "1100":
+      return "Salt & Spices";
+    case "39":
+    case "1101":
+    case "1102":
+    case "1103":
+    case "1104":
+    case "1105":
+    case "1106":
+    case "1107":
+    case "1108":
+    case "1109":
+    case "1110":
+    case "1111":
+    case "1112":
+    case "1113":
+    case "1114":
+    case "1115":
+      return "Sauces & Dressings";
+    case "34":
+      return "Herbs & Seasonings";
+    case "40":
       return "Vinegar & Concentrates";
-    case "74":
+    case "57":
+    case "58":
+    case "1149":
+    case "60":
+    case "1159":
+    case "1160":
+    case "1161":
+    case "59":
+    case "1162":
+    case "1164":
+    case "1163":
+    case "1150":
+    case "1151":
+    case "1152":
+    case "1153":
+    case "1154":
+    case "1155":
+    case "1156":
+    case "1157":
+    case "1158":
       return "Canned & Jarred Food";
-    case "75":
-      return "Canned Tuna & Seafood";
-    case "77":
-      return "Canned Fruits & Vegetables";
-    case "76":
-      return "Canned Meat";
-    case "78":
+    case "61":
       return "Ready-to-Eat Canned Meals";
-    case "36753":
+    case "772":
+    case "778":
+    case "774":
+    case "779":
+    case "777":
+    case "776":
+    case "773":
+    case "780":
+    case "775":
       return "International Food";
-    case "36759":
-      return "Philippines";
-    case "36755":
-      return "Indian Food";
-    case "36760":
-      return "South Asian Food";
-    case "36758":
-      return "Nepal";
-    case "36757":
-      return "Korean Food";
-    case "36761":
-      return "Thai Food";
-    case "36756":
-      return "Japanese Food";
-    case "88":
+    case "71":
+    case "73":
+    case "1022":
+    case "1023":
+    case "1024":
+    case "1025":
+    case "1026":
+    case "1205":
+    case "74":
+    case "1035":
+    case "1036":
+    case "1037":
+    case "72":
+    case "1027":
+    case "1028":
+    case "1029":
+    case "1030":
+    case "1031":
+    case "1032":
+    case "1033":
+    case "1034":
+    case "76":
       return "Cleaning & Laundry";
-    case "90":
-      return "Laundry Supplies";
-    case "91":
-      return "Dishwashing";
-    case "89":
-      return "Cleaning Products";
-    case "93":
-      return "Disinfectant";
-    case "92":
+    case "75":
+    case "1038":
+    case "1039":
+    case "1040":
+    case "1041":
+    case "1042":
       return "Air Fresheners";
-    case "36734":
+    case "754":
+    case "1263":
+    case "1264":
+    case "1265":
+    case "1266":
       return "Cleaning Tools";
-    case "36792":
+    case "800":
+    case "1298":
       return "Insects & Pest Control";
-    case "95":
+    case "78":
+    case "82":
+    case "1127":
+    case "1128":
+    case "1129":
+    case "1130":
       return "Disposable & Storage";
-    case "99":
-      return "Tissues & Wipes";
-    case "94":
+    case "77":
+    case "1143":
+    case "1144":
+    case "1145":
+    case "1146":
       return "Sponges & Gloves";
-    case "97":
+    case "80":
+    case "1135":
+    case "1136":
+    case "1137":
+    case "1138":
+    case "1139":
       return "Food Storage & Wraps";
-    case "98":
+    case "81":
+    case "1140":
+    case "1141":
+    case "1142":
       return "Trash Bags";
     case "96":
       return "Disposable Tableware";

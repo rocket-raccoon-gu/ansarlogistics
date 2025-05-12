@@ -146,27 +146,39 @@ void fetchcurrentaddress() async {
 
         // log(UserController.userController.profile.empId);
 
-        Position position = await Geolocator.getCurrentPosition();
+        Position? position1;
+
+        final locationStream = Geolocator.getPositionStream(
+          locationSettings: LocationSettings(
+            distanceFilter: 10,
+            accuracy: LocationAccuracy.high,
+          ),
+        ).listen((position) {
+          // Handle updates here
+          position1 = position;
+        });
+
+        // Position position = await Geolocator.getCurrentPosition();
 
         log(
-          "granted ${position.latitude},${position.longitude} ...${DateTime.now()}",
+          "granted ${position1!.latitude},${position1!.longitude} ...${DateTime.now()}",
         );
 
         await PreferenceUtils.storeDataToShared(
           "userlat",
-          position.latitude.toString(),
+          position1!.latitude.toString(),
         );
 
         await PreferenceUtils.storeDataToShared(
           "userlong",
-          position.longitude.toString(),
+          position1!.longitude.toString(),
         );
 
         UserController.userController.locationlatitude =
-            position.latitude.toString();
+            position1!.latitude.toString();
 
         UserController.userController.locationlongitude =
-            position.longitude.toString();
+            position1!.longitude.toString();
 
         if (await PreferenceUtils.preferenceHasKey("userCode")) {
           String id =
@@ -241,19 +253,19 @@ void fetchcurrentaddress() async {
             final resp = await locator.tradingApi.updateDriverLocationdetails(
               // ignore: unnecessary_null_comparison
               userId: int.parse(val!),
-              latitude: position.latitude.toString(),
-              longitude: position.longitude.toString(),
+              latitude: position1!.latitude.toString(),
+              longitude: position1!.longitude.toString(),
             );
 
             if (resp.statusCode == 200) {
               PreferenceUtils.storeDataToShared(
                 "driverlat",
-                position.latitude.toString(),
+                position1!.latitude.toString(),
               );
 
               PreferenceUtils.storeDataToShared(
                 "driverlong",
-                position.longitude.toString(),
+                position1!.longitude.toString(),
               );
 
               log("location updated");

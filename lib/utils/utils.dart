@@ -871,6 +871,7 @@ showPickConfirmDialogue(
                 padding: const EdgeInsets.only(top: 25.0, bottom: 10.0),
                 child: Text(
                   "${data}",
+                  textAlign: TextAlign.center,
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyL_Bold,
                     color: FontColor.FontPrimary,
@@ -882,6 +883,7 @@ showPickConfirmDialogue(
                 padding: const EdgeInsets.only(bottom: 5.0),
                 child: Text(
                   "$name",
+                  textAlign: TextAlign.center,
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyM_Bold,
                     color: FontColor.FontPrimary,

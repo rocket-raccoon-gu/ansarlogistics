@@ -288,6 +288,8 @@ extension PDGeneralApi on PickerDriverApi {
 
     final Map<String, dynamic> body = {'suborderId': orderid};
     log('${url}');
+
+    log(body.toString());
     try {
       serviceSend("order items service send");
       return _handleRequest(

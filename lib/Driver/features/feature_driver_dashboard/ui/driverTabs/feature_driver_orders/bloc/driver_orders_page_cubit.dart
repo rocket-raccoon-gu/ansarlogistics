@@ -131,8 +131,6 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
   updateseekorder() async {
     try {
       final service = FlutterBackgroundService();
-
-      // Check if the service is running
       bool isRunning = await service.isRunning();
 
       if (isRunning) {
@@ -142,102 +140,91 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
           emit(DriverOrderSeekLoadingState());
         }
 
-        await Permission.location.isGranted.then((value) async {
-          if (value) {
-            try {
-              Position position = await Geolocator.getCurrentPosition(
-                desiredAccuracy: LocationAccuracy.high,
-              );
+        // Check permission first
+        final locationPermission = await Permission.location.status;
+        if (!locationPermission.isGranted) {
+          requestPermission();
+          emit(DriverPageLoadedState([]));
+          return;
+        }
 
-              log(
-                "granted ${position.latitude},${position.longitude} ...${DateTime.now()}",
-              );
+        try {
+          // Use getLastKnownPosition first for faster response
+          Position? position = await Geolocator.getLastKnownPosition();
+          position ??= await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 10), // Add timeout
+          );
 
-              String? val = await PreferenceUtils.getDataFromShared('userid');
+          log(
+            "granted ${position.latitude},${position.longitude} ...${DateTime.now()}",
+          );
 
-              await PreferenceUtils.storeDataToShared(
-                "userlat",
-                position.latitude.toString(),
-              );
+          // Parallelize storage operations
+          await Future.wait<dynamic>([
+            PreferenceUtils.storeDataToShared(
+              "userlat",
+              position.latitude.toString(),
+            ),
+            PreferenceUtils.storeDataToShared(
+              "userlong",
+              position.longitude.toString(),
+            ),
+          ]);
 
-              await PreferenceUtils.storeDataToShared(
-                "userlong",
-                position.longitude.toString(),
-              );
+          // Update controller
+          UserController.userController
+            ..locationlatitude = position.latitude.toString()
+            ..locationlongitude = position.longitude.toString();
 
-              UserController.userController.locationlatitude =
-                  position.latitude.toString();
-
-              UserController.userController.locationlongitude =
-                  position.longitude.toString();
-
-              final resp = await pdApiGateway.updateDriverLocationdetails(
+          // Make API call
+          final resp = await pdApiGateway
+              .updateDriverLocationdetails(
                 userId: int.parse(UserController.userController.profile.id),
                 latitude: position.latitude.toString(),
                 longitude: position.longitude.toString(),
-              );
+              )
+              .timeout(Duration(seconds: 15)); // Add timeout
 
-              if (resp.statusCode == 200) {
-                Map<String, dynamic> data = jsonDecode(resp.body);
+          if (resp.statusCode == 200) {
+            final data = jsonDecode(resp.body);
+            log("${data['message']} ${DateTime.now()}");
 
-                log("${data['message']} ${DateTime.now()}");
-
-                if (data['message'].toString().contains('updated')) {
-                  toastification.show(
-                    backgroundColor: customColors().success,
-                    title: TranslatedText(
-                      text: "Location Update",
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyL_Bold,
-                        color: FontColor.White,
-                      ),
-                    ),
-                    description: TranslatedText(
-                      text: data['message'],
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyM_Bold,
-                        color: FontColor.White,
-                      ),
-                    ),
-                    autoCloseDuration: Duration(seconds: 10),
-                  );
-                  loadPosts(0, '');
-                } else {
-                  toastification.show(
-                    backgroundColor: customColors().danger,
-                    title: TranslatedText(
-                      text: "Location Warning...!",
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyL_Bold,
-                        color: FontColor.White,
-                      ),
-                    ),
-                    description: TranslatedText(
-                      text: data['message'],
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyM_Bold,
-                        color: FontColor.White,
-                      ),
-                    ),
-                    autoCloseDuration: Duration(seconds: 10),
-                  );
-                  loadPosts(0, '');
-                }
-              } else {
-                log("loction update force have issue.... ${DateTime.now()}");
-              }
-            } catch (e) {
-              log("Error getting location: $e");
-            }
+            final isSuccess = data['message'].toString().contains('updated');
+            toastification.show(
+              backgroundColor:
+                  isSuccess ? customColors().success : customColors().danger,
+              title: TranslatedText(
+                text: isSuccess ? "Location Update" : "Location Warning...!",
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyL_Bold,
+                  color: FontColor.White,
+                ),
+              ),
+              description: TranslatedText(
+                text: data['message'],
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyM_Bold,
+                  color: FontColor.White,
+                ),
+              ),
+              autoCloseDuration: Duration(seconds: 10),
+            );
           } else {
-            requestPermission();
-            emit(DriverPageLoadedState([]));
+            log("location update force have issue.... ${DateTime.now()}");
           }
-        });
+
+          loadPosts(0, '');
+        } catch (e) {
+          log("Error in location update: $e");
+          // Consider retry logic or fallback behavior here
+        }
       } else {
         initializeService();
       }
-    } catch (e) {}
+    } catch (e) {
+      log("Top level error in updateseekorder: $e");
+    }
   }
 
   updatelocation(String latitude, String longitude) async {
