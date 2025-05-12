@@ -986,17 +986,17 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                             ),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(
-                                            vertical: 12.0,
+                                            vertical: 8.0,
                                           ),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                "Price",
+                                                "Order Price",
                                                 style: customTextStyle(
                                                   fontStyle:
-                                                      FontStyle.HeaderXS_Bold,
+                                                      FontStyle.BodyL_Bold,
                                                 ),
                                               ),
                                               Padding(
@@ -1012,7 +1012,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                       style: customTextStyle(
                                                         fontStyle:
                                                             FontStyle
-                                                                .HeaderXS_Bold,
+                                                                .BodyL_Bold,
                                                         color:
                                                             FontColor
                                                                 .FontPrimary,
@@ -1033,6 +1033,56 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                           ),
                                         ),
 
+                                        state.orderItem.itemStatus ==
+                                                'end_picking'
+                                            ? Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "Picker Price",
+                                                  style: customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle.BodyL_Bold,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        top: 5.0,
+                                                      ),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        double.parse(
+                                                          state
+                                                              .orderItem
+                                                              .finalPrice,
+                                                        ).toStringAsFixed(2),
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .HeaderXS_Bold,
+                                                          color:
+                                                              FontColor
+                                                                  .FontPrimary,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        " QAR",
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .HeaderXS_Bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                            : SizedBox(),
                                         // widget.data['condition'] &&
                                         !UserController
                                                     .userController

@@ -926,6 +926,8 @@ extension PDGeneralApi on PickerDriverApi {
       'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint',
     );
 
+    log(url.toString());
+
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationJson,
     };

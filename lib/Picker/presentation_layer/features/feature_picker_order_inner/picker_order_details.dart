@@ -1,5 +1,6 @@
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_state.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/price_widget.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/canceled_items_page.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/endpick_barcode.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/not_found_items_page.dart';
@@ -14,6 +15,7 @@ import 'package:ansarlogistics/components/loading_indecator.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +41,8 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
   bool loading = false;
 
   bool translate = false;
+
+  bool isPricechange = false;
 
   @override
   Widget build(BuildContext context) {
@@ -101,60 +105,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
                   ),
                 ],
               ),
-              Positioned(
-                bottom: 15.0,
-                child:
-                    widget.orderResponseItem.status != "end_picking" &&
-                            BlocProvider.of<PickerOrderDetailsCubit>(
-                                  context,
-                                ).tabindex ==
-                                1
-                        ? SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 35.0,
-                            ),
-                            child:
-                                BlocProvider.of<PickerOrderDetailsCubit>(
-                                      context,
-                                    ).loading
-                                    ? BasketButton(
-                                      loading: true,
-                                      bgcolor: customColors().green4,
-                                      textStyle: customTextStyle(
-                                        fontStyle: FontStyle.BodyL_Bold,
-                                      ),
-                                    )
-                                    : Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: customColors().grey,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          20.0,
-                                        ),
-                                      ),
-                                      child: SwipeableWidget(
-                                        text: "Swipe to finish !",
-                                        onSwipeFinish: () async {
-                                          setState(() {
-                                            loading = true;
-                                          });
-                                          BlocProvider.of<
-                                            PickerOrderDetailsCubit
-                                          >(context).updateMainOrderStat(
-                                            widget
-                                                .orderResponseItem
-                                                .subgroupIdentifier,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                          ),
-                        )
-                        : SizedBox(),
-              ),
+              Positioned(bottom: 15.0, child: getBottomContainer()),
             ],
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -186,6 +137,66 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
         );
       },
     );
+  }
+
+  Widget getBottomContainer() {
+    if (widget.orderResponseItem.status != "end_picking" &&
+        BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex == 1 &&
+        isPricechange) {
+      return SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 35.0),
+          child:
+              BlocProvider.of<PickerOrderDetailsCubit>(context).loading
+                  ? BasketButton(
+                    loading: true,
+                    bgcolor: customColors().green4,
+                    textStyle: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                  )
+                  : Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: customColors().grey),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: SwipeableWidget(
+                      text: "Swipe to finish !",
+                      onSwipeFinish: () async {
+                        setState(() {
+                          loading = true;
+                        });
+                        BlocProvider.of<PickerOrderDetailsCubit>(
+                          context,
+                        ).updateMainOrderStat(
+                          widget.orderResponseItem.subgroupIdentifier,
+                        );
+                      },
+                    ),
+                  ),
+        ),
+      );
+    } else if (widget.orderResponseItem.status != "end_picking" &&
+        BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex == 1 &&
+        !isPricechange) {
+      return PriceWidget(
+        orderResponseItem: widget.orderResponseItem,
+        pickerprice:
+            UserController.userController.orderdata.containsKey(
+                  widget.orderResponseItem.subgroupIdentifier,
+                )
+                ? UserController().orderdata[widget
+                    .orderResponseItem
+                    .subgroupIdentifier]
+                : context.read<PickerOrderDetailsCubit>().pickertotal,
+        onTapConfirm: () {
+          setState(() {
+            isPricechange = !isPricechange;
+          });
+        },
+      );
+    } else {
+      return SizedBox();
+    }
   }
 }
 

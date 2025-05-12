@@ -338,6 +338,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         convertbarcode = replaceAfterFirstSixWithZero(scannedSku);
       }
 
+      log(scannedSku);
+
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
         endpoint: convertbarcode != '' ? convertbarcode : scannedSku,
       );

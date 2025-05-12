@@ -356,8 +356,6 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
     final currentstate = state;
 
-    log(sectionlist.toString());
-
     if (keyword.isNotEmpty) {
       if (!searchactive) {
         searchactive = true;

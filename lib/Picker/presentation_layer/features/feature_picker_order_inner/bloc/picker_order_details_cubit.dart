@@ -60,6 +60,8 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
   int page = 1;
 
+  double pickertotal = 00.0;
+
   updateSelectedItem(int index) async {
     groupedItems.clear();
 
@@ -70,6 +72,8 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     tabindex = index;
 
     list.clear();
+
+    pickertotal = 00.0;
 
     List.generate(itemslist!.assignedPicker!.length, (index) {
       if (!catlist.contains(itemslist!.assignedPicker![index].catename)) {
@@ -106,6 +110,10 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       }
 
       topickitems.add(itemslist!.startPicking![index]);
+
+      // pickertotal =
+      //     pickertotal +
+      //     double.parse(itemslist!.startPicking![index].finalPrice);
     });
 
     List.generate(itemslist!.endPicking.length, (index) {
@@ -114,6 +122,15 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       }
 
       pickeditems.add(itemslist!.endPicking[index]);
+
+      // ignore: unrelated_type_equality_checks
+      if (itemslist!.endPicking[index].finalPrice != 0) {
+        pickertotal =
+            pickertotal + double.parse(itemslist!.endPicking[index].finalPrice);
+      } else {
+        pickertotal =
+            pickertotal + double.parse(itemslist!.endPicking[index].subtotal);
+      }
     });
 
     List.generate(itemslist!.itemNotAvailable!.length, (index) {
@@ -138,6 +155,9 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       }
 
       topickitems.add(itemslist!.holded![index]);
+
+      // pickertotal =
+      //     pickertotal + double.parse(itemslist!.holded![index].finalPrice);
     });
 
     List.generate(itemslist!.materialRequest!.length, (index) {
