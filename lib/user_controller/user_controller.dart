@@ -42,7 +42,7 @@ class UserController {
   bool scanselection = true;
   final translationCache = <String, String>{};
   bool translate = false;
-  Map<String, dynamic> orderdata = {};
+  Map<String, double> orderdata = {};
 
   String barwalong = "51.50264277400484";
   String barwalat = "25.219673232058142";

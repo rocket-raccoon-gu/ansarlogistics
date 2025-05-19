@@ -1,6 +1,7 @@
+// ignore_for_file: avoid_print
+
 import 'dart:developer';
 import 'dart:typed_data';
-
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/ui/manual_pick.dart';
@@ -132,6 +133,32 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
   bool isScanner = false;
 
   bool isTranslate = false;
+
+  String calculateTotalWeight(
+    String qtyOrdered,
+    String itemWeight,
+    String weightUnit,
+  ) {
+    if (weightUnit == "kg" && weightUnit != "") {
+      print("kg");
+      return itemWeight + "kg";
+    } else {
+      print("gm");
+      return itemWeight + "gm";
+    }
+    // print("$weightUnit dasfasdfasdfdasfdfas");
+    // double qty = double.tryParse(qtyOrdered) ?? 0.0;
+    // double weightPerItemInGrams = double.tryParse(itemWeight) ?? 0.0;
+
+    // double totalInGrams = qty * weightPerItemInGrams;
+
+    // if (totalInGrams >= 1000) {
+    //   double totalInKg = totalInGrams / 1000;
+    //   return "${totalInKg.toStringAsFixed(2)} kg";
+    // } else {
+    //   return "${totalInGrams.toStringAsFixed(0)} gm";
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -915,75 +942,84 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
                                         // state.orderItem.itemStatus ==
                                         //             "end_picking" ||
-                                        state.orderItem.itemStatus ==
-                                                "item_not_available"
-                                            ? Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 12.0,
-                                                  ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    "Quantity",
-                                                    style: customTextStyle(
-                                                      fontStyle:
-                                                          FontStyle
-                                                              .HeaderXS_Bold,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 15,
-                                                        ),
-                                                    child: Text(
-                                                      (double.parse(
-                                                                state
-                                                                    .orderItem
-                                                                    .qtyOrdered,
-                                                              ).toInt() -
-                                                              double.parse(
-                                                                state
-                                                                    .orderItem
-                                                                    .qtyCanceled,
-                                                              ).toInt())
-                                                          .toString(),
-                                                      style: customTextStyle(
-                                                        fontStyle:
-                                                            FontStyle
-                                                                .BodyL_Bold,
-                                                        color:
-                                                            FontColor
-                                                                .FontPrimary,
+                                        !UserController
+                                                    .userController
+                                                    .itemnotavailablelist
+                                                    .contains(
+                                                      state.orderItem,
+                                                    ) &&
+                                                state.orderItem.isproduce == "0"
+                                            ? state.orderItem.itemStatus ==
+                                                    "item_not_available"
+                                                ? Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 12.0,
                                                       ),
-                                                    ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Quantity",
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .HeaderXS_Bold,
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 15,
+                                                            ),
+                                                        child: Text(
+                                                          (double.parse(
+                                                                    state
+                                                                        .orderItem
+                                                                        .qtyOrdered,
+                                                                  ).toInt() -
+                                                                  double.parse(
+                                                                    state
+                                                                        .orderItem
+                                                                        .qtyCanceled,
+                                                                  ).toInt())
+                                                              .toString(),
+                                                          style: customTextStyle(
+                                                            fontStyle:
+                                                                FontStyle
+                                                                    .BodyL_Bold,
+                                                            color:
+                                                                FontColor
+                                                                    .FontPrimary,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
-                                            )
-                                            : Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 12.0,
-                                                  ),
-                                              child: CounterDropdown(
-                                                initNumber: editquantity,
-                                                counterCallback: (v) {
-                                                  setState(() {
-                                                    // qtylist[index]['qty'] = v;
-                                                    // editquantity = v;
+                                                )
+                                                : Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 12.0,
+                                                      ),
+                                                  child: CounterDropdown(
+                                                    initNumber: editquantity,
+                                                    counterCallback: (v) {
+                                                      setState(() {
+                                                        // qtylist[index]['qty'] = v;
+                                                        // editquantity = v;
 
-                                                    editquantity = v;
-                                                  });
-                                                },
-                                                maxNumber: 100,
-                                                minNumber: 0,
-                                              ),
-                                            ),
+                                                        editquantity = v;
+                                                      });
+                                                    },
+                                                    maxNumber: 100,
+                                                    minNumber: 0,
+                                                  ),
+                                                )
+                                            : SizedBox(),
+
                                         Padding(
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 8.0,
@@ -1085,6 +1121,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                               ],
                                             )
                                             : SizedBox(),
+
                                         // widget.data['condition'] &&
                                         !UserController
                                                     .userController
@@ -1103,20 +1140,31 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                         .spaceBetween,
                                                 children: [
                                                   Text(
-                                                    "Is Produce ?",
+                                                    "Item Weight",
                                                     style: customTextStyle(
                                                       fontStyle:
                                                           FontStyle
                                                               .HeaderXS_Bold,
                                                     ),
                                                   ),
-                                                  Checkbox(
-                                                    value: pricechange,
-                                                    onChanged: (val) {
-                                                      setState(() {
-                                                        pricechange = val!;
-                                                      });
-                                                    },
+
+                                                  Text(
+                                                    calculateTotalWeight(
+                                                      state
+                                                          .orderItem
+                                                          .qtyOrdered,
+                                                      state
+                                                          .orderItem
+                                                          .itemWeight,
+                                                      state
+                                                          .orderItem
+                                                          .weightUnit,
+                                                    ),
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle
+                                                              .HeaderXS_Bold,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -1673,7 +1721,15 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                             ),
                             child: InkWell(
                               onTap: () async {
-                                if (editquantity != 0) {
+                                final cubit =
+                                    BlocProvider.of<OrderItemDetailsCubit>(
+                                      context,
+                                    );
+
+                                // Access the orderItem and its price
+                                final isProduce = cubit.orderItem!.isproduce;
+
+                                if (editquantity != 0 || isProduce == "1") {
                                   if (ismanual) {
                                     updateManualScan(
                                       barcodeController.text.toString(),

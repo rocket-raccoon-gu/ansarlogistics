@@ -56,6 +56,7 @@ class PickerReportCubit extends Cubit<PickerReportState> {
         endDate: enddate1,
         token: token,
       );
+      // print("${jsonDecode(responce)}respose of report");
       if (responce.statusCode == 200) {
         Map<String, dynamic> jsonresponce = jsonDecode(responce.body);
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/price_widget.dart';
@@ -16,6 +18,7 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -60,13 +63,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
                 children: [
                   OrderInnerAppBar(
                     onTapBack: () async {
-                      // if (UserController.userController.alloworderupdated) {
-                      //   UserController.userController.alloworderupdated = false;
-                      //   context.gNavigationService
-                      //       .openPickerWorkspacePage(context);
-                      // } else {
                       context.gNavigationService.back(context);
-                      // }
                     },
                     orderResponseItem: widget.orderResponseItem,
                     onTapinfo: () {
@@ -183,15 +180,21 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
         )) {
       return PriceWidget(
         orderResponseItem: widget.orderResponseItem,
-        pickerprice: double.parse(
-          UserController()
-              .orderdata[widget.orderResponseItem.subgroupIdentifier]
-              .toString(),
-        ),
-        onTapConfirm: () {
+        orderStatus: widget.orderResponseItem.status,
+        shippingCharge: widget.orderResponseItem.shippingCharges,
+        // pickerprice: double.parse(
+        //   UserController()
+        //       .orderdata[widget.orderResponseItem.subgroupIdentifier]
+        //       .toString(),
+        // ),
+        onTapConfirm: () async {
           setState(() {
             isPricechange = !isPricechange;
           });
+
+          await PreferenceUtils.removeDataFromShared(
+            widget.orderResponseItem.subgroupIdentifier,
+          );
         },
       );
     } else {

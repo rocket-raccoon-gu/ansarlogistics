@@ -672,6 +672,10 @@ extension PDGeneralApi on PickerDriverApi {
   }) {
     Uri url;
 
+    // print("${startDate} <<<<<<<<<<<<<<<start data");
+    // print("${endDate} <<<<<<<<<<<<<<<endDate data");
+    // print("${token} <<<<<<<<<<<<<<<token data");
+
     if (startDate != "" && endDate == "") {
       url = Uri.parse(
         _endpointWithApplicationPathString(
@@ -1134,7 +1138,7 @@ extension on PickerDriverApi {
         // return '${productUrl1}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=793,782,781&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,visibility,status,extension_attributes,media_gallery_entries]';
         return '${root}get_section_data.php?category_ids=793,782,781';
       case "ahqa_veg":
-        return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1214,1215,1216,1207,1219,1226,1220,1230,1228,1231';
+        return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1214,1215,1216,1207,1219,1226,1220,1230,1228,1231,1299';
       case "veg_rawdah":
         return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
       case "veg_rayyan":

@@ -170,14 +170,12 @@ String decryptStringForUser(String encryptedHex, String key) {
 getdateformatted(DateTime dt) {
   var dateformat = DateFormat('MM-dd-yyyy');
   var formatted = dateformat.format(dt);
-  print(formatted);
   return formatted;
 }
 
 getdateformattedrescheduled(DateTime dt) {
   var dateformat = DateFormat('yyyy-MM-dd');
   var formatted = dateformat.format(dt);
-  print(formatted);
   return formatted;
 }
 
@@ -228,6 +226,7 @@ getstatColor(String stat) {
     case "Canceled":
       return customColors().carnationRed;
     default:
+      return customColors().red2;
   }
 }
 

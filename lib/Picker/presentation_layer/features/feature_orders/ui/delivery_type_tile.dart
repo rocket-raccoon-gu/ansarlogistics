@@ -40,13 +40,13 @@ class DeliveryTypeTile extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                orderResponseItem.deliveryTimerange.toString(),
-                style: customTextStyle(
-                  fontStyle: FontStyle.BodyL_SemiBold,
-                  color: FontColor.White,
-                ),
-              ),
+              // Text(
+              //   orderResponseItem.deliveryTimerange.toString(),
+              //   style: customTextStyle(
+              //     fontStyle: FontStyle.BodyL_SemiBold,
+              //     color: FontColor.White,
+              //   ),
+              // ),
               OrderStatusWidget(status: orderResponseItem.status),
             ],
           ),

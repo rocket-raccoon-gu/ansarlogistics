@@ -304,10 +304,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
             if (bar == barcode) {
               double pr = double.parse(price) / mainqty;
 
-              print(pr);
-
-              print(mainqty);
-
               // if (editquantity != 0) {
               //   BlocProvider.of<OrderItemDetailsCubit>(context)
               //       .updateitemstatus("end_picking", editquantity.toString(),
@@ -360,10 +356,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
               // load = true;
 
               double pr = double.parse(price) / mainqty;
-
-              print(pr);
-
-              print(mainqty);
 
               // if (editquantity != 0) {
               //   BlocProvider.of<OrderItemDetailsCubit>(context)
@@ -523,7 +515,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
       showSnackBar(
         context: context,
-        snackBar: showSuccessDialogue(message: "status updted"),
+        snackBar: showSuccessDialogue(message: "status updte4444d"),
       );
 
       // Navigator.of(context).popUntil((route) => route.isFirst);
@@ -554,7 +546,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(
-          errorMessage: "status update failed try again...",
+          errorMessage: "status update failed try again...one",
         ),
       );
 

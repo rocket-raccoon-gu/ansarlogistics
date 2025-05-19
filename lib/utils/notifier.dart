@@ -12,15 +12,22 @@ class DataChangedEvent {
   DataChangedEvent(this.newData);
 
   updatePriceData(String orderid, String price) async {
-    if (UserController.userController.orderdata.containsKey(orderid)) {
-      UserController.userController.orderdata[orderid] =
-          UserController.userController.orderdata[orderid] +
-          double.parse(price);
-    } else {
-      UserController.userController.orderdata.addAll({orderid: price});
-    }
+    try {
+      if (UserController.userController.orderdata.containsKey(orderid)) {
+        UserController.userController.orderdata[orderid] =
+            UserController.userController.orderdata[orderid]! +
+            double.parse(price);
+      } else {
+        UserController.userController.orderdata.addAll({
+          orderid: double.parse(price),
+        });
+      }
 
-    await saveOrderDataToPrefs();
+      String jsonString = json.encode(UserController.userController.orderdata);
+      await PreferenceUtils.storeDataToShared('orderdata', jsonString);
+    } catch (e) {
+      throw e;
+    }
   }
 }
 

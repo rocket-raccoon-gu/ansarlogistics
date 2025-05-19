@@ -176,7 +176,11 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
           // context.gNavigationService.openPickerWorkspacePage(context);
 
-          eventBus.fire(DataChangedEvent("New Data from Screen B"));
+          eventBus.fire(
+            DataChangedEvent(
+              "New Data from Screen B",
+            ).updatePriceData(orderItemsResponse!.subgroupIdentifier, price),
+          );
 
           UserController.userController.alloworderupdated = true;
 

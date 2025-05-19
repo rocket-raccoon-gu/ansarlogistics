@@ -459,21 +459,77 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                                                   ),
                                                 ],
                                               ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 4.0,
-                                                      vertical: 4.0,
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                          left: 2.0,
+                                                        ),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          "Final Price :",
+                                                          style: customTextStyle(
+                                                            fontStyle:
+                                                                FontStyle
+                                                                    .BodyL_SemiBold,
+                                                            color:
+                                                                FontColor
+                                                                    .FontTertiary,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          double.parse(
+                                                            itemslistbackcategories[index]
+                                                                .finalPrice,
+                                                          ).toStringAsFixed(2),
+                                                          style: customTextStyle(
+                                                            fontStyle:
+                                                                FontStyle
+                                                                    .Inter_SemiBold,
+                                                            color:
+                                                                FontColor
+                                                                    .FontPrimary,
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets.only(
+                                                                left: 5.0,
+                                                              ),
+                                                          child: Text(
+                                                            "QAR",
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyM_Bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                child: Row(
-                                                  children: [
-                                                    getitemstat(
-                                                      itemslistbackcategories[index],
-                                                      context,
-                                                    ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                ],
                                               ),
+                                              // Padding(
+                                              //   padding:
+                                              //       const EdgeInsets.symmetric(
+                                              //         horizontal: 4.0,
+                                              //         vertical: 4.0,
+                                              //       ),
+                                              //   child: Row(
+                                              //     children: [
+                                              //       getitemstat(
+                                              //         itemslistbackcategories[index],
+                                              //         context,
+                                              //       ),
+                                              //     ],
+                                              //   ),
+                                              // ),
                                             ],
                                           ),
                                         ),

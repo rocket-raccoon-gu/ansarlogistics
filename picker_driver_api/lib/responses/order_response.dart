@@ -35,7 +35,7 @@ class Order {
   DateTime deliveryTo;
   String grandTotal;
   String shippedAmount;
-  String statusType;
+  String? statusType;
   String deliveryTimerange;
   String customerFirstname;
   dynamic customerLastname;
@@ -54,6 +54,8 @@ class Order {
   dynamic floorNumber;
   Items items;
   int itemCount;
+  String shippingCharges;
+  // String weightUnit;
 
   Order({
     required this.entityId,
@@ -83,6 +85,8 @@ class Order {
     required this.floorNumber,
     required this.items,
     required this.itemCount,
+    required this.shippingCharges,
+    // required this.weightUnit,
   });
 
   Order copyWith({
@@ -141,6 +145,8 @@ class Order {
     floorNumber: floorNumber ?? this.floorNumber,
     items: items ?? this.items,
     itemCount: itemCount ?? this.itemCount,
+    shippingCharges: shippingCharges ?? this.shippingCharges,
+    // weightUnit: weightUnit ?? this.weightUnit,
   );
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -175,6 +181,8 @@ class Order {
     floorNumber: json["floor_number"] ?? "",
     items: Items.fromJson(json["items"].length == 0 ? {} : json["items"]),
     itemCount: json["item_count"] ?? "",
+    shippingCharges: json['shipping_charge'] ?? "",
+    // weightUnit: json['weight_unit'] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -205,6 +213,8 @@ class Order {
     "floor_number": floorNumber,
     "items": items.toJson(),
     "item_count": itemCount,
+    "shipping_charge": shippingCharges,
+    // "weight_unit": weightUnit,
   };
 }
 
@@ -365,6 +375,9 @@ class EndPicking {
   String isproduce;
   String categoryid;
   String catename;
+  String itemWeight;
+  String weightUnit;
+
   List<String> productImages;
   // List<String> categoryListId;
 
@@ -380,6 +393,7 @@ class EndPicking {
     required this.qtyShipped,
     required this.price,
     required this.finalPrice,
+    required this.itemWeight,
     required this.discountPercent,
     required this.discountAmount,
     required this.subtotal,
@@ -387,6 +401,7 @@ class EndPicking {
     required this.categoryid,
     required this.catename,
     required this.productImages,
+    required this.weightUnit,
     // required this.categoryListId,
   });
 
@@ -402,6 +417,8 @@ class EndPicking {
     String? qtyShipped,
     String? price,
     String? finalPrice,
+    String? itemWeight,
+    String? weightUnit,
     String? discountPercent,
     String? discountAmount,
     String? subtotal,
@@ -422,6 +439,8 @@ class EndPicking {
     qtyShipped: qtyShipped ?? this.qtyShipped,
     price: price ?? this.price,
     finalPrice: finalPrice ?? this.finalPrice,
+    itemWeight: itemWeight ?? this.itemWeight,
+    weightUnit: weightUnit ?? this.weightUnit,
     discountPercent: discountPercent ?? this.discountPercent,
     discountAmount: discountAmount ?? this.discountAmount,
     subtotal: subtotal ?? this.subtotal,
@@ -444,6 +463,8 @@ class EndPicking {
     qtyShipped: json["qty_shipped"],
     price: json["price"],
     finalPrice: json["final_price"],
+    itemWeight: json["weight"],
+    weightUnit: json["weight_unit"],
     discountPercent: json["discount_percent"],
     discountAmount: json["discount_amount"],
     subtotal: json["subtotal"] ?? "",
@@ -469,6 +490,8 @@ class EndPicking {
     "qty_shipped": qtyShipped,
     "price": price,
     "final_price": finalPrice,
+    "weight": itemWeight,
+    "weight_unit": weightUnit,
     "discount_percent": discountPercent,
     "discount_amount": discountAmount,
     "subtotal": subtotal,

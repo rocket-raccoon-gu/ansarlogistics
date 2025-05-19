@@ -19,6 +19,10 @@ logout(BuildContext context) async {
     }
   }
 
+  if (UserController.userController.profile.role == "1") {
+    await PreferenceUtils.clear();
+  }
+
   RestartWidget.restartApp(context);
 
   UserController().translationCache.clear();

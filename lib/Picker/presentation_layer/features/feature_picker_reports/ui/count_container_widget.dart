@@ -23,13 +23,6 @@ class CountContainer extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Text(
-          //   title,
-          //   style: customTextStyle(
-          //     fontStyle: FontStyle.BodyL_Bold,
-          //     color: FontColor.White,
-          //   ),
-          // ),
           TranslatedText(
             text: title,
             style: customTextStyle(

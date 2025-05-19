@@ -9,6 +9,7 @@ class MapArguments {
 swithcnavigate(BuildContext context, String role) {
   switch (role) {
     case "1":
+    case "4":
       context.gNavigationService.openPickerWorkspacePage(context);
       break;
     case "2":

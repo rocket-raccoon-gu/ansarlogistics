@@ -131,15 +131,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
-      Map<String, dynamic> body = {};
-
-      body = {
+      Map<String, dynamic> body = {
         "item_id": int.parse(orderItem!.itemId),
         "scanned_sku": scannedSku,
         "item_status": "end_picking",
         "shipping": "",
         "price": double.parse(price),
-        "qty": int.parse(qty),
+        "qty": double.parse(qty).toInt(),
         "reason": "",
         "picker_id": int.parse(UserController().profile.id),
         "is_produce": int.parse(orderItem!.isproduce),
@@ -159,34 +157,20 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         UserController.userController.indexlist.add(orderItem!);
         UserController.userController.pickerindexlist.add(orderItem!.itemId);
 
+        log("💵 Price logged: $price");
+
         eventBus.fire(
           DataChangedEvent(
             "New Data from Screen B",
           ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
         );
 
-        // Generate and save barcode before making the API call
-        // await BarcodeUtils.addBarcodeData(z
-        //   scannedSku,
-        //   orderResponseItem!.subgroupIdentifier,
-        // );
-
-        // List<String> list = await BarcodeUtils.getBarcodeDataList(
-        //   orderResponseItem!.subgroupIdentifier,
-        // );
-
-        // log(list.toString());
-
-        // UserController.userController.alloworderupdated = true;
-
         showSnackBar(
           context: context,
-          snackBar: showSuccessDialogue(message: "status updted"),
+          snackBar: showSuccessDialogue(message: "status updted2222222222"),
         );
 
         Navigator.of(context).popUntil((route) => route.isFirst);
-
-        // context.read<PickerOrdersCubit>().loadPosts(0, 'all');
 
         context.gNavigationService.openPickerOrderInnerPage(
           context,
@@ -194,10 +178,11 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         );
       } else {
         loading = false;
+
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(
-            errorMessage: "status update failed try again...",
+            errorMessage: "status update failed try again..one.",
           ),
         );
 
@@ -207,13 +192,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
           );
         }
       }
-    } catch (e) {
+    } catch (e, stacktrace) {
       loading = false;
 
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(
-          errorMessage: "status update failed try again...",
+          errorMessage: "status update failed try again..two.",
         ),
       );
 
@@ -291,7 +276,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(
-            errorMessage: "status update failed try again...",
+            errorMessage: "status update failed try again..three.",
           ),
         );
 
@@ -307,7 +292,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(
-          errorMessage: "status update failed try again...",
+          errorMessage: "status update failed try again.four..",
         ),
       );
 
@@ -362,7 +347,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
               '${erPdata.message} $scannedSku',
               () {
                 if (orderItem.price == erPdata.erpPrice) {
-                  updateitemstatuspick(qty, scannedSku, erPdata.erpPrice);
+                  updateitemstatuspick(
+                    qty,
+                    scannedSku,
+                    orderItem.isproduce == "1"
+                        ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                        : erPdata.erpPrice,
+                  );
                 } else {
                   showSnackBar(
                     context: context,
@@ -398,7 +389,9 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 updateitemstatuspick(
                   qty,
                   scannedSku,
-                  productDBdata.currentPromotionPrice,
+                  orderItem.isproduce == "1"
+                      ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                      : productDBdata.currentPromotionPrice,
                 );
                 // } else {
                 //   showSnackBar(

@@ -66,14 +66,6 @@ class _PickerDashboardPageState extends State<PickerDashboardPage> {
                 },
               ),
             );
-            // showAlertDilogue(
-            //     context: context,
-            //     content:
-            //         "Session expired, or you have loged in from a different location.",
-            //     positiveButtonName: "Relogin",
-            //     onPositiveButtonClick: () async {
-            //       await logout(context);
-            //     });
           }
         });
   }
