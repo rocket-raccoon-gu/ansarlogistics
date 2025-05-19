@@ -51,6 +51,9 @@ class PriceWidget extends StatelessWidget {
     double shippingCharges = double.tryParse(shippingCharge.trim()) ?? 0.0;
     bool hasShipping = shippingCharges > 0;
 
+    double totalAmount =
+        hasShipping ? shippingCharges + grandTotal : grandTotal;
+
     bool pickerListIsEmpty =
         assignedPickerFromResponse == null ||
         assignedPickerFromResponse.isEmpty;
@@ -78,9 +81,7 @@ class PriceWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                (hasShipping ? (grandTotal - 10) : grandTotal).toStringAsFixed(
-                  2,
-                ),
+                (grandTotal).toStringAsFixed(2),
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_Bold,
                   color: FontColor.White,
@@ -127,7 +128,7 @@ class PriceWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                grandTotal.toStringAsFixed(2),
+                totalAmount.toStringAsFixed(2),
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_Bold,
                   color: FontColor.White,
@@ -164,7 +165,7 @@ class PriceWidget extends StatelessWidget {
 
           // ✅ Price mismatch warning
           if (orderStatus == "start_picking")
-            if ((finalPickerTotal - grandTotal).abs() > epsilon)
+            if ((finalPickerTotal - totalAmount).abs() > epsilon)
               Container(
                 padding: const EdgeInsets.all(8.0),
                 color: Colors.red,
