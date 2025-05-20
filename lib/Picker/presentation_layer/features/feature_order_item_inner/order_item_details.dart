@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 import 'dart:typed_data';
+
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/ui/manual_pick.dart';

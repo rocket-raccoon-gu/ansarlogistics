@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/custom_text_form_field.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -8,6 +10,7 @@ class ManualPick extends StatefulWidget {
   EndPicking? orderItem;
   Function(int) counterCallback;
   TextEditingController barcodeController;
+
   ManualPick({
     super.key,
     required this.orderItem,
@@ -22,6 +25,7 @@ class ManualPick extends StatefulWidget {
 class _ManualPickState extends State<ManualPick> {
   @override
   Widget build(BuildContext context) {
+    print(widget.orderItem!.toJson()); // Safest and cleanest way
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14.0),
       child: Column(
@@ -46,15 +50,16 @@ class _ManualPickState extends State<ManualPick> {
             ],
           ),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
-            child: CounterDropdown(
-              initNumber: 0,
-              counterCallback: widget.counterCallback,
-              maxNumber: 100,
-              minNumber: 0,
+          if (widget.orderItem?.isproduce != "1")
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: CounterDropdown(
+                initNumber: 0,
+                counterCallback: widget.counterCallback,
+                maxNumber: 100,
+                minNumber: 0,
+              ),
             ),
-          ),
         ],
       ),
     );

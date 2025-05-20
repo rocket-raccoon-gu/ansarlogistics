@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/price_widget.dart';
@@ -61,6 +60,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
             children: [
               Column(
                 children: [
+                  // ------------------------------- header start ----------------------------------------
                   OrderInnerAppBar(
                     onTapBack: () async {
                       context.gNavigationService.back(context);
@@ -79,6 +79,8 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
                       });
                     },
                   ),
+
+                  // ------------------------------- header start ----------------------------------------
                   Expanded(
                     child: Column(
                       children: [
@@ -100,9 +102,10 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
                       ],
                     ),
                   ),
+                  getBottomContainer(),
                 ],
               ),
-              Positioned(bottom: 15.0, child: getBottomContainer()),
+              // Positioned(bottom: 15.0, child: getBottomContainer()),
             ],
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
