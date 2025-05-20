@@ -140,6 +140,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
   }
 
   Widget getBottomContainer() {
+    print("${widget.orderResponseItem.status} widget.orderResponseItem.status");
     if (widget.orderResponseItem.status != "end_picking" &&
         BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex == 1 &&
         isPricechange) {
@@ -181,6 +182,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
         UserController.userController.orderdata.containsKey(
           widget.orderResponseItem.subgroupIdentifier,
         )) {
+      print("asdfdfdfdfdfdfdfdf");
       return PriceWidget(
         orderResponseItem: widget.orderResponseItem,
         orderStatus: widget.orderResponseItem.status,

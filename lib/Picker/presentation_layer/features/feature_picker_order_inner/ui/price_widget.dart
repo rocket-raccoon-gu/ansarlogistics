@@ -81,7 +81,8 @@ class PriceWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                (grandTotal).toStringAsFixed(2),
+                (hasShipping ? grandTotal : grandTotal - shippingCharges)
+                    .toStringAsFixed(2),
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_Bold,
                   color: FontColor.White,
