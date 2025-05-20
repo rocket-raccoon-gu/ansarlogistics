@@ -181,42 +181,54 @@ class ItemItem {
     String? subtotal,
     List<String>? categoryListId,
     List<String>? productImages,
-  }) => ItemItem(
-    itemId: itemId ?? this.itemId,
-    productSku: productSku ?? this.productSku,
-    productName: productName ?? this.productName,
-    itemStatus: itemStatus ?? this.itemStatus,
-    productOptions: productOptions ?? this.productOptions,
-    qtyOrdered: qtyOrdered ?? this.qtyOrdered,
-    qtyCanceled: qtyCanceled ?? this.qtyCanceled,
-    qtyShipped: qtyShipped ?? this.qtyShipped,
-    qtyRefunded: qtyRefunded ?? this.qtyRefunded,
-    price: price ?? this.price,
-    finalPrice: finalPrice ?? this.finalPrice,
-    discountPercent: discountPercent ?? this.discountPercent,
-    discountAmount: discountAmount ?? this.discountAmount,
-    subtotal: subtotal ?? this.subtotal,
-    categoryListId: categoryListId ?? this.categoryListId,
-    productImages: productImages ?? this.productImages,
-  );
+  }) {
+    return ItemItem(
+      itemId: itemId ?? this.itemId,
+      productSku: productSku ?? this.productSku,
+      productName: productName ?? this.productName,
+      itemStatus: itemStatus ?? this.itemStatus,
+      productOptions: productOptions ?? this.productOptions,
+      qtyOrdered: qtyOrdered ?? this.qtyOrdered,
+      qtyCanceled: qtyCanceled ?? this.qtyCanceled,
+      qtyShipped: qtyShipped ?? this.qtyShipped,
+      qtyRefunded: qtyRefunded ?? this.qtyRefunded,
+      price: price ?? this.price,
+      finalPrice: finalPrice ?? this.finalPrice,
+      discountPercent: discountPercent ?? this.discountPercent,
+      discountAmount: discountAmount ?? this.discountAmount,
+      subtotal: subtotal ?? this.subtotal,
+      categoryListId: categoryListId ?? this.categoryListId,
+      productImages: productImages ?? this.productImages,
+    );
+  }
 
   factory ItemItem.fromJson(Map<String, dynamic> json) => ItemItem(
-    itemId: json["item_id"],
-    productSku: json["product_sku"],
-    productName: json["product_name"],
-    itemStatus: json["item_status"],
-    productOptions: json["product_options"],
-    qtyOrdered: json["qty_ordered"],
-    qtyCanceled: json["qty_canceled"],
-    qtyShipped: json["qty_shipped"],
-    qtyRefunded: json["qty_refunded"],
-    price: json["price"],
-    finalPrice: json["final_price"],
-    discountPercent: json["discount_percent"],
-    discountAmount: json["discount_amount"],
-    subtotal: json["subtotal"],
-    categoryListId: List<String>.from(json["category_list_id"].map((x) => x)),
-    productImages: List<String>.from(json["product_images"].map((x) => x)),
+    itemId: json["item_id"]?.toString() ?? "",
+    productSku: json["product_sku"]?.toString() ?? "",
+    productName: json["product_name"]?.toString() ?? "",
+    itemStatus: json["item_status"]?.toString() ?? "",
+    productOptions: json["product_options"]?.toString() ?? "",
+    qtyOrdered: json["qty_ordered"]?.toString() ?? "",
+    qtyCanceled: json["qty_canceled"]?.toString() ?? "",
+    qtyShipped: json["qty_shipped"]?.toString() ?? "",
+    qtyRefunded: json["qty_refunded"]?.toString() ?? "",
+    price: json["price"]?.toString() ?? "",
+    finalPrice: json["final_price"]?.toString() ?? "",
+    discountPercent: json["discount_percent"]?.toString() ?? "",
+    discountAmount: json["discount_amount"]?.toString() ?? "",
+    subtotal: json["subtotal"]?.toString() ?? "",
+    categoryListId:
+        (json["category_list_id"] as List?)
+            ?.map((x) => x?.toString() ?? "")
+            .where((x) => x.isNotEmpty)
+            .toList() ??
+        [],
+    productImages:
+        (json["product_images"] as List?)
+            ?.map((x) => x?.toString() ?? "")
+            .where((x) => x.isNotEmpty)
+            .toList() ??
+        [],
   );
 
   Map<String, dynamic> toJson() => {
@@ -234,7 +246,7 @@ class ItemItem {
     "discount_percent": discountPercent,
     "discount_amount": discountAmount,
     "subtotal": subtotal,
-    "category_list_id": List<dynamic>.from(categoryListId.map((x) => x)),
-    "product_images": List<dynamic>.from(productImages.map((x) => x)),
+    "category_list_id": categoryListId,
+    "product_images": productImages,
   };
 }

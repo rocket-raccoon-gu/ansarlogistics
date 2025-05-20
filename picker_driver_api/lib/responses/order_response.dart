@@ -14,24 +14,12 @@ class OrderResponse {
 
   OrderResponse({required this.items});
 
-  factory OrderResponse.fromJson(Map<String, dynamic> json) {
-    print("🔍 Parsing OrderResponse.fromJson...");
-    final itemsJson = json["items"] ?? [];
-    print("🔢 items count: ${itemsJson.length}");
+  OrderResponse copyWith({List<Order>? items}) =>
+      OrderResponse(items: items ?? this.items);
 
-    return OrderResponse(
-      items: List<Order>.from(
-        itemsJson.map<Order?>((x) {
-          try {
-            return Order.fromJson(x);
-          } catch (e) {
-            print("❌ Failed to parse Order item: $e");
-            return null; // Skip this one
-          }
-        }).whereType<Order>(), // Removes nulls
-      ),
-    );
-  }
+  factory OrderResponse.fromJson(Map<String, dynamic> json) => OrderResponse(
+    items: List<Order>.from(json["items"].map((x) => Order.fromJson(x))),
+  );
 
   Map<String, dynamic> toJson() => {
     "items": List<dynamic>.from(items.map((x) => x.toJson())),
@@ -50,24 +38,24 @@ class Order {
   String? statusType;
   String deliveryTimerange;
   String customerFirstname;
-  String?
-  customerLastname; // <-- make nullable String or keep dynamic, but safer String?
+  dynamic customerLastname;
   String billingStreet;
   String customerEmail;
   String postcode;
-  String? buildingNumber; // <-- nullable String
+  String? buildingNumber;
   String telephone;
   String latitude;
   String longitude;
   String paymentMethod;
   String deliveryNote;
-  String? addressLabel; // <-- nullable String
-  String? buildingName; // <-- nullable String instead of dynamic (better)
-  String? flatNumber; // <-- nullable String
-  String? floorNumber; // <-- nullable String
+  String? addressLabel;
+  dynamic buildingName;
+  dynamic flatNumber;
+  dynamic floorNumber;
   Items items;
   int itemCount;
   String shippingCharges;
+  // String weightUnit;
 
   Order({
     required this.entityId,
@@ -162,7 +150,7 @@ class Order {
   );
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
-    entityId: json["entity_id"].toString(),
+    entityId: json["entity_id"].toString() ?? "",
     subgroupIdentifier: json["subgroup_identifier"] ?? "",
     status: json["status"] ?? "",
     type: json["type"] ?? "",
@@ -174,26 +162,27 @@ class Order {
     ),
     grandTotal: json["grand_total"] ?? "",
     shippedAmount: json["shipped_amount"] ?? "",
-    statusType: json["status_type"] as String?, // <-- accept null
+    statusType: json["status_type"] ?? "",
     deliveryTimerange: json["delivery_timerange"] ?? "",
     customerFirstname: json["customer_firstname"] ?? "",
-    customerLastname: json["customer_lastname"] as String?, // <-- nullable
+    customerLastname: json["customer_lastname"] ?? "",
     billingStreet: json["billing_street"] ?? "",
     customerEmail: json["customer_email"] ?? "",
     postcode: json["postcode"] ?? "",
-    buildingNumber: json["building_number"] as String?,
+    buildingNumber: json["building_number"] ?? "",
     telephone: json["telephone"] ?? "",
     latitude: json["latitude"] ?? "",
     longitude: json["longitude"] ?? "",
     paymentMethod: json["payment_method"] ?? "",
     deliveryNote: json["delivery_note"] ?? "",
-    addressLabel: json["address_label"] as String?,
-    buildingName: json["building_name"] as String?,
-    flatNumber: json["flat_number"] as String?,
-    floorNumber: json["floor_number"] as String?,
+    addressLabel: json["address_label"] ?? "",
+    buildingName: json["building_name"] ?? "",
+    flatNumber: json["flat_number"] ?? "",
+    floorNumber: json["floor_number"] ?? "",
     items: Items.fromJson(json["items"].length == 0 ? {} : json["items"]),
-    itemCount: json["item_count"] ?? 0,
+    itemCount: json["item_count"] ?? "",
     shippingCharges: json['shipping_charge'] ?? "",
+    // weightUnit: json['weight_unit'] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
