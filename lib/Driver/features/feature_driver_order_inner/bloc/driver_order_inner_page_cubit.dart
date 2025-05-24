@@ -55,46 +55,6 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
     emit(DriverOrderInitialPageState(assignedDriver: assignedDriver));
   }
 
-  // updateSelectedItem(int val) async {
-
-  //   assignedDriver.clear();
-
-  //   String? token = await PreferenceUtils.getDataFromShared("usertoken");
-
-  //   final response = await serviceLocator.tradingApi.orderItemRequestService(
-  //       orderid: orderItem.subgroupIdentifier, token: token);
-
-  //   if (response != null && response.statusCode == 200) {
-  //     Map<String, dynamic> mapdata = jsonDecode(response.body);
-
-  //     if (mapdata.containsKey('success') && mapdata['success'] == 0) {
-  //       showSnackBar(
-  //           context: context,
-  //           snackBar: showErrorDialogue(
-  //               errorMessage: "Token got expired try again..."));
-  //     } else {
-  //       OrderItemsResponse orderItemsResponse =
-  //           OrderItemsResponse.fromJson(mapdata);
-
-  //       if (orderItemsResponse.items.assignedDriver.isNotEmpty) {
-  //         assignedDriver.addAll(orderItemsResponse.items.assignedDriver);
-  //       } else {
-  //         assignedDriver.addAll(orderItemsResponse.items.onTheWay);
-  //       }
-
-  //       if (orderItemsResponse.items.holded.isNotEmpty) {
-  //         assignedDriver.addAll(orderItemsResponse.items.holded);
-  //       }
-
-  //       if (orderItemsResponse.items.onTheWay.isNotEmpty) {
-  //         assignedDriver.addAll(orderItemsResponse.items.onTheWay);
-  //       }
-  //     }
-  //   }
-
-  //   emit(DriverOrderInitialPageState(assignedDriver: assignedDriver));
-  // }
-
   updateMainOrderStat(String orderid, String status) async {
     try {
       final resp = await serviceLocator.tradingApi.updateMainOrderStat(

@@ -63,15 +63,26 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
   int page = 1;
 
   updateSelectedItem(int index) async {
-    groupedItems.clear();
+    // ✅ Clear data if status is 'assign_picker'
+    if (orderItem.status == 'assign_picker') {
+      // Clear user controller lists
+      UserController.userController.indexlist.clear();
+      UserController.userController.pickerindexlist.clear();
+      UserController.userController.itemnotavailablelist.clear();
+      UserController.userController.notavailableindexlist.clear();
 
+      // Remove from shared preferences
+      await PreferenceUtils.removeDataFromShared(orderItem.subgroupIdentifier);
+    }
+
+    groupedItems.clear();
     topickitems.clear();
     pickeditems.clear();
     notfounditems.clear();
     canceleditems.clear();
     tabindex = index;
-
     list.clear();
+    catlist.clear(); // Optional: clear categories as well
 
     List.generate(itemslist!.assignedPicker!.length, (index) {
       if (!catlist.contains(itemslist!.assignedPicker![index].catename)) {
@@ -108,10 +119,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       }
 
       topickitems.add(itemslist!.startPicking![index]);
-
-      // pickertotal =
-      //     pickertotal +
-      //     double.parse(itemslist!.startPicking![index].finalPrice);
     });
 
     List.generate(itemslist!.endPicking.length, (index) {
@@ -144,9 +151,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
       }
 
       topickitems.add(itemslist!.holded![index]);
-
-      // pickertotal =
-      //     pickertotal + double.parse(itemslist!.holded![index].finalPrice);
     });
 
     List.generate(itemslist!.materialRequest!.length, (index) {
@@ -172,7 +176,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
         ),
       );
     }
-    // }
   }
 
   getrefreshedData(String orderid) async {
@@ -515,7 +518,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
       showSnackBar(
         context: context,
-        snackBar: showSuccessDialogue(message: "status updte4444d"),
+        snackBar: showSuccessDialogue(message: "status updted"),
       );
 
       // Navigator.of(context).popUntil((route) => route.isFirst);

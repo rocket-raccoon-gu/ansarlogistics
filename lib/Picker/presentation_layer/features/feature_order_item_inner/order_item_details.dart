@@ -1167,6 +1167,30 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                               .HeaderXS_Bold,
                                                     ),
                                                   ),
+
+                                                  // Text(
+                                                  //   (state
+                                                  //               .orderItem
+                                                  //               .itemQuantityDouble *
+                                                  //           state
+                                                  //               .orderItem
+                                                  //               .itemWeightDouble)
+                                                  //       .toStringAsFixed(2),
+                                                  // ),
+                                                  //                                                 Text(
+                                                  //   (state.orderItem.qtyOrdered * state.orderItem.itemWeight).toString(),
+                                                  //   style: customTextStyle(
+                                                  //     fontStyle: FontStyle.HeaderXS_Bold,
+                                                  //   ),
+                                                  // ),
+                                                  // Checkbox(
+                                                  //   value: pricechange,
+                                                  //   onChanged: (val) {
+                                                  //     setState(() {
+                                                  //       pricechange = val!;
+                                                  //     });
+                                                  //   },
+                                                  // ),
                                                 ],
                                               ),
                                             )

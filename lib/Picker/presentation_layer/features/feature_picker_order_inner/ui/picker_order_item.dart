@@ -515,6 +515,21 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                                                   ),
                                                 ],
                                               ),
+                                              // Padding(
+                                              //   padding:
+                                              //       const EdgeInsets.symmetric(
+                                              //         horizontal: 4.0,
+                                              //         vertical: 4.0,
+                                              //       ),
+                                              //   child: Row(
+                                              //     children: [
+                                              //       getitemstat(
+                                              //         itemslistbackcategories[index],
+                                              //         context,
+                                              //       ),
+                                              //     ],
+                                              //   ),
+                                              // ),
                                             ],
                                           ),
                                         ),

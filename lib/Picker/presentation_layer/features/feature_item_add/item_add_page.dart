@@ -65,6 +65,8 @@ class _ItemAddPageState extends State<ItemAddPage> {
 
     log(barcodeScanRes);
 
+    print("${barcodeScanRes}barcodeScanResbarcodeScanResbarcodeScanRes");
+
     if (!mounted) return;
 
     await BlocProvider.of<ItemAddPageCubit>(
@@ -175,7 +177,8 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                   // context.read<ItemAddPageCubit>().updatedata(
                                   //   barcodeController.text,
                                   //   producebarcode,
-                                  // );
+                                  // );.
+                                  print(barcodeController.text);
 
                                   await BlocProvider.of<ItemAddPageCubit>(
                                     context,
@@ -234,11 +237,24 @@ class _ItemAddPageState extends State<ItemAddPage> {
                 Expanded(
                   child: MobileScanner(
                     controller: cameraController,
-                    onDetect: (capture) {
+                    onDetect: (capture) async {
                       final List<Barcode> barcodes = capture.barcodes;
-                      for (final barcode in barcodes) {
-                        print('Barcode found! ${barcode.rawValue}');
-                        scanBarcodeNormal(barcode.rawValue!);
+                      if (barcodes.isNotEmpty &&
+                          barcodes.first.rawValue != null) {
+                        final scannedCode = barcodes.first.rawValue!;
+
+                        if (scannedCode != barcodeController.text) {
+                          barcodeController.text = scannedCode;
+
+                          await BlocProvider.of<ItemAddPageCubit>(
+                            context,
+                          ).getScannedProductData(scannedCode, producebarcode);
+
+                          // Optionally switch back to form
+                          BlocProvider.of<ItemAddPageCubit>(
+                            context,
+                          ).updateFormState();
+                        }
                       }
                     },
                   ),
@@ -308,6 +324,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                             .erPdata!
                                             .erpProductName
                                             .toString(),
+                                        barcodeController.text,
                                       );
                                     } else if (BlocProvider.of<
                                           ItemAddPageCubit
@@ -351,6 +368,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                             .productDBdata!
                                             .skuName
                                             .toString(),
+                                        barcodeController.text,
                                       );
                                     }
 

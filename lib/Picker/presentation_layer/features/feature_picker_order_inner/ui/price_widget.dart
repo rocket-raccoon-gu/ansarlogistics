@@ -52,7 +52,7 @@ class PriceWidget extends StatelessWidget {
     bool hasShipping = shippingCharges > 0;
 
     double totalAmount =
-        hasShipping ? shippingCharges + grandTotal : grandTotal;
+        hasShipping ? grandTotal : grandTotal + shippingCharges;
 
     bool pickerListIsEmpty =
         assignedPickerFromResponse == null ||
@@ -60,8 +60,14 @@ class PriceWidget extends StatelessWidget {
 
     bool shouldAddShipping = pickerListIsEmpty && hasShipping;
 
+    print("${assignedSubtotal}assignedSubtotal assignedSubtotal");
+
     double finalPickerTotal =
-        assignedSubtotal + (shouldAddShipping ? shippingCharges : 0.0);
+        hasShipping ? assignedSubtotal + shippingCharges : assignedSubtotal;
+
+    print("${finalPickerTotal}finalPickerTotal finalPickerTotal");
+
+    // assignedSubtotal + (shouldAddShipping ? shippingCharges : 0.0);
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -70,52 +76,51 @@ class PriceWidget extends StatelessWidget {
       child: Column(
         children: [
           // ✅ Order Price
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Order Amount",
-                style: customTextStyle(
-                  fontStyle: FontStyle.BodyL_Bold,
-                  color: FontColor.White,
-                ),
-              ),
-              Text(
-                (hasShipping ? grandTotal : grandTotal - shippingCharges)
-                    .toStringAsFixed(2),
-                style: customTextStyle(
-                  fontStyle: FontStyle.BodyL_Bold,
-                  color: FontColor.White,
-                ),
-              ),
-            ],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     Text(
+          //       "Order Amount",
+          //       style: customTextStyle(
+          //         fontStyle: FontStyle.BodyL_Bold,
+          //         color: FontColor.White,
+          //       ),
+          //     ),
+          //     Text(
+          //       (hasShipping ? grandTotal - shippingCharges : grandTotal)
+          //           .toStringAsFixed(2),
+          //       style: customTextStyle(
+          //         fontStyle: FontStyle.BodyL_Bold,
+          //         color: FontColor.White,
+          //       ),
+          //     ),
+          //   ],
+          // ),
 
           // ✅ Shipping Charges
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Shipping Charges",
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Bold,
-                    color: FontColor.White,
-                  ),
-                ),
-                Text(
-                  hasShipping ? shippingCharges.toStringAsFixed(2) : "Free",
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Bold,
-                    color: FontColor.White,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Divider(color: Colors.white, thickness: 1.0),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(vertical: 8.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Text(
+          //         "Shipping Charges",
+          //         style: customTextStyle(
+          //           fontStyle: FontStyle.BodyL_Bold,
+          //           color: FontColor.White,
+          //         ),
+          //       ),
+          //       Text(
+          //         hasShipping ? shippingCharges.toStringAsFixed(2) : "Free",
+          //         style: customTextStyle(
+          //           fontStyle: FontStyle.BodyL_Bold,
+          //           color: FontColor.White,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // Divider(color: Colors.white, thickness: 1.0),
 
           // ✅ Total Order Amount
           Row(
@@ -129,7 +134,7 @@ class PriceWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                totalAmount.toStringAsFixed(2),
+                grandTotal.toStringAsFixed(2),
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_Bold,
                   color: FontColor.White,
@@ -164,20 +169,22 @@ class PriceWidget extends StatelessWidget {
             ),
           ),
 
+          Divider(color: Colors.white, thickness: 1.0),
+
           // ✅ Price mismatch warning
-          if (orderStatus == "start_picking")
-            if ((finalPickerTotal - totalAmount).abs() > epsilon)
-              Container(
-                padding: const EdgeInsets.all(8.0),
-                color: Colors.red,
-                child: Text(
-                  "Price mismatch: Please confirm with the customer before endpick.",
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Bold,
-                    color: FontColor.White,
-                  ),
+          if (orderStatus == "start_picking" &&
+              finalPickerTotal > grandTotal + epsilon)
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              color: Colors.red,
+              child: Text(
+                "Price mismatch: Please confirm with the customer before endpick.",
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyL_Bold,
+                  color: FontColor.White,
                 ),
               ),
+            ),
 
           // ✅ Confirm Button
           Row(

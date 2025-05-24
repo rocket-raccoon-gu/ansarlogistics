@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -96,27 +98,43 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
 
   getProduct(String sku) async {
     try {
-      log(sku);
-
-      log("scanned barcode.............");
+      log("📦 SKU Scanned: $sku");
+      print("📦 SKU Scanned: $sku");
 
       final productresponse = await serviceLocator.tradingApi
-          .checkBarcodeDBService(endpoint: sku.toString());
+          .checkBarcodeDBService(endpoint: sku);
+
+      log("📶 Response Status Code: ${productresponse.statusCode}");
+      print("📶 Response Status Code: ${productresponse.statusCode}");
 
       if (productresponse.statusCode == 200) {
         Map<String, dynamic> item = json.decode(productresponse.body);
 
+        log("🧾 Decoded JSON Item: $item");
+        print("🧾 Decoded JSON Item: $item");
+
+        // Inject scanned_sku into the map
+        item['scanned_sku'] = sku;
+
         if (item['priority'] == 1) {
+          log("✅ Priority 1 (ERP Data) found");
           erPdata = ErPdata.fromJson(item);
+          print("🧩 erPdata (with scanned_sku): ${erPdata?.toJson()}");
         } else if (item['priority'] == 2) {
+          log("✅ Priority 2 (Product DB Data) found");
           productDBdata = ProductDBdata.fromJson(item);
+          print(
+            "📦 productDBdata (with scanned_sku): ${productDBdata?.toJson()}",
+          );
         } else if (item.containsKey('suggestion')) {
+          log("⚠️ Product not found, suggestion present.");
           showSnackBar(
             context: context,
             snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
           );
         }
       } else {
+        log("❌ API Response Error: Status Code ${productresponse.statusCode}");
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
@@ -124,6 +142,10 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
       }
 
       if (!isClosed) {
+        log("🔄 Emitting state with scanned_sku injected...");
+        print(
+          "🔄 Emit: ERP -> ${erPdata?.toJson()}, DB -> ${productDBdata?.toJson()}",
+        );
         emit(ItemAddPageInitialState(erPdata, productDBdata));
       }
     } catch (e) {
@@ -134,8 +156,6 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         ),
       );
     }
-
-    emit(ItemAddPageInitialState(erPdata, productDBdata));
   }
 
   updateItem(
@@ -146,6 +166,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     String regularprice,
     String scannedsku1,
     String itemname,
+    String scanned_sku,
   ) async {
     try {
       Map<String, dynamic> body = {
@@ -160,6 +181,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         "price": price,
         "promo_price": promo_price,
         "regular_price": regularprice,
+        "scanned_sku": scanned_sku,
       };
 
       log(body.toString());
@@ -240,22 +262,20 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
   }
 
   getScannedProductData(String barcodeString, bool produce) async {
-    // if (!isClosed) {
-    //   emit(ItemLoading());
+    // if (produce) {
+    //   String updatedBarcode =
+    //       '${barcodeString.substring(0, barcodeString.length - 6)}000000';
+
+    //   log(updatedBarcode);
+
+    //   getProduct(updatedBarcode);
+    // } else {
+    //   getProduct(barcodeString);
     // }
-
-    if (produce) {
-      // Replace the last 4 digits with '0'
-
-      String updatedBarcode =
-          '${barcodeString.substring(0, barcodeString.length - 6)}000000';
-
-      log(updatedBarcode);
-
-      getProduct(updatedBarcode);
-    } else {
-      getProduct(barcodeString);
-    }
+    print("start");
+    print(barcodeString);
+    getProduct(barcodeString);
+    print("end");
   }
 
   updateFormState() async {

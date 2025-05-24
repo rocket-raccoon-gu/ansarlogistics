@@ -14,12 +14,24 @@ class OrderResponse {
 
   OrderResponse({required this.items});
 
-  OrderResponse copyWith({List<Order>? items}) =>
-      OrderResponse(items: items ?? this.items);
+  factory OrderResponse.fromJson(Map<String, dynamic> json) {
+    print("🔍 Parsing OrderResponse.fromJson...");
+    final itemsJson = json["items"] ?? [];
+    print("🔢 items count: ${itemsJson.length}");
 
-  factory OrderResponse.fromJson(Map<String, dynamic> json) => OrderResponse(
-    items: List<Order>.from(json["items"].map((x) => Order.fromJson(x))),
-  );
+    return OrderResponse(
+      items: List<Order>.from(
+        itemsJson.map((x) {
+          try {
+            return Order.fromJson(x);
+          } catch (e) {
+            print("❌ Failed to parse Order item: $e");
+            // return Order(); // Provide default or empty Order
+          }
+        }),
+      ),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "items": List<dynamic>.from(items.map((x) => x.toJson())),
