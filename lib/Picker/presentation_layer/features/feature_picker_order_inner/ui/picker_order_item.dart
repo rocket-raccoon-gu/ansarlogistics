@@ -483,10 +483,29 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                                                           ),
                                                         ),
                                                         Text(
-                                                          double.parse(
-                                                            itemslistbackcategories[index]
-                                                                .finalPrice,
-                                                          ).toStringAsFixed(2),
+                                                          itemslistbackcategories[index]
+                                                                      .isproduce ==
+                                                                  "1"
+                                                              ? (itemslistbackcategories[index]
+                                                                          .finalPrice ==
+                                                                      "0.0000"
+                                                                  ? (double.parse(
+                                                                            itemslistbackcategories[index].finalPrice,
+                                                                          ) *
+                                                                          double.parse(
+                                                                            itemslistbackcategories[index].qtyOrdered,
+                                                                          ))
+                                                                      .toStringAsFixed(
+                                                                        2,
+                                                                      )
+                                                                  : double.parse(
+                                                                    itemslistbackcategories[index]
+                                                                        .finalPrice,
+                                                                  ).toStringAsFixed(
+                                                                    2,
+                                                                  ))
+                                                              : itemslistbackcategories[index]
+                                                                  .price,
                                                           style: customTextStyle(
                                                             fontStyle:
                                                                 FontStyle
