@@ -193,11 +193,12 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
-
-        itemslist = Items.fromJson(data['items']);
-
-        // log(itemslist.toString());
-
+        try {
+          itemslist = Items.fromJson(data['items']);
+          print(jsonEncode(itemslist));
+        } catch (e) {
+          rethrow; // or handle
+        }
         updateSelectedItem(tabindex);
       } else {
         updateSelectedItem(tabindex);
@@ -205,7 +206,6 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     } on TimeoutException catch (_) {
       emit(PickerOrderDetailsErrorState());
     } catch (e) {
-      log(e.toString());
       emit(PickerOrderDetailsErrorState());
     }
   }
