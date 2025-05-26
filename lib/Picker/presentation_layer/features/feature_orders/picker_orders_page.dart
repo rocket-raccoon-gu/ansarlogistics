@@ -120,19 +120,19 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print("user permission granted");
+      // print("user permission granted");
     } else if (settings.authorizationStatus ==
         AuthorizationStatus.provisional) {
-      print("user granted provisional permission");
+      // print("user granted provisional permission");
     } else {
-      print("user permission not granted");
+      // print("user permission not granted");
     }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      print('App Resumed From Background----------------------------------');
+      // print('App Resumed From Background----------------------------------');
       log('App Resumed From Background----------------------------------');
 
       // if (Platform.isAndroid && UserController.userController.firsttime) {

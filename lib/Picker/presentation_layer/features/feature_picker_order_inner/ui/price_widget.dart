@@ -2,8 +2,6 @@
 
 import 'dart:convert';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
-import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/picker_order_item.dart';
-import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/tabs/picked_items_page.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,8 +30,13 @@ class PriceWidget extends StatelessWidget {
 
     double assignedSubtotal = 0.0;
 
-    print(jsonEncode(orderResponseItem));
+    // print(
+    //   '[PriceWidget] 📦 OrderResponseItem: ${jsonEncode(orderResponseItem)}',
+    // );
 
+    // print(
+    //   '[PriceWidget] 🔄 Assigned Picker Items Count: ${assignedPicker.length}',
+    // );
     if (assignedPicker.isNotEmpty) {
       for (var item in assignedPicker) {
         double finalPrice = double.tryParse(item.finalPrice) ?? 0.0;
@@ -41,88 +44,65 @@ class PriceWidget extends StatelessWidget {
         double quantity = double.tryParse(item.qtyShipped.toString()) ?? 0.0;
 
         double effectivePrice = finalPrice < 1.0 ? price : finalPrice;
-        double itemSubtotal = effectivePrice * quantity;
+
+        double itemSubtotal;
+
+        if (item.isproduce == "1") {
+          itemSubtotal = effectivePrice;
+        } else {
+          itemSubtotal = effectivePrice * quantity;
+        }
+
         assignedSubtotal += itemSubtotal;
+
+        // print(
+        //   '[PriceWidget] 🧾 Item -> price: $price, finalPrice: $finalPrice, qtyAssigned: $quantity, '
+        //   'effectivePrice: $effectivePrice, isproduce: ${item.isproduce}, itemSubtotal: $itemSubtotal',
+        // );
       }
     }
-    double grandTotal = double.tryParse(orderResponseItem.grandTotal) ?? 0.0;
 
-    final assignedPickerFromResponse = orderResponseItem.items?.assignedPicker;
+    double grandTotal = double.tryParse(orderResponseItem.grandTotal) ?? 0.0;
     double shippingCharges = double.tryParse(shippingCharge.trim()) ?? 0.0;
     bool hasShipping = shippingCharges > 0;
 
-    double totalAmount =
-        hasShipping ? grandTotal : grandTotal + shippingCharges;
+    // print('[PriceWidget] 🧮 assignedSubtotal: $assignedSubtotal');
+    // print(
+    //   '[PriceWidget] 🚚 Shipping Charges Input: "$shippingCharge" => Parsed: $shippingCharges',
+    // );
+    // print('[PriceWidget] 📊 Grand Total from Response: $grandTotal');
 
+    final assignedPickerFromResponse = orderResponseItem.items?.assignedPicker;
     bool pickerListIsEmpty =
         assignedPickerFromResponse == null ||
         assignedPickerFromResponse.isEmpty;
-
     bool shouldAddShipping = pickerListIsEmpty && hasShipping;
-
-    print("${assignedSubtotal}assignedSubtotal assignedSubtotal");
 
     double finalPickerTotal =
         hasShipping ? assignedSubtotal + shippingCharges : assignedSubtotal;
 
-    print("${finalPickerTotal}finalPickerTotal finalPickerTotal");
+    // print(
+    //   '[PriceWidget] 📌 PickerList from Response: ${assignedPickerFromResponse?.length ?? 0}',
+    // );
+    // print('[PriceWidget] ⚠️ shouldAddShipping: $shouldAddShipping');
+    // print(
+    //   '[PriceWidget] 💰 Final Picker Total (with shipping if applicable): $finalPickerTotal',
+    // );
+    // print('[PriceWidget] 🔍 Order Status: $orderStatus');
 
-    // assignedSubtotal + (shouldAddShipping ? shippingCharges : 0.0);
+    if (orderStatus == "start_picking" &&
+        finalPickerTotal > grandTotal + epsilon) {
+      // print(
+      //   '[PriceWidget] ❗ Price mismatch detected: Final Picker Total ($finalPickerTotal) > Grand Total ($grandTotal)',
+      // );
+    }
 
     return Container(
       width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
+      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
       decoration: BoxDecoration(color: customColors().secretGarden),
       child: Column(
         children: [
-          // ✅ Order Price
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Text(
-          //       "Order Amount",
-          //       style: customTextStyle(
-          //         fontStyle: FontStyle.BodyL_Bold,
-          //         color: FontColor.White,
-          //       ),
-          //     ),
-          //     Text(
-          //       (hasShipping ? grandTotal - shippingCharges : grandTotal)
-          //           .toStringAsFixed(2),
-          //       style: customTextStyle(
-          //         fontStyle: FontStyle.BodyL_Bold,
-          //         color: FontColor.White,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-
-          // ✅ Shipping Charges
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(vertical: 8.0),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: [
-          //       Text(
-          //         "Shipping Charges",
-          //         style: customTextStyle(
-          //           fontStyle: FontStyle.BodyL_Bold,
-          //           color: FontColor.White,
-          //         ),
-          //       ),
-          //       Text(
-          //         hasShipping ? shippingCharges.toStringAsFixed(2) : "Free",
-          //         style: customTextStyle(
-          //           fontStyle: FontStyle.BodyL_Bold,
-          //           color: FontColor.White,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          // Divider(color: Colors.white, thickness: 1.0),
-
-          // ✅ Total Order Amount
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -143,9 +123,8 @@ class PriceWidget extends StatelessWidget {
             ],
           ),
 
-          Divider(color: Colors.white, thickness: 1.0),
+          const Divider(color: Colors.white, thickness: 1.0),
 
-          // ✅ Final Picker Price (with shipping)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Row(
@@ -169,9 +148,8 @@ class PriceWidget extends StatelessWidget {
             ),
           ),
 
-          Divider(color: Colors.white, thickness: 1.0),
+          const Divider(color: Colors.white, thickness: 1.0),
 
-          // ✅ Price mismatch warning
           if (orderStatus == "start_picking" &&
               finalPickerTotal > grandTotal + epsilon)
             Container(
@@ -186,7 +164,6 @@ class PriceWidget extends StatelessWidget {
               ),
             ),
 
-          // ✅ Confirm Button
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

@@ -29,7 +29,7 @@ class UpdateChecker {
 
       return _compareVersions(currentVersion, minVersion) < 0;
     } catch (e) {
-      debugPrint('Update check error: $e');
+      // debugPrint('Update check error: $e');
       return false; // Allow app to run if check fails
     }
   }

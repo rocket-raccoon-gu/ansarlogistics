@@ -58,7 +58,7 @@ class _CustomBottomBarDriverState extends State<CustomBottomBarDriver> {
       final translated = await translator.translate(text, to: targetLang);
       return translated.toString();
     } catch (e) {
-      debugPrint("Translation error: $e");
+      // debugPrint("Translation error: $e");
       return text; // Return original if translation fails
     }
   }

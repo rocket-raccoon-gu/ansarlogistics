@@ -69,7 +69,7 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
     }
 
     // }
-    print(skulist);
+    // print(skulist);
     PreferenceUtils.storeListmap('productlist', skulist);
 
     emit(NewScanBarcodeInitialState());
@@ -255,7 +255,7 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
               skulist[index]['qty'] = qty;
               skulist[index]['user_id'] = UserController().profile.id;
 
-              print(skulist);
+              // print(skulist);
               alwaysopenpanel = false;
 
               //  int index1 = skulist.indexWhere((element) => element['sku'] == prevsku);
@@ -535,7 +535,7 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
                                     skulist[index]['user_id'] =
                                         UserController().profile.id;
 
-                                    print(skulist);
+                                    // print(skulist);
                                     alwaysopenpanel = false;
 
                                     //  int index1 = skulist.indexWhere((element) => element['sku'] == prevsku);
@@ -884,7 +884,7 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
         dynamiclist: skulist,
       );
       if (response.toString() == "Retry") {
-        print("Failed");
+        // print("Failed");
         //   // ignore: use_build_context_synchronously
         Navigator.pop(context);
         // ignore: use_build_context_synchronously
@@ -903,7 +903,7 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
             data,
           );
 
-          print("Success");
+          // print("Success");
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
 
@@ -975,7 +975,7 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
         } else {
           // failure
 
-          print("Success");
+          // print("Success");
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
 

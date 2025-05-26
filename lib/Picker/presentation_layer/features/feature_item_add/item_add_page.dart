@@ -52,20 +52,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
   bool producebarcode = false;
 
   Future<void> scanBarcodeNormal(String barcodeScanRes) async {
-    // String? barcodeScanRes;
-    // ScanResult scanResult;
-
-    // try {
-    //   scanResult = await BarcodeScanner.scan();
-
-    //   barcodeScanRes = scanResult.rawContent;
-    // } on PlatformException {
-    //   barcodeScanRes = 'Failed to get platform version.';
-    // }
-
     log(barcodeScanRes);
 
-    print("${barcodeScanRes}barcodeScanResbarcodeScanResbarcodeScanRes");
+    // print("${barcodeScanRes}barcodeScanResbarcodeScanResbarcodeScanRes");
 
     if (!mounted) return;
 
@@ -178,7 +167,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                   //   barcodeController.text,
                                   //   producebarcode,
                                   // );.
-                                  print(barcodeController.text);
+                                  // print(barcodeController.text);
 
                                   await BlocProvider.of<ItemAddPageCubit>(
                                     context,
@@ -287,88 +276,88 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                 child: BasketButton(
                                   loading: loading,
                                   onpress: () {
-                                    // setState(() {
-                                    //   loading = true;
-                                    // });
+                                    // print(
+                                    //   "----------------------------------------- submit ----------------------------------------",
+                                    // );
+
                                     if (BlocProvider.of<ItemAddPageCubit>(
                                           context,
                                         ).erPdata !=
                                         null) {
-                                      BlocProvider.of<ItemAddPageCubit>(
-                                        context,
-                                      ).updateItem(
+                                      final cubit =
+                                          context.read<ItemAddPageCubit>();
+                                      final erp = cubit.erPdata!;
+                                      final isProduce =
+                                          cubit.productDBdata?.isProduce
+                                              .toString() ??
+                                          "null";
+
+                                      // print("[ItemAddPage] Using ERP Data:");
+                                      // print("  - editquantity: $editquantity");
+                                      // print("  - erpPrice: ${erp.erpPrice}");
+                                      // print("  - sku: ${erp.erpSku}");
+                                      // print("  - name: ${erp.erpProductName}");
+                                      // print(
+                                      //   "  - barcode: ${barcodeController.text}",
+                                      // );
+                                      // print("  - isProduce: $isProduce");
+
+                                      cubit.updateItem(
                                         editquantity,
                                         context,
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .erPdata!
-                                            .erpPrice
-                                            .toString(),
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .erPdata!
-                                            .erpPrice
-                                            .toString(),
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .erPdata!
-                                            .erpPrice
-                                            .toString(),
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .erPdata!
-                                            .erpSku
-                                            .toString(),
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .erPdata!
-                                            .erpProductName
-                                            .toString(),
+                                        erp.erpPrice.toString(),
+                                        erp.erpPrice.toString(),
+                                        erp.erpPrice.toString(),
+                                        erp.erpSku.toString(),
+                                        erp.erpProductName.toString(),
                                         barcodeController.text,
+                                        isProduce,
                                       );
                                     } else if (BlocProvider.of<
                                           ItemAddPageCubit
                                         >(context).productDBdata !=
                                         null) {
-                                      BlocProvider.of<ItemAddPageCubit>(
-                                        context,
-                                      ).updateItem(
+                                      final cubit =
+                                          context.read<ItemAddPageCubit>();
+                                      final product = cubit.productDBdata!;
+
+                                      final priceToUse =
+                                          product.specialPrice != ""
+                                              ? product.specialPrice.toString()
+                                              : product.regularPrice.toString();
+
+                                      // print(
+                                      //   "[ItemAddPage] Using Product DB Data:",
+                                      // );
+                                      // print("  - editquantity: $editquantity");
+                                      // print(
+                                      //   "  - specialPrice/regular: $priceToUse",
+                                      // );
+                                      // print(
+                                      //   "  - erpCurrentPrice: ${product.erpCurrentPrice}",
+                                      // );
+                                      // print(
+                                      //   "  - regularPrice: ${product.regularPrice}",
+                                      // );
+                                      // print("  - sku: ${product.sku}");
+                                      // print("  - name: ${product.skuName}");
+                                      // print(
+                                      //   "  - barcode: ${barcodeController.text}",
+                                      // );
+                                      // print(
+                                      //   "  - isProduce: ${product.isProduce}",
+                                      // );
+
+                                      cubit.updateItem(
                                         editquantity,
                                         context,
-                                        context
-                                                    .read<ItemAddPageCubit>()
-                                                    .productDBdata!
-                                                    .specialPrice !=
-                                                ""
-                                            ? context
-                                                .read<ItemAddPageCubit>()
-                                                .productDBdata!
-                                                .specialPrice
-                                                .toString()
-                                            : context
-                                                .read<ItemAddPageCubit>()
-                                                .productDBdata!
-                                                .regularPrice
-                                                .toString(),
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .productDBdata!
-                                            .erpCurrentPrice,
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .productDBdata!
-                                            .regularPrice,
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .productDBdata!
-                                            .sku
-                                            .toString(),
-                                        context
-                                            .read<ItemAddPageCubit>()
-                                            .productDBdata!
-                                            .skuName
-                                            .toString(),
+                                        priceToUse,
+                                        product.erpCurrentPrice,
+                                        product.regularPrice,
+                                        product.sku.toString(),
+                                        product.skuName.toString(),
                                         barcodeController.text,
+                                        product.isProduce.toString(),
                                       );
                                     }
 
@@ -384,74 +373,68 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                   ),
                                 ),
                               ),
+                              // Padding(
+                              //   padding: const EdgeInsets.symmetric(
+                              //     horizontal: 12.0,
+                              //     vertical: 5.0,
+                              //   ),
+                              //   child: Row(
+                              //     mainAxisAlignment:
+                              //         MainAxisAlignment.spaceBetween,
+                              //     children: [
+                              //       Text(
+                              //         "Produce Barcode",
+                              //         style: customTextStyle(
+                              //           fontStyle: FontStyle.BodyL_SemiBold,
+                              //         ),
+                              //       ),
+                              //       Checkbox(
+                              //         value: producebarcode,
+                              //         onChanged: (val) {
+                              //           setState(() {
+                              //             producebarcode = val!;
+                              //           });
+                              //         },
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
                             ],
                           ),
                         )
                         : Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12.0,
-                                vertical: 5.0,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Produce Barcode",
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyL_SemiBold,
-                                    ),
-                                  ),
-                                  Checkbox(
-                                    value: producebarcode,
-                                    onChanged: (val) {
-                                      setState(() {
-                                        producebarcode = val!;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // Padding(
+                            //   padding: const EdgeInsets.symmetric(
+                            //     horizontal: 12.0,
+                            //     vertical: 5.0,
+                            //   ),
+                            //   child: Row(
+                            //     mainAxisAlignment:
+                            //         MainAxisAlignment.spaceBetween,
+                            //     children: [
+                            //       Text(
+                            //         "Produce Barcode",
+                            //         style: customTextStyle(
+                            //           fontStyle: FontStyle.BodyL_SemiBold,
+                            //         ),
+                            //       ),
+                            //       Checkbox(
+                            //         value: producebarcode,
+                            //         onChanged: (val) {
+                            //           setState(() {
+                            //             producebarcode = val!;
+                            //           });
+                            //         },
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 10.0,
-                                      right: 15.0,
-                                    ),
-                                    child: InkWell(
-                                      onTap: () async {
-                                        BlocProvider.of<ItemAddPageCubit>(
-                                          context,
-                                        ).updateFormState();
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: customColors().fontTertiary,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            5.0,
-                                          ),
-                                        ),
-                                        child: BasketButton(
-                                          text: "Type Barcode",
-                                          textStyle: customTextStyle(
-                                            fontStyle: FontStyle.BodyL_Bold,
-                                            color: FontColor.FontPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.only(

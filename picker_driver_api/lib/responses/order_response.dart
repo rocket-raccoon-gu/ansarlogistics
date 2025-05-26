@@ -15,9 +15,9 @@ class OrderResponse {
   OrderResponse({required this.items});
 
   factory OrderResponse.fromJson(Map<String, dynamic> json) {
-    print("🔍 Parsing OrderResponse.fromJson...");
+    // print("🔍 Parsing OrderResponse.fromJson...");
     final itemsJson = json["items"] ?? [];
-    print("🔢 items count: ${itemsJson.length}");
+    // print("🔢 items count: ${itemsJson.length}");
 
     return OrderResponse(
       items: List<Order>.from(
@@ -25,7 +25,7 @@ class OrderResponse {
           try {
             return Order.fromJson(x);
           } catch (e) {
-            print("❌ Failed to parse Order item: $e");
+            // print("❌ Failed to parse Order item: $e");
             // return Order(); // Provide default or empty Order
           }
         }),

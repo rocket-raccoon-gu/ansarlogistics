@@ -199,7 +199,7 @@ void fetchcurrentaddress() async {
             if (Firebase.apps.isEmpty) {
               try {
                 await Firebase.initializeApp();
-                print("Firebase initialized.");
+                // print("Firebase initialized.");
 
                 await FirebaseMessaging.instance.getToken().then((fval) async {
                   UserController.userController.devicetoken = fval!;
@@ -207,7 +207,7 @@ void fetchcurrentaddress() async {
                   // log(fval);
                 });
               } catch (e) {
-                print("Firebase initialization failed: $e");
+                // print("Firebase initialization failed: $e");
               }
             } else {
               await FirebaseMessaging.instance.getToken().then((fval) async {

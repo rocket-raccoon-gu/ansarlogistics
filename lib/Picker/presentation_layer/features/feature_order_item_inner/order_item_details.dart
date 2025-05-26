@@ -53,19 +53,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
   MobileScannerController cameraController = MobileScannerController();
 
   scanBarcodeNormal(String? barcodeScanRes) async {
-    // String? barcodeScanRes;
-
-    // ScanResult scanResult;
     try {
-      // await requestCameraPermission();
-
-      // scanResult = await BarcodeScanner.scan();
-      // setState(() {
-      //   barcodeScanRes = scanResult.rawContent;
-      // });
-
-      // log(barcodeScanRes!);
-
       if (barcodeScanRes != null) {
         await BlocProvider.of<OrderItemDetailsCubit>(context).updateBarcodeLog(
           BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.productSku,
@@ -89,8 +77,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
           // istextbarcode = false;
         });
       }
-
-      // }
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
@@ -141,10 +127,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
     String weightUnit,
   ) {
     if (weightUnit == "kg" && weightUnit != "") {
-      print("kg");
+      // print("kg");
       return itemWeight + "kg";
     } else {
-      print("gm");
+      // print("gm");
       return itemWeight + "gm";
     }
     // print("$weightUnit dasfasdfasdfdasfdfas");

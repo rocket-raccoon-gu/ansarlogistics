@@ -68,7 +68,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
     }
 
     // }
-    print(skulist);
+    // print(skulist);
     PreferenceUtils.storeListmap('productlist', skulist);
 
     emit(PhotographyDashboardInitialState());
@@ -254,7 +254,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
               skulist[index]['qty'] = qty;
               skulist[index]['user_id'] = UserController().profile.id;
 
-              print(skulist);
+              // print(skulist);
               alwaysopenpanel = false;
 
               //  int index1 = skulist.indexWhere((element) => element['sku'] == prevsku);
@@ -534,7 +534,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
                                     skulist[index]['user_id'] =
                                         UserController().profile.id;
 
-                                    print(skulist);
+                                    // print(skulist);
                                     alwaysopenpanel = false;
 
                                     //  int index1 = skulist.indexWhere((element) => element['sku'] == prevsku);
@@ -851,7 +851,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
         dynamiclist: skulist,
       );
       if (response.toString() == "Retry") {
-        print("Failed");
+        // print("Failed");
         //   // ignore: use_build_context_synchronously
         Navigator.pop(context);
         // ignore: use_build_context_synchronously
@@ -870,7 +870,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
             data,
           );
 
-          print("Success");
+          // print("Success");
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
 
@@ -942,7 +942,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
         } else {
           // failure
 
-          print("Success");
+          // print("Success");
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
 
@@ -958,7 +958,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
       // }
     } catch (e) {
       log(e.toString(), stackTrace: StackTrace.current);
-      print(e.toString());
+      // print(e.toString());
     }
   }
 

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_add/bloc/item_add_page_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
@@ -99,19 +100,19 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
   getProduct(String sku) async {
     try {
       log("📦 SKU Scanned: $sku");
-      print("📦 SKU Scanned: $sku");
+      // print("📦 SKU Scanned: $sku");
 
       final productresponse = await serviceLocator.tradingApi
           .checkBarcodeDBService(endpoint: sku);
 
       log("📶 Response Status Code: ${productresponse.statusCode}");
-      print("📶 Response Status Code: ${productresponse.statusCode}");
+      // print("📶 Response Status Code: ${productresponse.statusCode}");
 
       if (productresponse.statusCode == 200) {
         Map<String, dynamic> item = json.decode(productresponse.body);
 
         log("🧾 Decoded JSON Item: $item");
-        print("🧾 Decoded JSON Item: $item");
+        // print("🧾 Decoded JSON Item: $item");
 
         // Inject scanned_sku into the map
         item['scanned_sku'] = sku;
@@ -119,13 +120,13 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         if (item['priority'] == 1) {
           log("✅ Priority 1 (ERP Data) found");
           erPdata = ErPdata.fromJson(item);
-          print("🧩 erPdata (with scanned_sku): ${erPdata?.toJson()}");
+          // print("🧩 erPdata (with scanned_sku): ${erPdata?.toJson()}");
         } else if (item['priority'] == 2) {
           log("✅ Priority 2 (Product DB Data) found");
           productDBdata = ProductDBdata.fromJson(item);
-          print(
-            "📦 productDBdata (with scanned_sku): ${productDBdata?.toJson()}",
-          );
+          // print(
+          //   "📦 productDBdata (with scanned_sku): ${productDBdata?.toJson()}",
+          // );
         } else if (item.containsKey('suggestion')) {
           log("⚠️ Product not found, suggestion present.");
           showSnackBar(
@@ -143,9 +144,9 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
 
       if (!isClosed) {
         log("🔄 Emitting state with scanned_sku injected...");
-        print(
-          "🔄 Emit: ERP -> ${erPdata?.toJson()}, DB -> ${productDBdata?.toJson()}",
-        );
+        // print(
+        //   "🔄 Emit: ERP -> ${erPdata?.toJson()}, DB -> ${productDBdata?.toJson()}",
+        // );
         emit(ItemAddPageInitialState(erPdata, productDBdata));
       }
     } catch (e) {
@@ -158,6 +159,40 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     }
   }
 
+  String getPriceFromBarcode(String code) {
+    String last = code;
+    String price = "00";
+
+    // Check if code starts with '00'
+    if (code.startsWith('00')) {
+      last = code.substring(2);
+    }
+
+    // Convert to price value (divide by 1000)
+    double parsedValue = double.parse(last) / 1000;
+
+    // Format the price string
+    String priceString = parsedValue.toString();
+    int dotIndex = priceString.indexOf('.');
+
+    if (dotIndex != -1 && dotIndex < priceString.length - 2) {
+      // Decimal part is not zero - include up to two decimal places
+      price = priceString.substring(0, dotIndex + 3);
+    } else {
+      // Decimal part is zero
+      price = priceString;
+    }
+
+    return price;
+  }
+
+  String getLastSixDigits(String barcode) {
+    if (barcode.length <= 6) {
+      return barcode; // Return as-is if 6 or fewer characters
+    }
+    return barcode.substring(barcode.length - 6);
+  }
+
   updateItem(
     int qty,
     BuildContext ctxt,
@@ -167,8 +202,10 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     String scannedsku1,
     String itemname,
     String scanned_sku,
+    String producebarcode,
   ) async {
     try {
+      // print("🛠️ Preparing body for updateItem...");
       Map<String, dynamic> body = {
         "item_status": "new",
         "item_id": "0",
@@ -184,48 +221,83 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         "scanned_sku": scanned_sku,
       };
 
-      log(body.toString());
+      log("📦 Request Body: $body");
+      // print("🔎 body body: ${body}");
 
+      // print("📡 Calling updateItemStatusService API...");
       final response = await serviceLocator.tradingApi.updateItemStatusService(
         body: body,
         token: token,
       );
+      // print("✅ API Response received");
+
+      // print("🔎 Status Code: ${response.statusCode}");
+      // print("🧾 Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
+        // print("🎉 Status update successful");
         showSnackBar(
-          context: context,
-          snackBar: showSuccessDialogue(message: "status updted"),
+          context: ctxt,
+          snackBar: showSuccessDialogue(
+            message: "status updted new additional item",
+          ),
         );
 
-        eventBus.fire(DataChangedEvent("New Data from Screen B"));
+        //   eventBus.fire(
+        //   DataChangedEvent(
+        //     "New Data from Screen B",
+        //   ).updatePriceData(orderItemsResponse!.subgroupIdentifier, price),
+        // );
 
+        String newProducrPrice = getPriceFromBarcode(
+          getLastSixDigits(scanned_sku),
+        );
+
+        // print("📢 Firing DataChangedEvent");
+        // print("🧾 producebarcode Body: ${producebarcode}");
+
+        if (producebarcode == "1") {
+          eventBus.fire(
+            DataChangedEvent("New Data from Screen B").updatePriceData(
+              orderItemsResponse!.subgroupIdentifier,
+              newProducrPrice,
+            ),
+          );
+        } else {
+          eventBus.fire(
+            DataChangedEvent(
+              "New Data from Screen B",
+            ).updatePriceData(orderItemsResponse!.subgroupIdentifier, price),
+          );
+        }
+
+        // print("✅ Setting alloworderupdated to true");
         UserController.userController.alloworderupdated = true;
 
-        // BlocProvider.of<PickerOrdersCubit>(ctxt).loadPosts(0, "");
+        // print("🔙 Navigating back to first route");
+        Navigator.of(ctxt).popUntil((route) => route.isFirst);
 
-        Navigator.of(context).popUntil((route) => route.isFirst);
-
-        // context.gNavigationService.openPickerWorkspacePage(context);
-
-        context.gNavigationService.openPickerOrderInnerPage(
-          context,
+        // print("➡️ Opening PickerOrderInnerPage...");
+        ctxt.gNavigationService.openPickerOrderInnerPage(
+          ctxt,
           arg: {'orderitem': orderItemsResponse},
         );
       } else {
+        // print("❌ API call failed with status code: ${response.statusCode}");
         showSnackBar(
-          context: context,
+          context: ctxt,
           snackBar: showErrorDialogue(
             errorMessage: 'Something went wrong try again....!',
           ),
         );
       }
 
+      // print("🔄 Emitting ItemAddPageInitialState...");
       emit(ItemAddPageInitialState(erPdata, productDBdata));
-
-      // emit(ItemAddPageErrorState(false, erPdata, productDBdata));
     } catch (e) {
+      // print("🔥 Exception caught in updateItem: $e");
       showSnackBar(
-        context: context,
+        context: ctxt,
         snackBar: showErrorDialogue(errorMessage: e.toString()),
       );
       emit(ItemAddPageInitialState(erPdata, productDBdata));
@@ -272,10 +344,10 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     // } else {
     //   getProduct(barcodeString);
     // }
-    print("start");
-    print(barcodeString);
+    // print("start");
+    // print(barcodeString);
     getProduct(barcodeString);
-    print("end");
+    // print("end");
   }
 
   updateFormState() async {

@@ -129,7 +129,7 @@ extension PDGeneralApi on PickerDriverApi {
       'Authorization': 'Bearer $token',
     };
 
-    print("my path" + url.toString());
+    // print("my path" + url.toString());
 
     return _handleRequest(
       onRequest: () => _client.get(url, headers: headers),
@@ -335,7 +335,7 @@ extension PDGeneralApi on PickerDriverApi {
       "longitude": longitude,
     };
 
-    print(url);
+    // print(url);
 
     log(body.toString());
 
@@ -402,13 +402,13 @@ extension PDGeneralApi on PickerDriverApi {
 
       request.fields['driver_id'] = driverid.toString();
 
-      print(driverid);
+      // print(driverid);
 
       final response = await request.send();
 
       String responsebody = await response.stream.bytesToString();
 
-      print(responsebody);
+      // print(responsebody);
 
       log(responsebody);
 
@@ -609,9 +609,9 @@ extension PDGeneralApi on PickerDriverApi {
 
     const google_api_key = "AIzaSyDeFN4A3eenCTIUYvCI7dViF-N-V5X8RgA";
 
-    print(
-      "https://maps.googleapis.com/maps/api/directions/json?origin=${startlat}%2C${endlat}&destination=${destlat}%2C${destlong}&travelMode=transit&avoidHighways=false&avoidFerries=true&avoidTolls=false&key=${google_api_key}",
-    );
+    // print(
+    //   "https://maps.googleapis.com/maps/api/directions/json?origin=${startlat}%2C${endlat}&destination=${destlat}%2C${destlong}&travelMode=transit&avoidHighways=false&avoidFerries=true&avoidTolls=false&key=${google_api_key}",
+    // );
     return _handleRequest(
       onRequest:
           () => _client.get(
@@ -820,7 +820,7 @@ extension PDGeneralApi on PickerDriverApi {
       'Content-Type': ContentTypes.applicationCharset,
     };
 
-    print("section update service");
+    // print("section update service");
 
     log(updateSectionRequest.toJson().toString());
 
@@ -956,7 +956,7 @@ extension PDGeneralApi on PickerDriverApi {
       'Authorization': 'Bearer $token',
     };
 
-    print(user);
+    // print(user);
     log(url.toString());
 
     try {
@@ -1099,9 +1099,9 @@ extension PDGeneralApi on PickerDriverApi {
 
 extension on PickerDriverApi {
   Uri _endpointWithApplicationPath(String path) {
-    print(baseUrl.toString());
-    print("okok");
-    print(baseUrl.replace(path: '${baseUrl.path}$applicationPath$path'));
+    // print(baseUrl.toString());
+    // print("okok");
+    // print(baseUrl.replace(path: '${baseUrl.path}$applicationPath$path'));
     return baseUrl.replace(path: '${baseUrl.path}$applicationPath$path');
   }
 

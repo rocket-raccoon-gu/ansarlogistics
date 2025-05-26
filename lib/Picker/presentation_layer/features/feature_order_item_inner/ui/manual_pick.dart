@@ -25,7 +25,7 @@ class ManualPick extends StatefulWidget {
 class _ManualPickState extends State<ManualPick> {
   @override
   Widget build(BuildContext context) {
-    print(widget.orderItem!.toJson()); // Safest and cleanest way
+    // print(widget.orderItem!.toJson()); // Safest and cleanest way
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14.0),
       child: Column(

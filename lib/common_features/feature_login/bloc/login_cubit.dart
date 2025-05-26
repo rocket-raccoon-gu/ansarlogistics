@@ -50,17 +50,17 @@ class LoginCubit extends Cubit<LoginState> {
             }
           } else {
             // Handle invalid password
-            print("Decrypted password is empty");
+            // print("Decrypted password is empty");
             if (!isClosed) emit(LoginInitial());
           }
         } catch (e) {
           // Handle decryption errors
-          print("Decryption failed: $e");
+          // print("Decryption failed: $e");
           if (!isClosed) emit(LoginInitial());
         }
       } else {
         // Handle empty or invalid data
-        print("Invalid or empty userCode or password");
+        // print("Invalid or empty userCode or password");
         if (!isClosed) emit(LoginInitial());
       }
     } else {
@@ -88,13 +88,13 @@ class LoginCubit extends Cubit<LoginState> {
 
       await FirebaseMessaging.instance.getToken().then((value) async {
         UserController.userController.devicetoken = value!;
-        print("devicetoken =" + value);
+        // print("devicetoken =" + value);
         DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-        print('Running on ${androidInfo.model}');
-        print("Running on ${androidInfo.id}");
-        print("Running on ${androidInfo.device}");
-        print("Running on ${androidInfo.brand}");
+        // print('Running on ${androidInfo.model}');
+        // print("Running on ${androidInfo.id}");
+        // print("Running on ${androidInfo.device}");
+        // print("Running on ${androidInfo.brand}");
 
         final info = await PackageInfo.fromPlatform();
 

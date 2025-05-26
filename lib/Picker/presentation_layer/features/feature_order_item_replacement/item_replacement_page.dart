@@ -161,7 +161,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
               onDetect: (capture) {
                 final List<Barcode> barcodes = capture.barcodes;
                 for (final barcode in barcodes) {
-                  print('Barcode found! ${barcode.rawValue}');
+                  // print('Barcode found! ${barcode.rawValue}');
                   scanBarcodeNormal(barcode.rawValue!);
                 }
               },
@@ -453,6 +453,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                                         ],
                                                       ),
                                                     ),
+
                                                     Padding(
                                                       padding:
                                                           const EdgeInsets.symmetric(

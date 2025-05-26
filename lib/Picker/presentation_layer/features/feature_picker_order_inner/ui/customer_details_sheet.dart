@@ -102,9 +102,9 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
         isRecording = true;
         filePath = result;
       });
-      print('Recording started: $filePath');
+      // print('Recording started: $filePath');
     } on PlatformException catch (e) {
-      print("Failed to start recording: ${e.message}");
+      // print("Failed to start recording: ${e.message}");
     }
   }
 
@@ -114,9 +114,9 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
       setState(() {
         isRecording = false;
       });
-      print('Recording stopped');
+      // print('Recording stopped');
     } on PlatformException catch (e) {
-      print("Failed to stop recording: ${e.message}");
+      // print("Failed to stop recording: ${e.message}");
     }
   }
 
@@ -129,9 +129,9 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
               'call_recordings/${widget.orderResponseItem.subgroupIdentifier}.mp3',
             )
             .putFile(file, SettableMetadata(contentType: 'audio/mpeg'));
-        print('File uploaded successfully');
+        // print('File uploaded successfully');
       } catch (e) {
-        print('Error uploading file: $e');
+        // print('Error uploading file: $e');
       }
     }
   }

@@ -209,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                                         textCapitalization:
                                             TextCapitalization.sentences,
                                         onChange: (val) {
-                                          print(val.isNotEmpty);
+                                          // print(val.isNotEmpty);
                                           if (val.isNotEmpty) {
                                             idFormKey.currentState!.validate();
                                           }

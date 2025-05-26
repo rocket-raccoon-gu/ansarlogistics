@@ -39,7 +39,7 @@ class PostService {
           OrderResponse orderResponse = OrderResponse.fromJson(map);
           orderlist = orderResponse.items;
         } else if (map.containsKey("success") && map["success"] == 0) {
-          print("ok");
+          // print("ok");
           // ignore: use_build_context_synchronously
           sessionTimeOutBottomSheet(
             context: context,
@@ -65,7 +65,7 @@ class PostService {
     } catch (e) {
       if (map['message'] ==
           "The consumer isn't authorized to access %resources.") {
-        print(map['message']);
+        // print(map['message']);
         sessionTimeOutBottomSheet(
           context: context,
           inputWidget: SessionOutBottomSheet(

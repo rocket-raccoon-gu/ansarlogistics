@@ -58,7 +58,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
     var status = await Permission.camera.status;
 
     if (status.isGranted) {
-      print("Camera permission already granted.");
+      // print("Camera permission already granted.");
       return; // No need to request again
     }
 

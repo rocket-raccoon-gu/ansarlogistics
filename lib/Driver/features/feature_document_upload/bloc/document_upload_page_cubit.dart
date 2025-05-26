@@ -69,7 +69,7 @@ class DocumentUploadPageCubit extends Cubit<DocumentUploadPageState> {
     int index,
     BuildContext context,
   ) async {
-    print(optionslist);
+    // print(optionslist);
     if (controller.isNotEmpty) {
       var intValue = Random().nextInt(10); // Value is >= 0 and < 10.
       intValue = Random().nextInt(100) + 50;
@@ -167,7 +167,7 @@ class DocumentUploadPageCubit extends Cubit<DocumentUploadPageState> {
         driverid: int.parse(UserController.userController.profile.id),
       );
 
-      print(response);
+      // print(response);
 
       if (response == 201) {
         // ignore: use_build_context_synchronously
@@ -190,7 +190,7 @@ class DocumentUploadPageCubit extends Cubit<DocumentUploadPageState> {
         emit(UploadDocumentsErrorState(optionslist));
       }
     } catch (e) {
-      print(e);
+      // print(e);
       Navigator.pop(context);
       showSnackBar(
         context: context,

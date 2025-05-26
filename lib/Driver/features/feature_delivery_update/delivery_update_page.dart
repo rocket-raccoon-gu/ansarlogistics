@@ -71,11 +71,11 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
 
         Uint8List imagebytes = await image!.readAsBytes(); //convert to bytes
         // List<int> imageBytes = result.readAsBytesSync();
-        print("image bytes path = " + imagebytes.toString());
+        // print("image bytes path = " + imagebytes.toString());
         String base64string = base64.encode(imagebytes);
-        print("base64 path = " + base64string.toString());
+        // print("base64 path = " + base64string.toString());
         Uint8List imag = base64.decode(base64string.toString());
-        print("my path = " + imag.toString());
+        // print("my path = " + imag.toString());
         _pictures.add(image!.path.toString());
         // if (controller != null) {
         //   image = await controller!.takePicture();

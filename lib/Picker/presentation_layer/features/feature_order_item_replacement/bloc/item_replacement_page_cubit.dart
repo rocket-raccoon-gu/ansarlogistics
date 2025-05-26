@@ -168,7 +168,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
           showSnackBar(
             context: context,
-            snackBar: showSuccessDialogue(message: "status updted"),
+            snackBar: showSuccessDialogue(message: "status updted92"),
           );
 
           // // ignore: use_build_context_synchronously

@@ -83,7 +83,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
         colorInfo = getColorInfo(colorOptionId);
       } else {
-        print('Color attribute not found');
+        // print('Color attribute not found');
       }
 
       // 4. Find the Carpet Size attribute
@@ -315,7 +315,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         throw 'Could not launch $searchUrl';
       }
     } catch (e) {
-      print("Error launching URL: $e");
+      // print("Error launching URL: $e");
     }
   }
 

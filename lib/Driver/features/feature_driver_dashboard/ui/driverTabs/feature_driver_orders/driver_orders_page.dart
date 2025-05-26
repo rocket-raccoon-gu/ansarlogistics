@@ -104,12 +104,12 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
 
     // Handle different authorization statuses
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print("User permission granted");
+      // print("User permission granted");
     } else if (settings.authorizationStatus ==
         AuthorizationStatus.provisional) {
-      print("User granted provisional permission");
+      // print("User granted provisional permission");
     } else {
-      print("User permission not granted");
+      // print("User permission not granted");
     }
 
     isRequestingPermission = false;

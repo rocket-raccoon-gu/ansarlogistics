@@ -22,6 +22,7 @@ class ProductDBdata {
   String images;
   int priority;
   String barcodes;
+  String isProduce;
 
   ProductDBdata({
     required this.productId,
@@ -36,6 +37,7 @@ class ProductDBdata {
     required this.images,
     required this.priority,
     required this.barcodes,
+    required this.isProduce,
   });
 
   ProductDBdata copyWith({
@@ -51,6 +53,7 @@ class ProductDBdata {
     String? images,
     int? priority,
     String? barcodes,
+    String? isProduce,
   }) => ProductDBdata(
     productId: productId ?? this.productId,
     sku: sku ?? this.sku,
@@ -64,6 +67,8 @@ class ProductDBdata {
     images: images ?? this.images,
     priority: priority ?? this.priority,
     barcodes: barcodes ?? this.barcodes,
+
+    isProduce: isProduce ?? this.isProduce,
   );
 
   factory ProductDBdata.fromJson(Map<String, dynamic> json) => ProductDBdata(
@@ -79,6 +84,7 @@ class ProductDBdata {
     images: json["images"] ?? "",
     priority: json["priority"],
     barcodes: json["barcodes"] ?? "",
+    isProduce: json["is_produce"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -94,5 +100,6 @@ class ProductDBdata {
     "images": images,
     "priority": priority,
     "barcodes": barcodes,
+    "is_produce": isProduce,
   };
 }

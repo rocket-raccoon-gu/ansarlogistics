@@ -518,7 +518,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
       showSnackBar(
         context: context,
-        snackBar: showSuccessDialogue(message: "status updted"),
+        snackBar: showSuccessDialogue(message: "status updted5656"),
       );
 
       // Navigator.of(context).popUntil((route) => route.isFirst);

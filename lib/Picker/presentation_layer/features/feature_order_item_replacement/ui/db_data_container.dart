@@ -101,18 +101,19 @@ class _DbDataContainerState extends State<DbDataContainer> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12.0,
-                      horizontal: 14.0,
+                  if (widget.productDBdata?.isProduce == "0")
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12.0,
+                        horizontal: 14.0,
+                      ),
+                      child: CounterDropdown(
+                        initNumber: 0,
+                        counterCallback: widget.counterCallback,
+                        maxNumber: 100,
+                        minNumber: 0,
+                      ),
                     ),
-                    child: CounterDropdown(
-                      initNumber: 0,
-                      counterCallback: widget.counterCallback,
-                      maxNumber: 100,
-                      minNumber: 0,
-                    ),
-                  ),
                 ],
               ),
             ),

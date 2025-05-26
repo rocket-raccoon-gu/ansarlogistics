@@ -82,7 +82,7 @@ class PickerOrdersCubit extends Cubit<PickerOrdersState> {
         }
       });
     } catch (e) {
-      print(e);
+      // print(e);
       if (!isClosed) {
         emit(PickerOrdersLoadedState(UserController.userController.orderitems));
       }

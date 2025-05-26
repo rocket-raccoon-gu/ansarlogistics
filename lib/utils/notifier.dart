@@ -13,25 +13,38 @@ class DataChangedEvent {
 
   updatePriceData(String orderid, String price) async {
     try {
+      // print("🔄 Updating price data...");
+      // print("➡️ Order ID: $orderid");
+      // print("➡️ New Price: $price");
+
       if (UserController.userController.orderdata.containsKey(orderid)) {
+        // print("📝 Existing order found. Adding price.");
         UserController.userController.orderdata[orderid] =
             UserController.userController.orderdata[orderid]! +
             double.parse(price);
       } else {
+        // print("🆕 New order. Initializing price.");
         UserController.userController.orderdata.addAll({
           orderid: double.parse(price),
         });
       }
 
       String jsonString = json.encode(UserController.userController.orderdata);
+      // print("📦 Encoded order data: $jsonString");
+
       await PreferenceUtils.storeDataToShared('orderdata', jsonString);
+      // print("✅ Order data stored in shared preferences.");
     } catch (e) {
+      // print("🔥 Error updating price data: $e");
       throw e;
     }
   }
 }
 
 Future<void> saveOrderDataToPrefs() async {
+  // print("💾 Saving order data to shared preferences...");
   String jsonString = json.encode(UserController.userController.orderdata);
+  // print("📦 Encoded order data: $jsonString");
   await PreferenceUtils.storeDataToShared('orderdata', jsonString);
+  // print("✅ Order data saved successfully.");
 }

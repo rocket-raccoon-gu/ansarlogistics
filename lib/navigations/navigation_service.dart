@@ -57,10 +57,19 @@ class NavigationService {
     BuildContext context, {
     Map<String, dynamic>? arg,
   }) {
-    return Navigator.of(context).pushNamed(
-      _pickerOrderDetailsPageRouteName,
-      arguments: MapArguments(arg!),
-    );
+    // print("📦 Navigating to PickerOrderDetails page...");
+
+    if (arg == null) {
+      // print("❌ Error: 'arg' is null. Cannot proceed to navigation.");
+      return Future.value(); // Prevent crash by returning early
+    }
+
+    // print("✅ Navigation arguments: $arg");
+    // print("➡️ Route: $_pickerOrderDetailsPageRouteName");
+
+    return Navigator.of(
+      context,
+    ).pushNamed(_pickerOrderDetailsPageRouteName, arguments: MapArguments(arg));
   }
 
   Future<void> openOrderItemDetailsPage(
