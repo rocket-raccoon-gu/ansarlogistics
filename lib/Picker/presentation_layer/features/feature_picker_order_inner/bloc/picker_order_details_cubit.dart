@@ -195,7 +195,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
         Map<String, dynamic> data = jsonDecode(response.body);
         try {
           itemslist = Items.fromJson(data['items']);
-          print(jsonEncode(itemslist));
+          // print(jsonEncode(itemslist));
         } catch (e) {
           rethrow; // or handle
         }

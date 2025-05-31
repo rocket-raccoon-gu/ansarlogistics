@@ -434,15 +434,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _initPackageInfo() async {
-    final info = await PackageInfo.fromPlatform();
-    setState(() {
-      _packageInfo = info;
-    });
-    // String data = await PlatformRepository.changeColor("RED");
-    // showSnackBar(
-    //     context: context,
-    //     snackBar: showErrorDialogue(
-    //         errorMessage: "compleated native methord and value is $data"));
+    try {
+      final info = await PackageInfo.fromPlatform();
+      setState(() {
+        _packageInfo = info;
+      });
+      // print("${info.version} <- Loaded from platform");
+    } catch (e) {
+      // print("Failed to load package info: $e");
+    }
   }
 }
 

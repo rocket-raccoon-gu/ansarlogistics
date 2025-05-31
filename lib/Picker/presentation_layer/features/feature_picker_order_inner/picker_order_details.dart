@@ -186,11 +186,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
         orderResponseItem: widget.orderResponseItem,
         orderStatus: widget.orderResponseItem.status,
         shippingCharge: widget.orderResponseItem.shippingCharges,
-        // pickerprice: double.parse(
-        //   UserController()
-        //       .orderdata[widget.orderResponseItem.subgroupIdentifier]
-        //       .toString(),
-        // ),
+
         onTapConfirm: () async {
           setState(() {
             isPricechange = !isPricechange;
@@ -202,6 +198,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
         },
       );
     } else {
+      // print("noooooooooooooooo");
       return SizedBox();
     }
   }

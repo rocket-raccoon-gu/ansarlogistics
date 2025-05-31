@@ -196,7 +196,7 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                             ),
                             child: Row(
                               children: [
-                                Column(
+                                Stack(
                                   children: [
                                     Container(
                                       height: 109.0,
@@ -225,6 +225,38 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                                                 : Image.network(
                                                   '${noimageurl}',
                                                 ),
+                                      ),
+                                    ),
+
+                                    Positioned(
+                                      bottom: 4.0,
+                                      right: 4.0,
+                                      child: Container(
+                                        height:
+                                            32.0, // Slightly bigger than 28.0
+                                        width:
+                                            42.0, // Slightly bigger than 36.0
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 7.0, // Slightly increased
+                                          horizontal: 6.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: HexColor("#FAF6E9"),
+                                          borderRadius: BorderRadius.circular(
+                                            3.0,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "${shipped}/${actual}",
+                                            style: customTextStyle(
+                                              fontStyle:
+                                                  FontStyle
+                                                      .BodyL_Bold, // Medium-bold style
+                                              color: FontColor.FontSecondary,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -459,81 +491,85 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                                                   ),
                                                 ],
                                               ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                          left: 2.0,
-                                                        ),
-                                                    child: Row(
-                                                      children: [
-                                                        Text(
-                                                          "Final Price :",
-                                                          style: customTextStyle(
-                                                            fontStyle:
-                                                                FontStyle
-                                                                    .BodyL_SemiBold,
-                                                            color:
-                                                                FontColor
-                                                                    .FontTertiary,
+
+                                              if (itemslistbackcategories[index]
+                                                      .isproduce ==
+                                                  "1")
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            left: 2.0,
                                                           ),
-                                                        ),
-                                                        Text(
-                                                          itemslistbackcategories[index]
-                                                                      .isproduce ==
-                                                                  "1"
-                                                              ? (itemslistbackcategories[index]
-                                                                          .finalPrice ==
-                                                                      "0.0000"
-                                                                  ? (double.parse(
-                                                                            itemslistbackcategories[index].finalPrice,
-                                                                          ) *
-                                                                          double.parse(
-                                                                            itemslistbackcategories[index].qtyOrdered,
-                                                                          ))
-                                                                      .toStringAsFixed(
-                                                                        2,
-                                                                      )
-                                                                  : double.parse(
-                                                                    itemslistbackcategories[index]
-                                                                        .finalPrice,
-                                                                  ).toStringAsFixed(
-                                                                    2,
-                                                                  ))
-                                                              : itemslistbackcategories[index]
-                                                                  .price,
-                                                          style: customTextStyle(
-                                                            fontStyle:
-                                                                FontStyle
-                                                                    .Inter_SemiBold,
-                                                            color:
-                                                                FontColor
-                                                                    .FontPrimary,
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets.only(
-                                                                left: 5.0,
-                                                              ),
-                                                          child: Text(
-                                                            "QAR",
+                                                      child: Row(
+                                                        children: [
+                                                          Text(
+                                                            "Final Price :",
                                                             style: customTextStyle(
                                                               fontStyle:
                                                                   FontStyle
-                                                                      .BodyM_Bold,
+                                                                      .BodyL_SemiBold,
+                                                              color:
+                                                                  FontColor
+                                                                      .FontTertiary,
                                                             ),
                                                           ),
-                                                        ),
-                                                      ],
+                                                          Text(
+                                                            itemslistbackcategories[index]
+                                                                        .isproduce ==
+                                                                    "1"
+                                                                ? (itemslistbackcategories[index]
+                                                                            .finalPrice ==
+                                                                        "0.0000"
+                                                                    ? (double.parse(
+                                                                              itemslistbackcategories[index].finalPrice,
+                                                                            ) *
+                                                                            double.parse(
+                                                                              itemslistbackcategories[index].qtyOrdered,
+                                                                            ))
+                                                                        .toStringAsFixed(
+                                                                          2,
+                                                                        )
+                                                                    : double.parse(
+                                                                      itemslistbackcategories[index]
+                                                                          .finalPrice,
+                                                                    ).toStringAsFixed(
+                                                                      2,
+                                                                    ))
+                                                                : itemslistbackcategories[index]
+                                                                    .price,
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .Inter_SemiBold,
+                                                              color:
+                                                                  FontColor
+                                                                      .FontPrimary,
+                                                            ),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.only(
+                                                                  left: 5.0,
+                                                                ),
+                                                            child: Text(
+                                                              "QAR",
+                                                              style: customTextStyle(
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .BodyM_Bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
+                                                  ],
+                                                ),
                                               // Padding(
                                               //   padding:
                                               //       const EdgeInsets.symmetric(
@@ -559,31 +595,31 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                               ],
                             ),
                           ),
-                          Positioned(
-                            bottom: 12.0,
-                            right: 1.0,
-                            child: Container(
-                              height: 40.0,
-                              width: 45.0,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 11.0,
-                                horizontal: 8.0,
-                              ),
-                              decoration: BoxDecoration(
-                                color: HexColor("#D66435"),
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "${shipped}/${actual}",
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyM_SemiBold,
-                                    color: FontColor.White,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                          // Positioned(
+                          //   bottom: 12.0,
+                          //   right: 1.0,
+                          //   child: Container(
+                          //     height: 40.0,
+                          //     width: 45.0,
+                          //     padding: EdgeInsets.symmetric(
+                          //       vertical: 11.0,
+                          //       horizontal: 8.0,
+                          //     ),
+                          //     decoration: BoxDecoration(
+                          //       color: HexColor("#D66435"),
+                          //       borderRadius: BorderRadius.circular(5.0),
+                          //     ),
+                          //     child: Center(
+                          //       child: Text(
+                          //         "${shipped}/${actual}",
+                          //         style: customTextStyle(
+                          //           fontStyle: FontStyle.BodyM_SemiBold,
+                          //           color: FontColor.White,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
