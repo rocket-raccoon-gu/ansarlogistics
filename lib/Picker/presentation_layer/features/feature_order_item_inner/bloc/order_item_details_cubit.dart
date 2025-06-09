@@ -167,7 +167,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
         showSnackBar(
           context: context,
-          snackBar: showSuccessDialogue(message: "status updted2222222222"),
+          snackBar: showSuccessDialogue(message: "Status Updated"),
         );
 
         Navigator.of(context).popUntil((route) => route.isFirst);

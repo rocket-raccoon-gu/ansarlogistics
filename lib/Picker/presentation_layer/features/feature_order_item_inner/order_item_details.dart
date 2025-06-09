@@ -126,25 +126,27 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
     String itemWeight,
     String weightUnit,
   ) {
-    if (weightUnit == "kg" && weightUnit != "") {
-      // print("kg");
-      return itemWeight + "kg";
-    } else {
-      // print("gm");
-      return itemWeight + "gm";
+    if (qtyOrdered.isEmpty || itemWeight.isEmpty) {
+      return "0 gm";
     }
-    // print("$weightUnit dasfasdfasdfdasfdfas");
-    // double qty = double.tryParse(qtyOrdered) ?? 0.0;
-    // double weightPerItemInGrams = double.tryParse(itemWeight) ?? 0.0;
 
-    // double totalInGrams = qty * weightPerItemInGrams;
+    double qty = double.tryParse(qtyOrdered) ?? 0.0;
+    double weightPerItem = double.tryParse(itemWeight) ?? 0.0;
 
-    // if (totalInGrams >= 1000) {
-    //   double totalInKg = totalInGrams / 1000;
-    //   return "${totalInKg.toStringAsFixed(2)} kg";
-    // } else {
-    //   return "${totalInGrams.toStringAsFixed(0)} gm";
-    // }
+    double totalWeightInGrams;
+
+    if (weightUnit.toLowerCase() == "kg") {
+      totalWeightInGrams = qty * (weightPerItem * 1000);
+    } else {
+      totalWeightInGrams = qty * weightPerItem;
+    }
+
+    if (totalWeightInGrams >= 1000) {
+      double totalInKg = totalWeightInGrams / 1000;
+      return "${totalInKg.toStringAsFixed(2)} kg";
+    } else {
+      return "${totalWeightInGrams.toStringAsFixed(0)} gm";
+    }
   }
 
   @override
@@ -256,7 +258,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                 onDetect: (capture) {
                   final List<Barcode> barcodes = capture.barcodes;
                   for (final barcode in barcodes) {
-                    print('Barcode found! ${barcode.rawValue}');
+                    // print('Barcode found! ${barcode.rawValue}');
                     scanBarcodeNormal(barcode.rawValue!);
                   }
                 },
@@ -437,7 +439,9 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   1,
                                               itemBuilder: (context, index) {
                                                 // return Text(state.datalist[index]['file']);
-
+                                                // print(
+                                                //   '${data['mediapath']}${state.orderItem.productImages[index]}',
+                                                // );
                                                 if (index ==
                                                     state
                                                         .orderItem

@@ -85,4 +85,15 @@ class UserController {
     devicetoken = "";
     userShortName = "";
   }
+
+  // void printOrderData() {
+  //   // print("🧾 Current Order Data in Memory:");
+  //   if (orderdata.isEmpty) {
+  //     // print("🚫 No order data found.");
+  //   } else {
+  //     orderdata.forEach((key, value) {
+  //       // print("📦 Order ID: $key ➡️ Price: $value");
+  //     });
+  //   }
+  // }
 }

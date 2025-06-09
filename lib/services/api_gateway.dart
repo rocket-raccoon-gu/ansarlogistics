@@ -104,15 +104,30 @@ class PDApiGateway implements AuthenticationService {
   @override
   Future updateItemStatusService({required body, required token}) async {
     try {
+      // print(
+      //   "🔄 Calling orderItemStatusUpdateService with body: $body and token: $token",
+      // );
+
       final response = await pickerDriverApi
           .orderItemStatusUpdateService(body: body, token: token)
           .catchError((e, trace) {
+            // print("❌ Network error caught: $e");
             networkStreamController.sink.add(e.toString());
             throw e;
           })
-          .timeout(Duration(seconds: 10));
+          .timeout(
+            Duration(seconds: 10),
+            onTimeout: () {
+              // print("⏰ Request timed out after 10 seconds");
+              throw TimeoutException("Request timed out");
+            },
+          );
+
+      // print("✅ Response received with status code: ${response.statusCode}");
       return response;
     } catch (e, stackTrace) {
+      // print("⚠️ Exception in updateItemStatusService: $e");
+      // print("Stacktrace: $stackTrace");
       log('$stackTrace');
       serviceSendError('update order item status Error $e');
       rethrow;

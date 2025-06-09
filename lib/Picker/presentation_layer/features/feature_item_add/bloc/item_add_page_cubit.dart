@@ -99,43 +99,25 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
 
   getProduct(String sku) async {
     try {
-      log("📦 SKU Scanned: $sku");
-      // print("📦 SKU Scanned: $sku");
-
       final productresponse = await serviceLocator.tradingApi
           .checkBarcodeDBService(endpoint: sku);
-
-      log("📶 Response Status Code: ${productresponse.statusCode}");
-      // print("📶 Response Status Code: ${productresponse.statusCode}");
 
       if (productresponse.statusCode == 200) {
         Map<String, dynamic> item = json.decode(productresponse.body);
 
-        log("🧾 Decoded JSON Item: $item");
-        // print("🧾 Decoded JSON Item: $item");
-
-        // Inject scanned_sku into the map
         item['scanned_sku'] = sku;
 
         if (item['priority'] == 1) {
-          log("✅ Priority 1 (ERP Data) found");
           erPdata = ErPdata.fromJson(item);
-          // print("🧩 erPdata (with scanned_sku): ${erPdata?.toJson()}");
         } else if (item['priority'] == 2) {
-          log("✅ Priority 2 (Product DB Data) found");
           productDBdata = ProductDBdata.fromJson(item);
-          // print(
-          //   "📦 productDBdata (with scanned_sku): ${productDBdata?.toJson()}",
-          // );
         } else if (item.containsKey('suggestion')) {
-          log("⚠️ Product not found, suggestion present.");
           showSnackBar(
             context: context,
             snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
           );
         }
       } else {
-        log("❌ API Response Error: Status Code ${productresponse.statusCode}");
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
@@ -143,10 +125,6 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
       }
 
       if (!isClosed) {
-        log("🔄 Emitting state with scanned_sku injected...");
-        // print(
-        //   "🔄 Emit: ERP -> ${erPdata?.toJson()}, DB -> ${productDBdata?.toJson()}",
-        // );
         emit(ItemAddPageInitialState(erPdata, productDBdata));
       }
     } catch (e) {
@@ -264,10 +242,12 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
             ),
           );
         } else {
+          String finalPrice = price * qty;
           eventBus.fire(
-            DataChangedEvent(
-              "New Data from Screen B",
-            ).updatePriceData(orderItemsResponse!.subgroupIdentifier, price),
+            DataChangedEvent("New Data from Screen B").updatePriceData(
+              orderItemsResponse!.subgroupIdentifier,
+              finalPrice,
+            ),
           );
         }
 

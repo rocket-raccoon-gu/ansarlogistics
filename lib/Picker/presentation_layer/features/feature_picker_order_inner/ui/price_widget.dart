@@ -30,18 +30,25 @@ class PriceWidget extends StatelessWidget {
 
     double assignedSubtotal = 0.0;
 
-    // print(
-    //   '[PriceWidget] 📦 OrderResponseItem: ${jsonEncode(orderResponseItem)}',
-    // );
+    // print("🛒 Assigned Picker Count: ${assignedPicker.length}");
 
-    // print(
-    //   '[PriceWidget] 🔄 Assigned Picker Items Count: ${assignedPicker.length}',
-    // );
+    // for (int i = 0; i < assignedPicker.length; i++) {
+    //   try {
+    //     print("🛒 Picker Item [$i]: ${jsonEncode(assignedPicker[i])}");
+    //   } catch (e) {
+    //     print("🛒 Picker Item [$i]: Cannot jsonEncode: $e");
+    //   }
+    // }
+
     if (assignedPicker.isNotEmpty) {
       for (var item in assignedPicker) {
         double finalPrice = double.tryParse(item.finalPrice) ?? 0.0;
         double price = double.tryParse(item.price.toString()) ?? 0.0;
         double quantity = double.tryParse(item.qtyShipped.toString()) ?? 0.0;
+
+        // print(
+        //   "📦 Item Data: finalPrice=$finalPrice, price=$price, quantity=$quantity, isproduce=${item.isproduce}",
+        // );
 
         double effectivePrice = finalPrice < 1.0 ? price : finalPrice;
 
@@ -53,24 +60,21 @@ class PriceWidget extends StatelessWidget {
           itemSubtotal = effectivePrice * quantity;
         }
 
-        assignedSubtotal += itemSubtotal;
+        // print("➕ Item subtotal: $itemSubtotal");
 
-        // print(
-        //   '[PriceWidget] 🧾 Item -> price: $price, finalPrice: $finalPrice, qtyAssigned: $quantity, '
-        //   'effectivePrice: $effectivePrice, isproduce: ${item.isproduce}, itemSubtotal: $itemSubtotal',
-        // );
+        assignedSubtotal += itemSubtotal;
       }
     }
 
-    double grandTotal = double.tryParse(orderResponseItem.grandTotal) ?? 0.0;
-    double shippingCharges = double.tryParse(shippingCharge.trim()) ?? 0.0;
-    bool hasShipping = shippingCharges > 0;
+    // print("🔢 Assigned Subtotal sum: $assignedSubtotal");
 
-    // print('[PriceWidget] 🧮 assignedSubtotal: $assignedSubtotal');
-    // print(
-    //   '[PriceWidget] 🚚 Shipping Charges Input: "$shippingCharge" => Parsed: $shippingCharges',
-    // );
-    // print('[PriceWidget] 📊 Grand Total from Response: $grandTotal');
+    double grandTotal = double.tryParse(orderResponseItem.grandTotal) ?? 0.0;
+    // print("💰 Grand Total from order response: $grandTotal");
+
+    double shippingCharges = double.tryParse(shippingCharge.trim()) ?? 0.0;
+    // print("🚚 Shipping Charges parsed: $shippingCharges");
+
+    bool hasShipping = shippingCharges > 0;
 
     final assignedPickerFromResponse = orderResponseItem.items?.assignedPicker;
     bool pickerListIsEmpty =
@@ -78,24 +82,26 @@ class PriceWidget extends StatelessWidget {
         assignedPickerFromResponse.isEmpty;
     bool shouldAddShipping = pickerListIsEmpty && hasShipping;
 
+    // print("📋 Picker list from response is empty: $pickerListIsEmpty");
+    // print("🚦 Should add shipping? $shouldAddShipping");
+
     double finalPickerTotal =
         hasShipping ? assignedSubtotal + shippingCharges : assignedSubtotal;
 
     // print(
-    //   '[PriceWidget] 📌 PickerList from Response: ${assignedPickerFromResponse?.length ?? 0}',
+    //   "🧾 Final Picker Total (including shipping if any): $finalPickerTotal",
     // );
-    // print('[PriceWidget] ⚠️ shouldAddShipping: $shouldAddShipping');
-    // print(
-    //   '[PriceWidget] 💰 Final Picker Total (with shipping if applicable): $finalPickerTotal',
-    // );
-    // print('[PriceWidget] 🔍 Order Status: $orderStatus');
 
-    if (orderStatus == "start_picking" &&
-        finalPickerTotal > grandTotal + epsilon) {
-      // print(
-      //   '[PriceWidget] ❗ Price mismatch detected: Final Picker Total ($finalPickerTotal) > Grand Total ($grandTotal)',
-      // );
-    }
+    // if (orderStatus == "start_picking" &&
+    //     finalPickerTotal > grandTotal + epsilon) {
+    //   print(
+    //     "⚠️ Price mismatch: Final Picker Total ($finalPickerTotal) is greater than Grand Total ($grandTotal)",
+    //   );
+    // }
+
+    // print("${orderStatus} orderStatus");
+    // print("${finalPickerTotal} finalPickerTotal");
+    // print("${grandTotal} grandTotal");
 
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -150,8 +156,7 @@ class PriceWidget extends StatelessWidget {
 
           const Divider(color: Colors.white, thickness: 1.0),
 
-          if (orderStatus == "start_picking" &&
-              finalPickerTotal > grandTotal + epsilon)
+          if (orderStatus == "start_picking" && finalPickerTotal > grandTotal)
             Container(
               padding: const EdgeInsets.all(8.0),
               color: Colors.red,

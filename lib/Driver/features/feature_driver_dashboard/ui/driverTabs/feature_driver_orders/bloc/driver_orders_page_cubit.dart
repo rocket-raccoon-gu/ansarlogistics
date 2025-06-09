@@ -83,7 +83,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
         emit(DriverPageLoadedState(postlist.toSet().toList()));
       });
     } catch (e) {
-      print(e);
+      // print(e);
 
       emit(DriverPageLoadedState(UserController.userController.orderitems));
     }

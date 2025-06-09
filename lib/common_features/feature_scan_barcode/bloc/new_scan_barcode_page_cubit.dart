@@ -991,7 +991,7 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
       // }
     } catch (e) {
       log(e.toString(), stackTrace: StackTrace.current);
-      print(e.toString());
+      // print(e.toString());
     }
   }
 

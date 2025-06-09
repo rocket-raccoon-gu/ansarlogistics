@@ -65,64 +65,25 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
   }
 
   Future<void> scanBarcodeNormal(String barcodeScanRes) async {
-    // String? barcodeScanRes;
-
-    // ScanResult scanResult;
-
     try {
-      // await requestCameraPermission();
+      // print("${barcodeScanRes} asdfasdfasdfasdfsadasdf");
 
-      // scanResult = await BarcodeScanner.scan();
-      // setState(() {
-      //   barcodeScanRes = scanResult.rawContent;
-      // });
-
-      log(barcodeScanRes!);
-
-      BlocProvider.of<ItemReplacementPageCubit>(
+      // update barcode log
+      await BlocProvider.of<ItemReplacementPageCubit>(
         context,
-      ).updateBarcodeLog('', barcodeScanRes!);
+      ).updateBarcodeLog('', barcodeScanRes);
 
-      if (producebarcode) {
-        // produce barcode
+      // get scanned barcode data
+      await BlocProvider.of<ItemReplacementPageCubit>(
+        context,
+      ).getScannedProductData(barcodeScanRes, producebarcode);
 
-        // Replace last 7 digits with '0'
-        String modifiedBarcode =
-            barcodeScanRes!.substring(0, barcodeScanRes!.length - 7) +
-            '0000000';
-
-        await BlocProvider.of<ItemReplacementPageCubit>(
-          context,
-        ).getScannedProductData(modifiedBarcode, producebarcode);
-
-        if (mounted) {
-          setState(() {
-            isScanner = false;
-            istextbarcode = false;
-          });
-        }
-      } else {
-        log(barcodeScanRes.toString());
-
-        log("scanned barcode.............");
-
-        if (barcodeScanRes.toString().startsWith(']C1')) {
-          log('contains c1');
-          barcodeScanRes = barcodeScanRes.toString().replaceAll(']C1', '');
-        } else if (barcodeScanRes.toString().startsWith('C1')) {
-          barcodeScanRes = barcodeScanRes.toString().replaceAll('C1', '');
-        }
-
-        await BlocProvider.of<ItemReplacementPageCubit>(
-          context,
-        ).getScannedProductData(barcodeScanRes, producebarcode);
-
-        if (mounted) {
-          setState(() {
-            isScanner = false;
-            istextbarcode = false;
-          });
-        }
+      if (mounted) {
+        setState(() {
+          isScanner = false;
+          istextbarcode = false;
+        });
+        // }
       }
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
@@ -160,9 +121,17 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
               controller: MobileScannerController(facing: CameraFacing.back),
               onDetect: (capture) {
                 final List<Barcode> barcodes = capture.barcodes;
-                for (final barcode in barcodes) {
-                  // print('Barcode found! ${barcode.rawValue}');
-                  scanBarcodeNormal(barcode.rawValue!);
+
+                if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+                  final scannedCode = barcodes.first.rawValue!;
+
+                  if (scannedCode != barcodeController.text) {
+                    barcodeController.text = scannedCode;
+
+                    for (final barcode in barcodes) {
+                      scanBarcodeNormal(barcode.rawValue!);
+                    }
+                  }
                 }
               },
             );
@@ -557,31 +526,31 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                         thickness: 1.0,
                         color: customColors().backgroundTertiary,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 5.0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Produce Barcode",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_SemiBold,
-                              ),
-                            ),
-                            Checkbox(
-                              value: producebarcode,
-                              onChanged: (val) {
-                                setState(() {
-                                  producebarcode = val!;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(
+                      //     horizontal: 12.0,
+                      //     vertical: 5.0,
+                      //   ),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     children: [
+                      //       Text(
+                      //         "Produce Barcode",
+                      //         style: customTextStyle(
+                      //           fontStyle: FontStyle.BodyL_SemiBold,
+                      //         ),
+                      //       ),
+                      //       Checkbox(
+                      //         value: producebarcode,
+                      //         onChanged: (val) {
+                      //           setState(() {
+                      //             producebarcode = val!;
+                      //           });
+                      //         },
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
@@ -593,27 +562,63 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                               ),
                               child: BasketButtonwithIcon(
                                 onpress: () {
-                                  //
-                                  // select reason
-
                                   if (cancelreason != "Please Select Reason") {
                                     //
                                     // select quantity
-                                    if (editquantity != 0) {
+                                    if (editquantity != 0 ||
+                                        state.productDBdata?.isProduce == "1") {
+                                      // print(
+                                      //   BlocProvider.of<
+                                      //     ItemReplacementPageCubit
+                                      //   >(context).erPdata,
+                                      // );
+                                      final cubit = BlocProvider.of<
+                                        ItemReplacementPageCubit
+                                      >(context);
+
+                                      // 1. Check if erPdata is null
+                                      // print(
+                                      //   '🔍 [DEBUG] erPdata is ${cubit.erPdata == null ? "null ❌" : "not null ✅"}',
+                                      // );
+
+                                      // // 2. Print erPdata content
+                                      // print(
+                                      //   '📦 [DEBUG] erPdata content: ${cubit.erPdata?.toJson() ?? "null"}',
+                                      // );
+
+                                      // // 3. Check if productDBdata is null
+                                      // print(
+                                      //   '🔍 [DEBUG] productDBdata is ${cubit.productDBdata == null ? "null ❌" : "not null ✅"}',
+                                      // );
+
+                                      // // 4. Print productDBdata content
+                                      // print(
+                                      //   '📦 [DEBUG] productDBdata content: ${cubit.productDBdata?.toJson() ?? "null"}',
+                                      // );
                                       setState(() {
                                         loading = true;
                                       });
 
-                                      // replacement from erp data
+                                      // final cubit =
+                                      //     context
+                                      //         .read<ItemReplacementPageCubit>();
+                                      // print("${cubit} cubit");
+
+                                      final isProduce =
+                                          cubit.productDBdata?.isProduce
+                                              .toString() ??
+                                          "null";
 
                                       if (BlocProvider.of<
                                             ItemReplacementPageCubit
                                           >(context).erPdata !=
                                           null) {
+                                        // print('📦 [DEBUG] erPdata content:');
                                         BlocProvider.of<
                                           ItemReplacementPageCubit
                                         >(context).updatereplacement(
                                           selectedindex,
+                                          // erp.erpProductName.toString(),
                                           context
                                               .read<ItemReplacementPageCubit>()
                                               .erPdata!
@@ -640,63 +645,131 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                               .read<ItemReplacementPageCubit>()
                                               .erPdata!
                                               .erpSku,
+                                          barcodeController.text,
+                                          isProduce,
                                         );
-                                      }
+                                      } else if (BlocProvider.of<
+                                                ItemReplacementPageCubit
+                                              >(context).productDBdata !=
+                                              null ||
+                                          state.productDBdata?.isProduce ==
+                                              "1") {
+                                        // print(
+                                        //   '📦 [DEBUG] productDBdata content:',
+                                        // );
 
-                                      // replacement from database
+                                        final cubit =
+                                            context
+                                                .read<
+                                                  ItemReplacementPageCubit
+                                                >();
+                                        final product = cubit.productDBdata!;
 
-                                      if (BlocProvider.of<
-                                            ItemReplacementPageCubit
-                                          >(context).productDBdata !=
-                                          null) {
+                                        final priceToUse =
+                                            product.specialPrice != ""
+                                                ? product.specialPrice
+                                                    .toString()
+                                                : product.regularPrice
+                                                    .toString();
+
                                         BlocProvider.of<
                                           ItemReplacementPageCubit
                                         >(context).updatereplacement(
                                           selectedindex,
-                                          context
-                                              .read<ItemReplacementPageCubit>()
-                                              .productDBdata!
-                                              .skuName,
+                                          product.skuName.toString(),
                                           cancelreason,
                                           editquantity,
                                           context,
-                                          context
-                                                      .read<
-                                                        ItemReplacementPageCubit
-                                                      >()
-                                                      .productDBdata!
-                                                      .specialPrice !=
-                                                  ""
-                                              ? context
-                                                  .read<
-                                                    ItemReplacementPageCubit
-                                                  >()
-                                                  .productDBdata!
-                                                  .specialPrice
-                                                  .toString()
-                                              : context
-                                                  .read<
-                                                    ItemReplacementPageCubit
-                                                  >()
-                                                  .productDBdata!
-                                                  .regularPrice
-                                                  .toString(),
-
-                                          context
-                                              .read<ItemReplacementPageCubit>()
-                                              .productDBdata!
-                                              .erpCurrentPrice,
-                                          context
-                                              .read<ItemReplacementPageCubit>()
-                                              .productDBdata!
-                                              .regularPrice,
-                                          context
-                                              .read<ItemReplacementPageCubit>()
-                                              .productDBdata!
-                                              .sku,
+                                          priceToUse,
+                                          product.erpCurrentPrice,
+                                          product.regularPrice,
+                                          product.sku.toString(),
+                                          barcodeController.text,
+                                          isProduce,
                                         );
                                       }
-                                    } else {
+                                      // replacement from database
+                                      // else if (BlocProvider.of<
+                                      //       ItemReplacementPageCubit
+                                      //     >(context).productDBdata !=
+                                      //     null) {
+                                      //   final cubit =
+                                      //       context
+                                      //           .read<
+                                      //             ItemReplacementPageCubit
+                                      //           >();
+                                      //   final product = cubit.productDBdata!;
+
+                                      //   final priceToUse =
+                                      //       product.specialPrice != ""
+                                      //           ? product.specialPrice
+                                      //               .toString()
+                                      //           : product.regularPrice
+                                      //               .toString();
+
+                                      // cubit.updatereplacement(
+                                      //   editquantity,
+                                      //   context,
+                                      //   priceToUse,
+                                      //   product.erpCurrentPrice,
+                                      //   product.regularPrice,
+                                      //   product.sku.toString(),
+                                      //   product.skuName.toString(),
+                                      //   barcodeController.text,
+                                      //   product.isProduce.toString(),
+                                      // );
+
+                                      // BlocProvider.of<
+                                      //   ItemReplacementPageCubit
+                                      // >(context).updatereplacement(
+                                      //   selectedindex,
+                                      //   context
+                                      //       .read<ItemReplacementPageCubit>()
+                                      //       .productDBdata!
+                                      //       .skuName,
+                                      //   cancelreason,
+                                      //   editquantity,
+                                      //   context,
+                                      //   context
+                                      //               .read<
+                                      //                 ItemReplacementPageCubit
+                                      //               >()
+                                      //               .productDBdata!
+                                      //               .specialPrice !=
+                                      //           ""
+                                      //       ? context
+                                      //           .read<
+                                      //             ItemReplacementPageCubit
+                                      //           >()
+                                      //           .productDBdata!
+                                      //           .specialPrice
+                                      //           .toString()
+                                      //       : context
+                                      //           .read<
+                                      //             ItemReplacementPageCubit
+                                      //           >()
+                                      //           .productDBdata!
+                                      //           .regularPrice
+                                      //           .toString(),
+
+                                      //   context
+                                      //       .read<ItemReplacementPageCubit>()
+                                      //       .productDBdata!
+                                      //       .erpCurrentPrice,
+                                      //   context
+                                      //       .read<ItemReplacementPageCubit>()
+                                      //       .productDBdata!
+                                      //       .regularPrice,
+                                      //   context
+                                      //       .read<ItemReplacementPageCubit>()
+                                      //       .productDBdata!
+                                      //       .sku,
+                                      //   barcodeController.text,
+                                      //   product.isProduce.toString(),
+                                      // );
+                                    }
+                                    // }
+                                    else {
                                       showSnackBar(
                                         context: context,
                                         snackBar: showErrorDialogue(
@@ -750,31 +823,31 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                         thickness: 1.0,
                         color: customColors().backgroundTertiary,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 5.0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Produce Barcode",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_SemiBold,
-                              ),
-                            ),
-                            Checkbox(
-                              value: producebarcode,
-                              onChanged: (val) {
-                                setState(() {
-                                  producebarcode = val!;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(
+                      //     horizontal: 12.0,
+                      //     vertical: 5.0,
+                      //   ),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     children: [
+                      //       Text(
+                      //         "Produce Barcode",
+                      //         style: customTextStyle(
+                      //           fontStyle: FontStyle.BodyL_SemiBold,
+                      //         ),
+                      //       ),
+                      //       Checkbox(
+                      //         value: producebarcode,
+                      //         onChanged: (val) {
+                      //           setState(() {
+                      //             producebarcode = val!;
+                      //           });
+                      //         },
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,

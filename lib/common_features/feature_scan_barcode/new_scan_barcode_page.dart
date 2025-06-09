@@ -1574,7 +1574,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                     onDetect: (capture) {
                       final List<Barcode> barcodes = capture.barcodes;
                       for (final barcode in barcodes) {
-                        print('Barcode found! ${barcode.rawValue}');
+                        // print('Barcode found! ${barcode.rawValue}');
                       }
                     },
                   ),

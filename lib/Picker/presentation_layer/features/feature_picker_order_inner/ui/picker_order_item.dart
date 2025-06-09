@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
 
@@ -99,6 +100,8 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
   ) {
     List<EndPicking> itemslistbackcategories =
         items.where((element) => element.catename == cat).toList();
+
+    // print("${jsonEncode(itemslistbackcategories)} itemslistbackcategories");
 
     return ListView.builder(
       itemCount: itemslistbackcategories.length,
@@ -233,9 +236,9 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
                                       right: 4.0,
                                       child: Container(
                                         height:
-                                            32.0, // Slightly bigger than 28.0
+                                            45.0, // Slightly bigger than 28.0
                                         width:
-                                            42.0, // Slightly bigger than 36.0
+                                            55.0, // Slightly bigger than 36.0
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 7.0, // Slightly increased
                                           horizontal: 6.0,

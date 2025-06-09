@@ -38,7 +38,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
   ProductResponse? prwork;
 
-  bool loadking = false;
+  bool loading = false;
 
   int prvalue = 0;
 
@@ -120,7 +120,55 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     );
   }
 
+  String getPriceFromBarcode(String code) {
+    String last = code;
+    String price = "00";
+
+    // Check if code starts with '00'
+    if (code.startsWith('00')) {
+      last = code.substring(2);
+    }
+
+    // Convert to price value (divide by 1000)
+    double parsedValue = double.parse(last) / 1000;
+
+    // Format the price string
+    String priceString = parsedValue.toString();
+    int dotIndex = priceString.indexOf('.');
+
+    if (dotIndex != -1 && dotIndex < priceString.length - 2) {
+      // Decimal part is not zero - include up to two decimal places
+      price = priceString.substring(0, dotIndex + 3);
+    } else {
+      // Decimal part is zero
+      price = priceString;
+    }
+
+    return price;
+  }
+
   updatereplacement(
+    // int selectedindex,
+    // String product_name,
+    // String reason,
+    // int editqty,
+    // BuildContext ctxt,
+    // String price,
+    // String promo_price,
+    // String regularprice,
+    // String scannedsku1,
+    //=============================================================
+    // int qty,
+    // BuildContext ctxt,
+    // String price,
+    // String promo_price,
+    // String regularprice,
+    // String scannedsku1,
+    // String itemname,
+    // String scanned_sku,
+    // String producebarcode,
+
+    //---------------------------------------------------------------------
     int selectedindex,
     String product_name,
     String reason,
@@ -130,37 +178,57 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     String promo_price,
     String regularprice,
     String scannedsku1,
+    String producebarcode,
+    String isProduce,
   ) async {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
-      Map<String, dynamic> body = {};
+      // print('👉 isProduce: $isProduce');
 
-      body = {
+      String newProducrPrice = getPriceFromBarcode(
+        getLastSixDigits(producebarcode),
+      );
+
+      // ✅ Convert both quantities to int (remove decimals completely)
+      int editedQty = int.tryParse(editqty.toString().split('.').first) ?? 1;
+      int orderedQty =
+          int.tryParse(itemdata!.qtyOrdered.toString().split('.').first) ?? 1;
+
+      // ✅ Choose which quantity to use
+      int newProductQty = editedQty != 0 ? editedQty : orderedQty;
+
+      Map<String, dynamic> body = {
         "item_status": "replaced",
         "item_id": itemdata!.itemId,
         "canceled_sku": itemdata!.productSku,
         "new_sku": scannedsku1,
         "product_name": product_name,
-        "new_product_qty": editqty != 0 ? editqty : itemdata!.qtyOrdered,
-        "order_id": orderItemsResponse!.subgroupIdentifier,
+        "new_product_qty": newProductQty,
+        "order_id": orderItemsResponse!.subgroupIdentifier.toString(),
         "picker_id": UserController.userController.profile.id,
         "shipping": 0,
         "reason": reason,
-        "price": price,
+        "price": isProduce == "1" ? newProducrPrice : price,
         "promo_price": promo_price,
         "regular_price": regularprice,
+        "scanned_sku": producebarcode,
       };
 
-      loadking = true;
+      // print('📝 [DEBUG] Request body to send:');
+      // body.forEach((key, value) {
+      //   print('  • $key: $value');
+      // });
 
-      if (loadking) {
-        log(body.toString());
+      loading = true;
+
+      if (loading) {
+        // print("Sending updateItemStatusService request...");
         final response = await serviceLocator.tradingApi
             .updateItemStatusService(body: body, token: token);
 
         if (response.statusCode == 200) {
-          loadking = false;
+          loading = false;
 
           UserController.userController.notavailableindexlist.add(
             itemdata!.itemId,
@@ -168,19 +236,55 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
           showSnackBar(
             context: context,
-            snackBar: showSuccessDialogue(message: "status updted92"),
+            snackBar: showSuccessDialogue(
+              message: "Status updated successfully",
+            ),
           );
 
-          // // ignore: use_build_context_synchronously
-          // BlocProvider.of<PickerOrdersCubit>(ctxt).loadPosts(0, "");
+          // print("${newProducrPrice} newProducrPrice");
 
-          // context.gNavigationService.openPickerWorkspacePage(context);
+          if (isProduce == "1") {
+            // print("isProduce == 1 if");
 
-          eventBus.fire(
-            DataChangedEvent(
-              "New Data from Screen B",
-            ).updatePriceData(orderItemsResponse!.subgroupIdentifier, price),
-          );
+            String finalProduceQuantity =
+                (editqty != 0 ? editqty : itemdata!.qtyOrdered).toString();
+            String finalProducePrice = (double.parse(newProducrPrice) *
+                    int.parse(finalProduceQuantity))
+                .toStringAsFixed(2);
+
+            eventBus.fire(
+              DataChangedEvent("New Data from Screen B").updatePriceData(
+                orderItemsResponse!.subgroupIdentifier,
+                finalProducePrice,
+              ),
+            );
+
+            // UserController.userController.printOrderData(); // 👈 Add this
+          } else {
+            String finalQuantity =
+                (editqty != 0 ? editqty : itemdata!.qtyOrdered).toString();
+            String finalPrice = (double.parse(price) * int.parse(finalQuantity))
+                .toStringAsFixed(2);
+
+            // print("✅ [DEBUG] finalQuantity: $finalQuantity");
+            // print("✅ [DEBUG] finalPrice: $finalPrice");
+
+            // print("isProduce == 0 else");
+
+            eventBus.fire(
+              DataChangedEvent("New Data from Screen B").updatePriceData(
+                orderItemsResponse!.subgroupIdentifier,
+                finalPrice,
+              ),
+            );
+            // UserController.userController.printOrderData(); // 👈 Add this
+          }
+
+          // eventBus.fire(
+          //   DataChangedEvent(
+          //     "New Data from Screen B",
+          //   ).updatePriceData(orderItemsResponse!.subgroupIdentifier, price),
+          // );
 
           UserController.userController.alloworderupdated = true;
 
@@ -191,11 +295,12 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
             arg: {'orderitem': orderItemsResponse},
           );
         } else {
-          loadking = false;
+          loading = false;
+          // print("Update failed with status code: ${response.statusCode}");
           showSnackBar(
             context: context,
             snackBar: showErrorDialogue(
-              errorMessage: "status update Failed...",
+              errorMessage: "Status update failed...",
             ),
           );
 
@@ -209,12 +314,14 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
           );
         }
       }
-    } catch (e) {
-      loadking = false;
+    } catch (e, stacktrace) {
+      loading = false;
+      // print("Exception in updatereplacement: $e");
+      // print(stacktrace);
 
       showSnackBar(
         context: context,
-        snackBar: showErrorDialogue(errorMessage: "status update Failed..."),
+        snackBar: showErrorDialogue(errorMessage: "Status update failed..."),
       );
 
       emit(
@@ -229,89 +336,66 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
   }
 
   getScannedProductData(String barcodeString, bool produce) async {
-    // if (!isClosed) {
-    //   emit(ItemLoading());
-    // }
+    // print(jsonEncode("getScannedProductData"));
 
-    if (produce) {
-      // Replace the last 4 digits with '0'
-
-      String updatedBarcode =
-          '${barcodeString.substring(0, barcodeString.length - 6)}000000';
-
-      log(updatedBarcode);
-
-      getProductData(updatedBarcode);
-    } else {
-      getProductData(barcodeString);
-    }
+    getProductData(barcodeString);
   }
 
   getProductData(String sku) async {
+    // print('📦 [DEBUG] Entered getProductData() with SKU: $sku');
+
     try {
-      log("scanned barcode.............");
+      final productresponse = await serviceLocator.tradingApi
+          .checkBarcodeDBService(endpoint: sku);
 
-      if (sku.startsWith(']C1')) {
-        log('contains c1');
-        sku = sku.replaceAll(']C1', '');
-      } else if (sku.startsWith('C1')) {
-        sku = sku.replaceAll('C1', '');
-      }
+      // print('📡 [DEBUG] HTTP Status: ${productresponse.statusCode}');
+      // print('🔍 [DEBUG] Raw response body: ${productresponse.body}');
 
-      String? token = await PreferenceUtils.getDataFromShared("usertoken");
+      if (productresponse.statusCode == 200) {
+        Map<String, dynamic> item = json.decode(productresponse.body);
 
-      log("sku  :  $sku");
+        item['scanned_sku'] = sku;
 
-      final response = await serviceLocator.tradingApi.checkBarcodeDBService(
-        endpoint: sku,
-      );
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> item = json.decode(response.body);
-
-        showsku = sku;
+        // print('🧩 [DEBUG] Decoded JSON: $item');
 
         if (item['priority'] == 1) {
           erPdata = ErPdata.fromJson(item);
+          // print('✅ [DEBUG] Loaded into ErPdata model');
         } else if (item['priority'] == 2) {
           productDBdata = ProductDBdata.fromJson(item);
+          // print('✅ [DEBUG] Loaded into ProductDBdata model');
         } else if (item.containsKey('suggestion')) {
+          // print('⚠️ [DEBUG] Product suggestion found, showing error snackbar');
           showSnackBar(
             context: context,
             snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
           );
         }
-        if (!isClosed) {
-          emit(
-            ItemReplacementLoaded(
-              erPdata: erPdata,
-              productDBdata: productDBdata,
-            ),
-          );
-        }
       } else {
+        // print('❌ [DEBUG] Non-200 response, showing error snackbar');
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
         );
       }
-    } catch (e) {
+
+      if (!isClosed) {
+        emit(
+          ItemReplacementLoaded(erPdata: erPdata, productDBdata: productDBdata),
+        );
+        // print('🚀 [DEBUG] Emitted ItemReplacementLoaded state');
+      }
+    } catch (e, stacktrace) {
+      // print('🔥 [DEBUG] Exception caught: $e');
+      // print('📜 [DEBUG] Stack trace: $stacktrace');
+
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(
-          errorMessage: "Something went wrong..! Try Again",
+          errorMessage: "Something Went Wrong try again...!",
         ),
       );
     }
-
-    // emit(
-    //   ItemReplacementInitail(
-    //     itemdata: itemdata,
-    //     replacements: relatableitems,
-    //     prwork: prwork,
-    //     loading: false,
-    //   ),
-    // );
   }
 
   bool get isSpecialPriceActive {

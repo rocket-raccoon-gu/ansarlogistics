@@ -292,16 +292,6 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                               .toString() ??
                                           "null";
 
-                                      // print("[ItemAddPage] Using ERP Data:");
-                                      // print("  - editquantity: $editquantity");
-                                      // print("  - erpPrice: ${erp.erpPrice}");
-                                      // print("  - sku: ${erp.erpSku}");
-                                      // print("  - name: ${erp.erpProductName}");
-                                      // print(
-                                      //   "  - barcode: ${barcodeController.text}",
-                                      // );
-                                      // print("  - isProduce: $isProduce");
-
                                       cubit.updateItem(
                                         editquantity,
                                         context,
