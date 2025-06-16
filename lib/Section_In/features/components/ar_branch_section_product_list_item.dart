@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:ansarlogistics/Section_In/features/components/custom_toggle_button.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _ArBranchSectionProductListItemState
 
   @override
   Widget build(BuildContext context) {
+    // print("norma;l");
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Stack(
@@ -60,7 +62,34 @@ class _ArBranchSectionProductListItemState
                               right: BorderSide(color: customColors().grey),
                             ),
                           ),
-                          child: Image.asset('assets/placeholder.png'),
+                          child:
+                              widget.branchdatum.imageUrl.isNotEmpty
+                                  ? CachedNetworkImage(
+                                    imageUrl:
+                                        "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.branchdatum.imageUrl)}",
+                                    imageBuilder: (context, imageProvider) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: imageProvider,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    placeholder:
+                                        (context, url) => Center(
+                                          child: Image.asset(
+                                            'assets/Iphone_spinner.gif',
+                                          ),
+                                        ),
+                                    errorWidget: (context, url, error) {
+                                      return Image.asset(
+                                        'assets/placeholder.png',
+                                      );
+                                    },
+                                  )
+                                  : Image.asset('assets/placeholder.png'),
                         ),
                       ),
                     ),
@@ -116,9 +145,9 @@ class _ArBranchSectionProductListItemState
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  widget.branchdatum.status == "1"
+                                  widget.branchdatum.isInStock == 1
                                       ? Text(
-                                        'Enabled',
+                                        'Enabled barwa',
                                         style: customTextStyle(
                                           fontStyle: FontStyle.HeaderXS_Bold,
                                           color: FontColor.Success,
@@ -132,16 +161,17 @@ class _ArBranchSectionProductListItemState
                                         ),
                                       ),
                                   CustomToggleButton1(
-                                    isSelected: int.parse(
-                                      widget.branchdatum.status,
-                                    ),
+                                    isSelected:
+                                        widget
+                                            .branchdatum
+                                            .isInStock, // ✅ int as expected
                                     onChanged: (v) {
                                       setState(() {
-                                        widget.branchdatum.status =
-                                            v.toString();
+                                        widget.branchdatum.isInStock =
+                                            v; // ✅ assign int directly
                                         widget.onSectionChanged(
                                           widget.branchdatum.sku,
-                                          v.toString(),
+                                          v.toString(), // 🔄 convert only for method that expects String
                                           widget.branchdatum.productName,
                                         );
                                       });
@@ -163,4 +193,9 @@ class _ArBranchSectionProductListItemState
       ),
     );
   }
+}
+
+String getImageUrlEdited(String base) {
+  String newPath = base.replaceFirst("/catalog/product/", "");
+  return newPath;
 }

@@ -49,125 +49,244 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
   List<StatusHistory> statusHistories = [];
 
+  // loadProducts() async {
+  //   try {
+  //     // print("🔄 Clearing existing section items...");
+  //     sectionitems.clear();
+  //     emit(HomeSectionInchargeLoading());
+
+  //     // print("📦 Fetching update history from preferences...");
+  //     updateHistory =
+  //         (await PreferenceUtils.getstoremap(
+  //           'updates_history',
+  //         )).cast<Map<String, dynamic>>();
+  //     // print("🕘 History List: $updateHistory");
+
+  //     // print("🌐 Calling getSectionDataCheckList API...");
+  //     final respdata = await serviceLocator.tradingApi.getSectionDataCheckList(
+  //       UserController().profile.empId,
+  //       UserController().profile.branchCode,
+  //       UserController().profile.categoryIds,
+  //     );
+
+  //     if (UserController.userController.profile.branchCode != "Q0113") {
+  //       // print("📥 Decoding JSON response from checklist API...");
+  //       map3 = jsonDecode(respdata);
+
+  //       if (map3.containsKey('data')) {
+  //         CheckSectionstatusList checkSectionstatusList =
+  //             CheckSectionstatusList.fromJson(map3);
+  //         statusHistories = checkSectionstatusList.data;
+  //         // print("✅ statusHistories loaded: $statusHistories");
+  //       } else {
+  //         // print("❌ 'data' key missing in checklist response");
+  //       }
+  //     }
+
+  //     // print("${UserController.userController.profile.branchCode} branchCode");
+
+  //     // Rawdah Branch && Al Rayyan Branch data Fetch
+  //     if (UserController.userController.profile.branchCode == "Q015" ||
+  //         UserController.userController.profile.branchCode == "Q008") {
+  //       print(
+  //         "🏪 Fetching branch-specific section data for Rawdah or Rayyan...",
+  //       );
+  //       final response = await serviceLocator.tradingApi.getSectionDataRequest(
+  //         UserController.userController.userName,
+  //         0,
+  //         UserController().profile.categoryIds,
+  //         UserController().profile.branchCode,
+  //       );
+
+  //       // print("🏪 ${jsonEncode(response)} Fetching Rawdah or Rayyan...");
+
+  //       if (UserController.userController.profile.empId == "veg_rawdah" ||
+  //           UserController.userController.profile.empId == "veg_rayyan") {
+  //         map1 = jsonDecode(response);
+  //         // map1.forEach((key, value) {
+  //         //   print("Key: $key");
+
+  //         //   // If value is Map or List, encode as JSON string for full detail
+  //         //   // if (value is Map || value is List) {
+  //         //   //   print("Value: ${jsonEncode(value)}");
+  //         //   // } else {
+  //         //   //   print("Value: $value");
+  //         //   // }
+
+  //         //   // print("-----");
+  //         // });
+  //         BranchSectionDataResponse branchSectionDataResponse =
+  //             BranchSectionDataResponse.fromJson(map1);
+
+  //         // print("✅ Branch data loaded: ${map1.toString()}");
+
+  //         branchdata = branchSectionDataResponse.branchdata;
+
+  //         if (branchdata.isNotEmpty) {
+  //           // print("🟢 Setting branch data in controller...");
+  //           UserController().branchdata = branchdata;
+  //         }
+  //       } else {
+  //         map = jsonDecode(response);
+  //         if (map["data"].isNotEmpty) {
+  //           SectionItemResponse sectionItemResponse =
+  //               await SectionItemResponse.fromJson(map);
+
+  //           sectionitems = sectionItemResponse.data;
+  //           // print("✅ Section Items loaded: ${sectionitems.length} items");
+  //           // for (var item in sectionitems) {
+  //           //   print("🔸 Sectionitem: ${item.toJson()}");
+  //           // }
+  //           UserController().sectionitems = sectionitems;
+  //         }
+  //       }
+
+  //       emit(
+  //         HomeSectionInchargeInitial(
+  //           sectionitems: sectionitems,
+  //           branchdata: branchdata,
+  //         ),
+  //       );
+  //     } else {
+  //       // Barwa Branch and Al Khor Branch data Fetch
+  //       print("🏬 Fetching section data for Barwa or Al Khor...");
+  //       final response = await serviceLocator.tradingApi.getSectionDataRequest(
+  //         UserController.userController.userName,
+  //         0,
+  //         UserController().profile.categoryIds,
+  //         UserController().profile.branchCode,
+  //       );
+
+  //       // print("📩 Raw section data response: $response");
+
+  //       final testMap = jsonDecode(response);
+  //       // print("${testMap["data"]} 🔸 rawDataList");
+
+  //       if (testMap["data"].isNotEmpty) {
+  //         SectionItemResponse sectionItemResponse =
+  //             SectionItemResponse.fromJson(testMap);
+
+  //         List<Sectionitem> tempItems = sectionItemResponse.data;
+  //         // print("🔍 Looping through loaded section items...");
+  //         // for (var item in tempItems) {
+  //         //   print("${item.toJson()} ✅ sectionItem");
+  //         // }
+  //       }
+
+  //       map = jsonDecode(response);
+  //       if (map["data"].isNotEmpty) {
+  //         SectionItemResponse sectionItemResponse =
+  //             await SectionItemResponse.fromJson(map);
+  //         sectionitems = sectionItemResponse.data;
+  //         // print("✅ Final sectionitems assigned: ${sectionitems.length}");
+  //       }
+
+  //       UserController.userController.sectionitems = sectionitems;
+
+  //       emit(
+  //         HomeSectionInchargeInitial(
+  //           sectionitems: sectionitems,
+  //           branchdata: branchdata,
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     // print("❌ Error during loadProducts: ${e.toString()}");
+
+  //     showSnackBar(
+  //       context: context,
+  //       snackBar: showErrorDialogue(
+  //         errorMessage: "something went wrong..! Please Try Again...",
+  //       ),
+  //     );
+  //     emit(
+  //       HomeSectionInchargeInitial(
+  //         sectionitems: sectionitems,
+  //         branchdata: branchdata,
+  //       ),
+  //     );
+  //   }
+  // }
+
   loadProducts() async {
     try {
-      sectionitems.clear();
-      emit(HomeSectionInchargeLoading());
+      // print("🟡 loadProducts started");
 
+      sectionitems.clear();
+      // print("🧹 Cleared section items");
+
+      emit(HomeSectionInchargeLoading());
+      // print("📡 Emitted HomeSectionInchargeLoading state");
+
+      // Load local update history
       updateHistory =
           (await PreferenceUtils.getstoremap(
             'updates_history',
-          )).cast<Map<String, dynamic>>(); //
+          )).cast<Map<String, dynamic>>();
+      // print("🗂️ Loaded update history: $updateHistory");
 
-      log("history list : ${updateHistory}");
+      // Always call checklist API first to get status history
+      // print("📋 Calling getSectionDataCheckList...");
+      final checklistResponse = await serviceLocator.tradingApi
+          .getSectionDataCheckList(
+            UserController().profile.empId,
+            UserController().profile.branchCode,
+            UserController().profile.categoryIds,
+          );
 
-      final respdata = await serviceLocator.tradingApi.getSectionDataCheckList(
-        UserController().profile.empId,
+      final checklistMap = jsonDecode(checklistResponse);
+      if (checklistMap.containsKey('data')) {
+        CheckSectionstatusList checkSectionstatusList =
+            CheckSectionstatusList.fromJson(checklistMap);
+        statusHistories = checkSectionstatusList.data;
+        // print("✅ Loaded statusHistories: ${statusHistories.length} items");
+      } else {
+        // print("⚠️ Checklist response missing 'data' key");
+      }
+
+      // Unified API call for all branches
+      // print("🌐 Calling getSectionDataRequest...");
+      final response = await serviceLocator.tradingApi.getSectionDataRequest(
+        UserController().profile.name,
+        0,
+        UserController().profile.categoryIds,
         UserController().profile.branchCode,
       );
 
-      if (UserController.userController.profile.branchCode != "Q0113") {
-        map3 = jsonDecode(respdata);
-
-        if (map3.containsKey('data')) {
-          CheckSectionstatusList checkSectionstatusList =
-              CheckSectionstatusList.fromJson(map3);
-
-          statusHistories = checkSectionstatusList.data;
-        }
-      }
-
-      log(statusHistories.toString());
-
-      // Rawdah Branch && Al Rayyan Branch data Fetch
-
-      if (UserController.userController.profile.branchCode == "Q015" ||
-          UserController.userController.profile.branchCode == "Q008") {
-        final response = await serviceLocator.tradingApi.getSectionDataRequest(
-          UserController.userController.userName,
-          0,
+      final dataMap = jsonDecode(response);
+      if (dataMap["data"].isNotEmpty) {
+        // print("📦 Section data received, parsing...");
+        SectionItemResponse sectionItemResponse = SectionItemResponse.fromJson(
+          dataMap,
         );
-
-        log(response.toString());
-
-        if (UserController.userController.profile.empId == "veg_rawdah" ||
-            UserController.userController.profile.empId == "veg_rayyan") {
-          map1 = jsonDecode(response);
-
-          BranchSectionDataResponse branchSectionDataResponse =
-              BranchSectionDataResponse.fromJson(map1);
-
-          log(map1.toString());
-
-          branchdata = branchSectionDataResponse.branchdata;
-
-          if (branchdata.isNotEmpty) {
-            UserController().branchdata = branchdata;
-          }
-
-          // UserController().branchdatalist = branchdata;
-        } else {
-          //   log(response.toString());
-
-          map = jsonDecode(response);
-
-          if (map["data"].isNotEmpty) {
-            SectionItemResponse sectionItemResponse =
-                await SectionItemResponse.fromJson(map);
-
-            sectionitems = sectionItemResponse.data;
-
-            UserController().sectionitems = sectionitems;
-          }
-        }
-
-        emit(
-          HomeSectionInchargeInitial(
-            sectionitems: sectionitems,
-            branchdata: branchdata,
-          ),
-        );
+        sectionitems = sectionItemResponse.data;
+        UserController().sectionitems = sectionitems;
+        // print("✅ Section items loaded: ${sectionitems.length}");
       } else {
-        //
-        // Barwa Branch and Al Khor Branch data Fetch
-
-        final response = await serviceLocator.tradingApi.getSectionDataRequest(
-          UserController.userController.userName,
-          0,
-        );
-
-        log(response.toString());
-
-        map = jsonDecode(response);
-
-        if (map["data"].isNotEmpty) {
-          SectionItemResponse sectionItemResponse =
-              await SectionItemResponse.fromJson(map);
-
-          sectionitems = sectionItemResponse.data;
-        }
-
-        UserController.userController.sectionitems = sectionitems;
-
-        emit(
-          HomeSectionInchargeInitial(
-            sectionitems: sectionitems,
-            branchdata: branchdata,
-          ),
-        );
+        // print("⚠️ No section items found in response");
       }
-    } catch (e) {
-      showSnackBar(
-        context: context,
-        snackBar: showErrorDialogue(
-          errorMessage: "something went wrong..! Please Try Again...",
-        ),
-      );
+
       emit(
         HomeSectionInchargeInitial(
           sectionitems: sectionitems,
-          branchdata: branchdata,
+          branchdata: [], // No branch-specific logic anymore
         ),
+      );
+      // print(
+      //   "✅ Emitted HomeSectionInchargeInitial with ${sectionitems.length} items",
+      // );
+    } catch (e) {
+      // print("❌ Error in loadProducts: $e");
+
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(
+          errorMessage: "Something went wrong..! Please try again...",
+        ),
+      );
+
+      emit(
+        HomeSectionInchargeInitial(sectionitems: sectionitems, branchdata: []),
       );
     }
   }
@@ -180,6 +299,8 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       final response = await serviceLocator.tradingApi.getSectionDataRequest(
         UserController.userController.userName,
         catid,
+        UserController().profile.categoryIds,
+        UserController().profile.branchCode,
       );
 
       log(response.toString());
@@ -218,6 +339,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
   }
 
   addToStockStatusList(String sku, String status, String productname) async {
+    // print("one");
     // newStatuses
     //     .add(NewStatus(sku: sku, status: status, productname: productname));
     log(UserController.userController.userName);
@@ -233,6 +355,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
         newStatuses: [
           NewStatus(sku: sku, status: status, productname: productname),
         ],
+        branch: UserController.userController.profile.branchCode,
       );
 
       final response = await serviceLocator.tradingApi.updateSectionDataRequest(
@@ -241,41 +364,37 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       );
 
       if (response.statusCode == 200) {
-        if (UserController.userController.profile.branchCode != 'Q013') {
-          // ignore: use_build_context_synchronously
-          List<Map<String, dynamic>> existingUpdates =
-              (await PreferenceUtils.getstoremap(
-                'updates_history',
-              )).cast<Map<String, dynamic>>();
+        // print("successs");
+        // ignore: use_build_context_synchronously
+        List<Map<String, dynamic>> existingUpdates =
+            (await PreferenceUtils.getstoremap(
+              'updates_history',
+            )).cast<Map<String, dynamic>>();
 
-          // Check if this SKU already exists in history
-          final existingIndex = existingUpdates.indexWhere(
-            (item) => item['sku'] == sku,
-          );
+        // Check if this SKU already exists in history
+        final existingIndex = existingUpdates.indexWhere(
+          (item) => item['sku'] == sku,
+        );
 
-          if (existingIndex >= 0) {
-            // Update existing entry
-            existingUpdates[existingIndex] = {
-              ...existingUpdates[existingIndex], // Keep other fields
-              'status': status, // Update status
-              'timestamp': DateTime.now().toIso8601String(), // Update timestamp
-            };
-          } else {
-            // Add new entry
-            existingUpdates.add({
-              'sku': sku,
-              'status': status,
-              'productname': productname,
-              'branch': UserController.userController.profile.branchCode,
-              'timestamp': DateTime.now().toIso8601String(),
-            });
-          }
-
-          await PreferenceUtils.storeListmap(
-            'updates_history',
-            existingUpdates,
-          );
+        if (existingIndex >= 0) {
+          // Update existing entry
+          existingUpdates[existingIndex] = {
+            ...existingUpdates[existingIndex], // Keep other fields
+            'status': status, // Update status
+            'timestamp': DateTime.now().toIso8601String(), // Update timestamp
+          };
+        } else {
+          // Add new entry
+          existingUpdates.add({
+            'sku': sku,
+            'status': status,
+            'productname': productname,
+            'branch': UserController.userController.profile.branchCode,
+            'timestamp': DateTime.now().toIso8601String(),
+          });
         }
+
+        await PreferenceUtils.storeListmap('updates_history', existingUpdates);
 
         showSnackBar(
           context: context,
@@ -294,6 +413,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
   updateSearchOrderAR(List<Branchdatum> branchdata, String keyword) async {
     searchbranchlist.clear();
+    // print("two");
 
     if (keyword.isNotEmpty) {
       if (!searchactive) {

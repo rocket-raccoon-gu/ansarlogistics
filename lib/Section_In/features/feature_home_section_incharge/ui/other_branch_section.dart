@@ -28,6 +28,7 @@ class _OtherBranchSectionState extends State<OtherBranchSection> {
 
   @override
   Widget build(BuildContext context) {
+    // print("other branch section");
     return Column(
       children: [
         Padding(
@@ -52,15 +53,6 @@ class _OtherBranchSectionState extends State<OtherBranchSection> {
                   UserController().sectionitems,
                   p0.toString(),
                 );
-                // if (p0 != '') {
-                //   setState(() {
-                //     searchactive = true;
-                //   });
-                // } else {
-                //   setState(() {
-                //     searchactive = false;
-                //   });
-                // }
               },
               controller: _searchcontroller,
             ),

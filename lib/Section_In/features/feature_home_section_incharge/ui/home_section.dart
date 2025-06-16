@@ -37,6 +37,7 @@ class _HomeSectionState extends State<HomeSection> {
 
   @override
   Widget build(BuildContext context) {
+    // print("home section");
     return Column(
       children: [
         Padding(

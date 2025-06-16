@@ -111,6 +111,12 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   }
 
   updateBarcodeLog(String sku, String scannedsku) async {
+    // print("📤 Attempting to update barcode log...");
+    // print("🆔 Order ID: ${orderResponseItem?.subgroupIdentifier}");
+    // print("📦 SKU: $sku");
+    // print("🔍 Scanned SKU: $scannedsku");
+    // print("👤 User ID: ${UserController().profile.id}");
+
     try {
       final response = await serviceLocator.tradingApi.updateBarcodeLog(
         orderid: orderResponseItem!.subgroupIdentifier,
@@ -120,16 +126,26 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       );
 
       if (response.statusCode == 200) {
-        log("Barcode Log Data Updated");
+        // print("✅ Barcode Log Data Updated Successfully");
+      } else {
+        // print(
+        //   "⚠️ Barcode Log Update failed with status: ${response.statusCode}",
+        // );
       }
     } catch (e) {
-      log("Barcode Log Update Failed ${e.toString()}");
+      // print("❌ Barcode Log Update Failed: ${e.toString()}");
     }
   }
 
   updateitemstatuspick(String qty, String scannedSku, String price) async {
+    // print("🚀 updateitemstatuspick() called");
+    // print("🔢 Qty: $qty");
+    // print("🔍 Scanned SKU: $scannedSku");
+    // print("💲 Price: $price");
+
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
+      // print("🔐 Retrieved Token: ${token != null ? 'Exists' : 'Null'}");
 
       Map<String, dynamic> body = {
         "item_id": int.parse(orderItem!.itemId),
@@ -144,6 +160,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         "qty_orderd": double.parse(orderItem!.qtyOrdered).toInt(),
       };
 
+      // print("📦 Request Body: $body");
+
       loading = true;
 
       final response = await serviceLocator.tradingApi.updateItemStatusService(
@@ -151,24 +169,32 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         token: token,
       );
 
+      // print("📡 API Response Status Code: ${response.statusCode}");
+
       if (response.statusCode == 200) {
         loading = false;
+
+        // print("✅ Item status updated successfully");
 
         UserController.userController.indexlist.add(orderItem!);
         UserController.userController.pickerindexlist.add(orderItem!.itemId);
 
-        log("💵 Price logged: $price");
+        // print("📦 Item added to UserController lists");
+        // print("💵 Price logged: $price");
 
         eventBus.fire(
           DataChangedEvent(
             "New Data from Screen B",
           ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
         );
+        // print("📨 EventBus fired with updated price");
 
         showSnackBar(
           context: context,
           snackBar: showSuccessDialogue(message: "Status Updated"),
         );
+
+        // print("🎉 Showing success dialog and navigating back");
 
         Navigator.of(context).popUntil((route) => route.isFirst);
 
@@ -178,6 +204,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         );
       } else {
         loading = false;
+        // print("❌ API status update failed: ${response.statusCode}");
 
         showSnackBar(
           context: context,
@@ -190,10 +217,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
           emit(
             OrderItemDetailErrorState(loading: loading, orderItem: orderItem!),
           );
+          // print("⚠️ Error state emitted");
         }
       }
     } catch (e, stacktrace) {
       loading = false;
+      // print("🔥 Exception caught: ${e.toString()}");
+      // print("📉 StackTrace: $stacktrace");
 
       showSnackBar(
         context: context,
@@ -206,6 +236,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         emit(
           OrderItemDetailErrorState(loading: loading, orderItem: orderItem!),
         );
+        // print("⚠️ Error state emitted after exception");
       }
     }
   }
@@ -320,32 +351,46 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   }
 
   checkitemdb(String qty, String scannedSku, EndPicking? orderItem) async {
+    // print("🔍 checkitemdb() called");
+    // print("📦 Qty: $qty");
+    // print("🔍 Scanned SKU: $scannedSku");
+
     try {
       String convertbarcode = '';
 
       if (orderItem!.isproduce == "1") {
         convertbarcode = replaceAfterFirstSixWithZero(scannedSku);
+        // print("🛠️ Produce item detected. Converted barcode: $convertbarcode");
       }
 
-      log(scannedSku);
+      final usedBarcode = convertbarcode != '' ? convertbarcode : scannedSku;
+      // print("➡️ Using barcode for API call: $usedBarcode");
 
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
-        endpoint: convertbarcode != '' ? convertbarcode : scannedSku,
+        endpoint: usedBarcode,
       );
+
+      // print("📡 API Response Status: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
+        // print("✅ API Response Data: $data");
 
         if (data['priority'] == 1) {
+          // print("🏷️ Priority 1 item detected");
           ErPdata erPdata = ErPdata.fromJson(data);
 
           if (!povisvible) {
             povisvible = true;
+            // print("🧾 Showing confirmation dialog for ERP item");
 
             showPickConfirmDialogue(
               context,
               '${erPdata.message} $scannedSku',
               () {
+                // print(
+                //   "🧮 Comparing Prices: App=${orderItem.price} | ERP=${erPdata.erpPrice}",
+                // );
                 if (orderItem.price == erPdata.erpPrice) {
                   updateitemstatuspick(
                     qty,
@@ -355,6 +400,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         : erPdata.erpPrice,
                   );
                 } else {
+                  // print("⚠️ Price mismatch detected. Showing error.");
                   showSnackBar(
                     context: context,
                     snackBar: showErrorDialogue(
@@ -372,20 +418,22 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
               () {
                 context.gNavigationService.back(context);
                 povisvible = false;
+                // print("🔙 Dialog dismissed");
               },
             );
           }
         } else if (data['priority'] == 2) {
+          // print("🏷️ Priority 2 item detected");
           ProductDBdata productDBdata = ProductDBdata.fromJson(data);
 
           if (!povisvible) {
             povisvible = true;
+            // print("🧾 Showing confirmation dialog for ProductDB item");
 
             showPickConfirmDialogue(
               context,
               'Barcode Found in System',
               () {
-                // if (orderItem.price == productDBdata.currentPromotionPrice) {
                 updateitemstatuspick(
                   qty,
                   scannedSku,
@@ -393,14 +441,6 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                       : productDBdata.currentPromotionPrice,
                 );
-                // } else {
-                //   showSnackBar(
-                //     context: context,
-                //     snackBar: showErrorDialogue(
-                //       errorMessage: "price not same please replace the item",
-                //     ),
-                //   );
-                // }
               },
               productDBdata.sku,
               orderItem.isproduce == "1"
@@ -413,16 +453,19 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
               () {
                 context.gNavigationService.back(context);
                 povisvible = false;
+                // print("🔙 Dialog dismissed");
               },
             );
           }
         } else if (data.containsKey('suggestion')) {
+          // print("💡 Suggestion found: ${data['message']}");
           showSnackBar(
             context: context,
             snackBar: showErrorDialogue(errorMessage: data['message']),
           );
         }
       } else {
+        // print("❌ API failed. Status code: ${response.statusCode}");
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(
@@ -431,6 +474,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         );
       }
     } catch (e) {
+      // print("🔥 Exception in checkitemdb(): ${e.toString()}");
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(

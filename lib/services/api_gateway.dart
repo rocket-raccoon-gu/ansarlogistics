@@ -436,10 +436,15 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
-  Future getSectionDataRequest(String user, int catid) async {
+  Future getSectionDataRequest(
+    String user,
+    int catid,
+    String categoryIds,
+    String branchCode,
+  ) async {
     try {
       final response = await pickerDriverApi
-          .getSectionData(user.toLowerCase(), catid)
+          .getSectionData(user.toLowerCase(), catid, categoryIds, branchCode)
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
             throw e;
@@ -452,10 +457,18 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
-  Future getSectionDataCheckList(String user, String branch) async {
+  Future getSectionDataCheckList(
+    String user,
+    String branch,
+    String categoryIds,
+  ) async {
     try {
       final response = await pickerDriverApi
-          .getSectionDataCheckList(branchcode: branch, userid: user)
+          .getSectionDataCheckList(
+            branchcode: branch,
+            userid: user,
+            categoryIds: categoryIds,
+          )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
             throw e;

@@ -55,20 +55,29 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
   scanBarcodeNormal(String? barcodeScanRes) async {
     try {
       if (barcodeScanRes != null) {
-        await BlocProvider.of<OrderItemDetailsCubit>(context).updateBarcodeLog(
-          BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.productSku,
-          barcodeScanRes,
-        );
+        // print('📦 Scanned barcode: $barcodeScanRes');
 
-        await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
-          editquantity != 0
-              ? editquantity.toString()
-              : BlocProvider.of<OrderItemDetailsCubit>(
-                context,
-              ).orderItem!.qtyOrdered,
-          barcodeScanRes,
-          BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
-        );
+        final orderItem =
+            BlocProvider.of<OrderItemDetailsCubit>(context).orderItem;
+        final productSku = orderItem?.productSku;
+
+        // print('🔍 Found product SKU: $productSku');
+
+        await BlocProvider.of<OrderItemDetailsCubit>(
+          context,
+        ).updateBarcodeLog(productSku!, barcodeScanRes);
+        // print('✅ Barcode log updated for SKU: $productSku');
+
+        final quantityToCheck =
+            editquantity != 0 ? editquantity.toString() : orderItem!.qtyOrdered;
+
+        // print('📊 Quantity to check: $quantityToCheck');
+
+        await BlocProvider.of<OrderItemDetailsCubit>(
+          context,
+        ).checkitemdb(quantityToCheck, barcodeScanRes, orderItem);
+
+        // print('✅ checkitemdb completed for barcode: $barcodeScanRes');
       }
 
       if (mounted) {

@@ -86,6 +86,9 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
   @override
   Widget build(BuildContext context) {
     val = _currentStatus;
+    // print(
+    //   "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
+    // );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -214,9 +217,11 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                                 children: [
                                   Text(
                                     // Check if SKU exists in updates, then use its status
-                                    val == 1 ? 'Enabled' : 'Disabled',
+                                    widget.sectionitem.isInStock == 1
+                                        ? 'Enabled'
+                                        : 'Disabled',
                                     style:
-                                        _currentStatus == 1
+                                        widget.sectionitem.isInStock == 1
                                             ? customTextStyle(
                                               fontStyle:
                                                   FontStyle.HeaderXS_Bold,
@@ -250,40 +255,37 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                   widget.sectionitem.isInStock = v;
                   val = v;
 
-                  if (UserController.userController.profile.branchCode !=
-                      'Q013') {
-                    // Remove from statusHistory if exists
-                    widget.statusHistory.removeWhere(
-                      (item) =>
-                          item.sku == widget.sectionitem.sku &&
-                          item.branchCode ==
-                              UserController.userController.profile.branchCode,
-                    );
-
-                    // Update existingUpdates
-                    final index = widget.existingUpdates.indexWhere(
-                      (item) => item['sku'] == widget.sectionitem.sku,
-                    );
-                    if (index >= 0) {
-                      widget.existingUpdates[index] = {
-                        ...widget.existingUpdates[index],
-                        'status': v,
-                      };
-                    } else {
-                      widget.existingUpdates.add({
-                        'sku': widget.sectionitem.sku,
-                        'status': v,
-                        'branch':
+                  // Remove from statusHistory if exists
+                  widget.statusHistory.removeWhere(
+                    (item) =>
+                        item.sku == widget.sectionitem.sku &&
+                        item.branchCode ==
                             UserController.userController.profile.branchCode,
-                        'productName': widget.sectionitem.productName,
-                      });
-                    }
+                  );
 
-                    PreferenceUtils.storeListmap(
-                      'updates_history',
-                      widget.existingUpdates,
-                    );
+                  // Update existingUpdates
+                  final index = widget.existingUpdates.indexWhere(
+                    (item) => item['sku'] == widget.sectionitem.sku,
+                  );
+                  if (index >= 0) {
+                    widget.existingUpdates[index] = {
+                      ...widget.existingUpdates[index],
+                      'status': v,
+                    };
+                  } else {
+                    widget.existingUpdates.add({
+                      'sku': widget.sectionitem.sku,
+                      'status': v,
+                      'branch':
+                          UserController.userController.profile.branchCode,
+                      'productName': widget.sectionitem.productName,
+                    });
                   }
+
+                  PreferenceUtils.storeListmap(
+                    'updates_history',
+                    widget.existingUpdates,
+                  );
 
                   widget.onSectionChanged(
                     widget.sectionitem.sku,

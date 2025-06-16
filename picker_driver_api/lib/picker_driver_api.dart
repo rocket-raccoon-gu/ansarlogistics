@@ -808,13 +808,17 @@ extension PDGeneralApi on PickerDriverApi {
     required UpdateSectionRequest updateSectionRequest,
     required String branch,
   }) async {
-    final url;
+    // final url;
 
-    if (branch != "Q013") {
-      url = _endpointWithApplicationPath('updateproductstatusbranch.php');
-    } else {
-      url = _endpointWithApplicationPath('updateproductstatus.php');
-    }
+    // if (branch != "Q013") {
+    //   url = _endpointWithApplicationPath('updateproductstatusbranch.php');
+    // } else {
+    //   url = _endpointWithApplicationPath('updateproductstatus.php');
+    // }
+
+    final url = _endpointWithApplicationPath('updateproductstatus.php');
+
+    // print(url);
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
@@ -946,9 +950,19 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
-  Future<String> getSectionData(String user, int catid) async {
+  Future<String> getSectionData(
+    String user,
+    int catid,
+    String categoryIds,
+    String branchCode,
+  ) async {
     // Uri urlorder;
-    String url = _endpointWithApplicationPathSection(user, catid);
+    String url = _endpointWithApplicationPathSection(
+      user,
+      catid,
+      categoryIds,
+      branchCode,
+    );
     // log("${urlorder.path.toString()}-------------------------------------");
 
     final Map<String, String> headers = {
@@ -976,6 +990,7 @@ extension PDGeneralApi on PickerDriverApi {
   Future<String> getSectionDataCheckList({
     required String branchcode,
     required String userid,
+    required String categoryIds,
   }) {
     final url = _endpointWithApplicationPath('/check_status.php');
 
@@ -1110,48 +1125,53 @@ extension on PickerDriverApi {
     return newpath;
   }
 
-  String _endpointWithApplicationPathSection(String userid, int catid) {
+  String _endpointWithApplicationPathSection(
+    String userid,
+    int catid,
+    String categoryIds,
+    String branchCode,
+  ) {
     String root =
         baseUrl.replace(path: '${baseUrl.path}$applicationPath').toString();
-    switch (userid) {
-      case "ahqa_fish":
-      case "fish_alkhor":
-      case "fish_rawdah":
-      case "fish_rayyan":
-        // return '${productUrl1.toString()}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=761,762,764,763&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,status,visibility,extension_attributes[ah_is_in_stock],media_gallery_entries]';
-        return '${root}get_section_data.php?category_ids=761,762,764,763';
-      case "ahqa_butch":
-      case "alkhor_butch":
-      case "rawdah_butch":
-      case "rayyan_butch":
-        if (catid != 0) {
-          // return '${productUrl1.toString()}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=${catid.toString()}&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,status,visibility,extension_attributes[ah_is_in_stock],media_gallery_entries]';
-          return '${root}get_section_data.php?category_ids=${catid.toString()}';
-        } else {
-          // return '${productUrl1.toString()}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=17&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,status,visibility,extension_attributes[ah_is_in_stock],media_gallery_entries]';
-          return '${root}get_section_data.php?category_ids=17';
-        }
-      case "ahqa_deli":
-      case "alkhor_deli":
-      case "rawdah_deli":
-      case "rayyan_deli":
-        // return '${productUrl1}products?searchCriteria[filter_groups][0][filters][0][field]=category_id&searchCriteria[filter_groups][0][filters][0][value]=793,782,781&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC&searchCriteria[filter_groups][0][filters][0][condition_type]=in&searchCriteria[pageSize]=12000&searchCriteria[currentPage]=1&fields=items[sku,price,name,visibility,status,extension_attributes,media_gallery_entries]';
-        return '${root}get_section_data.php?category_ids=793,782,781';
-      case "ahqa_veg":
-        return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1214,1215,1216,1207,1219,1226,1220,1230,1228,1231,1299';
-      case "veg_rawdah":
-        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
-      case "veg_rayyan":
-        log('${mainbaseUrl}');
-        log(
-          '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008',
-        );
-        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008';
-      case "ah_grabgo":
-        return '${mainbaseUrl}${applicationPath}get_section_data.php?category_ids=101';
-      default:
-        return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1215,1216,1207,1219,1226,1220,1230,1228,1231';
-    }
+    // print(
+    //   '${root}get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}',
+    // );
+    return '${root}get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}';
+    // switch (userid) {
+    //   case "ahqa_fish":
+    //   case "fish_alkhor":
+    //   case "fish_rawdah":
+    //   case "fish_rayyan":
+    //     return '${root}get_section_data.php?category_ids=761,762,764,763';
+    //   case "ahqa_butch":
+    //   case "alkhor_butch":
+    //   case "rawdah_butch":
+    //   case "rayyan_butch":
+    //     if (catid != 0) {
+    //       return '${root}get_section_data.php?category_ids=${catid.toString()}';
+    //     } else {
+    //       return '${root}get_section_data.php?category_ids=17';
+    //     }
+    //   case "ahqa_deli":
+    //   case "alkhor_deli":
+    //   case "rawdah_deli":
+    //   case "rayyan_deli":
+    //     return '${root}get_section_data.php?category_ids=793,782,781';
+    //   case "ahqa_veg":
+    //     return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1214,1215,1216,1207,1219,1226,1220,1230,1228,1231,1299';
+    //   case "veg_rawdah":
+    //     return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
+    //   case "veg_rayyan":
+    //     log('${mainbaseUrl}');
+    //     log(
+    //       '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008',
+    //     );
+    //     return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008';
+    //   case "ah_grabgo":
+    //     return '${mainbaseUrl}${applicationPath}get_section_data.php?category_ids=101';
+    //   default:
+    //     return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1215,1216,1207,1219,1226,1220,1230,1228,1231';
+    // }
   }
 
   Future<T> _handleRequest<T>({
