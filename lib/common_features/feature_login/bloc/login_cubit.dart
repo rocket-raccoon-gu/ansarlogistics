@@ -15,7 +15,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picker_driver_api/responses/login_response.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
-
 part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
@@ -114,7 +113,7 @@ class LoginCubit extends Cubit<LoginState> {
               password: password,
               token: value,
               bearertoken: serverkey,
-              appversion: "2.0.14",
+              appversion: "2.0.16",
             );
         DateTime responseTime = DateTime.now();
 

@@ -56,11 +56,16 @@ class _ItemAddPageState extends State<ItemAddPage> {
 
     // print("${barcodeScanRes}barcodeScanResbarcodeScanResbarcodeScanRes");
 
+    String action = "additional";
+
     if (!mounted) return;
 
-    await BlocProvider.of<ItemAddPageCubit>(
-      context,
-    ).getScannedProductData(barcodeScanRes, producebarcode);
+    await BlocProvider.of<ItemAddPageCubit>(context).getScannedProductData(
+      barcodeScanRes,
+      producebarcode,
+      barcodeScanRes,
+      action,
+    );
 
     setState(() {
       isScanner = false;
@@ -174,6 +179,8 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                   ).getScannedProductData(
                                     barcodeController.text,
                                     producebarcode,
+                                    barcodeController.text,
+                                    "additional",
                                   );
                                 },
                                 bgcolor: customColors().dodgerBlue,
@@ -237,7 +244,12 @@ class _ItemAddPageState extends State<ItemAddPage> {
 
                           await BlocProvider.of<ItemAddPageCubit>(
                             context,
-                          ).getScannedProductData(scannedCode, producebarcode);
+                          ).getScannedProductData(
+                            scannedCode,
+                            producebarcode,
+                            scannedCode,
+                            "additional",
+                          );
 
                           // Optionally switch back to form
                           BlocProvider.of<ItemAddPageCubit>(

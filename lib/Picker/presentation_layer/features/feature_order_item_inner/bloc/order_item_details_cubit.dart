@@ -2,8 +2,8 @@
 
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -350,122 +350,175 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     }
   }
 
-  checkitemdb(String qty, String scannedSku, EndPicking? orderItem) async {
+  bool _isDialogShowing = false;
+
+  checkitemdb(
+    String qty,
+    String scannedSku,
+    EndPicking? orderItem,
+    String productSku,
+    String action,
+  ) async {
     // print("🔍 checkitemdb() called");
     // print("📦 Qty: $qty");
     // print("🔍 Scanned SKU: $scannedSku");
+    // print("🏷️ Product SKU: $productSku");
+    // print("🔁 Action: $action");
 
     try {
       String convertbarcode = '';
+      // print("🔧 Checking if item is produce: ${orderItem?.isproduce}");
 
       if (orderItem!.isproduce == "1") {
         convertbarcode = replaceAfterFirstSixWithZero(scannedSku);
         // print("🛠️ Produce item detected. Converted barcode: $convertbarcode");
+      } else {
+        // print("📌 Non-produce item, using scanned barcode directly.");
       }
 
-      final usedBarcode = convertbarcode != '' ? convertbarcode : scannedSku;
-      // print("➡️ Using barcode for API call: $usedBarcode");
+      final usedBarcode =
+          convertbarcode != '' ? convertbarcode : scannedSku.trim();
+      // print("➡️ Using barcode for API call: [$usedBarcode]");
 
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
         endpoint: usedBarcode,
+        productSku: productSku,
+        action: action,
       );
 
       // print("📡 API Response Status: ${response.statusCode}");
 
       if (response.statusCode == 200) {
+        // print("📬 API call successful. Decoding response...");
         Map<String, dynamic> data = jsonDecode(response.body);
         // print("✅ API Response Data: $data");
 
-        if (data['priority'] == 1) {
-          // print("🏷️ Priority 1 item detected");
-          ErPdata erPdata = ErPdata.fromJson(data);
+        if (data['message'] != "Product not found in website or ERP system") {
+          if (data['match'] == "0") {
+            // print(
+            //   "🔍 Item match not found in current order. Checking priority...",
+            // );
 
-          if (!povisvible) {
-            povisvible = true;
-            // print("🧾 Showing confirmation dialog for ERP item");
+            if (data['priority'] == 1) {
+              // print("🏷️ Priority 1 item detected");
+              ErPdata erPdata = ErPdata.fromJson(data);
 
-            showPickConfirmDialogue(
-              context,
-              '${erPdata.message} $scannedSku',
-              () {
-                // print(
-                //   "🧮 Comparing Prices: App=${orderItem.price} | ERP=${erPdata.erpPrice}",
-                // );
-                if (orderItem.price == erPdata.erpPrice) {
-                  updateitemstatuspick(
-                    qty,
-                    scannedSku,
-                    orderItem.isproduce == "1"
-                        ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                        : erPdata.erpPrice,
-                  );
-                } else {
-                  // print("⚠️ Price mismatch detected. Showing error.");
-                  showSnackBar(
-                    context: context,
-                    snackBar: showErrorDialogue(
-                      errorMessage: "price not same please replace the item",
-                    ),
-                  );
-                }
-              },
-              erPdata.erpSku,
-              orderItem.isproduce == "1"
-                  ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                  : erPdata.erpPrice,
-              qty,
-              erPdata.erpProductName,
-              () {
-                context.gNavigationService.back(context);
-                povisvible = false;
-                // print("🔙 Dialog dismissed");
-              },
-            );
-          }
-        } else if (data['priority'] == 2) {
-          // print("🏷️ Priority 2 item detected");
-          ProductDBdata productDBdata = ProductDBdata.fromJson(data);
+              if (!povisvible) {
+                povisvible = true;
+                // print("🧾 Showing confirmation dialog for ERP item");
 
-          if (!povisvible) {
-            povisvible = true;
-            // print("🧾 Showing confirmation dialog for ProductDB item");
+                showPickConfirmDialogue(
+                  context,
+                  '${erPdata.message} $scannedSku',
+                  () {
+                    // print("🟢 Confirm clicked for ERP item");
 
-            showPickConfirmDialogue(
-              context,
-              'Barcode Found in System',
-              () {
-                updateitemstatuspick(
-                  qty,
-                  scannedSku,
+                    final calculatedPrice =
+                        orderItem.isproduce == "1"
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : erPdata.erpPrice;
+
+                    // print(
+                    //   "💰 Order price: ${orderItem.price}, ERP Price: ${erPdata.erpPrice}",
+                    // );
+
+                    if (orderItem.price == erPdata.erpPrice) {
+                      // print("✅ Prices match. Updating item status...");
+                      updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                    } else {
+                      // print("⚠️ Price mismatch detected. Showing error.");
+                      showSnackBar(
+                        context: context,
+                        snackBar: showErrorDialogue(
+                          errorMessage:
+                              "price not same please replace the item",
+                        ),
+                      );
+                    }
+                  },
+                  erPdata.erpSku,
                   orderItem.isproduce == "1"
                       ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                      : productDBdata.currentPromotionPrice,
+                      : erPdata.erpPrice,
+                  qty,
+                  erPdata.erpProductName,
+                  () {
+                    // print("🔙 Closing ERP dialog");
+                    context.gNavigationService.back(context);
+                    povisvible = false;
+                  },
                 );
-              },
-              productDBdata.sku,
-              orderItem.isproduce == "1"
-                  ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                  : double.parse(
-                    productDBdata.currentPromotionPrice,
-                  ).toStringAsFixed(2),
-              qty,
-              productDBdata.skuName,
-              () {
-                context.gNavigationService.back(context);
-                povisvible = false;
-                // print("🔙 Dialog dismissed");
-              },
-            );
+              }
+            } else if (data['priority'] == 2) {
+              // print("🏷️ Priority 2 item detected");
+              ProductDBdata productDBdata = ProductDBdata.fromJson(data);
+
+              if (!povisvible) {
+                povisvible = true;
+                // print("🧾 Showing confirmation dialog for ProductDB item");
+
+                showPickConfirmDialogue(
+                  context,
+                  'Barcode Found in System',
+                  () {
+                    // print("🟢 Confirm clicked for ProductDB item");
+                    final calculatedPrice =
+                        orderItem.isproduce == "1"
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : productDBdata.currentPromotionPrice;
+                    // print("💰 Calculated Price: $calculatedPrice");
+
+                    updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                  },
+                  productDBdata.sku,
+                  orderItem.isproduce == "1"
+                      ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                      : double.parse(
+                        productDBdata.currentPromotionPrice,
+                      ).toStringAsFixed(2),
+                  qty,
+                  productDBdata.skuName,
+                  () {
+                    // print("🔙 Closing ProductDB dialog");
+                    context.gNavigationService.back(context);
+                    povisvible = false;
+                  },
+                );
+              }
+            } else if (data.containsKey('suggestion')) {
+              // print("💡 Suggestion found in response: ${data['message']}");
+              showSnackBar(
+                context: context,
+                snackBar: showErrorDialogue(errorMessage: data['message']),
+              );
+            } else {
+              // print("❓ Unrecognized priority or no suggestion in response.");
+            }
+          } else {
+            // print("✅ Item matched in order. No need to show dialog.");
+            if (!_isDialogShowing) {
+              _isDialogShowing = true;
+              // print("📛 _isDialogShowing was false, now set to true");
+              // Uncomment if needed
+              priceMismatchDialog(
+                context,
+                orderItem: orderItem,
+                orderResponseItem: orderResponseItem,
+                //  cubit.orderItem,
+                // orderResponseItem: cubit.orderResponseItem,
+              );
+            }
           }
-        } else if (data.containsKey('suggestion')) {
-          // print("💡 Suggestion found: ${data['message']}");
+        } else {
+          String mainMessage = data["message"] + data["suggestion"];
           showSnackBar(
             context: context,
-            snackBar: showErrorDialogue(errorMessage: data['message']),
+            snackBar: showErrorDialogue(errorMessage: mainMessage),
           );
         }
       } else {
-        // print("❌ API failed. Status code: ${response.statusCode}");
+        // print("❌ API call failed with status code: ${response.statusCode}");
+        // print("❌ Response body: ${response.body}");
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(
@@ -473,8 +526,9 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stacktrace) {
       // print("🔥 Exception in checkitemdb(): ${e.toString()}");
+      // print("📉 StackTrace: $stacktrace");
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(

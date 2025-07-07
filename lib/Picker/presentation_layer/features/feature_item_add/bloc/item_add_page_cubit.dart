@@ -45,40 +45,40 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
   DateTime? specialFromDate;
   DateTime? specialToDate;
 
-  updatedata(String sku, bool produce) async {
-    if (sku.startsWith(']C1')) {
-      log('contains c1');
-      sku = sku.replaceAll(']C1', '');
-    } else if (sku.startsWith('C1')) {
-      sku = sku.replaceAll('C1', '');
-    }
+  // updatedata(String sku, bool produce) async {
+  //   if (sku.startsWith(']C1')) {
+  //     log('contains c1');
+  //     sku = sku.replaceAll(']C1', '');
+  //   } else if (sku.startsWith('C1')) {
+  //     sku = sku.replaceAll('C1', '');
+  //   }
 
-    token = await PreferenceUtils.getDataFromShared("usertoken");
+  //   token = await PreferenceUtils.getDataFromShared("usertoken");
 
-    orderItemsResponse = data['order'];
+  //   orderItemsResponse = data['order'];
 
-    if (sku != "") {
-      updateBarcodeLog('', sku);
+  //   if (sku != "") {
+  //     updateBarcodeLog('', sku);
 
-      if (produce) {
-        // Replace the last 4 digits with '0'
-        String updatedBarcode = sku.substring(0, sku.length - 6) + '000000';
+  //     if (produce) {
+  //       // Replace the last 4 digits with '0'
+  //       String updatedBarcode = sku.substring(0, sku.length - 6) + '000000';
 
-        log(updatedBarcode);
+  //       log(updatedBarcode);
 
-        getProduct(updatedBarcode);
-      } else {
-        getProduct(sku);
-      }
-    } else {
-      emit(ItemAddPageInitialState(erPdata, productDBdata));
+  //       getProduct(updatedBarcode);
+  //     } else {
+  //       getProduct(sku);
+  //     }
+  //   } else {
+  //     emit(ItemAddPageInitialState(erPdata, productDBdata));
 
-      showSnackBar(
-        context: context,
-        snackBar: showErrorDialogue(errorMessage: "Please Scan Barcode ...!"),
-      );
-    }
-  }
+  //     showSnackBar(
+  //       context: context,
+  //       snackBar: showErrorDialogue(errorMessage: "Please Scan Barcode ...!"),
+  //     );
+  //   }
+  // }
 
   updateBarcodeLog(String sku, String scannedsku) async {
     try {
@@ -97,10 +97,14 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     }
   }
 
-  getProduct(String sku) async {
+  getProduct(String sku, String productSku, String action) async {
     try {
       final productresponse = await serviceLocator.tradingApi
-          .checkBarcodeDBService(endpoint: sku);
+          .checkBarcodeDBService(
+            endpoint: sku,
+            productSku: productSku,
+            action: action,
+          );
 
       if (productresponse.statusCode == 200) {
         Map<String, dynamic> item = json.decode(productresponse.body);
@@ -313,21 +317,13 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     return isSpecialPriceActive && specialPrice != null ? specialPrice! : 0.00;
   }
 
-  getScannedProductData(String barcodeString, bool produce) async {
-    // if (produce) {
-    //   String updatedBarcode =
-    //       '${barcodeString.substring(0, barcodeString.length - 6)}000000';
-
-    //   log(updatedBarcode);
-
-    //   getProduct(updatedBarcode);
-    // } else {
-    //   getProduct(barcodeString);
-    // }
-    // print("start");
-    // print(barcodeString);
-    getProduct(barcodeString);
-    // print("end");
+  getScannedProductData(
+    String barcodeString,
+    bool produce,
+    String productSku,
+    String action,
+  ) async {
+    getProduct(barcodeString, productSku, action);
   }
 
   updateFormState() async {

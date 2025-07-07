@@ -622,13 +622,24 @@ class PDApiGateway implements AuthenticationService {
   }
 
   @override
-  Future checkBarcodeDBService({required String endpoint}) async {
+  Future checkBarcodeDBService({
+    required String endpoint,
+    required String productSku,
+    required String action,
+  }) async {
     try {
       log("🌐 API Call Started: checkBarcodeDB with endpoint -> $endpoint");
+      log("🌐 API Call Started:  productSku -> $productSku");
+      log("🌐 API Call Started:  action -> $action");
+
       // print("🌐 API Call Started: checkBarcodeDB with endpoint -> $endpoint");
 
       final response = await pickerDriverApi
-          .checkBarcodeDB(endpoint: endpoint)
+          .checkBarcodeDB(
+            endpoint: endpoint,
+            productSku: productSku,
+            action: action,
+          )
           .catchError((e) {
             log("❗ Network Error in checkBarcodeDB: $e");
             // print("❗ Network Error in checkBarcodeDB: $e");

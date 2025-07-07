@@ -931,10 +931,22 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
-  Future<http.Response> checkBarcodeDB({required String endpoint}) async {
+  Future<http.Response> checkBarcodeDB({
+    required String endpoint,
+    required String productSku,
+    required String action,
+  }) async {
+    // print("${endpoint} endpoint");
+    // print("${productSku} productSku");
+    // print("${action} action");
+
     final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint',
+      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
     );
+
+    // print(
+    //   'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
+    // );
 
     log(url.toString());
 

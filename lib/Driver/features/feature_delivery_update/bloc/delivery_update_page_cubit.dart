@@ -8,6 +8,7 @@ import 'package:ansarlogistics/components/custom_app_components/textfields/trans
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -111,12 +112,15 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
 
   updateMainOrderStat(String status) async {
     try {
-      // PreferenceUtils.storeDataToShared(
-      //           "driverlat", position.latitude.toString());
-
-      updatestat = true;
-
+      // Step 1: Get current position
       Position position = await Geolocator.getCurrentPosition();
+
+      // Step 2: Store lat & long in shared preferences
+      String lat = position.latitude.toString();
+      String long = position.longitude.toString();
+
+      await PreferenceUtils.storeDataToShared("driverlat", lat);
+      await PreferenceUtils.storeDataToShared("driverlong", long);
 
       final resp = await serviceLocator.tradingApi.updateMainOrderStat(
         orderid: orderResponseItem!.subgroupIdentifier,
@@ -124,9 +128,19 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         comment:
             "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order",
         userid: UserController().profile.id,
-        latitude: '25.22018977162075',
-        longitude: '51.49574356933962',
+        latitude: lat,
+        longitude: long,
       );
+
+      // final resp = await serviceLocator.tradingApi.updateMainOrderStat(
+      //   orderid: orderResponseItem!.subgroupIdentifier,
+      //   orderstatus: status,
+      //   comment:
+      //       "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order",
+      //   userid: UserController().profile.id,
+      //   latitude: '25.22018977162075',
+      //   longitude: '51.49574356933962',
+      // );
 
       if (resp.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(resp.body);
@@ -160,8 +174,6 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
             ),
             autoCloseDuration: const Duration(seconds: 5),
           );
-
-          // loading = false;
 
           Navigator.of(context).popUntil((route) => route.isFirst);
 

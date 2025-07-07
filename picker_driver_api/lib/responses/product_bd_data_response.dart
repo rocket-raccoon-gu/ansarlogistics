@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final productDBdata = productDBdataFromJson(jsonString);
-
 import 'dart:convert';
 
 ProductDBdata productDBdataFromJson(String str) =>
@@ -23,6 +19,7 @@ class ProductDBdata {
   int priority;
   String barcodes;
   String isProduce;
+  String match;
 
   ProductDBdata({
     required this.productId,
@@ -38,6 +35,7 @@ class ProductDBdata {
     required this.priority,
     required this.barcodes,
     required this.isProduce,
+    required this.match,
   });
 
   ProductDBdata copyWith({
@@ -54,6 +52,7 @@ class ProductDBdata {
     int? priority,
     String? barcodes,
     String? isProduce,
+    String? match,
   }) => ProductDBdata(
     productId: productId ?? this.productId,
     sku: sku ?? this.sku,
@@ -67,8 +66,8 @@ class ProductDBdata {
     images: images ?? this.images,
     priority: priority ?? this.priority,
     barcodes: barcodes ?? this.barcodes,
-
     isProduce: isProduce ?? this.isProduce,
+    match: match ?? this.match,
   );
 
   factory ProductDBdata.fromJson(Map<String, dynamic> json) => ProductDBdata(
@@ -85,6 +84,7 @@ class ProductDBdata {
     priority: json["priority"],
     barcodes: json["barcodes"] ?? "",
     isProduce: json["is_produce"] ?? "",
+    match: json["match"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -101,5 +101,6 @@ class ProductDBdata {
     "priority": priority,
     "barcodes": barcodes,
     "is_produce": isProduce,
+    "match": match,
   };
 }

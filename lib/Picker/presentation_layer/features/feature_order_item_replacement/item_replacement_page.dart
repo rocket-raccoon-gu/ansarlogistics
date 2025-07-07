@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/db_data_container.dart';
@@ -67,6 +69,12 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
   Future<void> scanBarcodeNormal(String barcodeScanRes) async {
     try {
       // print("${barcodeScanRes} asdfasdfasdfasdfsadasdf");
+      String productSku = widget.itemdata.productSku;
+
+      // final cubit = BlocProvider.of<OrderItemDetailsCubit>(context);
+      // print("${cubit.orderItem?.productSku} cubit");
+
+      String action = "replace";
 
       // update barcode log
       await BlocProvider.of<ItemReplacementPageCubit>(
@@ -76,7 +84,12 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
       // get scanned barcode data
       await BlocProvider.of<ItemReplacementPageCubit>(
         context,
-      ).getScannedProductData(barcodeScanRes, producebarcode);
+      ).getScannedProductData(
+        barcodeScanRes,
+        producebarcode,
+        productSku,
+        action,
+      );
 
       if (mounted) {
         setState(() {
@@ -306,6 +319,13 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                 },
                                 builder: (context, state) {
                                   if (state is ItemReplacementManualState) {
+                                    String productSku =
+                                        widget.itemdata.productSku;
+
+                                    // final cubit = BlocProvider.of<OrderItemDetailsCubit>(context);
+                                    // print("${cubit.orderItem?.productSku} cubit");
+
+                                    String action = "replace";
                                     return ManualForm(
                                       onpress: () async {
                                         await BlocProvider.of<
@@ -313,6 +333,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                         >(context).getScannedProductData(
                                           barcodeController.text,
                                           producebarcode,
+                                          productSku,
+                                          action,
                                         );
                                       },
                                       controller: barcodeController,
@@ -526,31 +548,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                         thickness: 1.0,
                         color: customColors().backgroundTertiary,
                       ),
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(
-                      //     horizontal: 12.0,
-                      //     vertical: 5.0,
-                      //   ),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: [
-                      //       Text(
-                      //         "Produce Barcode",
-                      //         style: customTextStyle(
-                      //           fontStyle: FontStyle.BodyL_SemiBold,
-                      //         ),
-                      //       ),
-                      //       Checkbox(
-                      //         value: producebarcode,
-                      //         onChanged: (val) {
-                      //           setState(() {
-                      //             producebarcode = val!;
-                      //           });
-                      //         },
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
+
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
@@ -564,45 +562,15 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                 onpress: () {
                                   if (cancelreason != "Please Select Reason") {
                                     //
-                                    // select quantity
                                     if (editquantity != 0 ||
                                         state.productDBdata?.isProduce == "1") {
-                                      // print(
-                                      //   BlocProvider.of<
-                                      //     ItemReplacementPageCubit
-                                      //   >(context).erPdata,
-                                      // );
                                       final cubit = BlocProvider.of<
                                         ItemReplacementPageCubit
                                       >(context);
 
-                                      // 1. Check if erPdata is null
-                                      // print(
-                                      //   '🔍 [DEBUG] erPdata is ${cubit.erPdata == null ? "null ❌" : "not null ✅"}',
-                                      // );
-
-                                      // // 2. Print erPdata content
-                                      // print(
-                                      //   '📦 [DEBUG] erPdata content: ${cubit.erPdata?.toJson() ?? "null"}',
-                                      // );
-
-                                      // // 3. Check if productDBdata is null
-                                      // print(
-                                      //   '🔍 [DEBUG] productDBdata is ${cubit.productDBdata == null ? "null ❌" : "not null ✅"}',
-                                      // );
-
-                                      // // 4. Print productDBdata content
-                                      // print(
-                                      //   '📦 [DEBUG] productDBdata content: ${cubit.productDBdata?.toJson() ?? "null"}',
-                                      // );
                                       setState(() {
                                         loading = true;
                                       });
-
-                                      // final cubit =
-                                      //     context
-                                      //         .read<ItemReplacementPageCubit>();
-                                      // print("${cubit} cubit");
 
                                       final isProduce =
                                           cubit.productDBdata?.isProduce
@@ -613,12 +581,10 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                             ItemReplacementPageCubit
                                           >(context).erPdata !=
                                           null) {
-                                        // print('📦 [DEBUG] erPdata content:');
                                         BlocProvider.of<
                                           ItemReplacementPageCubit
                                         >(context).updatereplacement(
                                           selectedindex,
-                                          // erp.erpProductName.toString(),
                                           context
                                               .read<ItemReplacementPageCubit>()
                                               .erPdata!
@@ -654,10 +620,6 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                               null ||
                                           state.productDBdata?.isProduce ==
                                               "1") {
-                                        // print(
-                                        //   '📦 [DEBUG] productDBdata content:',
-                                        // );
-
                                         final cubit =
                                             context
                                                 .read<
@@ -688,88 +650,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                           isProduce,
                                         );
                                       }
-                                      // replacement from database
-                                      // else if (BlocProvider.of<
-                                      //       ItemReplacementPageCubit
-                                      //     >(context).productDBdata !=
-                                      //     null) {
-                                      //   final cubit =
-                                      //       context
-                                      //           .read<
-                                      //             ItemReplacementPageCubit
-                                      //           >();
-                                      //   final product = cubit.productDBdata!;
-
-                                      //   final priceToUse =
-                                      //       product.specialPrice != ""
-                                      //           ? product.specialPrice
-                                      //               .toString()
-                                      //           : product.regularPrice
-                                      //               .toString();
-
-                                      // cubit.updatereplacement(
-                                      //   editquantity,
-                                      //   context,
-                                      //   priceToUse,
-                                      //   product.erpCurrentPrice,
-                                      //   product.regularPrice,
-                                      //   product.sku.toString(),
-                                      //   product.skuName.toString(),
-                                      //   barcodeController.text,
-                                      //   product.isProduce.toString(),
-                                      // );
-
-                                      // BlocProvider.of<
-                                      //   ItemReplacementPageCubit
-                                      // >(context).updatereplacement(
-                                      //   selectedindex,
-                                      //   context
-                                      //       .read<ItemReplacementPageCubit>()
-                                      //       .productDBdata!
-                                      //       .skuName,
-                                      //   cancelreason,
-                                      //   editquantity,
-                                      //   context,
-                                      //   context
-                                      //               .read<
-                                      //                 ItemReplacementPageCubit
-                                      //               >()
-                                      //               .productDBdata!
-                                      //               .specialPrice !=
-                                      //           ""
-                                      //       ? context
-                                      //           .read<
-                                      //             ItemReplacementPageCubit
-                                      //           >()
-                                      //           .productDBdata!
-                                      //           .specialPrice
-                                      //           .toString()
-                                      //       : context
-                                      //           .read<
-                                      //             ItemReplacementPageCubit
-                                      //           >()
-                                      //           .productDBdata!
-                                      //           .regularPrice
-                                      //           .toString(),
-
-                                      //   context
-                                      //       .read<ItemReplacementPageCubit>()
-                                      //       .productDBdata!
-                                      //       .erpCurrentPrice,
-                                      //   context
-                                      //       .read<ItemReplacementPageCubit>()
-                                      //       .productDBdata!
-                                      //       .regularPrice,
-                                      //   context
-                                      //       .read<ItemReplacementPageCubit>()
-                                      //       .productDBdata!
-                                      //       .sku,
-                                      //   barcodeController.text,
-                                      //   product.isProduce.toString(),
-                                      // );
-                                    }
-                                    // }
-                                    else {
+                                    } else {
                                       showSnackBar(
                                         context: context,
                                         snackBar: showErrorDialogue(

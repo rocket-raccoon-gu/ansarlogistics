@@ -335,18 +335,26 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     }
   }
 
-  getScannedProductData(String barcodeString, bool produce) async {
+  getScannedProductData(
+    String barcodeString,
+    bool produce,
+    String productSku,
+    String action,
+  ) async {
     // print(jsonEncode("getScannedProductData"));
-
-    getProductData(barcodeString);
+    getProductData(barcodeString, productSku, action);
   }
 
-  getProductData(String sku) async {
+  getProductData(String sku, String productSku, String action) async {
     // print('📦 [DEBUG] Entered getProductData() with SKU: $sku');
 
     try {
       final productresponse = await serviceLocator.tradingApi
-          .checkBarcodeDBService(endpoint: sku);
+          .checkBarcodeDBService(
+            endpoint: sku,
+            productSku: productSku,
+            action: action,
+          );
 
       // print('📡 [DEBUG] HTTP Status: ${productresponse.statusCode}');
       // print('🔍 [DEBUG] Raw response body: ${productresponse.body}');

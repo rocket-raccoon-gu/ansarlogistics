@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/customer_details_sheet.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/ar_branch_section.dart';
@@ -10,7 +12,9 @@ import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/custom_text_form_field.dart';
 import 'package:ansarlogistics/constants/methods.dart';
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -19,11 +23,14 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as crypto;
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:picker_driver_api/responses/erp_data_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
 import 'package:barcode_widget/barcode_widget.dart';
@@ -917,30 +924,6 @@ showPickConfirmDialogue(
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // Expanded(
-                  //   child: InkWell(
-                  //     onTap: closeTap,
-                  //     child: Container(
-                  //       padding: EdgeInsets.symmetric(
-                  //         horizontal: 20.0,
-                  //         vertical: 10.0,
-                  //       ),
-                  //       decoration: BoxDecoration(
-                  //         color: customColors().red1,
-                  //         borderRadius: BorderRadius.circular(5.0),
-                  //       ),
-                  //       child: Center(
-                  //         child: Text(
-                  //           "Cancel",
-                  //           style: customTextStyle(
-                  //             fontStyle: FontStyle.BodyM_Bold,
-                  //             color: FontColor.White,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                   Expanded(
                     child: InkWell(
                       onTap: onTap,
@@ -968,6 +951,104 @@ showPickConfirmDialogue(
                 ],
               ),
             ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void priceMismatchDialog(
+  BuildContext context, {
+  required dynamic orderItem,
+  required dynamic orderResponseItem,
+}) {
+  // BlocProvider.of<ItemReplacementPageCubit>(context);
+  // print("orderItem");
+  // print(jsonEncode(orderItem));
+  // print("orderResponseItem");
+  // print(jsonEncode(orderResponseItem));
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: "Dismiss",
+    barrierColor: Colors.black54,
+    transitionDuration: Duration(milliseconds: 200),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Center(
+        child: Material(
+          type: MaterialType.transparency,
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Barcode Mismatched, are you replacing item?",
+                  textAlign: TextAlign.center,
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                        },
+                        child: Text(
+                          "No",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyM_Bold,
+                            color: FontColor.White,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: customColors().secretGarden,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          context.gNavigationService
+                              .openOrderItemReplacementPage(
+                                context,
+                                arg: {
+                                  'item': orderItem,
+                                  'order': orderResponseItem,
+                                },
+                              );
+                        },
+                        child: Text(
+                          "Yes",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyM_Bold,
+                            color: FontColor.White,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       );

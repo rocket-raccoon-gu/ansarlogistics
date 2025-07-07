@@ -338,17 +338,19 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     }
   }
 
-  addToStockStatusList(String sku, String status, String productname) async {
-    // print("one");
-    // newStatuses
-    //     .add(NewStatus(sku: sku, status: status, productname: productname));
-    log(UserController.userController.userName);
-    int catid = getUserCategory(UserController.userController.userName);
-
-    log(catid.toString());
-
+  Future<void> addToStockStatusList(
+    String sku,
+    String status,
+    String productname,
+  ) async {
     try {
-      UpdateSectionRequest updateSectionRequest = UpdateSectionRequest(
+      // print("👤 User: ${UserController.userController.userName}");
+
+      int catid = getUserCategory(UserController.userController.userName);
+      // print("📦 Category ID: $catid");
+
+      // Prepare the request
+      final updateSectionRequest = UpdateSectionRequest(
         categoryId: catid,
         userId: UserController.userController.profile.empId,
         branchCode: UserController.userController.profile.branchCode,
@@ -358,54 +360,43 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
         branch: UserController.userController.profile.branchCode,
       );
 
+      // print(
+      //   "📤 Sending updateSectionRequest: ${updateSectionRequest.toJson()}",
+      // );
+
+      // Call the API
       final response = await serviceLocator.tradingApi.updateSectionDataRequest(
         updateSectionRequest: updateSectionRequest,
         branch: UserController.userController.profile.branchCode,
       );
 
       if (response.statusCode == 200) {
-        // print("successs");
-        // ignore: use_build_context_synchronously
-        List<Map<String, dynamic>> existingUpdates =
-            (await PreferenceUtils.getstoremap(
-              'updates_history',
-            )).cast<Map<String, dynamic>>();
-
-        // Check if this SKU already exists in history
-        final existingIndex = existingUpdates.indexWhere(
-          (item) => item['sku'] == sku,
-        );
-
-        if (existingIndex >= 0) {
-          // Update existing entry
-          existingUpdates[existingIndex] = {
-            ...existingUpdates[existingIndex], // Keep other fields
-            'status': status, // Update status
-            'timestamp': DateTime.now().toIso8601String(), // Update timestamp
-          };
-        } else {
-          // Add new entry
-          existingUpdates.add({
-            'sku': sku,
-            'status': status,
-            'productname': productname,
-            'branch': UserController.userController.profile.branchCode,
-            'timestamp': DateTime.now().toIso8601String(),
-          });
-        }
-
-        await PreferenceUtils.storeListmap('updates_history', existingUpdates);
+        // print("✅ Stock update succeeded for SKU: $sku");
 
         showSnackBar(
           context: context,
-          snackBar: showSuccessDialogue(message: "Stock Updated..!"),
+          snackBar: showSuccessDialogue(
+            message: "Stock status updated successfully.",
+          ),
+        );
+      } else {
+        // print("❌ API Error: Status code ${response.statusCode}");
+
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(
+            errorMessage:
+                "Failed to update stock status. Please try again later.",
+          ),
         );
       }
     } catch (e) {
+      // print("🔥 Exception during API call: $e");
+
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(
-          errorMessage: "Something went wrong ${e} ...!,Please Try again ",
+          errorMessage: "Something went wrong. Please try again.\nError: $e",
         ),
       );
     }

@@ -252,41 +252,11 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
               isSelected: val,
               onChanged: (v) {
                 setState(() {
+                  // Update the in-stock status locally
                   widget.sectionitem.isInStock = v;
                   val = v;
 
-                  // Remove from statusHistory if exists
-                  widget.statusHistory.removeWhere(
-                    (item) =>
-                        item.sku == widget.sectionitem.sku &&
-                        item.branchCode ==
-                            UserController.userController.profile.branchCode,
-                  );
-
-                  // Update existingUpdates
-                  final index = widget.existingUpdates.indexWhere(
-                    (item) => item['sku'] == widget.sectionitem.sku,
-                  );
-                  if (index >= 0) {
-                    widget.existingUpdates[index] = {
-                      ...widget.existingUpdates[index],
-                      'status': v,
-                    };
-                  } else {
-                    widget.existingUpdates.add({
-                      'sku': widget.sectionitem.sku,
-                      'status': v,
-                      'branch':
-                          UserController.userController.profile.branchCode,
-                      'productName': widget.sectionitem.productName,
-                    });
-                  }
-
-                  PreferenceUtils.storeListmap(
-                    'updates_history',
-                    widget.existingUpdates,
-                  );
-
+                  // Notify parent widget about the change (if needed)
                   widget.onSectionChanged(
                     widget.sectionitem.sku,
                     widget.sectionitem.isInStock.toString(),

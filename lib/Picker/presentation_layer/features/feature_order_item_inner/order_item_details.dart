@@ -73,9 +73,15 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
         // print('📊 Quantity to check: $quantityToCheck');
 
-        await BlocProvider.of<OrderItemDetailsCubit>(
-          context,
-        ).checkitemdb(quantityToCheck, barcodeScanRes, orderItem);
+        String action = "pick";
+
+        await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
+          quantityToCheck,
+          barcodeScanRes,
+          orderItem,
+          productSku,
+          action,
+        );
 
         // print('✅ checkitemdb completed for barcode: $barcodeScanRes');
       }
@@ -106,12 +112,15 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
   }
 
   updateManualScan(String barcode) async {
+    final orderItem = BlocProvider.of<OrderItemDetailsCubit>(context).orderItem;
+    final productSku = orderItem?.productSku;
     try {
       if (barcode != null) {
         await BlocProvider.of<OrderItemDetailsCubit>(context).updateBarcodeLog(
           BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!.productSku,
           barcode,
         );
+        String action = "pick";
 
         await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
           editquantity != 0
@@ -121,6 +130,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
               ).orderItem!.qtyOrdered,
           barcode,
           BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
+          productSku!,
+          action,
         );
       }
     } catch (e) {}
@@ -1166,30 +1177,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                               .HeaderXS_Bold,
                                                     ),
                                                   ),
-
-                                                  // Text(
-                                                  //   (state
-                                                  //               .orderItem
-                                                  //               .itemQuantityDouble *
-                                                  //           state
-                                                  //               .orderItem
-                                                  //               .itemWeightDouble)
-                                                  //       .toStringAsFixed(2),
-                                                  // ),
-                                                  //                                                 Text(
-                                                  //   (state.orderItem.qtyOrdered * state.orderItem.itemWeight).toString(),
-                                                  //   style: customTextStyle(
-                                                  //     fontStyle: FontStyle.HeaderXS_Bold,
-                                                  //   ),
-                                                  // ),
-                                                  // Checkbox(
-                                                  //   value: pricechange,
-                                                  //   onChanged: (val) {
-                                                  //     setState(() {
-                                                  //       pricechange = val!;
-                                                  //     });
-                                                  //   },
-                                                  // ),
                                                 ],
                                               ),
                                             )
@@ -1264,7 +1251,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                       itemCount:
                                           state.orderItem.productImages.length,
                                       itemBuilder: (context, index) {
-                                        // return Text(state.datalist[index]['file']);
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8.0,
