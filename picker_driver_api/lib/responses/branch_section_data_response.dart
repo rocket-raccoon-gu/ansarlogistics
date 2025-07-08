@@ -53,7 +53,7 @@ class Branchdatum {
     categoryId: json["category_id"].toString(),
     productName: json["product_name"],
     sku: json["sku"],
-    isInStock: json["is_in_stock"],
+    isInStock: json["is_in_stock"] ?? 0,
     imageUrl: json["image_url"],
 
     // status: json["status"].toString(),

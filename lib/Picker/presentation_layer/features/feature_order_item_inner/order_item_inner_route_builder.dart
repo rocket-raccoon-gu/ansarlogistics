@@ -20,12 +20,24 @@ class OrderItemInnerRouteBuilder {
   Widget call(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // ✅ First provide PickerOrderDetailsCubit
+        BlocProvider(
+          create:
+              (context) => PickerOrderDetailsCubit(
+                serviceLocator: serviceLocator,
+                context: context,
+                orderItem: data['order'],
+              ),
+        ),
+        // ✅ Then provide OrderItemDetailsCubit which depends on it
         BlocProvider(
           create:
               (context) => OrderItemDetailsCubit(
                 serviceLocator: serviceLocator,
                 context: context,
                 data: data,
+                pickerOrderDetailsCubit:
+                    context.read<PickerOrderDetailsCubit>(),
               ),
         ),
         BlocProvider(
@@ -34,14 +46,6 @@ class OrderItemInnerRouteBuilder {
                 context.gTradingApiGateway,
                 context,
                 PostRepositories(PostService(serviceLocator, context)),
-              ),
-        ),
-        BlocProvider(
-          create:
-              (context) => PickerOrderDetailsCubit(
-                serviceLocator: serviceLocator,
-                context: context,
-                orderItem: data['order'],
               ),
         ),
       ],

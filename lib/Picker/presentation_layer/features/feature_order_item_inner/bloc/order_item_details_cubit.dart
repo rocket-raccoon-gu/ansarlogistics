@@ -17,15 +17,18 @@ import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picker_driver_api/responses/erp_data_response.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 
 class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   ServiceLocator serviceLocator;
   BuildContext context;
   Map<String, dynamic> data;
+  PickerOrderDetailsCubit pickerOrderDetailsCubit;
   OrderItemDetailsCubit({
     required this.serviceLocator,
     required this.context,
     required this.data,
+    required this.pickerOrderDetailsCubit,
   }) : super(OrderItemDetailLoadingState()) {
     updatedata();
   }
@@ -182,11 +185,11 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         // print("📦 Item added to UserController lists");
         // print("💵 Price logged: $price");
 
-        eventBus.fire(
-          DataChangedEvent(
-            "New Data from Screen B",
-          ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
-        );
+        // eventBus.fire(
+        //   DataChangedEvent(
+        //     "New Data from Screen B",
+        //   ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
+        // );
         // print("📨 EventBus fired with updated price");
 
         showSnackBar(
@@ -197,11 +200,31 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         // print("🎉 Showing success dialog and navigating back");
 
         Navigator.of(context).popUntil((route) => route.isFirst);
+        // Navigator.pop(context, orderResponseItem!.subgroupIdentifier);
 
-        context.gNavigationService.openPickerOrderInnerPage(
+        final result = context.gNavigationService.openPickerOrderInnerPage(
           context,
           arg: {'orderitem': orderResponseItem},
         );
+        if (!context.mounted) return;
+        if (result != null) {
+          UserController.userController.alloworderupdated = true;
+
+          eventBus.fire(
+            DataChangedEvent(
+              "New Data from Screen B",
+            ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
+          );
+
+          pickerOrderDetailsCubit.tabindex = 1;
+          pickerOrderDetailsCubit.updateSelectedItem(1);
+
+          pickerOrderDetailsCubit.getrefreshedData(
+            orderResponseItem!.subgroupIdentifier,
+          );
+          // pickerOrderDetailsCubit.updateSelectedItem(1);
+          // Handle the result if needed
+        }
       } else {
         loading = false;
         // print("❌ API status update failed: ${response.statusCode}");

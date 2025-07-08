@@ -1,16 +1,15 @@
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/picker_order_item.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 
 class ToPickItemsPage extends StatefulWidget {
-  List<String> catlist;
-  Order orderResponseItem;
-  List<EndPicking> topickitems;
-  bool translate;
-  ToPickItemsPage({
+  final List<String> catlist;
+  final Order orderResponseItem;
+  final List<EndPicking> topickitems;
+  final bool translate;
+  const ToPickItemsPage({
     super.key,
     required this.catlist,
     required this.orderResponseItem,

@@ -177,6 +177,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  clarity_flutter:
+    dependency: "direct main"
+    description:
+      name: clarity_flutter
+      sha256: "372b457d4c9bab522863b3261d39d27a4d214eb0c744b2da5f7482ae4e9c7351"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   cli_util:
     dependency: transitive
     description:
@@ -715,6 +723,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.27"
+  flutter_polyline_points:
+    dependency: "direct main"
+    description:
+      name: flutter_polyline_points
+      sha256: "3a1c8c30abee9fb0fbe44c70d5d1cedb10ef28ec7ea285c669f02b3e183483aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   flutter_rounded_date_picker:
     dependency: "direct main"
     description:

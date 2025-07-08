@@ -14,7 +14,6 @@ import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 
 class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
@@ -475,7 +474,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
   }
 
   updateitemstatus(
-    String item_status,
+    String itemstatus,
     EndPicking endpicking,
     String price,
   ) async {
@@ -485,7 +484,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
     body = {
       "item_id": int.parse(endpicking.itemId),
-      "item_status": item_status,
+      "item_status": itemstatus,
       "shipping": "0",
       "price":
           price != "0" ? double.parse(price) : double.parse(endpicking.price),
@@ -504,10 +503,10 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     if (response.statusCode == 200) {
       loading = false;
 
-      if (item_status == "end_picking") {
+      if (itemstatus == "end_picking") {
         UserController.userController.indexlist.add(endpicking);
         UserController.userController.pickerindexlist.add(endpicking.itemId);
-      } else if (item_status == "item_not_available") {
+      } else if (itemstatus == "item_not_available") {
         UserController.userController.itemnotavailablelist.add(endpicking);
         UserController.userController.notavailableindexlist.add(
           endpicking.itemId,

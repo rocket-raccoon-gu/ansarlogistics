@@ -6,8 +6,18 @@ class OrderRoutesPageInitialState extends OrderRoutesPageState {
   // Define markers
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
+  String totalDistanceText = "";
+  String totalDurationText = "";
+  OrderRoutesPageInitialState({
+    required this.markers,
+    required this.polylines,
+    required this.totalDistanceText,
+    required this.totalDurationText,
+  });
+}
 
-  OrderRoutesPageInitialState({required this.markers, required this.polylines});
+class OrderRoutesPageEmptyState extends OrderRoutesPageState {
+  OrderRoutesPageEmptyState();
 }
 
 class OrderRoutePageLoadingState extends OrderRoutesPageState {}

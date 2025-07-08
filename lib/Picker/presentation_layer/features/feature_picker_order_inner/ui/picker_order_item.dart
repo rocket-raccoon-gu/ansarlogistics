@@ -1,20 +1,11 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:ui';
 
-import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/image_widgets/list_image_widget.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
-import 'package:ansarlogistics/user_controller/user_controller.dart';
-import 'package:ansarlogistics/utils/utils.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:picker_driver_api/responses/order_items_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 
 class PickerOrderItem extends StatefulWidget {

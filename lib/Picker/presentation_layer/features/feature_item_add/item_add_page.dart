@@ -267,7 +267,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                 context.read<ItemAddPageCubit>().erPdata != null ||
                         context.read<ItemAddPageCubit>().productDBdata != null
                     ? screenSize.height * 0.1
-                    : screenSize.height * 0.18,
+                    : screenSize.height * 0.11,
             child: Stack(
               children: [
                 Column(
@@ -328,28 +328,6 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                               ? product.specialPrice.toString()
                                               : product.regularPrice.toString();
 
-                                      // print(
-                                      //   "[ItemAddPage] Using Product DB Data:",
-                                      // );
-                                      // print("  - editquantity: $editquantity");
-                                      // print(
-                                      //   "  - specialPrice/regular: $priceToUse",
-                                      // );
-                                      // print(
-                                      //   "  - erpCurrentPrice: ${product.erpCurrentPrice}",
-                                      // );
-                                      // print(
-                                      //   "  - regularPrice: ${product.regularPrice}",
-                                      // );
-                                      // print("  - sku: ${product.sku}");
-                                      // print("  - name: ${product.skuName}");
-                                      // print(
-                                      //   "  - barcode: ${barcodeController.text}",
-                                      // );
-                                      // print(
-                                      //   "  - isProduce: ${product.isProduce}",
-                                      // );
-
                                       cubit.updateItem(
                                         editquantity,
                                         context,
@@ -375,63 +353,11 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                   ),
                                 ),
                               ),
-                              // Padding(
-                              //   padding: const EdgeInsets.symmetric(
-                              //     horizontal: 12.0,
-                              //     vertical: 5.0,
-                              //   ),
-                              //   child: Row(
-                              //     mainAxisAlignment:
-                              //         MainAxisAlignment.spaceBetween,
-                              //     children: [
-                              //       Text(
-                              //         "Produce Barcode",
-                              //         style: customTextStyle(
-                              //           fontStyle: FontStyle.BodyL_SemiBold,
-                              //         ),
-                              //       ),
-                              //       Checkbox(
-                              //         value: producebarcode,
-                              //         onChanged: (val) {
-                              //           setState(() {
-                              //             producebarcode = val!;
-                              //           });
-                              //         },
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
                             ],
                           ),
                         )
                         : Column(
                           children: [
-                            // Padding(
-                            //   padding: const EdgeInsets.symmetric(
-                            //     horizontal: 12.0,
-                            //     vertical: 5.0,
-                            //   ),
-                            //   child: Row(
-                            //     mainAxisAlignment:
-                            //         MainAxisAlignment.spaceBetween,
-                            //     children: [
-                            //       Text(
-                            //         "Produce Barcode",
-                            //         style: customTextStyle(
-                            //           fontStyle: FontStyle.BodyL_SemiBold,
-                            //         ),
-                            //       ),
-                            //       Checkbox(
-                            //         value: producebarcode,
-                            //         onChanged: (val) {
-                            //           setState(() {
-                            //             producebarcode = val!;
-                            //           });
-                            //         },
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,

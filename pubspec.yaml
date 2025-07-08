@@ -92,6 +92,9 @@ dependencies:
   firebase_remote_config: ^5.4.2
   animated_text_kit: ^4.2.3
   barcode_widget: any
+  clarity_flutter: any
+  flutter_polyline_points: any
+
 
   picker_driver_api:
     path: ./picker_driver_api/

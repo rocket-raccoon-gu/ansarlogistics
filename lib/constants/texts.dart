@@ -1,6 +1,8 @@
 // const mainimageurl =
 //     "https://media-qatar.ahmarket.com/media/catalog/product/cache/2b71e5a2b5266e17ec3596451a32baea/";
 
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 const mainimageurl =
     "https://www.ansargallery.com/media/catalog/product/cache/d3078668c17a3fcf95f19e6d90a1909e/";
 
@@ -22,6 +24,8 @@ class DriverTexts {
   static String bottomBarItem3 = "Summery";
   static String bottomBarItem4 = "Profile";
 }
+
+LatLng ansarlocation = LatLng(25.218370965115195, 51.50143763314008);
 
 List<Map<String, dynamic>> statuslist = [
   {"index": 0, "name": "All", "status": "all"},
