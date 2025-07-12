@@ -116,6 +116,8 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
   }
 
   void onMessageRecieved(String title) async {
+    if (!mounted) return;
+    log("onMessageRecieved $title");
     BlocProvider.of<DriverOrdersPageCubit>(context).loadPosts(0, "");
   }
 

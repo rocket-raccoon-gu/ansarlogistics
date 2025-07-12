@@ -145,7 +145,9 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
       if (resp.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(resp.body);
 
-        if (data['message'] == "Please mark order from delivered location") {
+        if (data['message'].contains(
+          "Please mark order from delivered location",
+        )) {
           toastification.show(
             backgroundColor: customColors().warning,
             title: TranslatedText(

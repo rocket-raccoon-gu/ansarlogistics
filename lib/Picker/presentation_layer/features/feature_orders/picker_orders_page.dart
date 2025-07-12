@@ -34,7 +34,7 @@ class PickerOrdersPage extends StatefulWidget {
 
 class _PickerOrdersPageState extends State<PickerOrdersPage>
     with TickerProviderStateMixin, WidgetsBindingObserver {
-  GlobalKey<FormFieldState<String>> _ordersearchFormKey =
+  final GlobalKey<FormFieldState<String>> _ordersearchFormKey =
       GlobalKey<FormFieldState<String>>();
 
   final _searchcontroller = TextEditingController();
@@ -82,7 +82,7 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
     });
 
     getusercheck();
-    DateTime current = DateTime.now();
+    // DateTime current = DateTime.now();
 
     super.initState();
     WidgetsBinding.instance.addObserver(this);
