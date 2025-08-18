@@ -2,12 +2,10 @@ import 'package:ansarlogistics/Section_In/features/components/custom_toggle_butt
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
-import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/check_section_status_list.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
 class SectionProductListItem extends StatefulWidget {
   Sectionitem sectionitem;
@@ -26,16 +24,25 @@ class SectionProductListItem extends StatefulWidget {
   State<SectionProductListItem> createState() => _SectionProductListItemState();
 }
 
-class _SectionProductListItemState extends State<SectionProductListItem> {
-  late CarouselSliderController _sliderController;
-
+class _SectionProductListItemState extends State<SectionProductListItem>
+    with AutomaticKeepAliveClientMixin {
   int val = 0;
+  bool _isVisible = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _sliderController = CarouselSliderController();
+    // Delay visibility to enable lazy loading
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _isVisible = true;
+        });
+      }
+    });
   }
 
   int get _currentStatus {
@@ -83,8 +90,44 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
     return widget.sectionitem.isInStock;
   }
 
+  Widget _buildOptimizedImage() {
+    if (!_isVisible || widget.sectionitem.imageUrl.isEmpty) {
+      return Container(
+        color: Colors.grey[200],
+        child: const Icon(Icons.image, size: 50, color: Colors.grey),
+      );
+    }
+
+    return CachedNetworkImage(
+      imageUrl:
+          "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
+      fit: BoxFit.cover,
+      memCacheWidth: 300, // Optimize memory usage
+      memCacheHeight: 300,
+      fadeInDuration: const Duration(milliseconds: 200),
+      fadeOutDuration: const Duration(milliseconds: 100),
+      placeholder:
+          (context, url) => Container(
+            color: Colors.grey[100],
+            child: const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+      errorWidget:
+          (context, url, error) => Container(
+            color: Colors.grey[200],
+            child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     val = _currentStatus;
     // print(
     //   "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
@@ -111,15 +154,7 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                         horizontal: 5.0,
                       ),
                       child: InkWell(
-                        onTap: () {
-                          // getImageViewver(
-                          //   widget.sectionitem.productName,
-                          //   widget.sectionitem.sku,
-                          //   widget.sectionitem.imageUrl,
-                          //   context,
-                          //   _sliderController,
-                          // );
-                        },
+                        onTap: () {},
                         child: Container(
                           height: 119.0,
                           width: 119.0,
@@ -129,37 +164,11 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                               right: BorderSide(color: customColors().grey),
                             ),
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10.0),
-
-                            child:
-                                widget.sectionitem.imageUrl.isNotEmpty
-                                    ? CachedNetworkImage(
-                                      imageUrl:
-                                          "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
-                                      imageBuilder: (context, imageProvider) {
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      placeholder:
-                                          (context, url) => Center(
-                                            child: Image.asset(
-                                              'assets/Iphone_spinner.gif',
-                                            ),
-                                          ),
-                                      errorWidget: (context, url, error) {
-                                        return Image.asset(
-                                          'assets/placeholder.png',
-                                        );
-                                      },
-                                    )
-                                    : Image.asset('assets/placeholder.png'),
+                          child: RepaintBoundary(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10.0),
+                              child: _buildOptimizedImage(),
+                            ),
                           ),
                         ),
                       ),

@@ -6,8 +6,12 @@ abstract class HomeSectionInchargeState {}
 class HomeSectionInchargeInitial extends HomeSectionInchargeState {
   List<Sectionitem> sectionitems = [];
   List<Branchdatum> branchdata = [];
-  HomeSectionInchargeInitial(
-      {required this.sectionitems, required this.branchdata});
+  bool isSearching = false;
+  HomeSectionInchargeInitial({
+    required this.sectionitems,
+    required this.branchdata,
+    this.isSearching = false,
+  });
 }
 
 class HomeSectionInchargeLoading extends HomeSectionInchargeState {}

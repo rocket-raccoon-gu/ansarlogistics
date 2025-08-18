@@ -93,11 +93,6 @@ class OrderInnerAppBar extends StatelessWidget {
               ],
             ),
           ),
-
-          Positioned(
-            right: 10.0,
-            child: TranslateWidget(onTaptranslate: onTaptranslate),
-          ),
         ],
       ),
     );

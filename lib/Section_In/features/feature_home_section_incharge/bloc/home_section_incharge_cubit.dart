@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:ansarlogistics/Section_In/features/components/ar_branch_section_product_list_item.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -497,10 +498,109 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
         ),
       );
     } else if (keyword.isNotEmpty && searchresult.isEmpty) {
+      // No local results. If the query looks like a SKU, try remote lookup
+      if (isNumeric(keyword)) {
+        try {
+          // Signal UI that a remote search is in progress
+          emit(
+            HomeSectionInchargeInitial(
+              sectionitems: searchresult,
+              branchdata: branchdata,
+              isSearching: true,
+            ),
+          );
+
+          final token = await PreferenceUtils.getDataFromShared("usertoken");
+          // If user typed only first 6 digits, pad remaining 7 digits with zeros
+          final String endpointToUse =
+              (keyword.length == 6) ? (keyword + '0000000') : keyword;
+
+          final resp = await serviceLocator.tradingApi.getProductServiceGet(
+            endpoint: endpointToUse,
+            token11: token ?? "",
+          );
+
+          // Expecting an http.Response-like object
+          dynamic body;
+          if (resp != null && resp.body != null) {
+            body = jsonDecode(resp.body);
+          } else if (resp is String) {
+            body = jsonDecode(resp);
+          } else if (resp is Map<String, dynamic>) {
+            body = resp;
+          }
+
+          if (body is Map<String, dynamic> && body.isNotEmpty) {
+            final sku = body['sku']?.toString();
+            final name = body['name']?.toString();
+
+            // If essential fields are missing, consider as not found
+            if (sku == null || sku.isEmpty || name == null || name.isEmpty) {
+              searchactive = true;
+              searchresult = [];
+              emit(
+                HomeSectionInchargeInitial(
+                  sectionitems: searchresult,
+                  branchdata: branchdata,
+                  isSearching: false,
+                ),
+              );
+              return;
+            }
+            // Magento stock info may be in 'extension_attributes' -> 'stock_item'
+            final ext = body['extension_attributes'] as Map<String, dynamic>?;
+            final stockItem =
+                ext != null ? ext['stock_item'] as Map<String, dynamic>? : null;
+            final qty = ext?['ah_qty']?.toString() ?? '0';
+            final inStockVal = ext?['ah_is_in_stock'] ?? 0;
+
+            // Try to get first image file
+            String imageUrl = '';
+            final media = body['media_gallery_entries'];
+            if (media is List && media.isNotEmpty) {
+              final first = media.first as Map<String, dynamic>?;
+              final file = first != null ? first['file']?.toString() : null;
+              if (file != null && file.isNotEmpty) {
+                // If Magento returns a relative path, prefix the domain
+                imageUrl = file.startsWith('http') ? file : file;
+              }
+
+              log("imageurl: $imageUrl");
+              log("qty: $qty");
+              log("inStockVal: $inStockVal");
+            }
+
+            final fetched = Sectionitem(
+              sku: sku,
+              productName: name,
+              stockQty: qty,
+              isInStock:
+                  (inStockVal is bool)
+                      ? (inStockVal ? 1 : 0)
+                      : (inStockVal is num ? (inStockVal > 0 ? 1 : 0) : 0),
+              imageUrl: imageUrl,
+            );
+
+            searchactive = true;
+            searchresult = [fetched];
+            emit(
+              HomeSectionInchargeInitial(
+                sectionitems: searchresult,
+                branchdata: branchdata,
+                isSearching: false,
+              ),
+            );
+            return;
+          }
+        } catch (e) {
+          // swallow errors and fall back to empty state
+        }
+      }
       emit(
         HomeSectionInchargeInitial(
           sectionitems: searchresult,
           branchdata: branchdata,
+          isSearching: false,
         ),
       );
       // }

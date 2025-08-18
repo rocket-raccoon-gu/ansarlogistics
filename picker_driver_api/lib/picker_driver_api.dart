@@ -1122,6 +1122,23 @@ extension PDGeneralApi on PickerDriverApi {
       },
     );
   }
+
+  Future<http.Response> getInfoData() async {
+    final url = _endpointWithApplicationPath('/auth/infodata');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    serviceSend("get Info Data...!");
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
 }
 
 extension on PickerDriverApi {
