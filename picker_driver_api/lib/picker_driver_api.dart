@@ -29,7 +29,7 @@ class ContentTypes {
 
 var mainbaseUrl = String.fromEnvironment(
   'BASE_URL',
-  defaultValue: "https://pickerdriver.testuatah.com",
+  defaultValue: "https://pickerdriver-api.testuatah.com/api/",
 );
 var mainapplicationPath = String.fromEnvironment(
   'APPLICATION_PATH',
@@ -111,6 +111,31 @@ class PickerDriverApi {
     );
   }
 
+  // New orders (non-paginated) endpoint for picker with categories + orders
+  Future<http.Response> OrdersNewService({required String token}) async {
+    // Direct API host for new picker endpoint
+    final Uri url = _endpointWithApplicationPath("picker/ordersnew");
+
+    log(url.toString());
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    try {
+      serviceSend("OrdersNew service send");
+      return _handleRequest(
+        onRequest: () => _client.get(url, headers: headers),
+        onResponse: (response) {
+          return response;
+        },
+      );
+    } catch (e) {
+      serviceSendError("OrdersNew service error");
+      rethrow;
+    }
+  }
+
   Future<String?> getPlatformVersion() {
     return PickerDriverApiPlatform.instance.getPlatformVersion();
   }
@@ -146,7 +171,9 @@ extension PDGeneralApi on PickerDriverApi {
     required String bearertoken,
     required String appversion,
   }) async {
-    Uri url = Uri.parse(_endpointWithApplicationPathString('pk_dv_login.php'));
+    // Uri url = Uri.parse(_endpointWithApplicationPathString('pk_dv_login.php'));
+
+    Uri url = _endpointWithApplicationPath('auth/login');
 
     log(url.toString());
 
@@ -303,6 +330,55 @@ extension PDGeneralApi on PickerDriverApi {
       );
     } catch (e) {
       serviceSendError("Order items service Error");
+      rethrow;
+    }
+  }
+
+  Future<http.Response> updatemainorderstatNew({
+    required String preparationId,
+    required String orderStatus,
+    required String comment,
+    String? orderNumber,
+    required String token,
+  }) {
+    // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
+    //     'custom-api/api/qatar/updateSubOrder.php'));
+
+    Uri url = _endpointWithApplicationPath('picker/orders/status');
+
+    final Map<String, dynamic> body = {
+      "preparation_id": preparationId,
+      "status": orderStatus,
+      "comment": comment,
+      "order_number": orderNumber,
+    };
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token',
+    };
+
+    // print(url);
+
+    log(url.toString());
+
+    log(body.toString());
+
+    log(DateTime.now().toString());
+
+    try {
+      serviceSend("update main order stat");
+      return _handleRequest(
+        onRequest:
+            () => _client.patch(url, body: jsonEncode(body), headers: headers),
+        onResponse: (response) {
+          log(DateTime.now().toString());
+
+          return response;
+        },
+      );
+    } catch (e) {
+      serviceSendError("Order Error");
       rethrow;
     }
   }
@@ -1134,6 +1210,32 @@ extension PDGeneralApi on PickerDriverApi {
 
     return _handleRequest(
       onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
+  Future<http.Response> getCashierOrders({
+    required int page,
+    required int limit,
+    required String token,
+  }) async {
+    final url = _endpointWithApplicationPathString(
+      'cashier/orders?page=$page&limit=$limit',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    log(url.toString());
+
+    serviceSend("get Cashier Orders Data...!");
+
+    return _handleRequest(
+      onRequest: () => _client.get(Uri.parse(url), headers: headers),
       onResponse: (response) {
         return response;
       },

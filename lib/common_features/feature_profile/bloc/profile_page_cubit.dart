@@ -56,7 +56,7 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
   Future<bool> updateuserstat(int stat) async {
     try {
       final response = await serviceLocator.tradingApi.updateuserstat(
-        user_id: int.parse(UserController().profile.id),
+        user_id: int.parse(UserController().profile.id.toString()),
         status: stat,
       );
 

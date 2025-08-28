@@ -117,8 +117,10 @@ class LoginCubit extends Cubit<LoginState> {
             );
         DateTime responseTime = DateTime.now();
 
-        if (loginResponse.success == 1) {
+        if (loginResponse.success) {
           UserController.userController.profile = loginResponse.profile;
+
+          UserController().app_token = loginResponse.token;
 
           await PreferenceUtils.storeDataToShared(
             "usertoken",
@@ -127,7 +129,7 @@ class LoginCubit extends Cubit<LoginState> {
 
           await PreferenceUtils.storeDataToShared(
             "userid",
-            loginResponse.profile.id,
+            loginResponse.profile.id.toString(),
           );
 
           // // Encrypt the password
@@ -141,7 +143,7 @@ class LoginCubit extends Cubit<LoginState> {
             username: userId,
           );
 
-          swithcnavigate(context, loginResponse.profile.role);
+          swithcnavigate(context, loginResponse.profile.role.toString());
 
           showSnackBar(
             context: context,

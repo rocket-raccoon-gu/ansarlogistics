@@ -94,6 +94,7 @@ dependencies:
   barcode_widget: any
   clarity_flutter: any
   flutter_polyline_points: any
+  equatable: ^2.0.7
 
 
   picker_driver_api:

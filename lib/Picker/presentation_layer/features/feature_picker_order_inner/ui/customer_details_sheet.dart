@@ -20,13 +20,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'package:toastification/toastification.dart';
 
 class CustomerDetailsSheet extends StatefulWidget {
   final Function()? onTapClose;
   final ServiceLocator serviceLocator;
-  final Order orderResponseItem;
+  final OrderNew orderResponseItem;
 
   CustomerDetailsSheet({
     Key? key,
@@ -140,7 +140,7 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
     // await startRecording(); // Start recording
     try {
       // sipuaHelper.call('sip:203@ansar.3cx.ae');
-      c1.call(widget.orderResponseItem.telephone, () async {
+      c1.call(widget.orderResponseItem.customer!.phone.toString(), () async {
         // await Future.delayed(Duration(seconds: 10)); // Simulate call duration
         // // Stop recording after call ends
         // await stopRecording();
@@ -238,15 +238,15 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
                     //   enableholdrequest: enableholdrequest,
                     //   enablecsnotaanswer: enablecsnotanswrrequest,
                     // ),
-                    if (UserController().profile.role == "2" ||
-                        UserController().profile.role == "3")
-                      DriverCustomerDetailsTab(
-                        orderResponseItem: widget.orderResponseItem,
-                      )
-                    else
-                      PickerCustomerDetailsTab(
-                        orderResponseItem: widget.orderResponseItem,
-                      ),
+                    // if (UserController().profile.role == "2" ||
+                    //     UserController().profile.role == "3")
+                    //   DriverCustomerDetailsTab(
+                    //     orderResponseItem: widget.orderResponseItem,
+                    //   )
+                    // else
+                    PickerCustomerDetailsTab(
+                      orderResponseItem: widget.orderResponseItem,
+                    ),
                     StatusHistory(
                       serviceLocator: widget.serviceLocator,
                       orderResponseItem: widget.orderResponseItem,

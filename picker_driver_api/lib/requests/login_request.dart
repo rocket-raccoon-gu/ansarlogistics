@@ -17,28 +17,30 @@ class LoginRequest {
   String os;
   String version;
 
-  LoginRequest(
-      {required this.empId,
-      required this.password,
-      required this.token,
-      required this.bearertoken,
-      required this.os,
-      required this.version});
+  LoginRequest({
+    required this.empId,
+    required this.password,
+    required this.token,
+    required this.bearertoken,
+    required this.os,
+    required this.version,
+  });
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) => LoginRequest(
-      empId: json["emp_id"],
-      password: json["password"],
-      token: json["token"],
-      bearertoken: json["bearertoken"],
-      os: json["os"],
-      version: json["version"]);
+    empId: json["username"],
+    password: json["password"],
+    token: json["device_token"],
+    bearertoken: json["bearertoken"],
+    os: json["os"],
+    version: json["version"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "emp_id": empId,
-        "password": password,
-        "token": token,
-        "bearertoken": bearertoken,
-        "os": os,
-        "version": version
-      };
+    "username": empId,
+    "password": password,
+    "device_token": token,
+    "bearertoken": bearertoken,
+    "os": os,
+    "version": version,
+  };
 }

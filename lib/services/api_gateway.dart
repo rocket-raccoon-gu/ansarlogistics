@@ -25,6 +25,23 @@ class PDApiGateway implements AuthenticationService {
     });
   }
 
+  // Non-paginated orders + categories endpoint
+  Future ordersNewRequestService({required String token}) async {
+    try {
+      final response = await pickerDriverApi.OrdersNewService(token: token)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          })
+          .timeout(Duration(seconds: 20));
+
+      return response;
+    } catch (e) {
+      serviceSendError("OrdersNew Request Error: $e");
+      rethrow;
+    }
+  }
+
   @override
   Future<String> generalSPService({required String endpoint}) {
     // TODO: implement generalSPService
@@ -242,6 +259,36 @@ class PDApiGateway implements AuthenticationService {
     } catch (e) {
       serviceSendError("send Scheduled Request For NOL");
       rethrow;
+    }
+  }
+
+  @override
+  Future updateMainOrderStatNew({
+    required String preparationId,
+    required String orderStatus,
+    required String comment,
+    required String orderNumber,
+    required String token,
+  }) async {
+    try {
+      final responce = await pickerDriverApi
+          .updatemainorderstatNew(
+            preparationId: preparationId,
+            orderStatus: orderStatus,
+            comment: comment,
+            orderNumber: orderNumber,
+            token: token,
+          )
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          })
+          .timeout(Duration(seconds: 10));
+      return responce;
+    } catch (e) {
+      serviceSendError("Status Update Failed");
+
+      return "Retry";
     }
   }
 
@@ -718,6 +765,26 @@ class PDApiGateway implements AuthenticationService {
       return response;
     } catch (e) {
       serviceSendError("get Company List Api Error");
+
+      return "Retry";
+    }
+  }
+
+  Future getCashierOrders({
+    required int page,
+    required int limit,
+    required String token,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .getCashierOrders(page: page, limit: limit, token: token)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("get Cashier Orders Api Error");
 
       return "Retry";
     }

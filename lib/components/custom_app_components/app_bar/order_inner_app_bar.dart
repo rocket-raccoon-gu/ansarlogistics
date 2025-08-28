@@ -4,9 +4,11 @@ import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class OrderInnerAppBar extends StatelessWidget {
-  Order orderResponseItem;
+  OrderNew orderResponseItem;
+
   Function()? onTapinfo;
   Function()? onTapBack;
   final Function()? onTaptranslate;
@@ -66,7 +68,7 @@ class OrderInnerAppBar extends StatelessWidget {
                       InkWell(
                         onTap: onTapinfo,
                         child: Text(
-                          orderResponseItem.subgroupIdentifier,
+                          orderResponseItem.id.toString(),
                           style: customTextStyle(
                             fontStyle: FontStyle.Lato_Bold,
                             color: FontColor.FontPrimary,

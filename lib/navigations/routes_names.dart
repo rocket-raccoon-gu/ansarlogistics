@@ -19,3 +19,5 @@ const _selectRegionsPageRouteName = '/selectregionspageroutename';
 const _photographyDashBorardPageRouteName =
     '/photographydashboardpageroutename';
 const _salesStaffDashboardPageRouteName = '/salesstaffdashboardpageroutename';
+const _pickerOrderDetailsRouteName = '/pickerorderdetailsinnerpageroute';
+const _cashierDashboardRouteName = '/cashierdashboardpageroutename';

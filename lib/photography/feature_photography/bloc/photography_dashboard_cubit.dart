@@ -36,7 +36,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
   ProductResponse? _productResponse;
 
   int onlinestatus = int.parse(
-    UserController.userController.profile.availabilityStatus,
+    UserController.userController.profile.availabilityStatus.toString(),
   );
 
   updatedata() async {
@@ -60,7 +60,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
       'title': "",
       'price': "",
       'qty': "",
-      'user_id': UserController().profile.id,
+      'user_id': UserController().profile.id.toString(),
     };
 
     if (skulist.where((element) => element.containsValue(sku)).isEmpty) {

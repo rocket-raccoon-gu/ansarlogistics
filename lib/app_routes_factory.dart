@@ -7,9 +7,11 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_a
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/order_item_inner_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/item_replacement_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_dashboard/picker_dashboard_page_route_builder.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_details/picker_order_details_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/picker_order_details_page_route_builder.dart';
 import 'package:ansarlogistics/Sales_staff/features/sales_staff_dashboard_root_builder.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/home_section_incharge_route_builder.dart';
+import 'package:ansarlogistics/cashier/feature_cashier/cashier_order_page_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_login/login_page_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/new_scan_page_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_select_region/select_region_root_builder.dart';
@@ -171,6 +173,25 @@ class AppRoutesFactory extends RoutesFactory {
     // TODO: implement createSalesSectionDashBoardPageRoute
     return CustomRoute(
       builder: SalesStaffDashboardRootBuilder(_serviceLocator),
+    );
+  }
+
+  @override
+  Route createPickerOrderDetailsRoute(Map<String, dynamic> data) {
+    // TODO: implement createPickerOrderDetailsRoute
+    return CustomRoute(
+      builder: PickerOrderDetailsInnerPageRouteBuilder(
+        _serviceLocator,
+        arguments: data,
+      ),
+    );
+  }
+
+  @override
+  Route createCashierDashboardRoute() {
+    // TODO: implement createCashierDashboardRoute
+    return CustomRoute(
+      builder: CashierOrderPageRouteBuilder(serviceLocator: _serviceLocator),
     );
   }
 }

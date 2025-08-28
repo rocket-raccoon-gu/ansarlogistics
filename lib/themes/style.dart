@@ -297,7 +297,7 @@ TextStyle customTextStyle({required FontStyle fontStyle, FontColor? color}) {
         color: getFontColor(color),
         letterSpacing: 0.55,
         fontFamily: "Inter-Medium",
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
       );
     case FontStyle.Lato_Bold:
       return TextStyle(

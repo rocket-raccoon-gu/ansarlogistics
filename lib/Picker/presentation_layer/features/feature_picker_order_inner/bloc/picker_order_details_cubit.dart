@@ -218,7 +218,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
         orderstatus: "end_picking",
         comment:
             "${UserController().profile.name.toString()} (${UserController().profile.empId}) is end picked the order",
-        userid: UserController().profile.id,
+        userid: UserController().profile.id.toString(),
         latitude: UserController.userController.locationlatitude,
         longitude: UserController.userController.locationlongitude,
       );

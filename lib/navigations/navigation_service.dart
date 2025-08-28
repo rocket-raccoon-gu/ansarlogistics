@@ -152,6 +152,22 @@ class NavigationService {
     ).pushNamed(_newScanBarcodePageRouteName, arguments: MapArguments(data));
   }
 
+  Future<void> openPickerOrderDetailsPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_pickerOrderDetailsRouteName, arguments: MapArguments(arg!));
+  }
+
+  Future<void> openCashierDashboardPage(BuildContext context) {
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      _cashierDashboardRouteName,
+      (Route<dynamic> route) => false,
+    );
+  }
+
   // Future<void> openSelectRegionsPage(
   //   BuildContext context
   // ){

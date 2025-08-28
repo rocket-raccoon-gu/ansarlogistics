@@ -61,24 +61,24 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
               Column(
                 children: [
                   // ------------------------------- header start ----------------------------------------
-                  OrderInnerAppBar(
-                    onTapBack: () async {
-                      context.gNavigationService.back(context);
-                    },
-                    orderResponseItem: widget.orderResponseItem,
-                    onTapinfo: () {
-                      showTopModel(
-                        context,
-                        widget.serviceLocator,
-                        widget.orderResponseItem,
-                      );
-                    },
-                    onTaptranslate: () {
-                      setState(() {
-                        translate = !translate;
-                      });
-                    },
-                  ),
+                  // OrderInnerAppBar(
+                  //   onTapBack: () async {
+                  //     context.gNavigationService.back(context);
+                  //   },
+                  //   orderResponseItem: widget.orderResponseItem,
+                  //   onTapinfo: () {
+                  //     showTopModel(
+                  //       context,
+                  //       widget.serviceLocator,
+                  //       widget.orderResponseItem,
+                  //     );
+                  //   },
+                  //   onTaptranslate: () {
+                  //     setState(() {
+                  //       translate = !translate;
+                  //     });
+                  //   },
+                  // ),
 
                   // ------------------------------- header start ----------------------------------------
                   Expanded(

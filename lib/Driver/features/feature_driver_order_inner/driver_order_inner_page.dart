@@ -50,23 +50,22 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
           ),
           body: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: OrderInnerAppBar(
-                  onTapBack: () {
-                    context.gNavigationService.back(context);
-                  },
-                  orderResponseItem: widget.orderResponseItem,
-                  onTapinfo: () {
-                    showTopModel(
-                      context,
-                      widget.serviceLocator,
-                      widget.orderResponseItem,
-                    );
-                  },
-                ),
-              ),
-
+              // Padding(
+              //   padding: const EdgeInsets.only(bottom: 8.0),
+              //   child: OrderInnerAppBar(
+              //     onTapBack: () {
+              //       context.gNavigationService.back(context);
+              //     },
+              //     orderResponseItem: widget.orderResponseItem,
+              //     onTapinfo: () {
+              //       showTopModel(
+              //         context,
+              //         widget.serviceLocator,
+              //         widget.orderResponseItem,
+              //       );
+              //     },
+              //   ),
+              // ),
               if (state is DriverOrderInitialPageState)
                 Expanded(
                   child: ListView.builder(

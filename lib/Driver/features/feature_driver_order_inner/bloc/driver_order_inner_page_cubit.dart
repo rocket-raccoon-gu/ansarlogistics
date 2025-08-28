@@ -62,7 +62,7 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
         orderstatus: status,
         comment:
             "${UserController().profile.name.toString()} (${UserController().profile.empId}) is on the way to delivery location",
-        userid: UserController().profile.id,
+        userid: UserController().profile.id.toString(),
         latitude: UserController.userController.locationlatitude,
         longitude: UserController.userController.locationlongitude,
       );
@@ -93,7 +93,7 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
 
               final resp1 = await serviceLocator.tradingApi
                   .updateDriverLocationdetails(
-                    userId: int.parse(UserController().profile.id),
+                    userId: UserController().profile.id,
                     latitude: position.latitude.toString(),
                     longitude: position.longitude.toString(),
                   );

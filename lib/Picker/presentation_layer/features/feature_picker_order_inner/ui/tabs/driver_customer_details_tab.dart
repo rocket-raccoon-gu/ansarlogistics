@@ -197,7 +197,7 @@ class _DriverCustomerDetailsTabState extends State<DriverCustomerDetailsTab> {
                           orderstatus: "customer_not_answer",
                           comment:
                               "${UserController().profile.name.toString()} (${UserController().profile.empId}) was marked the order customer not answer",
-                          userid: UserController().profile.id,
+                          userid: UserController().profile.id.toString(),
                           latitude:
                               UserController.userController.locationlatitude,
                           longitude:

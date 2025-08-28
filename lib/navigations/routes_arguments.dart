@@ -25,6 +25,9 @@ swithcnavigate(BuildContext context, String role) {
     case "7":
       context.gNavigationService.openSalesDashboard(context);
       break;
+    case "8":
+      context.gNavigationService.openCashierDashboardPage(context);
+      break;
     default:
       context.gNavigationService.openPickerWorkspacePage(context);
   }

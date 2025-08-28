@@ -20,4 +20,6 @@ abstract class RoutesFactory {
   Route<dynamic> createSelectRegionsPageRoute();
   Route<dynamic> createPhotoGrpahyDashBoardPageRoute();
   Route<dynamic> createSalesSectionDashBoardPageRoute();
+  Route<dynamic> createPickerOrderDetailsRoute(Map<String, dynamic> data);
+  Route<dynamic> createCashierDashboardRoute();
 }

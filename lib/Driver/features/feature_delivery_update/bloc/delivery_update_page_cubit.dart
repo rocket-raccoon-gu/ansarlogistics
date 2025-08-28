@@ -127,7 +127,7 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         orderstatus: status,
         comment:
             "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order",
-        userid: UserController().profile.id,
+        userid: UserController().profile.id.toString(),
         latitude: lat,
         longitude: long,
       );

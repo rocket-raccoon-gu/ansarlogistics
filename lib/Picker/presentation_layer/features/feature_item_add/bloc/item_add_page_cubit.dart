@@ -86,7 +86,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         orderid: orderItemsResponse!.subgroupIdentifier,
         sku: sku,
         scanned_sku: scannedsku,
-        user_id: UserController().profile.id,
+        user_id: UserController().profile.id.toString(),
       );
 
       if (response.statusCode == 200) {

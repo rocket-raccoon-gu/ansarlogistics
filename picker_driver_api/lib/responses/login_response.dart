@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final loginResponse = loginResponseFromJson(jsonString);
-
 import 'dart:convert';
 
 LoginResponse loginResponseFromJson(String str) =>
@@ -10,68 +6,70 @@ LoginResponse loginResponseFromJson(String str) =>
 String loginResponseToJson(LoginResponse data) => json.encode(data.toJson());
 
 class LoginResponse {
-  int success;
-  String message;
-  String token;
+  bool success;
   Profile profile;
+  String token;
 
   LoginResponse({
     required this.success,
-    required this.message,
-    required this.token,
     required this.profile,
+    required this.token,
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
-    success: json["success"],
-    message: json["message"],
+    success: json["success"] ?? false,
+    profile: Profile.fromJson(json["user"]),
     token: json["token"] ?? "",
-    profile: Profile.fromJson(json["profile"] ?? null),
   );
 
   Map<String, dynamic> toJson() => {
     "success": success,
-    "message": message,
+    "user": profile.toJson(),
     "token": token,
-    "profile": profile.toJson(),
   };
 }
 
 class Profile {
-  String id;
+  int id;
   String empId;
+  String employeeId;
   String name;
-  String status;
-  String approveStatus;
+  String distance;
+  String latitude;
+  String longitude;
+  int status;
+  int approveStatus;
   String email;
   String mobileNumber;
   String vehicleNumber;
-  String availabilityStatus;
-  String breakStatus;
+  int availabilityStatus;
+  int breakStatus;
   String vehicleType;
   String password;
   String address;
-  String role;
-  dynamic driverType;
-  String distance;
+  int role;
+  String driverType;
+  int zoneFlag;
   String branchCode;
+  String categoryIds;
   String regularShiftTime;
   String fridayShiftTime;
   String offDay;
-  String orderLimit;
+  int orderLimit;
   String appVersion;
-  String latitude;
-  String longitude;
   DateTime createdAt;
   DateTime updatedAt;
-  dynamic rpToken;
+  String rpToken;
   DateTime rpTokenCreatedAt;
-  String categoryIds;
 
   Profile({
     required this.id,
     required this.empId,
+    required this.employeeId,
     required this.name,
+    required this.distance,
+    required this.latitude,
+    required this.longitude,
     required this.status,
     required this.approveStatus,
     required this.email,
@@ -84,58 +82,62 @@ class Profile {
     required this.address,
     required this.role,
     required this.driverType,
-    required this.distance,
+    required this.zoneFlag,
     required this.branchCode,
+    required this.categoryIds,
     required this.regularShiftTime,
     required this.fridayShiftTime,
     required this.offDay,
     required this.orderLimit,
     required this.appVersion,
-    required this.latitude,
-    required this.longitude,
     required this.createdAt,
     required this.updatedAt,
     required this.rpToken,
     required this.rpTokenCreatedAt,
-    required this.categoryIds,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
-    id: json["id"].toString(),
+    id: json["id"] ?? 0,
     empId: json["emp_id"] ?? "",
+    employeeId: json["employee_id"] ?? "",
     name: json["name"] ?? "",
-    status: json["status"].toString() ?? "",
-    approveStatus: json["approve_status"].toString() ?? "",
+    distance: json["distance"] ?? "",
+    latitude: json["latitude"] ?? "",
+    longitude: json["longitude"] ?? "",
+    status: json["status"] ?? 0,
+    approveStatus: json["approve_status"] ?? 0,
     email: json["email"] ?? "",
     mobileNumber: json["mobile_number"] ?? "",
     vehicleNumber: json["vehicle_number"] ?? "",
-    availabilityStatus: json["availability_status"].toString() ?? "",
-    breakStatus: json["break_status"].toString() ?? "",
+    availabilityStatus: json["availability_status"] ?? 0,
+    breakStatus: json["break_status"] ?? 0,
     vehicleType: json["vehicle_type"] ?? "",
     password: json["password"] ?? "",
     address: json["address"] ?? "",
-    role: json["role"].toString() ?? "",
+    role: json["role"] ?? 0,
     driverType: json["driver_type"] ?? "",
-    distance: json["distance"] ?? "",
+    zoneFlag: json["zone_flag"] ?? 0,
     branchCode: json["branch_code"] ?? "",
-    regularShiftTime: json["regular_shift_time"],
-    fridayShiftTime: json["friday_shift_time"],
-    offDay: json["off_day"],
-    orderLimit: json["order_limit"].toString() ?? "",
+    categoryIds: json["category_ids"] ?? "",
+    regularShiftTime: json["regular_shift_time"] ?? "",
+    fridayShiftTime: json["friday_shift_time"] ?? "",
+    offDay: json["off_day"] ?? "",
+    orderLimit: json["order_limit"] ?? 0,
     appVersion: json["app_version"] ?? "",
-    latitude: json["latitude"] ?? "",
-    longitude: json["longitude"] ?? "",
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
-    rpToken: json["rp_token"],
+    rpToken: json["rp_token"] ?? "",
     rpTokenCreatedAt: DateTime.parse(json["rp_token_created_at"]),
-    categoryIds: json["category_ids"],
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "emp_id": empId,
+    "employee_id": employeeId,
     "name": name,
+    "distance": distance,
+    "latitude": latitude,
+    "longitude": longitude,
     "status": status,
     "approve_status": approveStatus,
     "email": email,
@@ -148,19 +150,17 @@ class Profile {
     "address": address,
     "role": role,
     "driver_type": driverType,
-    "distance": distance,
+    "zone_flag": zoneFlag,
     "branch_code": branchCode,
+    "category_ids": categoryIds,
     "regular_shift_time": regularShiftTime,
     "friday_shift_time": fridayShiftTime,
     "off_day": offDay,
     "order_limit": orderLimit,
     "app_version": appVersion,
-    "latitude": latitude,
-    "longitude": longitude,
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
     "rp_token": rpToken,
     "rp_token_created_at": rpTokenCreatedAt.toIso8601String(),
-    "category_ids": categoryIds,
   };
 }

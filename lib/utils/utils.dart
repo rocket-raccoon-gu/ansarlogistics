@@ -30,6 +30,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/erp_data_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
@@ -201,7 +202,7 @@ getFormatedDateForReport(String _date) {
 Future<void> showTopModel(
   BuildContext context,
   ServiceLocator serviceLocator,
-  Order order,
+  OrderNew order,
 ) async {
   final value = await showTopModalSheet<String?>(
     context,

@@ -36,9 +36,7 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
 
   ProductResponse? _productResponse;
 
-  int onlinestatus = int.parse(
-    UserController.userController.profile.availabilityStatus,
-  );
+  int onlinestatus = UserController.userController.profile.availabilityStatus;
 
   updatedata() async {
     List<dynamic> data = await PreferenceUtils.getstoremap('productlist');

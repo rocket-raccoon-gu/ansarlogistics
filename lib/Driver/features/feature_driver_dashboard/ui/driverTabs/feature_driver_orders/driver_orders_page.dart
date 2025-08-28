@@ -240,12 +240,12 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: CustomSearchField(
                   onSearch: (val) {
-                    BlocProvider.of<DriverOrdersPageCubit>(
-                      context,
-                    ).updatesearchorder(
-                      UserController().orderitems,
-                      val.toString().toUpperCase(),
-                    );
+                    // BlocProvider.of<DriverOrdersPageCubit>(
+                    //   context,
+                    // ).updatesearchorder(
+                    //   UserController().orderitems,
+                    //   val.toString().toUpperCase(),
+                    // );
                   },
                   controller: _searchcontroller,
                   searchFormKey: _ordersearchFormKey,

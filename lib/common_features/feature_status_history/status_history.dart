@@ -6,10 +6,11 @@ import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class StatusHistory extends StatefulWidget {
   final ServiceLocator serviceLocator;
-  Order orderResponseItem;
+  OrderNew orderResponseItem;
   StatusHistory({
     super.key,
     required this.serviceLocator,
@@ -23,45 +24,46 @@ class StatusHistory extends StatefulWidget {
 class _StatusHistoryState extends State<StatusHistory> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create:
-          (context) => StatusHistoryCubit(
-            context,
-            widget.serviceLocator,
-            widget.orderResponseItem.subgroupIdentifier,
-          ),
-      child: BlocBuilder<StatusHistoryCubit, StatusHistoryState>(
-        builder: (context, state) {
-          if (state is StatusHistorystateInitial) {
-            return Column(
-              children: [
-                Expanded(
-                  child: MediaQuery.removePadding(
-                    removeTop: true,
-                    context: context,
-                    child: ListView.builder(
-                      itemCount: state.historylist.length,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        return CustomTimeline(
-                          isFirst: index == 0,
-                          isLast: index == state.historylist.length - 1,
-                          statushistory: state.historylist[index],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [LoadingIndecator()],
-            );
-          }
-        },
-      ),
-    );
+    return Container();
+    // return BlocProvider(
+    //   create:
+    //       (context) => StatusHistoryCubit(
+    //         context,
+    //         widget.serviceLocator,
+    //         widget.orderResponseItem.subgroupIdentifier,
+    //       ),
+    //   child: BlocBuilder<StatusHistoryCubit, StatusHistoryState>(
+    //     builder: (context, state) {
+    //       if (state is StatusHistorystateInitial) {
+    //         return Column(
+    //           children: [
+    //             Expanded(
+    //               child: MediaQuery.removePadding(
+    //                 removeTop: true,
+    //                 context: context,
+    //                 child: ListView.builder(
+    //                   itemCount: state.historylist.length,
+    //                   shrinkWrap: true,
+    //                   itemBuilder: (context, index) {
+    //                     return CustomTimeline(
+    //                       isFirst: index == 0,
+    //                       isLast: index == state.historylist.length - 1,
+    //                       statushistory: state.historylist[index],
+    //                     );
+    //                   },
+    //                 ),
+    //               ),
+    //             ),
+    //           ],
+    //         );
+    //       } else {
+    //         return Column(
+    //           mainAxisAlignment: MainAxisAlignment.center,
+    //           children: [LoadingIndecator()],
+    //         );
+    //       }
+    //     },
+    //   ),
+    // );
   }
 }

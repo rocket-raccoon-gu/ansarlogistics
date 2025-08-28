@@ -10,11 +10,11 @@ import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'package:toastification/toastification.dart';
 
 class PickerCustomerDetailsTab extends StatefulWidget {
-  Order? orderResponseItem;
+  OrderNew? orderResponseItem;
 
   PickerCustomerDetailsTab({super.key, required this.orderResponseItem});
 
@@ -39,7 +39,10 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
   Future<void> handleCall() async {
     // await startRecording(); // Start recording
     try {
-      c1.call(widget.orderResponseItem!.telephone, () async {});
+      c1.call(
+        widget.orderResponseItem!.customer!.phone.toString(),
+        () async {},
+      );
     } catch (e) {}
   }
 
@@ -72,7 +75,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                       ),
                     ),
                     Text(
-                      "${widget.orderResponseItem!.customerFirstname} ${widget.orderResponseItem!.customerLastname}",
+                      "${widget.orderResponseItem!.customer!.firstName} ${widget.orderResponseItem!.customer!.lastName}",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_SemiBold,
                         color: FontColor.FontPrimary,
@@ -104,7 +107,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                       ),
                     ),
                     Text(
-                      "+974 ${widget.orderResponseItem!.telephone}",
+                      "+974 ${widget.orderResponseItem!.customer!.phone}",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Bold,
                         color: FontColor.FontPrimary,
@@ -134,7 +137,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                     ),
                   ),
                   Text(
-                    "QAR ${double.parse(widget.orderResponseItem!.grandTotal == "" ? "0" : widget.orderResponseItem!.grandTotal).toStringAsFixed(2)}",
+                    "QAR ${double.parse(widget.orderResponseItem!.orderAmount.toString() == "" ? "0" : widget.orderResponseItem!.orderAmount!.toString()).toStringAsFixed(2)}",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_Bold,
                       color: FontColor.FontPrimary,
@@ -165,7 +168,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                       ),
                     ),
                     Text(
-                      widget.orderResponseItem!.paymentMethod,
+                      widget.orderResponseItem!.paymentMethod!,
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Bold,
                         color: FontColor.FontPrimary,
@@ -308,52 +311,53 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                           ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 8.0,
-                          right: 8.0,
-                          bottom: 8.0,
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                            vertical: 24.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: customColors().backgroundPrimary,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  FutureBuilder(
-                                    future: getTranslateWord(
-                                      widget.orderResponseItem!.deliveryNote,
-                                    ),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        return Expanded(
-                                          child: Text(
-                                            snapshot.data!,
-                                            textAlign: TextAlign.start,
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.Inter_Medium,
-                                              color: FontColor.FontPrimary,
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        return Text("");
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+
+                      // Padding(
+                      //   padding: const EdgeInsets.only(
+                      //     left: 8.0,
+                      //     right: 8.0,
+                      //     bottom: 8.0,
+                      //   ),
+                      //   child: Container(
+                      //     padding: const EdgeInsets.symmetric(
+                      //       horizontal: 8.0,
+                      //       vertical: 24.0,
+                      //     ),
+                      //     decoration: BoxDecoration(
+                      //       color: customColors().backgroundPrimary,
+                      //     ),
+                      //     child: Column(
+                      //       mainAxisAlignment: MainAxisAlignment.start,
+                      //       children: [
+                      //         Row(
+                      //           children: [
+                      //             FutureBuilder(
+                      //               future: getTranslateWord(
+                      //                 widget.orderResponseItem!.deliveryNote,
+                      //               ),
+                      //               builder: (context, snapshot) {
+                      //                 if (snapshot.hasData) {
+                      //                   return Expanded(
+                      //                     child: Text(
+                      //                       snapshot.data!,
+                      //                       textAlign: TextAlign.start,
+                      //                       style: customTextStyle(
+                      //                         fontStyle: FontStyle.Inter_Medium,
+                      //                         color: FontColor.FontPrimary,
+                      //                       ),
+                      //                     ),
+                      //                   );
+                      //                 } else {
+                      //                   return Text("");
+                      //                 }
+                      //               },
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -374,109 +378,109 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                   text: "Send Cancel Request",
                   loading: sendcancelreq,
                   onpress: () async {
-                    if (UserController().cancelreason !=
-                            "Please Select Reason" &&
-                        UserController().cancelreason != "Other Reasons") {
-                      setState(() {
-                        sendcancelreq = true;
-                      });
+                    // if (UserController().cancelreason !=
+                    //         "Please Select Reason" &&
+                    //     UserController().cancelreason != "Other Reasons") {
+                    //   setState(() {
+                    //     sendcancelreq = true;
+                    //   });
 
-                      showSnackBar(
-                        context: context,
-                        snackBar: showSuccessDialogue(
-                          message: "status updating....!",
-                        ),
-                      );
+                    //   showSnackBar(
+                    //     context: context,
+                    //     snackBar: showSuccessDialogue(
+                    //       message: "status updating....!",
+                    //     ),
+                    //   );
 
-                      final resp = await context.gTradingApiGateway
-                          .updateMainOrderStat(
-                            orderid:
-                                widget.orderResponseItem!.subgroupIdentifier,
-                            orderstatus: "cancel_request",
-                            comment:
-                                "${UserController().profile.name.toString()} (${UserController().profile.empId}) is requested cancel the order for ${UserController().cancelreason.toString()}",
-                            userid: UserController().profile.id,
-                            latitude:
-                                UserController.userController.locationlatitude,
-                            longitude:
-                                UserController.userController.locationlongitude,
-                          );
+                    //   final resp = await context.gTradingApiGateway
+                    //       .updateMainOrderStat(
+                    //         orderid:
+                    //             widget.orderResponseItem!.subgroupIdentifier,
+                    //         orderstatus: "cancel_request",
+                    //         comment:
+                    //             "${UserController().profile.name.toString()} (${UserController().profile.empId}) is requested cancel the order for ${UserController().cancelreason.toString()}",
+                    //         userid: UserController().profile.id.toString(),
+                    //         latitude:
+                    //             UserController.userController.locationlatitude,
+                    //         longitude:
+                    //             UserController.userController.locationlongitude,
+                    //       );
 
-                      try {
-                        if (resp.statusCode == 200) {
-                          toastification.show(
-                            backgroundColor: customColors().secretGarden,
-                            context: context,
-                            autoCloseDuration: const Duration(seconds: 5),
-                            title: TranslatedText(
-                              text: "Requested For Cancel...!",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.White,
-                              ),
-                            ),
-                          );
+                    //   try {
+                    //     if (resp.statusCode == 200) {
+                    //       toastification.show(
+                    //         backgroundColor: customColors().secretGarden,
+                    //         context: context,
+                    //         autoCloseDuration: const Duration(seconds: 5),
+                    //         title: TranslatedText(
+                    //           text: "Requested For Cancel...!",
+                    //           style: customTextStyle(
+                    //             fontStyle: FontStyle.BodyL_Bold,
+                    //             color: FontColor.White,
+                    //           ),
+                    //         ),
+                    //       );
 
-                          UserController().cancelreason =
-                              "Please Select Reason";
+                    //       UserController().cancelreason =
+                    //           "Please Select Reason";
 
-                          Navigator.of(
-                            context,
-                          ).popUntil((route) => route.isFirst);
+                    //       Navigator.of(
+                    //         context,
+                    //       ).popUntil((route) => route.isFirst);
 
-                          context.gNavigationService.openPickerWorkspacePage(
-                            context,
-                          );
-                        } else {
-                          setState(() {
-                            sendcancelreq = false;
-                          });
+                    //       context.gNavigationService.openPickerWorkspacePage(
+                    //         context,
+                    //       );
+                    //     } else {
+                    //       setState(() {
+                    //         sendcancelreq = false;
+                    //       });
 
-                          toastification.show(
-                            backgroundColor: customColors().carnationRed,
-                            context: context,
-                            autoCloseDuration: const Duration(seconds: 5),
-                            title: TranslatedText(
-                              text: "Send Request Failed Please Try Again...!",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.White,
-                              ),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        setState(() {
-                          sendcancelreq = false;
-                        });
+                    //       toastification.show(
+                    //         backgroundColor: customColors().carnationRed,
+                    //         context: context,
+                    //         autoCloseDuration: const Duration(seconds: 5),
+                    //         title: TranslatedText(
+                    //           text: "Send Request Failed Please Try Again...!",
+                    //           style: customTextStyle(
+                    //             fontStyle: FontStyle.BodyL_Bold,
+                    //             color: FontColor.White,
+                    //           ),
+                    //         ),
+                    //       );
+                    //     }
+                    //   } catch (e) {
+                    //     setState(() {
+                    //       sendcancelreq = false;
+                    //     });
 
-                        toastification.show(
-                          backgroundColor: customColors().carnationRed,
-                          context: context,
-                          autoCloseDuration: const Duration(seconds: 5),
-                          title: TranslatedText(
-                            text: "Send Request Failed Please Try Again...!",
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.White,
-                            ),
-                          ),
-                        );
-                      }
-                    } else {
-                      toastification.show(
-                        backgroundColor: customColors().carnationRed,
-                        context: context,
-                        autoCloseDuration: const Duration(seconds: 2),
-                        title: TranslatedText(
-                          text: "Please Update Reason...!",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.White,
-                          ),
-                        ),
-                      );
-                    }
+                    //     toastification.show(
+                    //       backgroundColor: customColors().carnationRed,
+                    //       context: context,
+                    //       autoCloseDuration: const Duration(seconds: 5),
+                    //       title: TranslatedText(
+                    //         text: "Send Request Failed Please Try Again...!",
+                    //         style: customTextStyle(
+                    //           fontStyle: FontStyle.BodyL_Bold,
+                    //           color: FontColor.White,
+                    //         ),
+                    //       ),
+                    //     );
+                    //   }
+                    // } else {
+                    //   toastification.show(
+                    //     backgroundColor: customColors().carnationRed,
+                    //     context: context,
+                    //     autoCloseDuration: const Duration(seconds: 2),
+                    //     title: TranslatedText(
+                    //       text: "Please Update Reason...!",
+                    //       style: customTextStyle(
+                    //         fontStyle: FontStyle.BodyL_Bold,
+                    //         color: FontColor.White,
+                    //       ),
+                    //     ),
+                    //   );
+                    // }
                   },
                 ),
               ),
@@ -495,93 +499,93 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                   text: 'Send Hold Request',
                   loading: sendcancelreq,
                   onpress: () async {
-                    if (UserController().cancelreason !=
-                        "Please Select Reason") {
-                      setState(() {
-                        sendcancelreq = true;
-                      });
+                    // if (UserController().cancelreason !=
+                    //     "Please Select Reason") {
+                    //   setState(() {
+                    //     sendcancelreq = true;
+                    //   });
 
-                      showSnackBar(
-                        context: context,
-                        snackBar: showSuccessDialogue(
-                          message: "status updating....!",
-                        ),
-                      );
+                    //   showSnackBar(
+                    //     context: context,
+                    //     snackBar: showSuccessDialogue(
+                    //       message: "status updating....!",
+                    //     ),
+                    //   );
 
-                      final resp = await context.gTradingApiGateway
-                          .updateMainOrderStat(
-                            orderid:
-                                widget.orderResponseItem!.subgroupIdentifier,
-                            orderstatus: "holded",
-                            comment:
-                                "${UserController().profile.name.toString()} (${UserController().profile.empId}) was holded the order for ${UserController().cancelreason.toString()}",
-                            userid: UserController().profile.id,
-                            latitude:
-                                UserController.userController.locationlatitude,
-                            longitude:
-                                UserController.userController.locationlongitude,
-                          );
+                    //   final resp = await context.gTradingApiGateway
+                    //       .updateMainOrderStat(
+                    //         orderid:
+                    //             widget.orderResponseItem!.subgroupIdentifier,
+                    //         orderstatus: "holded",
+                    //         comment:
+                    //             "${UserController().profile.name.toString()} (${UserController().profile.empId}) was holded the order for ${UserController().cancelreason.toString()}",
+                    //         userid: UserController().profile.id.toString(),
+                    //         latitude:
+                    //             UserController.userController.locationlatitude,
+                    //         longitude:
+                    //             UserController.userController.locationlongitude,
+                    //       );
 
-                      if (resp.statusCode == 200) {
-                        toastification.show(
-                          backgroundColor: customColors().secretGarden,
-                          context: context,
-                          autoCloseDuration: const Duration(seconds: 5),
-                          title: TranslatedText(
-                            text: "Order is On Hold",
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.White,
-                            ),
-                          ),
-                        );
+                    //   if (resp.statusCode == 200) {
+                    //     toastification.show(
+                    //       backgroundColor: customColors().secretGarden,
+                    //       context: context,
+                    //       autoCloseDuration: const Duration(seconds: 5),
+                    //       title: TranslatedText(
+                    //         text: "Order is On Hold",
+                    //         style: customTextStyle(
+                    //           fontStyle: FontStyle.BodyL_Bold,
+                    //           color: FontColor.White,
+                    //         ),
+                    //       ),
+                    //     );
 
-                        UserController().cancelreason = "Please Select Reason";
+                    //     UserController().cancelreason = "Please Select Reason";
 
-                        Navigator.of(
-                          context,
-                        ).popUntil((route) => route.isFirst);
+                    //     Navigator.of(
+                    //       context,
+                    //     ).popUntil((route) => route.isFirst);
 
-                        context.gNavigationService.openPickerWorkspacePage(
-                          context,
-                        );
-                      } else {
-                        setState(() {
-                          sendcancelreq = false;
-                        });
+                    //     context.gNavigationService.openPickerWorkspacePage(
+                    //       context,
+                    //     );
+                    //   } else {
+                    //     setState(() {
+                    //       sendcancelreq = false;
+                    //     });
 
-                        toastification.show(
-                          backgroundColor: customColors().carnationRed,
-                          context: context,
-                          autoCloseDuration: const Duration(seconds: 5),
-                          title: TranslatedText(
-                            text: "Send Request Failed Please Try Again...!",
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.White,
-                            ),
-                          ),
-                        );
-                      }
-                    } else {
-                      // showSnackBar(
-                      //     context: context,
-                      //     snackBar: showErrorDialogue(
-                      //         errorMessage: "Please Fill The Reason..."));
-                      toastification.show(
-                        backgroundColor: customColors().carnationRed,
-                        context:
-                            context, // optional if you use ToastificationWrapper
-                        title: TranslatedText(
-                          text: 'Please Update The Reason...!',
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyM_Bold,
-                            color: FontColor.White,
-                          ),
-                        ),
-                        autoCloseDuration: const Duration(seconds: 2),
-                      );
-                    }
+                    //     toastification.show(
+                    //       backgroundColor: customColors().carnationRed,
+                    //       context: context,
+                    //       autoCloseDuration: const Duration(seconds: 5),
+                    //       title: TranslatedText(
+                    //         text: "Send Request Failed Please Try Again...!",
+                    //         style: customTextStyle(
+                    //           fontStyle: FontStyle.BodyL_Bold,
+                    //           color: FontColor.White,
+                    //         ),
+                    //       ),
+                    //     );
+                    //   }
+                    // } else {
+                    //   // showSnackBar(
+                    //   //     context: context,
+                    //   //     snackBar: showErrorDialogue(
+                    //   //         errorMessage: "Please Fill The Reason..."));
+                    //   toastification.show(
+                    //     backgroundColor: customColors().carnationRed,
+                    //     context:
+                    //         context, // optional if you use ToastificationWrapper
+                    //     title: TranslatedText(
+                    //       text: 'Please Update The Reason...!',
+                    //       style: customTextStyle(
+                    //         fontStyle: FontStyle.BodyM_Bold,
+                    //         color: FontColor.White,
+                    //       ),
+                    //     ),
+                    //     autoCloseDuration: const Duration(seconds: 2),
+                    //   );
+                    // }
                   },
                 ),
               ),
@@ -603,12 +607,13 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                   ),
                   Positioned(
                     child: CsToolTipBoard(
-                      phone_num: widget.orderResponseItem!.telephone,
+                      phone_num:
+                          widget.orderResponseItem!.customer!.phone.toString(),
                       onTap: () async {
                         await handleCall(); // Call and record
                         // await _makeCall('97450154119');
                       },
-                      ordernum: widget.orderResponseItem!.subgroupIdentifier,
+                      ordernum: widget.orderResponseItem!.id.toString(),
                     ),
                   ),
                 ],

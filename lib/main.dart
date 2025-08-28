@@ -31,7 +31,7 @@ import 'package:clarity_flutter/clarity_flutter.dart';
 
 const baseUrl = String.fromEnvironment(
   'BASE_URL',
-  defaultValue: "https://pickerdriver.testuatah.com",
+  defaultValue: "https://pickerdriver-api.testuatah.com",
 );
 
 const productUrl = String.fromEnvironment(
@@ -41,7 +41,7 @@ const productUrl = String.fromEnvironment(
 
 const applicationPath = String.fromEnvironment(
   'APPLICATION_PATH',
-  defaultValue: "/v1/api/qatar/",
+  defaultValue: "/api/",
 );
 
 // ################## DEVELOPMENT NEW ###########################

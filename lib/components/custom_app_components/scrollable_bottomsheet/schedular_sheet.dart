@@ -650,12 +650,11 @@ class _OrderSchedulerDateRangeState extends State<OrderSchedulerDateRange> {
                                                       ),
                                                   timerange:
                                                       timerangelist[selectedindex],
-                                                  userid: int.parse(
-                                                    UserController
-                                                        .userController
-                                                        .profile
-                                                        .id,
-                                                  ),
+                                                  userid:
+                                                      UserController
+                                                          .userController
+                                                          .profile
+                                                          .id,
                                                   candeliver: true,
                                                 );
 
@@ -1078,9 +1077,8 @@ class _OrderSchedulerNolState extends State<OrderSchedulerNol> {
                       .sendRescheduleRequestNOL(
                         orderid: widget.mainorderid,
                         deliverydate: getdateformattedrescheduled(d1!),
-                        userid: int.parse(
-                          UserController.userController.profile.id,
-                        ),
+                        userid: UserController.userController.profile.id,
+
                         candeliver: candeliver,
                         comment: commentcontroller.text,
                       );
@@ -1167,9 +1165,7 @@ class _OrderSchedulerNolState extends State<OrderSchedulerNol> {
                       .sendRescheduleRequestNOL(
                         orderid: widget.mainorderid,
                         deliverydate: getdateformattedrescheduled(d1!),
-                        userid: int.parse(
-                          UserController.userController.profile.id,
-                        ),
+                        userid: UserController.userController.profile.id,
                         candeliver: candeliver,
                         comment: commentcontroller.text,
                       );

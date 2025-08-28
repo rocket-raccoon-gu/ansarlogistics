@@ -58,7 +58,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
         UserController.userController.orderitems.clear();
         page = 1;
       } else {
-        UserController.userController.orderitems.addAll(oldpost);
+        // UserController.userController.orderitems.addAll(oldpost);
       }
 
       emit(
@@ -71,21 +71,21 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
       log(status);
 
       // if (!searchvisible) {
-      postRepositories.fetchposts(page, 6, status).then((newpost) {
-        page++;
-        List<Order> posts = (state as DriverPageLoadingState).oldpost;
+      // postRepositories.fetchposts(page, 6, status).then((newpost) {
+      //   page++;
+      //   List<Order> posts = (state as DriverPageLoadingState).oldpost;
 
-        posts.addAll(newpost);
-        // }
+      //   posts.addAll(newpost);
+      //   // }
 
-        var postlist = posts.toSet().toList();
+      //   var postlist = posts.toSet().toList();
 
-        emit(DriverPageLoadedState(postlist.toSet().toList()));
-      });
+      //   emit(DriverPageLoadedState(postlist.toSet().toList()));
+      // });
     } catch (e) {
       // print(e);
 
-      emit(DriverPageLoadedState(UserController.userController.orderitems));
+      // emit(DriverPageLoadedState(UserController.userController.orderitems));
     }
   }
 
@@ -99,15 +99,15 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
       searchvisible = true;
     }
     if (orderslist.isEmpty) {
-      orderslist = UserController().orderitems;
+      // orderslist = UserController().orderitems;
     }
     if (keyword.isNotEmpty) {
-      UserController().orderitems.forEach((element) {
-        if (element.subgroupIdentifier.startsWith(keyword.toString()) ||
-            element.subgroupIdentifier.contains(keyword.toString())) {
-          searchresult.add(element);
-        }
-      });
+      // UserController().orderitems.forEach((element) {
+      //   if (element.subgroupIdentifier.startsWith(keyword.toString()) ||
+      //       element.subgroupIdentifier.contains(keyword.toString())) {
+      //     searchresult.add(element);
+      //   }
+      // });
     }
 
     if (searchresult.isNotEmpty) {
@@ -180,7 +180,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
           // Make API call
           final resp = await pdApiGateway
               .updateDriverLocationdetails(
-                userId: int.parse(UserController.userController.profile.id),
+                userId: UserController.userController.profile.id,
                 latitude: position.latitude.toString(),
                 longitude: position.longitude.toString(),
               )

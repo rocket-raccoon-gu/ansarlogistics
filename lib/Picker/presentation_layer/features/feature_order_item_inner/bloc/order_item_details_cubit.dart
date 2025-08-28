@@ -125,7 +125,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         orderid: orderResponseItem!.subgroupIdentifier,
         sku: sku,
         scanned_sku: scannedsku,
-        user_id: UserController().profile.id,
+        user_id: UserController().profile.id.toString(),
       );
 
       if (response.statusCode == 200) {
@@ -158,7 +158,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         "price": double.parse(price),
         "qty": double.parse(qty).toInt(),
         "reason": "",
-        "picker_id": int.parse(UserController().profile.id),
+        "picker_id": UserController().profile.id.toString(),
         "is_produce": int.parse(orderItem!.isproduce),
         "qty_orderd": double.parse(orderItem!.qtyOrdered).toInt(),
       };

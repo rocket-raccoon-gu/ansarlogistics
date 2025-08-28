@@ -1,6 +1,7 @@
 import 'package:picker_driver_api/responses/branch_section_data_response.dart';
 import 'package:picker_driver_api/responses/login_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
 
 class UserController {
@@ -15,7 +16,7 @@ class UserController {
   bool allowOrderRequest = true;
   bool alloworderupdated = false;
   bool itemreplaced = false;
-  List<Order> orderitems = [];
+  List<OrderNew> orderitems = [];
   String appVersion = "";
   String currentTheme = "";
   String userName = "";
@@ -46,28 +47,30 @@ class UserController {
 
   String barwalong = "51.50264277400484";
   String barwalat = "25.219673232058142";
+  String app_token = "";
   Profile profile = Profile(
-    id: "",
+    id: 0,
     empId: "",
+    employeeId: "",
     name: "",
-    status: "",
-    approveStatus: "",
+    status: 0,
+    approveStatus: 0,
     email: "",
     mobileNumber: "",
     vehicleNumber: "",
-    availabilityStatus: "",
-    breakStatus: "",
+    availabilityStatus: 0,
+    breakStatus: 0,
     vehicleType: "",
     password: "",
     address: "",
-    role: "",
+    role: 0,
     driverType: "",
     distance: "",
     branchCode: "",
     regularShiftTime: "",
     fridayShiftTime: "",
     offDay: "",
-    orderLimit: "",
+    orderLimit: 0,
     appVersion: "",
     latitude: "",
     longitude: "",
@@ -76,6 +79,7 @@ class UserController {
     rpToken: "",
     rpTokenCreatedAt: DateTime.now(),
     categoryIds: "",
+    zoneFlag: 0,
   );
 
   dispose() {
