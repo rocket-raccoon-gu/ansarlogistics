@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/localization/app_localizations.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -31,7 +32,27 @@ class HexColor extends Color {
   HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
 }
 
-String getStatus(String stat) {
+String resolveImageUrl(String? path) {
+  if (path == null || path.isEmpty) return '';
+  final p = path.trim();
+  if (p.startsWith('http://') || p.startsWith('https://')) return p;
+  // ensure single slash between base and path
+  final base = mainimageurl; // assumed defined in constants/methods.dart
+  if (p.startsWith('/')) {
+    if (base.endsWith('/')) {
+      return base.substring(0, base.length - 1) + p;
+    }
+    return base + p;
+  } else {
+    if (base.endsWith('/')) {
+      return base + p;
+    }
+    return '$base/$p';
+  }
+}
+
+String getStatus(String? stat) {
+  if (stat == null) return "";
   switch (stat) {
     case "pending_payment":
       return "Pending Payment";

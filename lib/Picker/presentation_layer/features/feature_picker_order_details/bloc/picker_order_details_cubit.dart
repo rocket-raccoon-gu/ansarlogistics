@@ -12,14 +12,18 @@ class PickerOrderDetailsInnerCubit extends Cubit<PickerOrderDetailsState> {
   }
 
   void loadOrderDetails() async {
+    if (isClosed) return;
     emit(PickerOrderDetailsLoading());
     try {
       // Simulate a network call
       await Future.delayed(Duration(seconds: 2));
-      // final orderDetails = OrderNew(); // Replace with actual data
-      emit(PickerOrderDetailsLoaded(orderDetails));
+      if (!isClosed) {
+        emit(PickerOrderDetailsLoaded(orderDetails));
+      }
     } catch (e) {
-      emit(PickerOrderDetailsError("Failed to load order details"));
+      if (!isClosed) {
+        emit(PickerOrderDetailsError("Failed to load order details"));
+      }
     }
   }
 }

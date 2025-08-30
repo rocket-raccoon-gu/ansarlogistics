@@ -58,6 +58,7 @@ class OrderNew {
   CustomerNew? customer;
   String? subgroupIdentifier;
   String? orderAmount;
+  Map<String, dynamic>? suborderStatuses;
 
   OrderNew({
     this.id,
@@ -73,6 +74,7 @@ class OrderNew {
     this.customer,
     this.subgroupIdentifier,
     required this.orderAmount,
+    this.suborderStatuses,
   });
 
   factory OrderNew.fromJson(Map<String, dynamic> json) => OrderNew(
@@ -92,23 +94,34 @@ class OrderNew {
                   List
                 >() // Each delivery type: ["nol", [ ...categories ]]
                 .expand((deliveryType) {
-                  if (deliveryType is List &&
-                      deliveryType.length > 1 &&
-                      deliveryType[1] is List) {
-                    return (deliveryType[1] as List) // categories
-                        .whereType<Map>()
-                        .expand((category) {
-                          if (category['items'] is List) {
-                            return (category['items'] as List)
-                                .whereType<Map>()
-                                .map<OrderItemNew>(
-                                  (e) => OrderItemNew.fromJson(
-                                    Map<String, dynamic>.from(e),
-                                  ),
-                                );
-                          }
-                          return <OrderItemNew>[];
-                        });
+                  if (deliveryType is List && deliveryType.isNotEmpty) {
+                    final String typeCode = '${deliveryType[0] ?? ''}';
+                    if (deliveryType.length > 1 && deliveryType[1] is List) {
+                      return (deliveryType[1] as List) // categories
+                          .whereType<Map>()
+                          .expand((category) {
+                            final String? catName =
+                                category['category']?.toString();
+                            if (category['items'] is List) {
+                              return (category['items'] as List)
+                                  .whereType<Map>()
+                                  .map<OrderItemNew>((e) {
+                                    final map = Map<String, dynamic>.from(e);
+                                    // Inject parent category and delivery type so UI can group correctly
+                                    map['category'] =
+                                        map['category'] ??
+                                        map['categoryName'] ??
+                                        catName;
+                                    map['delivery_type'] =
+                                        map['delivery_type'] ??
+                                        map['deliveryType'] ??
+                                        typeCode;
+                                    return OrderItemNew.fromJson(map);
+                                  });
+                            }
+                            return <OrderItemNew>[];
+                          });
+                    }
                   }
                   return <OrderItemNew>[];
                 })
@@ -133,6 +146,10 @@ class OrderNew {
             : null,
     subgroupIdentifier: json['subgroupIdentifier']?.toString(),
     orderAmount: json['orderAmount']?.toString(),
+    suborderStatuses:
+        (json['suborderStatuses'] is Map)
+            ? Map<String, dynamic>.from(json['suborderStatuses'] as Map)
+            : null,
   );
 }
 
@@ -140,8 +157,8 @@ class OrderItemNew {
   final String? id;
   final String? name;
   final String? sku;
-  final num? price;
-  final int? qtyOrdered;
+  final String? price;
+  final String? qtyOrdered;
   final int? qtyShipped;
   final String? categoryId;
   final String? categoryName;
@@ -150,6 +167,8 @@ class OrderItemNew {
   final String? itemStatus;
   final num? rowTotal;
   final num? rowTotalInclTax;
+  final String? productImage;
+  final bool? isProduce;
 
   OrderItemNew({
     this.id,
@@ -165,26 +184,25 @@ class OrderItemNew {
     this.itemStatus,
     this.rowTotal,
     this.rowTotalInclTax,
+    this.productImage,
+    this.isProduce,
   });
 
   factory OrderItemNew.fromJson(Map<String, dynamic> json) => OrderItemNew(
     id: json['id']?.toString(),
     name: json['name']?.toString(),
     sku: json['sku']?.toString(),
-    price:
-        json['price'] is num
-            ? json['price']
-            : num.tryParse('${json['price'] ?? ''}'),
+    price: json['price']?.toString(),
     qtyOrdered:
-        json['qtyOrdered'] is int
-            ? json['qtyOrdered']
-            : int.tryParse('${json['qtyOrdered'] ?? ''}'),
+        json['qty_ordered'] is String
+            ? json['qty_ordered']
+            : int.tryParse('${json['qty_ordered'] ?? ''}'),
     qtyShipped:
-        json['qtyShipped'] is int
-            ? json['qtyShipped']
-            : int.tryParse('${json['qtyShipped'] ?? ''}'),
-    categoryId: json['categoryId']?.toString(),
-    categoryName: json['categoryName']?.toString(),
+        json['qty_shipped'] is int
+            ? json['qty_shipped']
+            : int.tryParse('${json['qty_shipped'] ?? ''}'),
+    categoryId: (json['categoryId'] ?? json['category_id'])?.toString(),
+    categoryName: (json['categoryName'] ?? json['category'])?.toString(),
     imageUrl: json['imageUrl']?.toString(),
     deliveryType:
         json['delivery_type']?.toString() ?? json['deliveryType']?.toString(),
@@ -202,6 +220,8 @@ class OrderItemNew {
           if (v is num) return v;
           return num.tryParse('${v ?? ''}');
         })(),
+    productImage: json['product_images']?.toString(),
+    isProduce: json['is_produce']?.toString() == '1',
   );
 }
 

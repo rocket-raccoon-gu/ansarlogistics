@@ -68,25 +68,6 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
   }
 
   // Resolve final image URL by handling absolute vs relative paths
-  String _resolveImageUrl(String? path) {
-    if (path == null || path.isEmpty) return '';
-    final p = path.trim();
-    if (p.startsWith('http://') || p.startsWith('https://')) return p;
-    // ensure single slash between base and path
-    final base = mainimageurl; // assumed defined in constants/methods.dart
-    if (p.startsWith('/')) {
-      if (base.endsWith('/')) {
-        return base.substring(0, base.length - 1) + p;
-      }
-      return base + p;
-    } else {
-      if (base.endsWith('/')) {
-        return base + p;
-      }
-      return '$base/$p';
-    }
-  }
-
   // Safely determine item count for a category
   int _safeItemCount(CategoryGroup cat) {
     final c = cat.itemCount;
@@ -266,7 +247,7 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
             final rawImg = it.productImages ?? it.imageUrl;
             final imgPath =
                 (rawImg == null || rawImg.isEmpty) ? '' : getFirstImage(rawImg);
-            final resolved = _resolveImageUrl(imgPath);
+            final resolved = resolveImageUrl(imgPath);
             return Container(
               decoration: BoxDecoration(
                 color: customColors().backgroundSecondary,

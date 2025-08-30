@@ -168,6 +168,15 @@ class NavigationService {
     );
   }
 
+  Future<void> openPickerDashboardPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_pickerDashboardRouteName, arguments: MapArguments(arg!));
+  }
+
   // Future<void> openSelectRegionsPage(
   //   BuildContext context
   // ){

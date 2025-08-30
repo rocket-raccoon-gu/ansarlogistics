@@ -56,6 +56,9 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
         return routesFactory.createPickerOrderDetailsRoute(arg.data);
       case _cashierDashboardRouteName:
         return routesFactory.createCashierDashboardRoute();
+      case _pickerDashboardRouteName:
+        final arg = settings.arguments as MapArguments;
+        return routesFactory.createPickerDashboardRoute(arg.data);
       default:
         return null;
     }

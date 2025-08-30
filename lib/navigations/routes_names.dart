@@ -21,3 +21,4 @@ const _photographyDashBorardPageRouteName =
 const _salesStaffDashboardPageRouteName = '/salesstaffdashboardpageroutename';
 const _pickerOrderDetailsRouteName = '/pickerorderdetailsinnerpageroute';
 const _cashierDashboardRouteName = '/cashierdashboardpageroutename';
+const _pickerDashboardRouteName = '/pickerdashboardpageroutename';

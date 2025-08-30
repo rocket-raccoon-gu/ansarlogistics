@@ -18,18 +18,18 @@ class OrderItemInnerRouteBuilder {
   });
 
   Widget call(BuildContext context) {
+    final bool hasLegacyOrder = data.containsKey('order');
     return MultiBlocProvider(
       providers: [
-        // ✅ First provide PickerOrderDetailsCubit
-        BlocProvider(
-          create:
-              (context) => PickerOrderDetailsCubit(
-                serviceLocator: serviceLocator,
-                context: context,
-                orderItem: data['order'],
-              ),
-        ),
-        // ✅ Then provide OrderItemDetailsCubit which depends on it
+        if (hasLegacyOrder)
+          BlocProvider(
+            create:
+                (context) => PickerOrderDetailsCubit(
+                  serviceLocator: serviceLocator,
+                  context: context,
+                  orderItem: data['order'],
+                ),
+          ),
         BlocProvider(
           create:
               (context) => OrderItemDetailsCubit(
@@ -37,7 +37,9 @@ class OrderItemInnerRouteBuilder {
                 context: context,
                 data: data,
                 pickerOrderDetailsCubit:
-                    context.read<PickerOrderDetailsCubit>(),
+                    hasLegacyOrder
+                        ? context.read<PickerOrderDetailsCubit>()
+                        : null,
               ),
         ),
         BlocProvider(

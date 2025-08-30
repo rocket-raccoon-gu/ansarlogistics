@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:convert';
-import 'dart:developer';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
@@ -18,22 +17,25 @@ import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picker_driver_api/responses/erp_data_response.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
+import 'dart:developer';
 
 class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   ServiceLocator serviceLocator;
   BuildContext context;
   Map<String, dynamic> data;
-  PickerOrderDetailsCubit pickerOrderDetailsCubit;
+  PickerOrderDetailsCubit? pickerOrderDetailsCubit;
   OrderItemDetailsCubit({
     required this.serviceLocator,
     required this.context,
     required this.data,
-    required this.pickerOrderDetailsCubit,
+    this.pickerOrderDetailsCubit,
   }) : super(OrderItemDetailLoadingState()) {
     updatedata();
   }
 
   EndPicking? orderItem;
+  OrderItemNew? orderItemNew;
 
   Order? orderResponseItem;
 
@@ -56,6 +58,15 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   bool povisvible = false;
 
   updatedata() {
+    if (data.containsKey('itemNew')) {
+      orderItemNew = data['itemNew'] as OrderItemNew?;
+      // For new flow, emit dedicated state and return
+      if (!isClosed && orderItemNew != null) {
+        emit(OrderItemDetailInitialNewState(orderItem: orderItemNew!));
+        return;
+      }
+    }
+
     orderItem = data['item'];
     orderResponseItem = data['order'];
 
@@ -216,10 +227,12 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
             ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
           );
 
-          pickerOrderDetailsCubit.tabindex = 1;
-          pickerOrderDetailsCubit.updateSelectedItem(1);
+          if (pickerOrderDetailsCubit != null) {
+            pickerOrderDetailsCubit!.tabindex = 1;
+            pickerOrderDetailsCubit!.updateSelectedItem(1);
+          }
 
-          pickerOrderDetailsCubit.getrefreshedData(
+          pickerOrderDetailsCubit?.getrefreshedData(
             orderResponseItem!.subgroupIdentifier,
           );
           // pickerOrderDetailsCubit.updateSelectedItem(1);

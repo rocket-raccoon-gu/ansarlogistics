@@ -9,6 +9,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_dashboard/picker_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_details/picker_order_details_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/picker_order_details_page_route_builder.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/picker_tab_dashboard_root_builder.dart';
 import 'package:ansarlogistics/Sales_staff/features/sales_staff_dashboard_root_builder.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/home_section_incharge_route_builder.dart';
 import 'package:ansarlogistics/cashier/feature_cashier/cashier_order_page_route_builder.dart';
@@ -192,6 +193,14 @@ class AppRoutesFactory extends RoutesFactory {
     // TODO: implement createCashierDashboardRoute
     return CustomRoute(
       builder: CashierOrderPageRouteBuilder(serviceLocator: _serviceLocator),
+    );
+  }
+
+  @override
+  Route createPickerDashboardRoute(Map<String, dynamic> data) {
+    // TODO: implement createPickerDashboardRoute
+    return CustomRoute(
+      builder: PickerTabDashboardRootBuilder(_serviceLocator, data),
     );
   }
 }

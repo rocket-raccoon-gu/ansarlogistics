@@ -236,17 +236,18 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
             ),
           );
 
-          emit(
-            PickerOrderDetailsInitialState(
-              1,
-              catlist,
-              topickitems,
-              pickeditems,
-              notfounditems,
-              canceleditems,
-              list,
-            ),
-          );
+          if (!isClosed)
+            emit(
+              PickerOrderDetailsInitialState(
+                1,
+                catlist,
+                topickitems,
+                pickeditems,
+                notfounditems,
+                canceleditems,
+                list,
+              ),
+            );
         } else {
           loading = false;
 

@@ -298,6 +298,561 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                         }
                       },
                       builder: (context, state) {
+                        if (state is OrderItemDetailInitialNewState) {
+                          // New model rendering
+                          final item = state.orderItem;
+                          return Container(
+                            color: Colors.white,
+                            child: Column(
+                              children: [
+                                // Main image
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6.0),
+                                  child: FutureBuilder<Map<String, dynamic>>(
+                                    future: getData(),
+                                    builder: (context, snapshot) {
+                                      final String base =
+                                          snapshot.data != null
+                                              ? (snapshot.data!['mediapath'] ??
+                                                      '')
+                                                  .toString()
+                                              : '';
+                                      // Build images list from imageUrl or productImage (comma separated)
+                                      final List<String> images =
+                                          (() {
+                                            final List<String> acc = [];
+                                            if ((item.imageUrl ?? '')
+                                                .isNotEmpty) {
+                                              acc.add(item.imageUrl!);
+                                            }
+                                            if ((item.productImage ?? '')
+                                                .isNotEmpty) {
+                                              acc.addAll(
+                                                item.productImage!
+                                                    .split(',')
+                                                    .map((e) => e.trim())
+                                                    .where((e) => e.isNotEmpty),
+                                              );
+                                            }
+                                            return acc.isEmpty
+                                                ? [noimageurl]
+                                                : acc;
+                                          })();
+                                      String resolve(String p) {
+                                        if (p.startsWith('http')) return p;
+                                        return '$base$p';
+                                      }
+
+                                      final String mainUrl = resolve(
+                                        images[selectedindex.clamp(
+                                          0,
+                                          images.length - 1,
+                                        )],
+                                      );
+                                      return SizedBox(
+                                        height: 275.0,
+                                        width: 275.0,
+                                        child: Center(
+                                          child: CachedNetworkImage(
+                                            imageUrl: mainUrl,
+                                            imageBuilder: (
+                                              context,
+                                              imageProvider,
+                                            ) {
+                                              return Container(
+                                                decoration: BoxDecoration(
+                                                  image: DecorationImage(
+                                                    image: imageProvider,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            placeholder:
+                                                (context, url) => Center(
+                                                  child: Image.asset(
+                                                    'assets/Iphone_spinner.gif',
+                                                  ),
+                                                ),
+                                            errorWidget: (context, url, error) {
+                                              return Image.network(noimageurl);
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Divider(color: customColors().fontTertiary),
+                                // Thumbnails
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                  ),
+                                  child: SizedBox(
+                                    height: 60,
+                                    child: FutureBuilder<Map<String, dynamic>>(
+                                      future: getData(),
+                                      builder: (context, snapshot) {
+                                        final String base =
+                                            snapshot.data != null
+                                                ? (snapshot.data!['mediapath'] ??
+                                                        '')
+                                                    .toString()
+                                                : '';
+                                        final List<String> images =
+                                            (() {
+                                              final List<String> acc = [];
+                                              if ((item.imageUrl ?? '')
+                                                  .isNotEmpty) {
+                                                acc.add(item.imageUrl!);
+                                              }
+                                              if ((item.productImage ?? '')
+                                                  .isNotEmpty) {
+                                                acc.addAll(
+                                                  item.productImage!
+                                                      .split(',')
+                                                      .map((e) => e.trim())
+                                                      .where(
+                                                        (e) => e.isNotEmpty,
+                                                      ),
+                                                );
+                                              }
+                                              return acc.isEmpty
+                                                  ? [noimageurl]
+                                                  : acc;
+                                            })();
+                                        String resolve(String p) {
+                                          if (p.startsWith('http')) return p;
+                                          return '$base$p';
+                                        }
+
+                                        return ListView.builder(
+                                          shrinkWrap: true,
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: images.length + 1,
+                                          itemBuilder: (context, index) {
+                                            if (index == images.length) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8.0,
+                                                    ),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    context
+                                                        .read<
+                                                          OrderItemDetailsCubit
+                                                        >()
+                                                        .searchOnGoogle(
+                                                          "${item.name ?? item.sku ?? ''} images",
+                                                        );
+                                                  },
+                                                  child: Container(
+                                                    height: 60.0,
+                                                    width: 60.0,
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color:
+                                                            customColors()
+                                                                .backgroundTertiary,
+                                                      ),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        "More",
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .BodyL_Bold,
+                                                          color:
+                                                              FontColor
+                                                                  .FontPrimary,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                            final thumbUrl = resolve(
+                                              images[index],
+                                            );
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8.0,
+                                                  ),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    selectedindex = index;
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 60.0,
+                                                  width: 60.0,
+                                                  decoration: BoxDecoration(
+                                                    border: Border(
+                                                      bottom: BorderSide(
+                                                        width: 3.0,
+                                                        color:
+                                                            selectedindex ==
+                                                                    index
+                                                                ? customColors()
+                                                                    .backgroundTertiary
+                                                                : Colors
+                                                                    .transparent,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: thumbUrl,
+                                                      imageBuilder: (
+                                                        context,
+                                                        imageProvider,
+                                                      ) {
+                                                        return Container(
+                                                          decoration: BoxDecoration(
+                                                            image: DecorationImage(
+                                                              image:
+                                                                  imageProvider,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      placeholder:
+                                                          (
+                                                            context,
+                                                            url,
+                                                          ) => Center(
+                                                            child: Image.asset(
+                                                              'assets/Iphone_spinner.gif',
+                                                            ),
+                                                          ),
+                                                      errorWidget: (
+                                                        context,
+                                                        url,
+                                                        error,
+                                                      ) {
+                                                        return Image.network(
+                                                          noimageurl,
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                // Details card (title/SKU/price/qty)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 12.0,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Product name
+                                      Text(
+                                        item.name ?? '-',
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.HeaderS_Bold,
+                                          color: FontColor.FontPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      // SKU + delivery badge (NOL)
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'SKU: ${item.sku ?? '-'}',
+                                            style: customTextStyle(
+                                              fontStyle:
+                                                  FontStyle.BodyS_Regular,
+                                              color: FontColor.FontSecondary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          if ((item.deliveryType ?? '')
+                                                  .toUpperCase() ==
+                                              'NOL')
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 6,
+                                                    vertical: 2,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color:
+                                                      customColors().dodgerBlue,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                'NOL',
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyS_Bold,
+                                                  color: FontColor.Info,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      // Price and Quantity inline
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Price: ',
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                              ),
+                                              Text(
+                                                (() {
+                                                  final p = item.price;
+                                                  if (p == null || p.isEmpty)
+                                                    return 'QAR —';
+                                                  final n = num.tryParse(p);
+                                                  return 'QAR ${n != null ? n.toStringAsFixed(2) : p}';
+                                                })(),
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Quantity  ',
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                              ),
+                                              Text(
+                                                '${double.tryParse('${item.qtyOrdered ?? 0}')?.toInt() ?? 0}',
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Quantity stepper + Scan Barcode button
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      // Stepper (uses existing CounterButton styles)
+                                      SizedBox(
+                                        width: 64,
+                                        child: CounterDropdown(
+                                          initNumber: 0,
+                                          counterCallback: (v) {
+                                            setState(() {
+                                              editquantity = v;
+                                            });
+                                          },
+                                          minNumber: 0,
+                                          maxNumber: 100,
+                                          showLabel: false,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      // Scan barcode (green)
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () async {
+                                            if (editquantity == 0 &&
+                                                (item.isProduce != true)) {
+                                              showSnackBar(
+                                                context: context,
+                                                snackBar: showErrorDialogue(
+                                                  errorMessage:
+                                                      'Please Confirm How Many Qty Picking...!',
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            var status =
+                                                await Permission.camera.status;
+                                            if (!status.isGranted) {
+                                              await requestCameraPermission();
+                                            }
+                                            setState(() {
+                                              isScanner = true;
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  customColors().secretGarden,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Image.asset(
+                                                  'assets/barcode_scan.png',
+                                                  height: 18,
+                                                  color: Colors.white,
+                                                  errorBuilder:
+                                                      (_, __, ___) =>
+                                                          const SizedBox(),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  'Scan Barcode',
+                                                  style: customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle.BodyM_Bold,
+                                                    color: FontColor.White,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                // Actions row
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Actions',
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyM_Bold,
+                                          color: FontColor.FontPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Wrap(
+                                        spacing: 12,
+                                        runSpacing: 10,
+                                        children: [
+                                          // Replace
+                                          _ActionChip(
+                                            label: 'Replace Item',
+                                            color:
+                                                customColors()
+                                                    .backgroundSecondary,
+                                            textColor:
+                                                customColors().dodgerBlue,
+                                            borderColor:
+                                                customColors().dodgerBlue,
+                                            asset: 'assets/replace.png',
+                                            onTap: () {
+                                              // Navigate to replacement flow if available in existing app
+                                              // Keeping as no-op if not wired in this screen yet.
+                                            },
+                                          ),
+                                          // Hold
+                                          _ActionChip(
+                                            label: 'Hold Item',
+                                            color:
+                                                customColors()
+                                                    .backgroundSecondary,
+                                            textColor:
+                                                customColors().dodgerBlue,
+                                            borderColor:
+                                                customColors().dodgerBlue,
+                                            asset: 'assets/hold.png',
+                                            onTap: () {
+                                              // Placeholder for hold logic
+                                            },
+                                          ),
+                                          // Not Available
+                                          _ActionChip(
+                                            label: 'Not Available',
+                                            color: HexColor('#FFF1F1'),
+                                            textColor:
+                                                customColors().carnationRed,
+                                            borderColor: Colors.transparent,
+                                            asset: 'assets/not_available.png',
+                                            onTap: () {
+                                              context
+                                                  .read<OrderItemDetailsCubit>()
+                                                  .updateitemstatus(
+                                                    'item_not_available',
+                                                    '${item.qtyOrdered ?? 0}',
+                                                    '',
+                                                    item.price ?? '0',
+                                                  );
+                                            },
+                                          ),
+                                          // Cancel Item
+                                          _ActionChip(
+                                            label: 'Cancel Item',
+                                            color: Colors.white,
+                                            textColor:
+                                                customColors().carnationRed,
+                                            borderColor:
+                                                customColors().carnationRed,
+                                            asset: 'assets/cancel_item.png',
+                                            onTap: () {
+                                              context
+                                                  .read<OrderItemDetailsCubit>()
+                                                  .updateitemstatus(
+                                                    'canceled',
+                                                    '${item.qtyOrdered ?? 0}',
+                                                    'cancelled_by_picker',
+                                                    item.price ?? '0',
+                                                  );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
                         if (state is OrderItemDetailInitialState) {
                           // setState(() {
 
@@ -418,7 +973,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                       error,
                                                     ) {
                                                       return Image.network(
-                                                        '$noimageurl{}',
+                                                        '${noimageurl}',
                                                       );
                                                     },
                                                   ),
@@ -1027,6 +1582,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                     },
                                                     maxNumber: 100,
                                                     minNumber: 0,
+                                                    showLabel: false,
                                                   ),
                                                 )
                                             : SizedBox(),
@@ -1457,6 +2013,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                               },
                                               maxNumber: 100,
                                               minNumber: 0,
+                                              showLabel: false,
                                             ),
                                           ),
                                       Padding(
@@ -1557,232 +2114,65 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
             ),
         ],
       ),
+      bottomNavigationBar: null,
+    );
+  }
+}
 
-      bottomNavigationBar:
-          BlocProvider.of<OrderItemDetailsCubit>(
-                        context,
-                      ).orderItem!.itemStatus ==
-                      "item_not_available" ||
-                  BlocProvider.of<OrderItemDetailsCubit>(
-                        context,
-                      ).orderItem!.itemStatus ==
-                      "canceled" ||
-                  UserController.userController.itemnotavailablelist.contains(
-                    BlocProvider.of<OrderItemDetailsCubit>(context).orderItem!,
-                  )
-              ? SizedBox()
-              : SizedBox(
-                height: screenSize.height * 0.095,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Divider(
-                      thickness: 1.0,
-                      color: customColors().backgroundTertiary,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 10.0,
-                              right: 15.0,
-                            ),
-                            child: InkWell(
-                              onTap: () async {
-                                customShowModalBottomSheetEg(
-                                  context: context,
-                                  inputWidget: OutOfStockBottomSheet(
-                                    orderItemsResponse:
-                                        BlocProvider.of<OrderItemDetailsCubit>(
-                                          context,
-                                        ).orderResponseItem,
-                                    itemdata:
-                                        BlocProvider.of<OrderItemDetailsCubit>(
-                                          context,
-                                        ).orderItem,
-                                    onTapitemcancel: (String value) {
-                                      if (value.isNotEmpty) {
-                                        if (BlocProvider.of<
-                                                  PickerOrderDetailsCubit
-                                                >(
-                                                  context,
-                                                ).orderItem.itemCount ==
-                                                1 &&
-                                            BlocProvider.of<
-                                                  PickerOrderDetailsCubit
-                                                >(context).topickitems.length ==
-                                                1) {
-                                          log("only one item");
+class _ActionChip extends StatelessWidget {
+  final String label;
+  final Color color;
+  final Color? textColor;
+  final Color? borderColor;
+  final String asset;
+  final VoidCallback? onTap;
 
-                                          toastification.show(
-                                            autoCloseDuration: Duration(
-                                              seconds: 5,
-                                            ),
-                                            title: TranslatedText(
-                                              text: "Alert..!",
-                                            ),
-                                            backgroundColor:
-                                                customColors().carnationRed,
-                                            description: TranslatedText(
-                                              text:
-                                                  "Only One Item You Can Cancel this order !",
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyM_Bold,
-                                                color: FontColor.White,
-                                              ),
-                                            ),
-                                          );
-                                        } else {
-                                          BlocProvider.of<
-                                            OrderItemDetailsCubit
-                                          >(context).updateitemstatus(
-                                            "canceled",
-                                            BlocProvider.of<
-                                              OrderItemDetailsCubit
-                                            >(context).orderItem!.qtyOrdered,
-                                            value,
-                                            BlocProvider.of<
-                                              OrderItemDetailsCubit
-                                            >(context).orderItem!.price,
-                                          );
-                                        }
-                                      }
+  const _ActionChip({
+    super.key,
+    required this.label,
+    required this.color,
+    this.textColor,
+    this.borderColor,
+    required this.asset,
+    this.onTap,
+  });
 
-                                      //
-                                      // item cancel option
-                                    },
-                                    onTapoutofstock: () async {
-                                      if (BlocProvider.of<
-                                                PickerOrderDetailsCubit
-                                              >(context).orderItem.itemCount ==
-                                              1 &&
-                                          BlocProvider.of<
-                                                PickerOrderDetailsCubit
-                                              >(context).topickitems.length ==
-                                              1) {
-                                        log("only one item");
-
-                                        toastification.show(
-                                          autoCloseDuration: Duration(
-                                            seconds: 5,
-                                          ),
-                                          backgroundColor:
-                                              customColors().carnationRed,
-                                          title: TranslatedText(
-                                            text: "Alert..!",
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyM_Bold,
-                                              color: FontColor.White,
-                                            ),
-                                          ),
-                                          description: Text(
-                                            "Only One Item You Can Cancel this order !",
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyM_Bold,
-                                              color: FontColor.White,
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        BlocProvider.of<OrderItemDetailsCubit>(
-                                          context,
-                                        ).updateitemstatus(
-                                          "item_not_available",
-                                          BlocProvider.of<
-                                            OrderItemDetailsCubit
-                                          >(context).orderItem!.qtyOrdered,
-                                          "",
-                                          BlocProvider.of<
-                                            OrderItemDetailsCubit
-                                          >(context).orderItem!.price,
-                                        );
-                                      }
-                                    },
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: customColors().fontTertiary,
-                                  ),
-                                  borderRadius: BorderRadius.circular(5.0),
-                                ),
-                                child: BasketButton(
-                                  text: "OUT OF STOCK",
-                                  textStyle: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                    color: FontColor.FontPrimary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 15.0,
-                              right: 10.0,
-                            ),
-                            child: InkWell(
-                              onTap: () async {
-                                final cubit =
-                                    BlocProvider.of<OrderItemDetailsCubit>(
-                                      context,
-                                    );
-
-                                // Access the orderItem and its price
-                                final isProduce = cubit.orderItem!.isproduce;
-
-                                if (editquantity != 0 || isProduce == "1") {
-                                  if (ismanual) {
-                                    updateManualScan(
-                                      barcodeController.text.toString(),
-                                    );
-                                  } else {
-                                    var status = await Permission.camera.status;
-                                    if (!status.isGranted) {
-                                      await requestCameraPermission();
-                                    }
-
-                                    // scanBarcodeNormal();
-                                    setState(() {
-                                      isScanner = !isScanner;
-                                    });
-                                  }
-                                } else {
-                                  showSnackBar(
-                                    context: context,
-                                    snackBar: showErrorDialogue(
-                                      errorMessage:
-                                          "Please Confirm How Many Qty Picking...!",
-                                    ),
-                                  );
-                                }
-                              },
-                              child: BasketButtonwithIcon(
-                                loading: loading,
-                                bgcolor: customColors().dodgerBlue,
-                                text: "PICK UP",
-                                image: "assets/pickup.png",
-                                textStyle: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
-                                  color: FontColor.White,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(6.0),
+          border: Border.all(color: borderColor ?? customColors().fontTertiary),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              asset,
+              width: 18,
+              height: 18,
+              errorBuilder:
+                  (_, __, ___) => const SizedBox(width: 18, height: 18),
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: textColor ?? Colors.black,
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
