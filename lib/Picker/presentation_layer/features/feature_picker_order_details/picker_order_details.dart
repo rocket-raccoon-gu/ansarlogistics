@@ -261,7 +261,8 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
             crossAxisCount: 2,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
-            childAspectRatio: 1.0,
+            // Give tiles a bit more vertical room to avoid Column overflow
+            childAspectRatio: 0.85,
           ),
           itemCount: summaries.length,
           itemBuilder: (context, index) => _typeCard(summaries[index]),

@@ -141,6 +141,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
   bool isTranslate = false;
 
+  bool isKeyboard = false;
+
   String calculateTotalWeight(
     String qtyOrdered,
     String itemWeight,
@@ -224,7 +226,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                 ),
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0),
@@ -236,36 +238,19 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                           ),
                         ),
                       ),
-                      TranslateWidget(
-                        onTaptranslate: () {
-                          setState(() {
-                            isTranslate = !isTranslate;
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10.0),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              ismanual = !ismanual;
-                            });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 5.0,
-                              vertical: 5.0,
-                            ),
-                            // decoration: BoxDecoration(
-                            //   color: customColors().accent,
-                            // ),
-                            child: Center(
-                              child: Icon(Icons.barcode_reader, size: 30),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isKeyboard = !isKeyboard;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.keyboard,
+                    size: 30,
+                    color: HexColor("#A3A3A3"),
                   ),
                 ),
               ],
@@ -692,63 +677,95 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                       ),
                                       const SizedBox(width: 12),
                                       // Scan barcode (green)
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () async {
-                                            if (editquantity == 0 &&
-                                                (item.isProduce != true)) {
-                                              showSnackBar(
-                                                context: context,
-                                                snackBar: showErrorDialogue(
-                                                  errorMessage:
-                                                      'Please Confirm How Many Qty Picking...!',
+                                      !isKeyboard
+                                          ? Expanded(
+                                            child: InkWell(
+                                              onTap: () async {
+                                                if (editquantity == 0 &&
+                                                    (item.isProduce != true)) {
+                                                  showSnackBar(
+                                                    context: context,
+                                                    snackBar: showErrorDialogue(
+                                                      errorMessage:
+                                                          'Please Confirm How Many Qty Picking...!',
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
+                                                var status =
+                                                    await Permission
+                                                        .camera
+                                                        .status;
+                                                if (!status.isGranted) {
+                                                  await requestCameraPermission();
+                                                }
+                                                setState(() {
+                                                  isScanner = true;
+                                                });
+                                              },
+                                              child: Container(
+                                                height: 44,
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      customColors()
+                                                          .secretGarden,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
                                                 ),
-                                              );
-                                              return;
-                                            }
-                                            var status =
-                                                await Permission.camera.status;
-                                            if (!status.isGranted) {
-                                              await requestCameraPermission();
-                                            }
-                                            setState(() {
-                                              isScanner = true;
-                                            });
-                                          },
-                                          child: Container(
-                                            height: 44,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  customColors().secretGarden,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                      'assets/barcode_scan.png',
+                                                      height: 18,
+                                                      color: Colors.white,
+                                                      errorBuilder:
+                                                          (_, __, ___) =>
+                                                              const SizedBox(),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Text(
+                                                      'Scan Barcode',
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .BodyM_Bold,
+                                                        color: FontColor.White,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Image.asset(
-                                                  'assets/barcode_scan.png',
-                                                  height: 18,
-                                                  color: Colors.white,
-                                                  errorBuilder:
-                                                      (_, __, ___) =>
-                                                          const SizedBox(),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  'Scan Barcode',
-                                                  style: customTextStyle(
-                                                    fontStyle:
-                                                        FontStyle.BodyM_Bold,
-                                                    color: FontColor.White,
+                                          )
+                                          : Expanded(
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 5.0,
                                                   ),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Colors.grey,
                                                 ),
-                                              ],
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: TextFormField(
+                                                autofocus: true,
+                                                onFieldSubmitted: (v) {
+                                                  setState(() {
+                                                    isKeyboard = false;
+                                                  });
+                                                },
+                                                decoration: InputDecoration(
+                                                  border: InputBorder.none,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
@@ -757,6 +774,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0,
+                                    vertical: 10.0,
                                   ),
                                   child: Column(
                                     crossAxisAlignment:
@@ -770,85 +788,115 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         ),
                                       ),
                                       const SizedBox(height: 10),
-                                      Wrap(
-                                        spacing: 12,
-                                        runSpacing: 10,
+                                      Row(
                                         children: [
                                           // Replace
-                                          _ActionChip(
-                                            label: 'Replace Item',
-                                            color:
-                                                customColors()
-                                                    .backgroundSecondary,
-                                            textColor:
-                                                customColors().dodgerBlue,
-                                            borderColor:
-                                                customColors().dodgerBlue,
-                                            asset: 'assets/replace.png',
-                                            onTap: () {
-                                              // Navigate to replacement flow if available in existing app
-                                              // Keeping as no-op if not wired in this screen yet.
-                                            },
+                                          Expanded(
+                                            child: SizedBox(
+                                              height: 88,
+                                              child: _ActionChip(
+                                                label1: 'Replace',
+                                                label2: 'Item',
+                                                color:
+                                                    customColors()
+                                                        .backgroundSecondary,
+                                                textColor:
+                                                    customColors().dodgerBlue,
+                                                borderColor:
+                                                    customColors().dodgerBlue,
+                                                asset: Icons.swap_horiz,
+                                                onTap: () {
+                                                  // Navigate to replacement flow if available in existing app
+                                                  // Keeping as no-op if not wired in this screen yet.
+                                                },
+                                              ),
+                                            ),
                                           ),
+                                          const SizedBox(width: 12),
                                           // Hold
-                                          _ActionChip(
-                                            label: 'Hold Item',
-                                            color:
-                                                customColors()
-                                                    .backgroundSecondary,
-                                            textColor:
-                                                customColors().dodgerBlue,
-                                            borderColor:
-                                                customColors().dodgerBlue,
-                                            asset: 'assets/hold.png',
-                                            onTap: () {
-                                              // Placeholder for hold logic
-                                            },
+                                          Expanded(
+                                            child: SizedBox(
+                                              height: 88,
+                                              child: _ActionChip(
+                                                label1: 'Hold',
+                                                label2: 'Item',
+                                                color:
+                                                    customColors()
+                                                        .backgroundSecondary,
+                                                textColor:
+                                                    customColors().dodgerBlue,
+                                                borderColor:
+                                                    customColors().dodgerBlue,
+                                                asset: Icons.pause,
+                                                onTap: () {
+                                                  // Placeholder for hold logic
+                                                },
+                                              ),
+                                            ),
                                           ),
+                                          const SizedBox(width: 12),
                                           // Not Available
-                                          _ActionChip(
-                                            label: 'Not Available',
-                                            color: HexColor('#FFF1F1'),
-                                            textColor:
-                                                customColors().carnationRed,
-                                            borderColor: Colors.transparent,
-                                            asset: 'assets/not_available.png',
-                                            onTap: () {
-                                              context
-                                                  .read<OrderItemDetailsCubit>()
-                                                  .updateitemstatus(
-                                                    'item_not_available',
-                                                    '${item.qtyOrdered ?? 0}',
-                                                    '',
-                                                    item.price ?? '0',
-                                                  );
-                                            },
+                                          Expanded(
+                                            child: SizedBox(
+                                              height: 88,
+                                              child: _ActionChip(
+                                                label1: 'Not',
+                                                label2: 'Available',
+                                                color: HexColor('#FFF1F1'),
+                                                textColor:
+                                                    customColors().carnationRed,
+                                                borderColor: Colors.transparent,
+                                                asset: Icons.close,
+                                                onTap: () {
+                                                  context
+                                                      .read<
+                                                        OrderItemDetailsCubit
+                                                      >()
+                                                      .updateitemstatus(
+                                                        'item_not_available',
+                                                        '${item.qtyOrdered ?? 0}',
+                                                        '',
+                                                        item.price ?? '0',
+                                                      );
+                                                },
+                                              ),
+                                            ),
                                           ),
+                                          const SizedBox(width: 12),
                                           // Cancel Item
-                                          _ActionChip(
-                                            label: 'Cancel Item',
-                                            color: Colors.white,
-                                            textColor:
-                                                customColors().carnationRed,
-                                            borderColor:
-                                                customColors().carnationRed,
-                                            asset: 'assets/cancel_item.png',
-                                            onTap: () {
-                                              context
-                                                  .read<OrderItemDetailsCubit>()
-                                                  .updateitemstatus(
-                                                    'canceled',
-                                                    '${item.qtyOrdered ?? 0}',
-                                                    'cancelled_by_picker',
-                                                    item.price ?? '0',
-                                                  );
-                                            },
+                                          Expanded(
+                                            child: SizedBox(
+                                              height: 88,
+                                              child: _ActionChip(
+                                                label1: 'Cancel',
+                                                label2: 'Item',
+                                                color: Colors.white,
+                                                textColor:
+                                                    customColors().carnationRed,
+                                                borderColor:
+                                                    customColors().carnationRed,
+                                                asset: Icons.cancel,
+                                                onTap: () {
+                                                  context
+                                                      .read<
+                                                        OrderItemDetailsCubit
+                                                      >()
+                                                      .updateitemstatus(
+                                                        'canceled',
+                                                        '${item.qtyOrdered ?? 0}',
+                                                        'cancelled_by_picker',
+                                                        item.price ?? '0',
+                                                      );
+                                                },
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ],
                                   ),
                                 ),
+                                const SizedBox(height: 16),
                               ],
                             ),
                           );
@@ -2120,16 +2168,18 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 }
 
 class _ActionChip extends StatelessWidget {
-  final String label;
+  final String label1;
+  final String label2;
   final Color color;
   final Color? textColor;
   final Color? borderColor;
-  final String asset;
+  final IconData asset;
   final VoidCallback? onTap;
 
   const _ActionChip({
     super.key,
-    required this.label,
+    required this.label1,
+    required this.label2,
     required this.color,
     this.textColor,
     this.borderColor,
@@ -2142,32 +2192,33 @@ class _ActionChip extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
+        height: 85,
+        width: 87,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(6.0),
           border: Border.all(color: borderColor ?? customColors().fontTertiary),
         ),
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              asset,
-              width: 18,
-              height: 18,
-              errorBuilder:
-                  (_, __, ___) => const SizedBox(width: 18, height: 18),
+            Icon(asset, size: 18, color: textColor ?? Colors.black),
+            const SizedBox(height: 6),
+            Text(
+              label1,
+              overflow: TextOverflow.ellipsis,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyM_Bold,
+                color: FontColor.FontPrimary,
+              ),
             ),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                label,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: textColor ?? Colors.black,
-                ),
+            Text(
+              label2,
+              overflow: TextOverflow.ellipsis,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyM_Bold,
+                color: FontColor.FontPrimary,
               ),
             ),
           ],

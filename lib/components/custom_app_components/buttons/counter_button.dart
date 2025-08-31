@@ -37,15 +37,16 @@ class _CounterDropdownState extends State<CounterDropdown> {
         borderRadius: BorderRadius.circular(widget.showLabel ? 5.0 : 8.0),
         color: Colors.white,
       ),
-      height: widget.showLabel ? null : 44,
+      height: widget.showLabel ? null : 45,
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: widget.showLabel ? 14.0 : 12.0,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: DropdownButton<int>(
           value: _currentCount,
           underline: widget.showLabel ? null : SizedBox.shrink(),
           isDense: !widget.showLabel,
+          alignment: Alignment.center,
+          iconSize: 18.0,
+          isExpanded: true,
           items:
               List.generate(
                 widget.maxNumber - widget.minNumber + 1,
@@ -53,9 +54,17 @@ class _CounterDropdownState extends State<CounterDropdown> {
               ).map((number) {
                 return DropdownMenuItem<int>(
                   value: number,
-                  child: Text(number.toString()),
+                  child: Text(number.toString(), textAlign: TextAlign.center),
                 );
               }).toList(),
+          selectedItemBuilder: (BuildContext context) {
+            return List.generate(
+              widget.maxNumber - widget.minNumber + 1,
+              (index) => widget.minNumber + index,
+            ).map((number) {
+              return Text(number.toString(), textAlign: TextAlign.center);
+            }).toList();
+          },
           onChanged: (int? newValue) {
             if (newValue != null) {
               setState(() {
@@ -72,18 +81,6 @@ class _CounterDropdownState extends State<CounterDropdown> {
       return dropdownBox;
     }
 
-    return Container(
-      padding: EdgeInsets.zero,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Confirm Qty",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          dropdownBox,
-        ],
-      ),
-    );
+    return dropdownBox;
   }
 }
