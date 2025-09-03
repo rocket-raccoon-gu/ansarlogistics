@@ -37,7 +37,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   EndPicking? orderItem;
   OrderItemNew? orderItemNew;
 
-  Order? orderResponseItem;
+  OrderNew? orderResponseItem;
 
   bool loading = false;
 
@@ -55,20 +55,27 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
   CarpetSizeInfo? carpetSizeInfo;
 
+  String preparationLabel = "";
+
   bool povisvible = false;
 
   updatedata() {
     if (data.containsKey('itemNew')) {
       orderItemNew = data['itemNew'] as OrderItemNew?;
       // For new flow, emit dedicated state and return
+
       if (!isClosed && orderItemNew != null) {
         emit(OrderItemDetailInitialNewState(orderItem: orderItemNew!));
         return;
       }
     }
 
-    orderItem = data['item'];
-    orderResponseItem = data['order'];
+    // orderItem = data['item'];
+    // orderResponseItem = data['order'];
+
+    if (data.containsKey('preparationLabel')) {
+      preparationLabel = data['preparationLabel'];
+    }
 
     if (orderItem!.productOptions.isNotEmpty) {
       productoptions = orderItem!.productOptions;
@@ -120,7 +127,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     }
 
     if (!isClosed) {
-      emit(OrderItemDetailInitialState(orderItem: orderItem!));
+      emit(OrderItemDetailInitialState(orderItem: orderItemNew!));
     }
   }
 
@@ -162,16 +169,18 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       // print("🔐 Retrieved Token: ${token != null ? 'Exists' : 'Null'}");
 
       Map<String, dynamic> body = {
-        "item_id": int.parse(orderItem!.itemId),
+        "item_id": orderItemNew!.id,
+        "order_number": orderItemNew!.subgroupIdentifier,
         "scanned_sku": scannedSku,
-        "item_status": "end_picking",
+        "status": "end_picking",
         "shipping": "",
         "price": double.parse(price),
         "qty": double.parse(qty).toInt(),
+        "preparation_id": preparationLabel,
         "reason": "",
         "picker_id": UserController().profile.id.toString(),
-        "is_produce": int.parse(orderItem!.isproduce),
-        "qty_orderd": double.parse(orderItem!.qtyOrdered).toInt(),
+        "is_produce": orderItemNew!.isProduce,
+        "qty_orderd": orderItemNew!.qtyOrdered,
       };
 
       // print("📦 Request Body: $body");
@@ -180,7 +189,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
       final response = await serviceLocator.tradingApi.updateItemStatusService(
         body: body,
-        token: token,
+        token: UserController().app_token,
       );
 
       // print("📡 API Response Status Code: ${response.statusCode}");
@@ -188,56 +197,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       if (response.statusCode == 200) {
         loading = false;
 
-        // print("✅ Item status updated successfully");
-
-        UserController.userController.indexlist.add(orderItem!);
-        UserController.userController.pickerindexlist.add(orderItem!.itemId);
-
-        // print("📦 Item added to UserController lists");
-        // print("💵 Price logged: $price");
-
-        // eventBus.fire(
-        //   DataChangedEvent(
-        //     "New Data from Screen B",
-        //   ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
-        // );
-        // print("📨 EventBus fired with updated price");
-
         showSnackBar(
           context: context,
           snackBar: showSuccessDialogue(message: "Status Updated"),
         );
-
-        // print("🎉 Showing success dialog and navigating back");
-
-        Navigator.of(context).popUntil((route) => route.isFirst);
-        // Navigator.pop(context, orderResponseItem!.subgroupIdentifier);
-
-        final result = context.gNavigationService.openPickerOrderInnerPage(
-          context,
-          arg: {'orderitem': orderResponseItem},
-        );
-        if (!context.mounted) return;
-        if (result != null) {
-          UserController.userController.alloworderupdated = true;
-
-          eventBus.fire(
-            DataChangedEvent(
-              "New Data from Screen B",
-            ).updatePriceData(orderResponseItem!.subgroupIdentifier, price),
-          );
-
-          if (pickerOrderDetailsCubit != null) {
-            pickerOrderDetailsCubit!.tabindex = 1;
-            pickerOrderDetailsCubit!.updateSelectedItem(1);
-          }
-
-          pickerOrderDetailsCubit?.getrefreshedData(
-            orderResponseItem!.subgroupIdentifier,
-          );
-          // pickerOrderDetailsCubit.updateSelectedItem(1);
-          // Handle the result if needed
-        }
       } else {
         loading = false;
         // print("❌ API status update failed: ${response.statusCode}");
@@ -251,7 +214,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
         if (!isClosed) {
           emit(
-            OrderItemDetailErrorState(loading: loading, orderItem: orderItem!),
+            OrderItemDetailErrorState(
+              loading: loading,
+              orderItem: orderItemNew!,
+            ),
           );
           // print("⚠️ Error state emitted");
         }
@@ -270,7 +236,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
       if (!isClosed) {
         emit(
-          OrderItemDetailErrorState(loading: loading, orderItem: orderItem!),
+          OrderItemDetailErrorState(loading: loading, orderItem: orderItemNew!),
         );
         // print("⚠️ Error state emitted after exception");
       }
@@ -315,10 +281,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         //   UserController.userController.pickerindexlist.add(orderItem!.itemId);
         // } else
         if (item_status == "item_not_available") {
-          UserController.userController.itemnotavailablelist.add(orderItem!);
-          UserController.userController.notavailableindexlist.add(
-            orderItem!.itemId,
-          );
+          // UserController.userController.itemnotavailablelist.add(orderItemNew!);
+          // UserController.userController.notavailableindexlist.add(
+          //   orderItemNew!.itemId,
+          // );
         }
 
         // // UserController.userController.alloworderupdated = true;
@@ -349,7 +315,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
         if (!isClosed) {
           emit(
-            OrderItemDetailErrorState(loading: loading, orderItem: orderItem!),
+            OrderItemDetailErrorState(
+              loading: loading,
+              orderItem: orderItemNew!,
+            ),
           );
         }
       }
@@ -365,7 +334,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
       if (!isClosed) {
         emit(
-          OrderItemDetailErrorState(loading: loading, orderItem: orderItem!),
+          OrderItemDetailErrorState(loading: loading, orderItem: orderItemNew!),
         );
       }
     }
@@ -391,7 +360,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   checkitemdb(
     String qty,
     String scannedSku,
-    EndPicking? orderItem,
+    OrderItemNew? orderItem,
     String productSku,
     String action,
   ) async {
@@ -403,9 +372,9 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
     try {
       String convertbarcode = '';
-      // print("🔧 Checking if item is produce: ${orderItem?.isproduce}");
+      // print("🔧 Checking if item is produce: ${orderItem?.isProduce}");
 
-      if (orderItem!.isproduce == "1") {
+      if (orderItem!.isProduce == true) {
         convertbarcode = replaceAfterFirstSixWithZero(scannedSku);
         // print("🛠️ Produce item detected. Converted barcode: $convertbarcode");
       } else {
@@ -415,11 +384,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       final usedBarcode =
           convertbarcode != '' ? convertbarcode : scannedSku.trim();
       // print("➡️ Using barcode for API call: [$usedBarcode]");
+      String? token = UserController.userController.app_token;
 
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
         endpoint: usedBarcode,
         productSku: productSku,
         action: action,
+        token1: token,
       );
 
       // print("📡 API Response Status: ${response.statusCode}");
@@ -443,26 +414,24 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 povisvible = true;
                 // print("🧾 Showing confirmation dialog for ERP item");
 
-                showPickConfirmDialogue(
-                  context,
-                  '${erPdata.message} $scannedSku',
-                  () {
-                    // print("🟢 Confirm clicked for ERP item");
-
+                _showPickConfirmBottomSheet(
+                  name: erPdata.erpProductName ?? '-',
+                  sku: erPdata.erpSku ?? '-',
+                  oldPrice: orderItem.price?.toString(),
+                  newPrice:
+                      orderItem.isProduce == true
+                          ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                          : (erPdata.erpPrice ?? ''),
+                  barcodeType: 'EAN-13',
+                  onConfirm: () {
                     final calculatedPrice =
-                        orderItem.isproduce == "1"
+                        orderItem.isProduce == true
                             ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : erPdata.erpPrice;
 
-                    // print(
-                    //   "💰 Order price: ${orderItem.price}, ERP Price: ${erPdata.erpPrice}",
-                    // );
-
                     if (orderItem.price == erPdata.erpPrice) {
-                      // print("✅ Prices match. Updating item status...");
                       updateitemstatuspick(qty, scannedSku, calculatedPrice);
                     } else {
-                      // print("⚠️ Price mismatch detected. Showing error.");
                       showSnackBar(
                         context: context,
                         snackBar: showErrorDialogue(
@@ -472,15 +441,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       );
                     }
                   },
-                  erPdata.erpSku,
-                  orderItem.isproduce == "1"
-                      ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                      : erPdata.erpPrice,
-                  qty,
-                  erPdata.erpProductName,
-                  () {
-                    // print("🔙 Closing ERP dialog");
-                    context.gNavigationService.back(context);
+                  onClose: () {
+                    // context.gNavigationService.back(context);
                     povisvible = false;
                   },
                 );
@@ -493,30 +455,26 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 povisvible = true;
                 // print("🧾 Showing confirmation dialog for ProductDB item");
 
-                showPickConfirmDialogue(
-                  context,
-                  'Barcode Found in System',
-                  () {
-                    // print("🟢 Confirm clicked for ProductDB item");
+                _showPickConfirmBottomSheet(
+                  name: productDBdata.skuName ?? '-',
+                  sku: productDBdata.sku ?? '-',
+                  oldPrice: orderItem.price?.toString(),
+                  newPrice:
+                      orderItem.isProduce == true
+                          ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                          : double.parse(
+                            productDBdata.currentPromotionPrice,
+                          ).toStringAsFixed(2),
+                  barcodeType: 'EAN-13',
+                  onConfirm: () {
                     final calculatedPrice =
-                        orderItem.isproduce == "1"
+                        orderItem.isProduce == true
                             ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : productDBdata.currentPromotionPrice;
-                    // print("💰 Calculated Price: $calculatedPrice");
-
                     updateitemstatuspick(qty, scannedSku, calculatedPrice);
                   },
-                  productDBdata.sku,
-                  orderItem.isproduce == "1"
-                      ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                      : double.parse(
-                        productDBdata.currentPromotionPrice,
-                      ).toStringAsFixed(2),
-                  qty,
-                  productDBdata.skuName,
-                  () {
-                    // print("🔙 Closing ProductDB dialog");
-                    context.gNavigationService.back(context);
+                  onClose: () {
+                    // context.gNavigationService.back(context);
                     povisvible = false;
                   },
                 );
@@ -572,5 +530,245 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         ),
       );
     }
+  }
+
+  void _showPickConfirmBottomSheet({
+    required String name,
+    required String sku,
+    String? oldPrice,
+    required String newPrice,
+    String? imageUrl,
+    String? barcodeType,
+    required VoidCallback onConfirm,
+    VoidCallback? onClose,
+  }) {
+    if (_isDialogShowing) return;
+    _isDialogShowing = true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: false,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              Container(
+                width: 48,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product image
+                  Container(
+                    width: 96,
+                    height: 96,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child:
+                        imageUrl == null || imageUrl.isEmpty
+                            ? const Icon(Icons.image, color: Colors.grey)
+                            : Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (_, __, ___) => const Icon(
+                                    Icons.image,
+                                    color: Colors.grey,
+                                  ),
+                            ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'SKU: $sku',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Price line
+                        Row(
+                          children: [
+                            const Text(
+                              'Price: QAR ',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                            if (oldPrice != null && oldPrice.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: Text(
+                                  _formatPrice(oldPrice),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                    decoration: TextDecoration.lineThrough,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            Text(
+                              _formatPrice(newPrice),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFFD32F2F),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Type and EXP badge
+                        Row(
+                          children: [
+                            Text(
+                              'Type: ${barcodeType ?? '-'}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.blue.shade600,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(
+                                    Icons.circle,
+                                    color: Color(0xFF2E7D32),
+                                    size: 10,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'EXP',
+                                    style: TextStyle(
+                                      color: Color(0xFF2E7D32),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        _isDialogShowing = false;
+                        if (onClose != null) onClose();
+                        Navigator.of(context).maybePop();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: Colors.grey.shade400,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        'Close',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _isDialogShowing = false;
+                        Navigator.of(context).maybePop();
+                        onConfirm();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black87,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        'Pickup Item',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    ).whenComplete(() {
+      _isDialogShowing = false;
+    });
+  }
+
+  String _formatPrice(String value) {
+    final n = num.tryParse(value);
+    if (n != null) {
+      return n.toStringAsFixed(2);
+    }
+    return value;
   }
 }

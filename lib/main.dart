@@ -16,7 +16,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
-import 'package:clarity_flutter/clarity_flutter.dart';
 
 //################## DEVELOPMENT ###########################
 // const baseUrl = String.fromEnvironment(
@@ -53,13 +52,6 @@ const loggable = bool.fromEnvironment('LOGGABLE', defaultValue: true);
 bool unsolicitedResponse = false;
 
 Future<void> main() async {
-  final config = ClarityConfig(
-    projectId: "sb3i0k284u",
-    logLevel:
-        LogLevel
-            .None, // Note: Use "LogLevel.Verbose" value while testing to debug initialization issues.
-  );
-
   runZonedGuarded<void>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
@@ -91,9 +83,16 @@ Future<void> main() async {
         return; // Exit early if update is needed
       }
 
+      // await SystemChrome.setPreferredOrientations([
+      //   DeviceOrientation.portraitUp,
+      //   DeviceOrientation.portraitDown,
+      // ]);
+
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
       ]);
 
       const initialRoute = String.fromEnvironment(
@@ -114,21 +113,15 @@ Future<void> main() async {
 
       // Run the app
       runApp(
-        ClarityWidget(
-          app: OverlaySupport.global(
-            child: RestartWidget(
-              child: ChangeNotifierProvider<CustomTheme>(
-                create:
-                    (BuildContext context) =>
-                        CustomTheme(themeMode: CustomMode.Light),
-                child: PDApp(
-                  serviceLocator: locator,
-                  initialRoute: initialRoute,
-                ),
-              ),
+        OverlaySupport.global(
+          child: RestartWidget(
+            child: ChangeNotifierProvider<CustomTheme>(
+              create:
+                  (BuildContext context) =>
+                      CustomTheme(themeMode: CustomMode.Light),
+              child: PDApp(serviceLocator: locator, initialRoute: initialRoute),
             ),
           ),
-          clarityConfig: config,
         ),
       );
     },

@@ -8,7 +8,12 @@ import 'package:ansarlogistics/themes/style.dart';
 
 class ItemTile extends StatelessWidget {
   final OrderItemNew item;
-  const ItemTile({required this.item});
+  final String preparationLabel;
+  const ItemTile({
+    super.key,
+    required this.item,
+    required this.preparationLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +25,7 @@ class ItemTile extends StatelessWidget {
       onTap: () {
         context.gNavigationService.openOrderItemDetailsPage(
           context,
-          arg: {'itemNew': item},
+          arg: {'itemNew': item, 'preparationLabel': preparationLabel},
         );
       },
       child: Container(

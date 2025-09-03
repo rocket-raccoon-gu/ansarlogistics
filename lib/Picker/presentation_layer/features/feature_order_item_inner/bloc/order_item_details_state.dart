@@ -1,10 +1,9 @@
-import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 abstract class OrderItemDetailsState {}
 
 class OrderItemDetailInitialState extends OrderItemDetailsState {
-  EndPicking orderItem;
+  OrderItemNew orderItem;
   OrderItemDetailInitialState({required this.orderItem});
 }
 
@@ -15,7 +14,7 @@ class OrderItemDetailInitialNewState extends OrderItemDetailsState {
 
 class OrderItemDetailErrorState extends OrderItemDetailsState {
   bool loading;
-  EndPicking orderItem;
+  OrderItemNew orderItem;
   OrderItemDetailErrorState({required this.loading, required this.orderItem});
 }
 

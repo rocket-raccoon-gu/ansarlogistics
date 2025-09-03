@@ -4,10 +4,10 @@ import 'package:ansarlogistics/components/custom_app_components/buttons/counter_
 import 'package:ansarlogistics/components/custom_app_components/textfields/custom_text_form_field.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class ManualPick extends StatefulWidget {
-  EndPicking? orderItem;
+  OrderItemNew? orderItem;
   Function(int) counterCallback;
   TextEditingController barcodeController;
 
@@ -50,7 +50,7 @@ class _ManualPickState extends State<ManualPick> {
             ],
           ),
 
-          if (widget.orderItem?.isproduce != "1")
+          if (widget.orderItem?.isProduce != true)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: CounterDropdown(

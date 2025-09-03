@@ -269,11 +269,13 @@ extension PDGeneralApi on PickerDriverApi {
     required token,
   }) {
     //
-    Uri url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/updateOrderItemV1.php',
-    );
+    // Uri url = Uri.parse(
+    //   'https://pickerdriver.testuatah.com/v1/api/qatar/updateOrderItemV1.php',
+    // );
     //
     //
+
+    final url = _endpointWithApplicationPath('picker/orders/item/status');
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationJson,
@@ -284,7 +286,7 @@ extension PDGeneralApi on PickerDriverApi {
       serviceSend("update item status service send");
       return _handleRequest(
         onRequest:
-            () => _client.put(url, body: jsonEncode(body), headers: headers),
+            () => _client.patch(url, body: jsonEncode(body), headers: headers),
         onResponse: (response) {
           log('order items status ${DateTime.now().toString()}');
 
@@ -1011,27 +1013,65 @@ extension PDGeneralApi on PickerDriverApi {
     required String endpoint,
     required String productSku,
     required String action,
+    required String token1,
   }) async {
     // print("${endpoint} endpoint");
     // print("${productSku} productSku");
     // print("${action} action");
 
-    final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
-    );
+    final Map<String, String> body = {
+      "sku": endpoint,
+      "ordersku": productSku,
+      "action": action,
+    };
+
+    // final url = Uri.parse(
+    //   'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
+    // );
 
     // print(
     //   'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
     // );
 
-    log(url.toString());
+    log(body.toString());
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token1',
     };
 
+    final url = _endpointWithApplicationPath('picker/orders/check-sku');
+
+    log(url.toString());
+
     return _handleRequest(
-      onRequest: () => _client.get(url, headers: headers),
+      onRequest:
+          () => _client.post(url, headers: headers, body: jsonEncode(body)),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
+  Future<http.Response> getCashierOrdersSearch({
+    required String key,
+    required String token,
+  }) async {
+    final url = _endpointWithApplicationPathString(
+      'cashier/orders/search?key=$key',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    log(url.toString());
+
+    serviceSend("search Cashier Orders...!");
+
+    return _handleRequest(
+      onRequest: () => _client.get(Uri.parse(url), headers: headers),
       onResponse: (response) {
         return response;
       },

@@ -169,6 +169,7 @@ class OrderItemNew {
   final num? rowTotalInclTax;
   final String? productImage;
   final bool? isProduce;
+  final String? subgroupIdentifier;
 
   OrderItemNew({
     this.id,
@@ -186,10 +187,11 @@ class OrderItemNew {
     this.rowTotalInclTax,
     this.productImage,
     this.isProduce,
+    this.subgroupIdentifier,
   });
 
   factory OrderItemNew.fromJson(Map<String, dynamic> json) => OrderItemNew(
-    id: json['id']?.toString(),
+    id: json['item_id']?.toString(),
     name: json['name']?.toString(),
     sku: json['sku']?.toString(),
     price: json['price']?.toString(),
@@ -222,6 +224,7 @@ class OrderItemNew {
         })(),
     productImage: json['product_images']?.toString(),
     isProduce: json['is_produce']?.toString() == '1',
+    subgroupIdentifier: json['subgroup_identifier']?.toString(),
   );
 }
 

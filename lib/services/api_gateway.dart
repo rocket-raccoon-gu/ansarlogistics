@@ -673,6 +673,7 @@ class PDApiGateway implements AuthenticationService {
     required String endpoint,
     required String productSku,
     required String action,
+    required String token1,
   }) async {
     try {
       log("🌐 API Call Started: checkBarcodeDB with endpoint -> $endpoint");
@@ -686,6 +687,7 @@ class PDApiGateway implements AuthenticationService {
             endpoint: endpoint,
             productSku: productSku,
             action: action,
+            token1: token1,
           )
           .catchError((e) {
             log("❗ Network Error in checkBarcodeDB: $e");
@@ -785,6 +787,25 @@ class PDApiGateway implements AuthenticationService {
       return response;
     } catch (e) {
       serviceSendError("get Cashier Orders Api Error");
+
+      return "Retry";
+    }
+  }
+
+  Future getCashierOrdersSearch({
+    required String key,
+    required String token,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .getCashierOrdersSearch(key: key, token: token)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("search Cashier Orders Api Error");
 
       return "Retry";
     }

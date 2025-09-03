@@ -6,7 +6,7 @@ import 'package:ansarlogistics/components/custom_app_components/buttons/basket_b
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/components/custom_app_components/tile_card_widget.dart';
 import 'package:ansarlogistics/constants/methods.dart';
-import 'package:ansarlogistics/localization/language_button.dart';
+// import 'package:ansarlogistics/localization/language_button.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -416,7 +416,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             fontStyle: FontStyle.BodyL_SemiBold,
                           ),
                         ),
-                        LanguageButton(indexval: langval == 'en' ? 1 : 2),
+                        // LanguageButton(indexval: langval == 'en' ? 1 : 2),
                       ],
                     ),
                   ),

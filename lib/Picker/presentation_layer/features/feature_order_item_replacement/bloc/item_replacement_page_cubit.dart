@@ -354,6 +354,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
             endpoint: sku,
             productSku: productSku,
             action: action,
+            token1: UserController.userController.app_token,
           );
 
       // print('📡 [DEBUG] HTTP Status: ${productresponse.statusCode}');

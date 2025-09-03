@@ -6,7 +6,12 @@ import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class ToPickTab extends StatelessWidget {
   final Map<String, List<OrderItemNew>> groups;
-  const ToPickTab({super.key, required this.groups});
+  final String preparationLabel;
+  const ToPickTab({
+    super.key,
+    required this.groups,
+    required this.preparationLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +35,15 @@ class ToPickTab extends StatelessWidget {
 
         return _CategoryExpansion(
           title: cat,
-          subtitle: '${pickedCount}/${items.length} items picked',
-          children: items.map((e) => ItemTile(item: e)).toList(),
+          subtitle:
+              '${pickedCount}/${items.length} items picked $preparationLabel',
+          children:
+              items
+                  .map(
+                    (e) =>
+                        ItemTile(item: e, preparationLabel: preparationLabel),
+                  )
+                  .toList(),
         );
       },
     );

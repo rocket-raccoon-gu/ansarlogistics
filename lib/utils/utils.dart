@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/customer_details_sheet.dart';
-import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
-import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/ar_branch_section.dart';
-import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/home_section.dart';
-import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/other_branch_section.dart';
+// import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
+// import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/ar_branch_section.dart';
+// import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/home_section.dart';
+// import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/other_branch_section.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
@@ -235,6 +235,29 @@ getstatColor(String stat) {
       return customColors().carnationRed;
     default:
       return customColors().red2;
+  }
+}
+
+getItemStatus(String stat) {
+  switch (stat) {
+    case "canceled":
+      return "Canceled";
+    case "end_picking":
+      return "End Picking";
+    case "start_picking":
+      return "Start Picking";
+    case "item_not_available":
+      return "Item Not Available";
+    case "assigned_picker":
+      return "Assigned Picker";
+    case "assigned_driver":
+      return "Assigned Driver";
+    case "holded":
+      return "Holded";
+    case "material_request":
+      return "Material Request";
+    default:
+      return "Ordered";
   }
 }
 
@@ -769,29 +792,29 @@ Future<int> getAndroidSdkVersion() async {
   return androidInfo.version.sdkInt;
 }
 
-Widget getSection(String branchCode, HomeSectionInchargeState state) {
-  switch (branchCode) {
-    case 'Q013':
-      return HomeSection(state: state);
-    // case 'Q009':
-    //   return OtherBranchSection(state: state);
-    // case 'Q015':
-    //   // if (UserController.userController.profile.empId == "veg_rawdah") {
-    //   //   return ArBranchSection(state: state);
-    //   // } else {
-    //   return OtherBranchSection(state: state);
-    // // }
-    // case 'Q008':
-    //   // if (UserController.userController.profile.empId == "veg_rayyan") {
-    //   //   return ArBranchSection(state: state);
-    //   // } else {
-    //   return OtherBranchSection(state: state);
-    // // }
+// Widget getSection(String branchCode, HomeSectionInchargeState state) {
+//   switch (branchCode) {
+//     case 'Q013':
+//       return HomeSection(state: state);
+//     // case 'Q009':
+//     //   return OtherBranchSection(state: state);
+//     // case 'Q015':
+//     //   // if (UserController.userController.profile.empId == "veg_rawdah") {
+//     //   //   return ArBranchSection(state: state);
+//     //   // } else {
+//     //   return OtherBranchSection(state: state);
+//     // // }
+//     // case 'Q008':
+//     //   // if (UserController.userController.profile.empId == "veg_rayyan") {
+//     //   //   return ArBranchSection(state: state);
+//     //   // } else {
+//     //   return OtherBranchSection(state: state);
+//     // // }
 
-    default:
-      return OtherBranchSection(state: state);
-  }
-}
+//     default:
+//       return OtherBranchSection(state: state);
+//   }
+// }
 
 Future<void> requestCameraPermission() async {
   var status = await Permission.camera.request();

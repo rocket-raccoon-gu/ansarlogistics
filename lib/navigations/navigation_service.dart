@@ -168,6 +168,15 @@ class NavigationService {
     );
   }
 
+  Future<void> openCashierOrderInnerPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_cashierOrderInnerPageRouteName, arguments: MapArguments(arg!));
+  }
+
   Future<void> openPickerDashboardPage(
     BuildContext context, {
     Map<String, dynamic>? arg,

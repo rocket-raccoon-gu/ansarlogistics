@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:ansarlogistics/constants/texts.dart';
-import 'package:ansarlogistics/localization/app_localizations.dart';
+// import 'package:ansarlogistics/localization/app_localizations.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
@@ -94,6 +94,8 @@ String getStatus(String? stat) {
       return "Assigned Driver";
     case "customer_not_answer":
       return "Customer Not Answer";
+    case "cancel_request":
+      return "Cancel Request";
     default:
       return "";
   }
@@ -259,6 +261,45 @@ Future<Map<String, dynamic>> getData() async {
   } catch (e) {
     log(e.toString());
     throw Exception('Document does not exist');
+  }
+}
+
+Color getStatusColor(String status) {
+  switch (status.toLowerCase()) {
+    case 'completed':
+      return customColors().secretGarden;
+    case 'canceled':
+      return customColors().carnationRed;
+    case 'assigned':
+      return customColors().green2;
+    case 'on_the_way':
+      return customColors().green4;
+    case 'delivered':
+      return customColors().secretGarden;
+    case 'assigned_picker':
+      return customColors().green2;
+    case 'assigned_driver':
+      return customColors().green2;
+    case 'start_picking':
+      return customColors().dodgerBlue;
+    case 'end_picking':
+      return customColors().mattPurple;
+    case 'start_delivery':
+      return customColors().green2;
+    case 'end_delivery':
+      return customColors().green2;
+    case 'itemnotavailable':
+      return const Color.fromARGB(255, 243, 18, 18);
+    case 'customer_not_answering':
+      return const Color.fromARGB(255, 243, 18, 18);
+    case 'material_request':
+      return customColors().ultraviolet;
+    case 'customer_not_answer':
+      return const Color.fromARGB(255, 243, 18, 18);
+    case 'cancel_request':
+      return const Color.fromARGB(255, 243, 18, 18);
+    default:
+      return const Color.fromARGB(255, 243, 18, 18);
   }
 }
 

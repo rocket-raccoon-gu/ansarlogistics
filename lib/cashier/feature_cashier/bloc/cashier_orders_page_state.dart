@@ -8,8 +8,12 @@ class CashierOrdersPageStateLoading extends CashierOrdersPageState {}
 
 class CashierOrdersPageStateSuccess extends CashierOrdersPageState {
   final CashierOrders cashierOrders;
+  final bool isLoadingMore;
 
-  CashierOrdersPageStateSuccess({required this.cashierOrders});
+  CashierOrdersPageStateSuccess({
+    required this.cashierOrders,
+    this.isLoadingMore = false,
+  });
 }
 
 class CashierOrdersPageStateError extends CashierOrdersPageState {

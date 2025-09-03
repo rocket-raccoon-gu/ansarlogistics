@@ -76,7 +76,10 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
         Widget body;
         switch (_currentIndex) {
           case 0:
-            body = ToPickTab(groups: s.toPickByCategory);
+            body = ToPickTab(
+              groups: s.toPickByCategory,
+              preparationLabel: s.orderId!,
+            );
             break;
           case 1:
             body = PickedTab(groups: s.pickedByCategory);

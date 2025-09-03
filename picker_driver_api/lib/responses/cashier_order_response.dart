@@ -26,9 +26,9 @@ class CashierOrders {
 
   factory CashierOrders.fromJson(Map<String, dynamic> json) => CashierOrders(
     success: json["success"],
-    count: json["count"],
-    totalCount: json["totalCount"],
-    pagination: Pagination.fromJson(json["pagination"]),
+    count: json["count"] ?? 0,
+    totalCount: json["totalCount"] ?? 0,
+    pagination: Pagination.fromJson(json["pagination"] ?? {}),
     data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
   );
 
@@ -43,7 +43,7 @@ class CashierOrders {
 
 class Datum {
   String subgroupIdentifier;
-  String branchCode;
+  BranchCode branchCode;
   int suborderId;
   int orderSychNo;
   int orderId;
@@ -69,6 +69,21 @@ class Datum {
   String? driverLong;
   String shipmentLabel;
   String preparationLabel;
+  String firstname;
+  dynamic lastname;
+  String street;
+  String? city;
+  String? region;
+  String postcode;
+  String telephone;
+  CountryId countryId;
+  dynamic company;
+  List<Item> items;
+  int calculatedShippingCharge;
+  double combinedGrandTotal;
+  bool isCombinedShipping;
+  String? deliveryNote;
+  String? pickername;
 
   Datum({
     required this.subgroupIdentifier,
@@ -98,44 +113,74 @@ class Datum {
     required this.driverLong,
     required this.shipmentLabel,
     required this.preparationLabel,
+    required this.firstname,
+    required this.lastname,
+    required this.street,
+    required this.city,
+    required this.region,
+    required this.postcode,
+    required this.telephone,
+    required this.countryId,
+    required this.company,
+    required this.items,
+    required this.calculatedShippingCharge,
+    required this.combinedGrandTotal,
+    required this.isCombinedShipping,
+    required this.deliveryNote,
+    required this.pickername,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     subgroupIdentifier: json["subgroup_identifier"],
-    branchCode: json["branch_code"],
-    suborderId: json["suborder_id"],
-    orderSychNo: json["order_sych_no"],
-    orderId: json["order_id"],
-    orderStatus: json["order_status"],
-    statusType: json["status_type"],
+    branchCode: branchCodeValues.map[json["branch_code"]]!,
+    suborderId: json["suborder_id"] ?? 0,
+    orderSychNo: json["order_sych_no"] ?? 0,
+    orderId: json["order_id"] ?? 0,
+    orderStatus: json["order_status"] ?? "",
+    statusType: json["status_type"] ?? "",
     deliveryFrom: DateTime.parse(json["delivery_from"]),
     deliveryTo:
         json["delivery_to"] == null
             ? null
             : DateTime.parse(json["delivery_to"]),
     timerange: json["timerange"],
-    pickerId: json["picker_id"],
-    driverId: json["driver_id"],
-    driverFlag: json["driver_flag"],
+    pickerId: json["picker_id"] ?? 0,
+    driverId: json["driver_id"] ?? 0,
+    driverFlag: json["driver_flag"] ?? 0,
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
     orderAmount: json["order_amount"],
-    shippedAmount: json["shipped_amount"],
-    shippingCharge: json["shipping_charge"],
-    discountValue: json["discount_value"],
-    discountType: json["discount_type"],
-    grandTotal: json["grand_total"],
-    posAmount: json["pos_amount"],
-    orderModifyNotification: json["order_modify_notification"],
-    driverLat: json["driver_lat"],
-    driverLong: json["driver_long"],
-    shipmentLabel: json["shipment_label"],
-    preparationLabel: json["preparation_label"],
+    shippedAmount: json["shipped_amount"] ?? "",
+    shippingCharge: json["shipping_charge"] ?? "",
+    discountValue: json["discount_value"] ?? "",
+    discountType: json["discount_type"] ?? "",
+    grandTotal: json["grand_total"] ?? "",
+    posAmount: json["pos_amount"] ?? "",
+    orderModifyNotification: json["order_modify_notification"] ?? 0,
+    driverLat: json["driver_lat"] ?? "",
+    driverLong: json["driver_long"] ?? "",
+    shipmentLabel: json["shipment_label"] ?? "",
+    preparationLabel: json["preparation_label"] ?? "",
+    firstname: json["firstname"] ?? "",
+    lastname: json["lastname"] ?? "",
+    street: json["street"] ?? "",
+    city: json["city"] ?? "",
+    region: json["region"] ?? "",
+    postcode: json["postcode"] ?? "",
+    telephone: json["telephone"] ?? "",
+    countryId: countryIdValues.map[json["country_id"]]!,
+    company: json["company"] ?? "",
+    items: List<Item>.from(json["items"].map((x) => Item.fromJson(x))),
+    calculatedShippingCharge: json["calculated_shipping_charge"] ?? 0,
+    combinedGrandTotal: json["combined_grand_total"]?.toDouble() ?? 0,
+    isCombinedShipping: json["is_combined_shipping"] ?? false,
+    deliveryNote: json["delivery_note"] ?? "",
+    pickername: json["picker_name"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
     "subgroup_identifier": subgroupIdentifier,
-    "branch_code": branchCode,
+    "branch_code": branchCodeValues.reverse[branchCode],
     "suborder_id": suborderId,
     "order_sych_no": orderSychNo,
     "order_id": orderId,
@@ -144,16 +189,16 @@ class Datum {
     "delivery_from": deliveryFrom.toIso8601String(),
     "delivery_to": deliveryTo?.toIso8601String(),
     "timerange": timerange,
-    "picker_id": pickerId,
-    "driver_id": driverId,
-    "driver_flag": driverFlag,
+    "picker_id": pickerId ?? 0,
+    "driver_id": driverId ?? 0,
+    "driver_flag": driverFlag ?? 0,
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
     "order_amount": orderAmount,
     "shipped_amount": shippedAmount,
     "shipping_charge": shippingCharge,
-    "discount_value": discountValue,
-    "discount_type": discountType,
+    "discount_value": discountValue ?? "",
+    "discount_type": discountType ?? "",
     "grand_total": grandTotal,
     "pos_amount": posAmount,
     "order_modify_notification": orderModifyNotification,
@@ -161,8 +206,99 @@ class Datum {
     "driver_long": driverLong,
     "shipment_label": shipmentLabel,
     "preparation_label": preparationLabel,
+    "firstname": firstname,
+    "lastname": lastname,
+    "street": street,
+    "city": city,
+    "region": region,
+    "postcode": postcode,
+    "telephone": telephone,
+    "country_id": countryIdValues.reverse[countryId],
+    "company": company,
+    "items": List<dynamic>.from(items.map((x) => x.toJson())),
+    "calculated_shipping_charge": calculatedShippingCharge,
+    "combined_grand_total": combinedGrandTotal,
+    "is_combined_shipping": isCombinedShipping,
+    "delivery_note": deliveryNote,
+    "picker_name": pickername,
   };
 }
+
+enum BranchCode { Q013 }
+
+final branchCodeValues = EnumValues({"Q013": BranchCode.Q013});
+
+enum CountryId { QA }
+
+final countryIdValues = EnumValues({"QA": CountryId.QA});
+
+class Item {
+  int itemId;
+  int productId;
+  String sku;
+  String name;
+  String price;
+  String itemType;
+  String itemStatus;
+  String qtyOrdered;
+  String qtyShipped;
+  String qtyCanceled;
+  String rowTotal;
+  String finalPrice;
+  String webprice;
+
+  Item({
+    required this.itemId,
+    required this.productId,
+    required this.sku,
+    required this.name,
+    required this.price,
+    required this.itemType,
+    required this.itemStatus,
+    required this.qtyOrdered,
+    required this.qtyShipped,
+    required this.qtyCanceled,
+    required this.rowTotal,
+    required this.finalPrice,
+    required this.webprice,
+  });
+
+  factory Item.fromJson(Map<String, dynamic> json) => Item(
+    itemId: json["item_id"] ?? 0,
+    productId: json["product_id"] ?? 0,
+    sku: json["sku"] ?? "",
+    name: json["name"] ?? "",
+    price: json["price"] ?? "",
+    itemType: json["item_type"] ?? "",
+    itemStatus: json["item_status"] ?? "",
+    qtyOrdered: json["qty_ordered"] ?? "",
+    qtyShipped: json["qty_shipped"] ?? "",
+    qtyCanceled: json["qty_canceled"] ?? "",
+    rowTotal: json["row_total"] ?? "",
+    finalPrice: json["final_price"] ?? "",
+    webprice: json["web_price"] ?? "",
+  );
+
+  Map<String, dynamic> toJson() => {
+    "item_id": itemId,
+    "product_id": productId,
+    "sku": sku,
+    "name": name,
+    "price": price,
+    "item_type": itemType,
+    "item_status": itemStatus,
+    "qty_ordered": qtyOrdered,
+    "qty_shipped": qtyShipped,
+    "qty_canceled": qtyCanceled,
+    "row_total": rowTotal,
+    "final_price": finalPrice,
+    "webprice": webprice,
+  };
+}
+
+enum ItemType { ORDERED }
+
+final itemTypeValues = EnumValues({"ordered": ItemType.ORDERED});
 
 class Pagination {
   int currentPage;
@@ -182,12 +318,12 @@ class Pagination {
   });
 
   factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
-    currentPage: json["currentPage"],
-    totalPages: json["totalPages"],
-    totalItems: json["totalItems"],
-    itemsPerPage: json["itemsPerPage"],
-    hasNext: json["hasNext"],
-    hasPrev: json["hasPrev"],
+    currentPage: json["currentPage"] ?? 0,
+    totalPages: json["totalPages"] ?? 0,
+    totalItems: json["totalItems"] ?? 0,
+    itemsPerPage: json["itemsPerPage"] ?? 0,
+    hasNext: json["hasNext"] ?? false,
+    hasPrev: json["hasPrev"] ?? false,
   );
 
   Map<String, dynamic> toJson() => {
@@ -198,4 +334,16 @@ class Pagination {
     "hasNext": hasNext,
     "hasPrev": hasPrev,
   };
+}
+
+class EnumValues<T> {
+  Map<String, T> map;
+  late Map<T, String> reverseMap;
+
+  EnumValues(this.map);
+
+  Map<T, String> get reverse {
+    reverseMap = map.map((k, v) => MapEntry(v, k));
+    return reverseMap;
+  }
 }

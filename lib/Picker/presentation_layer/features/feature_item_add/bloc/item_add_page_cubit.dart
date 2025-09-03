@@ -104,6 +104,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
             endpoint: sku,
             productSku: productSku,
             action: action,
+            token1: UserController.userController.app_token,
           );
 
       if (productresponse.statusCode == 200) {
