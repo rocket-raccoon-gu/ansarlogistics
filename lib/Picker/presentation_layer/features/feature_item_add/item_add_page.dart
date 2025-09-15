@@ -149,6 +149,31 @@ class _ItemAddPageState extends State<ItemAddPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: Column(
                           children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "Produce item",
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyL_SemiBold,
+                                    color: FontColor.FontPrimary,
+                                  ),
+                                ),
+                                Switch(
+                                  activeColor: customColors().dodgerBlue,
+                                  activeTrackColor: customColors().dodgerBlue,
+                                  inactiveTrackColor:
+                                      customColors().backgroundTertiary,
+                                  value: producebarcode,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      producebarcode = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+
                             Row(children: [Text("Enter product barcode")]),
                             Row(
                               children: [
@@ -204,6 +229,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                     if (state.erPdata != null)
                       ErpDataContainer(
                         erPdata: state.erPdata,
+                        specialPrice: state.specialPrice,
                         counterCallback: (v) {
                           setState(() {
                             editquantity = v;
@@ -213,12 +239,24 @@ class _ItemAddPageState extends State<ItemAddPage> {
                     else if (state.productDBdata != null)
                       DbDataContainer(
                         productDBdata: state.productDBdata,
+                        specialPrice: state.specialPrice,
                         counterCallback: (v) {
                           setState(() {
                             editquantity = v;
                           });
                         },
                       ),
+
+                    // CounterDropdown(
+                    //   initNumber: editquantity,
+                    //   counterCallback: (v) {
+                    //     setState(() {
+                    //       editquantity = v;
+                    //     });
+                    //   },
+                    //   minNumber: 0,
+                    //   maxNumber: 100,
+                    // ),
                   ],
                 )
               else if (state is ItemAddPageInitialState &&
@@ -307,7 +345,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                       cubit.updateItem(
                                         editquantity,
                                         context,
-                                        erp.erpPrice.toString(),
+                                        isProduce == "true"
+                                            ? cubit.specialPrice.toString()
+                                            : erp.erpPrice.toString(),
                                         erp.erpPrice.toString(),
                                         erp.erpPrice.toString(),
                                         erp.erpSku.toString(),
@@ -322,6 +362,11 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                       final cubit =
                                           context.read<ItemAddPageCubit>();
                                       final product = cubit.productDBdata!;
+
+                                      final isProduce =
+                                          cubit.productDBdata?.isProduce
+                                              .toString() ??
+                                          "null";
 
                                       final priceToUse =
                                           product.specialPrice != ""
@@ -353,7 +398,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                       cubit.updateItem(
                                         editquantity,
                                         context,
-                                        priceToUse,
+                                        isProduce == "true"
+                                            ? cubit.specialPrice.toString()
+                                            : priceToUse,
                                         product.erpCurrentPrice,
                                         product.regularPrice,
                                         product.sku.toString(),

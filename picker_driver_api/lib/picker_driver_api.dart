@@ -335,7 +335,7 @@ extension PDGeneralApi on PickerDriverApi {
       "longitude": longitude,
     };
 
-    // print(url);
+    log(url.toString());
 
     log(body.toString());
 

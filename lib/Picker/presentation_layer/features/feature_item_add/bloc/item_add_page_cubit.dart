@@ -97,8 +97,18 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     }
   }
 
-  getProduct(String sku, String productSku, String action) async {
+  getProduct(
+    String sku,
+    String productSku,
+    String action,
+    bool isproduce,
+  ) async {
     try {
+      if (isproduce) {
+        specialPrice = double.parse(getPriceFromBarcode(getLastSixDigits(sku)));
+        sku = sku.substring(0, sku.length - 6) + '000000';
+      }
+
       final productresponse = await serviceLocator.tradingApi
           .checkBarcodeDBService(
             endpoint: sku,
@@ -129,7 +139,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
       }
 
       if (!isClosed) {
-        emit(ItemAddPageInitialState(erPdata, productDBdata));
+        emit(ItemAddPageInitialState(erPdata, productDBdata, specialPrice));
       }
     } catch (e) {
       showSnackBar(
@@ -277,14 +287,14 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
       }
 
       // print("🔄 Emitting ItemAddPageInitialState...");
-      emit(ItemAddPageInitialState(erPdata, productDBdata));
+      emit(ItemAddPageInitialState(erPdata, productDBdata, specialPrice));
     } catch (e) {
       // print("🔥 Exception caught in updateItem: $e");
       showSnackBar(
         context: ctxt,
         snackBar: showErrorDialogue(errorMessage: e.toString()),
       );
-      emit(ItemAddPageInitialState(erPdata, productDBdata));
+      emit(ItemAddPageInitialState(erPdata, productDBdata, specialPrice));
     }
   }
 
@@ -323,7 +333,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     String productSku,
     String action,
   ) async {
-    getProduct(barcodeString, productSku, action);
+    getProduct(barcodeString, productSku, action, produce);
   }
 
   updateFormState() async {

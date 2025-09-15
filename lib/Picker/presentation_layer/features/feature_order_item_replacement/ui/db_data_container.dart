@@ -8,10 +8,12 @@ import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 class DbDataContainer extends StatefulWidget {
   ProductDBdata? productDBdata;
   Function(int) counterCallback;
+  double? specialPrice;
   DbDataContainer({
     super.key,
     required this.productDBdata,
     required this.counterCallback,
+    this.specialPrice,
   });
 
   @override
@@ -101,18 +103,32 @@ class _DbDataContainerState extends State<DbDataContainer> {
                       ],
                     ),
                   ),
-                  if (widget.productDBdata?.isProduce == "0")
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 14.0,
-                      ),
-                      child: CounterDropdown(
-                        initNumber: 0,
-                        counterCallback: widget.counterCallback,
-                        maxNumber: 100,
-                        minNumber: 0,
-                      ),
+                  // if (widget.productDBdata?.isProduce == "0")
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12.0,
+                      horizontal: 14.0,
+                    ),
+                    child: CounterDropdown(
+                      initNumber: 0,
+                      counterCallback: widget.counterCallback,
+                      maxNumber: 100,
+                      minNumber: 0,
+                    ),
+                  ),
+                  if (widget.specialPrice != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Special Price"),
+                        Text(
+                          widget.specialPrice.toString(),
+                          style: customTextStyle(
+                            fontStyle: FontStyle.HeaderXS_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                 ],
               ),

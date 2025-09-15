@@ -7,8 +7,9 @@ abstract class ItemAddPageState {}
 class ItemAddPageInitialState extends ItemAddPageState {
   ErPdata? erPdata;
   ProductDBdata? productDBdata;
+  double? specialPrice;
 
-  ItemAddPageInitialState(this.erPdata, this.productDBdata);
+  ItemAddPageInitialState(this.erPdata, this.productDBdata, this.specialPrice);
 }
 
 class ItemAddPageStateLoading extends ItemAddPageState {}
@@ -17,8 +18,14 @@ class ItemAddPageErrorState extends ItemAddPageState {
   bool loading;
   ErPdata? erPdata;
   ProductDBdata? productDBdata;
+  double? specialPrice;
 
-  ItemAddPageErrorState(this.loading, this.erPdata, this.productDBdata);
+  ItemAddPageErrorState(
+    this.loading,
+    this.erPdata,
+    this.productDBdata,
+    this.specialPrice,
+  );
 }
 
 class ItemAddFormState extends ItemAddPageState {}

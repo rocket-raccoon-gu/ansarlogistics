@@ -31,7 +31,15 @@ class _ManualPickState extends State<ManualPick> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: 275.0, width: 275.0),
+          SizedBox(height: 50.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Order barcode"),
+              Text(widget.orderItem!.productSku),
+            ],
+          ),
+          SizedBox(height: 220.0, width: 275.0),
 
           Row(children: [Text("Enter product barcode")]),
 

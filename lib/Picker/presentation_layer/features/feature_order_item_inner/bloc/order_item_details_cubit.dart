@@ -421,8 +421,16 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     // print(
                     //   "💰 Order price: ${orderItem.price}, ERP Price: ${erPdata.erpPrice}",
                     // );
-
-                    if (orderItem.price == erPdata.erpPrice) {
+                    if (erPdata.erpSku != orderItem.productSku ||
+                        !erPdata.mergeBarcode.contains(orderItem.productSku)) {
+                      showSnackBar(
+                        context: context,
+                        snackBar: showErrorDialogue(
+                          errorMessage:
+                              "barcode not same please replace the item",
+                        ),
+                      );
+                    } else if (orderItem.price == erPdata.erpPrice) {
                       // print("✅ Prices match. Updating item status...");
                       updateitemstatuspick(qty, scannedSku, calculatedPrice);
                     } else {
@@ -496,18 +504,18 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
             }
           } else {
             // print("✅ Item matched in order. No need to show dialog.");
-            if (!_isDialogShowing) {
-              _isDialogShowing = true;
-              // print("📛 _isDialogShowing was false, now set to true");
-              // Uncomment if needed
-              priceMismatchDialog(
-                context,
-                orderItem: orderItem,
-                orderResponseItem: orderResponseItem,
-                //  cubit.orderItem,
-                // orderResponseItem: cubit.orderResponseItem,
-              );
-            }
+            // if (!_isDialogShowing) {
+            //   _isDialogShowing = true;
+            // print("📛 _isDialogShowing was false, now set to true");
+            // Uncomment if needed
+            priceMismatchDialog(
+              context,
+              orderItem: orderItem,
+              orderResponseItem: orderResponseItem,
+              //  cubit.orderItem,
+              // orderResponseItem: cubit.orderResponseItem,
+            );
+            // }
           }
         } else {
           String mainMessage = data["message"] + data["suggestion"];

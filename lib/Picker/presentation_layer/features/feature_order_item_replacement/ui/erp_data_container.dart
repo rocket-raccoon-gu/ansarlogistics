@@ -7,10 +7,12 @@ import 'package:picker_driver_api/responses/erp_data_response.dart';
 class ErpDataContainer extends StatefulWidget {
   ErPdata? erPdata;
   Function(int) counterCallback;
+  double? specialPrice;
   ErpDataContainer({
     super.key,
     required this.erPdata,
     required this.counterCallback,
+    this.specialPrice,
   });
 
   @override
@@ -91,22 +93,32 @@ class _ErpDataContainerState extends State<ErpDataContainer> {
                       ],
                     ),
                   ),
-                  // Padding(
-                  //   padding: const EdgeInsets.symmetric(
-                  //     vertical: 12.0,
-                  //     horizontal: 14.0,
-                  //   ),
-                  //   child: CounterDropdown(
-                  //     initNumber: 1,
-                  //     counterCallback: (v) {
-                  //       setState(() {
-                  //         // editquantity = v;
-                  //       });
-                  //     },
-                  //     maxNumber: 100,
-                  //     minNumber: 0,
-                  //   ),
-                  // ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12.0,
+                      horizontal: 14.0,
+                    ),
+                    child: CounterDropdown(
+                      initNumber: 1,
+                      counterCallback: widget.counterCallback,
+                      maxNumber: 100,
+                      minNumber: 0,
+                    ),
+                  ),
+
+                  if (widget.specialPrice != null)
+                    Row(
+                      children: [
+                        Text("Special Price"),
+                        Text(
+                          widget.specialPrice.toString(),
+                          style: customTextStyle(
+                            fontStyle: FontStyle.HeaderXS_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
