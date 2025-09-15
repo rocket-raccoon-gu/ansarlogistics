@@ -23,7 +23,17 @@ class CashierOrderInnerPageRouteBuilder {
           RepositoryProvider.value(value: serviceLocator.navigationService),
           RepositoryProvider<CubitsLocator>.value(value: serviceLocator),
         ],
-        child: CashierOrderInnerPage(arguments: arguments),
+        child: Builder(
+          builder: (context) {
+            // Initialize inner page cubit with initial order and service locator
+            final cubit = context.read<CashierOrderInnerPageCubit>();
+            cubit.initialize(
+              serviceLocator: serviceLocator,
+              initialOrder: arguments['order'],
+            );
+            return CashierOrderInnerPage(arguments: arguments);
+          },
+        ),
       ),
     );
   }

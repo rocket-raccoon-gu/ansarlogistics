@@ -64,6 +64,7 @@ class Datum {
   dynamic discountType;
   String grandTotal;
   dynamic posAmount;
+  String? onlinePaidAmount;
   int orderModifyNotification;
   String? driverLat;
   String? driverLong;
@@ -79,11 +80,17 @@ class Datum {
   CountryId countryId;
   dynamic company;
   List<Item> items;
+  List<String> combinedSubgroupIdentifiers;
   int calculatedShippingCharge;
   double combinedGrandTotal;
   bool isCombinedShipping;
   String? deliveryNote;
   String? pickername;
+  String? drivername;
+  String? paymentMethod;
+  StatusHistory? statusHistory;
+  int isWhatsappOrder;
+  String? endPickTotal;
 
   Datum({
     required this.subgroupIdentifier,
@@ -108,6 +115,7 @@ class Datum {
     required this.discountType,
     required this.grandTotal,
     required this.posAmount,
+    required this.onlinePaidAmount,
     required this.orderModifyNotification,
     required this.driverLat,
     required this.driverLong,
@@ -123,11 +131,17 @@ class Datum {
     required this.countryId,
     required this.company,
     required this.items,
+    required this.combinedSubgroupIdentifiers,
     required this.calculatedShippingCharge,
     required this.combinedGrandTotal,
     required this.isCombinedShipping,
     required this.deliveryNote,
     required this.pickername,
+    required this.drivername,
+    required this.paymentMethod,
+    required this.statusHistory,
+    required this.isWhatsappOrder,
+    required this.endPickTotal,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -154,8 +168,9 @@ class Datum {
     shippingCharge: json["shipping_charge"] ?? "",
     discountValue: json["discount_value"] ?? "",
     discountType: json["discount_type"] ?? "",
-    grandTotal: json["grand_total"] ?? "",
+    grandTotal: json["grand_total"].toString(),
     posAmount: json["pos_amount"] ?? "",
+    onlinePaidAmount: json["online_paid_amount"]?.toString() ?? "",
     orderModifyNotification: json["order_modify_notification"] ?? 0,
     driverLat: json["driver_lat"] ?? "",
     driverLong: json["driver_long"] ?? "",
@@ -171,11 +186,22 @@ class Datum {
     countryId: countryIdValues.map[json["country_id"]]!,
     company: json["company"] ?? "",
     items: List<Item>.from(json["items"].map((x) => Item.fromJson(x))),
+    combinedSubgroupIdentifiers: List<String>.from(
+      json["combined_subgroup_identifiers"].map((x) => x),
+    ),
     calculatedShippingCharge: json["calculated_shipping_charge"] ?? 0,
     combinedGrandTotal: json["combined_grand_total"]?.toDouble() ?? 0,
     isCombinedShipping: json["is_combined_shipping"] ?? false,
     deliveryNote: json["delivery_note"] ?? "",
     pickername: json["picker_name"] ?? "",
+    drivername: json["driver_name"] ?? "",
+    paymentMethod: json["payment_method"] ?? "",
+    statusHistory:
+        json["status_history"] == null
+            ? null
+            : StatusHistory.fromJson(json["status_history"]),
+    isWhatsappOrder: json["is_whatsapp_order"] ?? 0,
+    endPickTotal: json["end_picked_total"].toString(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -201,6 +227,7 @@ class Datum {
     "discount_type": discountType ?? "",
     "grand_total": grandTotal,
     "pos_amount": posAmount,
+    "online_paid_amount": onlinePaidAmount,
     "order_modify_notification": orderModifyNotification,
     "driver_lat": driverLat,
     "driver_long": driverLong,
@@ -216,11 +243,19 @@ class Datum {
     "country_id": countryIdValues.reverse[countryId],
     "company": company,
     "items": List<dynamic>.from(items.map((x) => x.toJson())),
+    "combined_subgroup_identifiers": List<dynamic>.from(
+      combinedSubgroupIdentifiers.map((x) => x),
+    ),
     "calculated_shipping_charge": calculatedShippingCharge,
     "combined_grand_total": combinedGrandTotal,
     "is_combined_shipping": isCombinedShipping,
     "delivery_note": deliveryNote,
     "picker_name": pickername,
+    "driver_name": drivername,
+    "payment_method": paymentMethod,
+    "status_history": statusHistory?.toJson(),
+    "is_whatsapp_order": isWhatsappOrder,
+    "end_picked_total": endPickTotal,
   };
 }
 
@@ -246,6 +281,7 @@ class Item {
   String rowTotal;
   String finalPrice;
   String webprice;
+  String? imageurl;
 
   Item({
     required this.itemId,
@@ -261,6 +297,7 @@ class Item {
     required this.rowTotal,
     required this.finalPrice,
     required this.webprice,
+    required this.imageurl,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
@@ -277,6 +314,7 @@ class Item {
     rowTotal: json["row_total"] ?? "",
     finalPrice: json["final_price"] ?? "",
     webprice: json["web_price"] ?? "",
+    imageurl: json["image_url"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -293,6 +331,7 @@ class Item {
     "row_total": rowTotal,
     "final_price": finalPrice,
     "webprice": webprice,
+    "image_url": imageurl,
   };
 }
 
@@ -346,4 +385,21 @@ class EnumValues<T> {
     reverseMap = map.map((k, v) => MapEntry(v, k));
     return reverseMap;
   }
+}
+
+class StatusHistory {
+  String status;
+  DateTime createdAt;
+
+  StatusHistory({required this.status, required this.createdAt});
+
+  factory StatusHistory.fromJson(Map<String, dynamic> json) => StatusHistory(
+    status: json["status"],
+    createdAt: DateTime.parse(json["created_at"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "status": status,
+    "created_at": createdAt.toIso8601String(),
+  };
 }

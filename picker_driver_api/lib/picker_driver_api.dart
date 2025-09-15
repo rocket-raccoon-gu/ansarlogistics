@@ -397,7 +397,7 @@ extension PDGeneralApi on PickerDriverApi {
     //     'custom-api/api/qatar/updateSubOrder.php'));
 
     Uri url = Uri.parse(
-      _endpointWithApplicationPathString('updateSubOrderV1.php'),
+      'https://pickerdriver.testuatah.com/v1/api/qatar/updateSubOrderV1.php',
     );
 
     final Map<String, String> headers = {

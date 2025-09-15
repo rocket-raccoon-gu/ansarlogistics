@@ -96,6 +96,8 @@ String getStatus(String? stat) {
       return "Customer Not Answer";
     case "cancel_request":
       return "Cancel Request";
+    case "ready_to_dispatch":
+      return "Ready To Dispatch";
     default:
       return "";
   }
@@ -298,6 +300,8 @@ Color getStatusColor(String status) {
       return const Color.fromARGB(255, 243, 18, 18);
     case 'cancel_request':
       return const Color.fromARGB(255, 243, 18, 18);
+    case 'ready_to_dispatch':
+      return customColors().green2;
     default:
       return const Color.fromARGB(255, 243, 18, 18);
   }
@@ -2002,5 +2006,18 @@ int getUserCategory(String user) {
       return 101;
     default:
       return 14;
+  }
+}
+
+String getPaymentMethod(String method) {
+  switch (method) {
+    case "cashondelivery":
+      return "Cash On Delivery";
+    case "banktransfer":
+      return "Card On Delivery";
+    case "sadadqa":
+      return "Credit / Debit / Wallet";
+    default:
+      return "";
   }
 }
