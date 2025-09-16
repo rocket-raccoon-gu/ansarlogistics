@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ansarlogistics/cashier/feature_cashier/cashier_orders_page.dart';
 import 'package:ansarlogistics/components/custom_app_components/image_widgets/list_image_widget.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
@@ -535,7 +536,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       }
       final ts = DateTime.now().millisecondsSinceEpoch;
       final ref = FirebaseStorage.instance.ref().child(
-        'pos_bills/${order.subgroupIdentifier}/bill_$ts.jpg',
+        'pos_bills/${order.subgroupIdentifier}/bill_${order.subgroupIdentifier}.jpg',
       );
 
       final uploadTask = ref.putFile(
@@ -1368,7 +1369,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     );
   }
 
-  Future<void> _confirmAndMarkReady({bool forceLater = false}) async {
+  Future<void> _confirmAndMarkReady({
+    bool forceLater = false,
+    String status = 'ready_to_dispatch',
+  }) async {
     final colors = customColors();
     // If POS bill missing, offer Upload Now / Upload Later
     if (_posBillUrl == null && !forceLater) {
@@ -1454,14 +1458,23 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       final resp = await context.gTradingApiGateway.updateMainOrderStat(
         orderid: order.subgroupIdentifier,
         // If your backend expects a different keyword, adjust here
-        orderstatus: 'ready_to_dispatch',
+        orderstatus: status,
         comment:
             _posBillUrl == null
                 ? '$name ($empId) marked ready to dispatch (POS bill pending)'
-                : '$name ($empId) marked order ready to dispatch',
+                : status == 'ready_to_dispatch'
+                ? '$name ($empId) marked order ready to dispatch'
+                : '$name ($empId) marked order $status',
         userid: userId,
         latitude: lat,
         longitude: lng,
+        grandTotal:
+            _toDouble(
+              order.endPickTotal != 0
+                  ? double.parse(order.endPickTotal.toString()) +
+                      double.parse(order.shippingCharge.toString())
+                  : order.grandTotal,
+            ).toString(),
       );
 
       if (mounted) {
@@ -1588,6 +1601,39 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                             )
                             .toList(),
                   ),
+
+                  order.driverType != null && order.driverType != ''
+                      ? Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.purple,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                'assets/rafeeq_logo.png',
+                                width: 24,
+                                height: 24,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                getDriverType(order.driverType!),
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyL_SemiBold,
+                                  color: FontColor.White,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      : const SizedBox.shrink(),
                 ],
               ],
             ),
@@ -2042,59 +2088,87 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             );
           },
         ),
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child:
-                order.orderStatus.toString() == 'ready_to_dispatch'
-                    ? const SizedBox.shrink()
-                    : SizedBox(
+        bottomNavigationBar:
+            order.subgroupIdentifier.startsWith('SUP') ||
+                    order.subgroupIdentifier.startsWith('WAR')
+                ? SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: SizedBox(
                       height: 48,
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colors.islandAqua,
                         ),
-                        onPressed:
-                            _submitting
-                                ? null
-                                : () {
-                                  if (_posBillUrl == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Please upload POS bill before proceeding',
-                                        ),
-                                      ),
-                                    );
-                                    // _openUploadPosBillSheet();
-                                    // return;
-                                  } else {
-                                    _confirmAndMarkReady();
-                                  }
-                                },
-                        icon:
-                            _submitting
-                                ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                                : const Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.white,
-                                ),
-                        label: const Text(
-                          'Mark Ready to Dispatch',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
+                        onPressed: () {
+                          _confirmAndMarkReady(status: 'sfo_order');
+                        },
+                        child: const Text('SFO Done'),
                       ),
                     ),
-          ),
-        ),
+                  ),
+                )
+                : SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child:
+                        order.orderStatus.toString() == 'ready_to_dispatch' ||
+                                order.orderStatus.toString() != 'end_picking'
+                            ? const SizedBox.shrink()
+                            : SizedBox(
+                              height: 48,
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colors.islandAqua,
+                                ),
+                                onPressed:
+                                    _submitting
+                                        ? null
+                                        : () {
+                                          if (_posBillUrl == null) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Please upload POS bill before proceeding',
+                                                ),
+                                              ),
+                                            );
+                                            // _openUploadPosBillSheet();
+                                            // return;
+                                          } else {
+                                            _confirmAndMarkReady();
+                                          }
+                                        },
+                                icon:
+                                    _submitting
+                                        ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                        : const Icon(
+                                          Icons.check_circle_outline,
+                                          color: Colors.white,
+                                        ),
+                                label: const Text(
+                                  'Mark Ready to Dispatch',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                  ),
+                ),
       ),
     );
   }

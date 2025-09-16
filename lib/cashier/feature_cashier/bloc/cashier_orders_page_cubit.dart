@@ -46,4 +46,34 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
       emit(CashierOrdersPageStateError(message: e.toString()));
     }
   }
+
+  searchcashierOrders(String search) async {
+    try {
+      final response = await serviceLocator.tradingApi.getCashierOrdersSearch(
+        key: search,
+        token: UserController.userController.app_token,
+      );
+
+      if (response == null ||
+          !(response is dynamic && response.statusCode != null)) {
+        emit(CashierOrdersPageStateError(message: 'Failed to search orders'));
+        return;
+      }
+
+      if (response.statusCode != 200) {
+        emit(
+          CashierOrdersPageStateError(
+            message: response.body?.toString() ?? 'Unknown error',
+          ),
+        );
+        return;
+      }
+
+      final CashierOrders cashierOrders = cashierOrdersFromJson(response.body);
+
+      emit(CashierOrdersPageStateSuccess(cashierOrders: cashierOrders));
+    } catch (e) {
+      emit(CashierOrdersPageStateError(message: e.toString()));
+    }
+  }
 }

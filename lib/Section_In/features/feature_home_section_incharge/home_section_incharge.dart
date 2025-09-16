@@ -158,10 +158,10 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
                     color: customColors().backgroundPrimary,
                     child: Stack(
                       children: [
-                        getSection(
-                          UserController.userController.profile.branchCode,
-                          state,
-                        ),
+                        // getSection(
+                        //   UserController.userController.profile.branchCode,
+                        //   state,
+                        // ),
                       ],
                     ),
                   ),

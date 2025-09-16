@@ -392,6 +392,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String user_id,
     required String latitude,
     required String longitude,
+    String? grandTotal,
   }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
@@ -411,6 +412,7 @@ extension PDGeneralApi on PickerDriverApi {
       "user_id": user_id,
       "latitude": latitude,
       "longitude": longitude,
+      "grand_total": grandTotal,
     };
 
     // print(url);
@@ -418,6 +420,8 @@ extension PDGeneralApi on PickerDriverApi {
     log(body.toString());
 
     log(DateTime.now().toString());
+
+    // throw Exception("Order Error");
 
     try {
       serviceSend("update main order stat");
@@ -430,6 +434,7 @@ extension PDGeneralApi on PickerDriverApi {
           return response;
         },
       );
+      // return http.Response('success', 200);
     } catch (e) {
       serviceSendError("Order Error");
       rethrow;

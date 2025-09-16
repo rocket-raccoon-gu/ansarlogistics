@@ -91,6 +91,7 @@ class Datum {
   StatusHistory? statusHistory;
   int isWhatsappOrder;
   String? endPickTotal;
+  String? driverType;
 
   Datum({
     required this.subgroupIdentifier,
@@ -142,6 +143,7 @@ class Datum {
     required this.statusHistory,
     required this.isWhatsappOrder,
     required this.endPickTotal,
+    required this.driverType,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -202,6 +204,7 @@ class Datum {
             : StatusHistory.fromJson(json["status_history"]),
     isWhatsappOrder: json["is_whatsapp_order"] ?? 0,
     endPickTotal: json["end_picked_total"].toString(),
+    driverType: json["driver_type"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -256,6 +259,7 @@ class Datum {
     "status_history": statusHistory?.toJson(),
     "is_whatsapp_order": isWhatsappOrder,
     "end_picked_total": endPickTotal,
+    "driver_type": driverType,
   };
 }
 
