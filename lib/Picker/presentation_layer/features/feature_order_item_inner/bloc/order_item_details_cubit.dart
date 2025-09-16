@@ -465,33 +465,45 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 povisvible = true;
                 // print("🧾 Showing confirmation dialog for ProductDB item");
 
-                showPickConfirmDialogue(
-                  context,
-                  'Barcode Found in System',
-                  () {
-                    // print("🟢 Confirm clicked for ProductDB item");
-                    final calculatedPrice =
-                        orderItem.isproduce == "1"
-                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                            : productDBdata.currentPromotionPrice;
-                    // print("💰 Calculated Price: $calculatedPrice");
+                if (productDBdata.sku == orderItem.productSku ||
+                    productDBdata.barcodes.contains(orderItem.productSku)) {
+                  showPickConfirmDialogue(
+                    context,
+                    'Barcode Found in System',
+                    () {
+                      // print("🟢 Confirm clicked for ProductDB item");
+                      final calculatedPrice =
+                          orderItem.isproduce == "1"
+                              ? getPriceFromBarcode(
+                                getLastSixDigits(scannedSku),
+                              )
+                              : productDBdata.currentPromotionPrice;
+                      // print("💰 Calculated Price: $calculatedPrice");
 
-                    updateitemstatuspick(qty, scannedSku, calculatedPrice);
-                  },
-                  productDBdata.sku,
-                  orderItem.isproduce == "1"
-                      ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                      : double.parse(
-                        productDBdata.currentPromotionPrice,
-                      ).toStringAsFixed(2),
-                  qty,
-                  productDBdata.skuName,
-                  () {
-                    // print("🔙 Closing ProductDB dialog");
-                    context.gNavigationService.back(context);
-                    povisvible = false;
-                  },
-                );
+                      updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                    },
+                    productDBdata.sku,
+                    orderItem.isproduce == "1"
+                        ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                        : double.parse(
+                          productDBdata.currentPromotionPrice,
+                        ).toStringAsFixed(2),
+                    qty,
+                    productDBdata.skuName,
+                    () {
+                      // print("🔙 Closing ProductDB dialog");
+                      context.gNavigationService.back(context);
+                      povisvible = false;
+                    },
+                  );
+                } else {
+                  showSnackBar(
+                    context: context,
+                    snackBar: showErrorDialogue(
+                      errorMessage: "barcode not same please replace the item",
+                    ),
+                  );
+                }
               }
             } else if (data.containsKey('suggestion')) {
               // print("💡 Suggestion found in response: ${data['message']}");
