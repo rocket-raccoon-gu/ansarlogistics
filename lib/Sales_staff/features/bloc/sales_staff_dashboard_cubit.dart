@@ -156,7 +156,7 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
-                        "Retail Price : ${double.parse(data['items'][0]['retail_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
+                        "Standard Price : ${double.parse(data['items'][0]['erp_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
                         textAlign: TextAlign.center,
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyL_Bold,
@@ -164,23 +164,34 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      child: Center(
-                        child: GetPromotionStatus(
-                          promotionStatus: data['items'][0]['promotion_status'],
-                        ),
-                      ),
-                    ),
+                    // SizedBox(
+                    //   child: Center(
+                    //     child: GetPromotionStatus(
+                    //       promotionStatus: data['items'][0]['promotion_status'],
+                    //     ),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text(
-                        "Discount Price : ${double.parse(data['items'][0]['discount_amount']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
-                        textAlign: TextAlign.center,
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
+                      child:
+                          data['items'][0]['discount_perc'] != null &&
+                                  data['items'][0]['discount_perc'] != ""
+                              ? Text(
+                                "Discount Percentage : ${double.parse(data['items'][0]['discount_perc']).toStringAsFixed(2)} %",
+                                textAlign: TextAlign.center,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyL_Bold,
+                                  color: FontColor.FontPrimary,
+                                ),
+                              )
+                              : Text(
+                                "Discount Percentage :  %",
+                                textAlign: TextAlign.center,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyL_Bold,
+                                  color: FontColor.FontPrimary,
+                                ),
+                              ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -195,13 +206,22 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                               color: FontColor.FontPrimary,
                             ),
                           ),
-                          Text(
-                            "${double.parse(data['items'][0]['offer_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
-                            style: customTextStyle(
-                              fontStyle: FontStyle.HeaderS_Bold,
-                              color: FontColor.CarnationRed,
-                            ),
-                          ),
+                          data['items'][0]['offer_price'] != null &&
+                                  data['items'][0]['offer_price'] != ""
+                              ? Text(
+                                "${double.parse(data['items'][0]['offer_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.HeaderS_Bold,
+                                  color: FontColor.CarnationRed,
+                                ),
+                              )
+                              : Text(
+                                "",
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.HeaderS_Bold,
+                                  color: FontColor.CarnationRed,
+                                ),
+                              ),
                         ],
                       ),
                     ),
