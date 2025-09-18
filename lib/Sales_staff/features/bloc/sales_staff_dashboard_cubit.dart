@@ -202,7 +202,7 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                             "Offer Price : ",
                             textAlign: TextAlign.center,
                             style: customTextStyle(
-                              fontStyle: FontStyle.HeaderS_Bold,
+                              fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.FontPrimary,
                             ),
                           ),
@@ -211,14 +211,14 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                               ? Text(
                                 "${double.parse(data['items'][0]['offer_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
                                 style: customTextStyle(
-                                  fontStyle: FontStyle.HeaderS_Bold,
+                                  fontStyle: FontStyle.BodyL_Bold,
                                   color: FontColor.CarnationRed,
                                 ),
                               )
                               : Text(
                                 "",
                                 style: customTextStyle(
-                                  fontStyle: FontStyle.HeaderS_Bold,
+                                  fontStyle: FontStyle.BodyL_Bold,
                                   color: FontColor.CarnationRed,
                                 ),
                               ),

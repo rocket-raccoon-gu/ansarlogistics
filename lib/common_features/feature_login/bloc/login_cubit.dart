@@ -97,7 +97,7 @@ class LoginCubit extends Cubit<LoginState> {
 
         final info = await PackageInfo.fromPlatform();
 
-        final String serverkey = await getAccessToken();
+        // final String serverkey = await getAccessToken();
 
         await PreferenceUtils.storeDataToShared("devicetoken", value);
 
@@ -112,7 +112,7 @@ class LoginCubit extends Cubit<LoginState> {
               userId: userId,
               password: password,
               token: value,
-              bearertoken: serverkey,
+              bearertoken: "",
               appversion: "2.0.18",
             );
         DateTime responseTime = DateTime.now();
