@@ -49,8 +49,8 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
         return routesFactory.createSelectRegionsPageRoute();
       // case _photographyDashBorardPageRouteName:
       //   return routesFactory.createPhotoGrpahyDashBoardPageRoute();
-      // case _salesStaffDashboardPageRouteName:
-      //   return routesFactory.createSalesSectionDashBoardPageRoute();
+      case _salesStaffDashboardPageRouteName:
+        return routesFactory.createSalesSectionDashBoardPageRoute();
       case _pickerOrderDetailsRouteName:
         final arg = settings.arguments as MapArguments;
         return routesFactory.createPickerOrderDetailsRoute(arg.data);

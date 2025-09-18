@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:ansarlogistics/Driver/features/feature_order_routes/bloc/order_routes_page_state.dart';
 import 'package:ansarlogistics/constants/texts.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+// import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -158,11 +158,14 @@ class OrderRoutesPageCubit extends Cubit<OrderRoutesPageState> {
   }
 
   Future<List<LatLng>> _decodePolyline(String encoded) async {
-    final polylinePoints = PolylinePoints();
-    final result = await polylinePoints.decodePolyline(encoded);
-    return result
-        .map((point) => LatLng(point.latitude, point.longitude))
-        .toList();
+    // final polylinePoints = PolylinePoints();
+    final polylinePoints = [];
+    // final result = await polylinePoints.decodePolyline(encoded);
+    final points =
+        polylinePoints
+            .map((point) => LatLng(point.latitude, point.longitude))
+            .toList();
+    return points;
   }
 
   Future<void> _addOptimizedMarkers(
