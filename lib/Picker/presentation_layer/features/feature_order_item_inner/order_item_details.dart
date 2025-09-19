@@ -1572,7 +1572,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                   )
               ? SizedBox()
               : SizedBox(
-                height: screenSize.height * 0.095,
+                height: screenSize.height * 0.155,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [

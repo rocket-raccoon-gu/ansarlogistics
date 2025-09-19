@@ -239,7 +239,12 @@ class _ItemAddPageState extends State<ItemAddPage> {
                     else if (state.productDBdata != null)
                       DbDataContainer(
                         productDBdata: state.productDBdata,
-                        specialPrice: state.specialPrice,
+                        specialPrice:
+                            state.specialPrice == null
+                                ? 0
+                                : double.parse(
+                                  state.productDBdata!.regularPrice,
+                                ),
                         counterCallback: (v) {
                           setState(() {
                             editquantity = v;
@@ -304,7 +309,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
             height:
                 context.read<ItemAddPageCubit>().erPdata != null ||
                         context.read<ItemAddPageCubit>().productDBdata != null
-                    ? screenSize.height * 0.1
+                    ? screenSize.height * 0.18
                     : screenSize.height * 0.18,
             child: Stack(
               children: [
@@ -348,7 +353,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                         isProduce == "true"
                                             ? cubit.specialPrice.toString()
                                             : erp.erpPrice.toString(),
-                                        erp.erpPrice.toString(),
+                                        erp.erpPrice,
                                         erp.erpPrice.toString(),
                                         erp.erpSku.toString(),
                                         erp.erpProductName.toString(),
@@ -369,7 +374,8 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                           "null";
 
                                       final priceToUse =
-                                          product.specialPrice != ""
+                                          product.specialPrice != "" &&
+                                                  product.specialPrice != null
                                               ? product.specialPrice.toString()
                                               : product.regularPrice.toString();
 
@@ -401,7 +407,8 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                         isProduce == "true"
                                             ? cubit.specialPrice.toString()
                                             : priceToUse,
-                                        product.erpCurrentPrice,
+                                        product.erpCurrentPrice ??
+                                            product.regularPrice,
                                         product.regularPrice,
                                         product.sku.toString(),
                                         product.skuName.toString(),

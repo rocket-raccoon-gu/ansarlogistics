@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/ui/price_widget.dart';
@@ -141,8 +142,7 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
 
   Widget getBottomContainer() {
     if (widget.orderResponseItem.status != "end_picking" &&
-        BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex == 1 &&
-        isPricechange) {
+        BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex == 1) {
       return SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Padding(
@@ -198,7 +198,10 @@ class _PickerOrderDetailsState extends State<PickerOrderDetails> {
         },
       );
     } else {
-      // print("noooooooooooooooo");
+      print(
+        "BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex ${BlocProvider.of<PickerOrderDetailsCubit>(context).tabindex}",
+      );
+      log(widget.orderResponseItem.status);
       return SizedBox();
     }
   }

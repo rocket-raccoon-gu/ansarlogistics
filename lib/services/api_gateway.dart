@@ -722,4 +722,19 @@ class PDApiGateway implements AuthenticationService {
       return "Retry";
     }
   }
+
+  Future updateBarcodeData({required Map<String, dynamic> body}) async {
+    try {
+      final response = await pickerDriverApi
+          .updateBarcodeData(body: body)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("Update Barcode Data API Error");
+      rethrow;
+    }
+  }
 }

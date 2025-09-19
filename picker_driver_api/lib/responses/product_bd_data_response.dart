@@ -17,7 +17,7 @@ class ProductDBdata {
   String currentPromotionPrice;
   String images;
   int priority;
-  String barcodes;
+  List<String> barcodes; // Changed to List<String>
   String isProduce;
   String match;
 
@@ -44,13 +44,13 @@ class ProductDBdata {
     String? skuName,
     String? productType,
     String? regularPrice,
-    String? specialPrice,
-    String? erpCurrentPrice,
+    dynamic? specialPrice,
+    dynamic? erpCurrentPrice,
     String? deliveryType,
     String? currentPromotionPrice,
     String? images,
     int? priority,
-    String? barcodes,
+    List<String>? barcodes,
     String? isProduce,
     String? match,
   }) => ProductDBdata(
@@ -72,20 +72,42 @@ class ProductDBdata {
 
   factory ProductDBdata.fromJson(Map<String, dynamic> json) => ProductDBdata(
     productId: json["product_id"] ?? 0,
-    sku: json["sku"],
-    skuName: json["sku_name"],
+    sku: json["sku"] ?? "",
+    skuName: json["sku_name"] ?? "",
     productType: json["product_type"] ?? "",
     regularPrice: json["regular_price"] ?? "",
-    specialPrice: json["special_price"] ?? "",
-    erpCurrentPrice: json["erp_current_price"] ?? "",
-    deliveryType: json["delivery_type"],
+    specialPrice: json["special_price"],
+    erpCurrentPrice: json["erp_current_price"],
+    deliveryType: json["delivery_type"] ?? "",
     currentPromotionPrice: json["current_promotion_price"] ?? "",
     images: json["images"] ?? "",
-    priority: json["priority"],
-    barcodes: json["barcodes"] ?? "",
+    priority: json["priority"] ?? 0,
+    barcodes: _parseBarcodes(json["barcodes"]), // Use helper function
     isProduce: json["is_produce"] ?? "",
     match: json["match"] ?? "",
   );
+
+  // Helper function to parse barcodes from comma-separated string
+  static List<String> _parseBarcodes(dynamic barcodesData) {
+    if (barcodesData == null) {
+      return [];
+    }
+
+    if (barcodesData is List) {
+      return barcodesData.map((e) => e.toString()).toList();
+    }
+
+    final String barcodesString = barcodesData.toString();
+    if (barcodesString.isEmpty) {
+      return [];
+    }
+
+    return barcodesString
+        .split(',')
+        .map((barcode) => barcode.trim())
+        .where((barcode) => barcode.isNotEmpty)
+        .toList();
+  }
 
   Map<String, dynamic> toJson() => {
     "product_id": productId,
@@ -99,7 +121,7 @@ class ProductDBdata {
     "current_promotion_price": currentPromotionPrice,
     "images": images,
     "priority": priority,
-    "barcodes": barcodes,
+    "barcodes": barcodes.join(","), // Convert back to comma-separated string
     "is_produce": isProduce,
     "match": match,
   };

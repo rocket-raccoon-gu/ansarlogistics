@@ -145,10 +145,22 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Text(
+                        data['items'][0]['erp_product_name'],
+                        textAlign: TextAlign.center,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
                         barcodescanRes,
                         textAlign: TextAlign.center,
                         style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
+                          fontStyle: FontStyle.BodyM_Bold,
                           color: FontColor.FontPrimary,
                         ),
                       ),
@@ -159,7 +171,7 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                         "Standard Price : ${double.parse(data['items'][0]['erp_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
                         textAlign: TextAlign.center,
                         style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
+                          fontStyle: FontStyle.BodyM_Bold,
                           color: FontColor.FontPrimary,
                         ),
                       ),
@@ -180,7 +192,7 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                                 "Discount Percentage : ${double.parse(data['items'][0]['discount_perc']).toStringAsFixed(2)} %",
                                 textAlign: TextAlign.center,
                                 style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
+                                  fontStyle: FontStyle.BodyM_Bold,
                                   color: FontColor.FontPrimary,
                                 ),
                               )
@@ -188,7 +200,7 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                                 "Discount Percentage :  %",
                                 textAlign: TextAlign.center,
                                 style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
+                                  fontStyle: FontStyle.BodyM_Bold,
                                   color: FontColor.FontPrimary,
                                 ),
                               ),
@@ -202,7 +214,7 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                             "Offer Price : ",
                             textAlign: TextAlign.center,
                             style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
+                              fontStyle: FontStyle.BodyM_Bold,
                               color: FontColor.FontPrimary,
                             ),
                           ),
@@ -211,14 +223,14 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                               ? Text(
                                 "${double.parse(data['items'][0]['offer_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
                                 style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
+                                  fontStyle: FontStyle.BodyM_Bold,
                                   color: FontColor.CarnationRed,
                                 ),
                               )
                               : Text(
                                 "",
                                 style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
+                                  fontStyle: FontStyle.BodyM_Bold,
                                   color: FontColor.CarnationRed,
                                 ),
                               ),
@@ -241,6 +253,50 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
           errorMessage: "Barcode not read please check again...!",
         ),
       );
+    }
+  }
+
+  Future<void> addProductToBarcodeDB({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final response = await serviceLocator.tradingApi.updateBarcodeData(
+        body: body,
+      );
+
+      // Try to parse status and message
+      final statusCode = response.statusCode;
+      String message = "";
+      try {
+        final data = jsonDecode(response.body);
+        message = data['message']?.toString() ?? '';
+      } catch (_) {}
+
+      if (statusCode == 200) {
+        showSnackBar(
+          context: context,
+          snackBar: showSuccessDialogue(
+            message:
+                message.isNotEmpty ? message : "Product updated successfully",
+          ),
+        );
+      } else {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(
+            errorMessage:
+                message.isNotEmpty
+                    ? message
+                    : "Failed to update product. (${statusCode})",
+          ),
+        );
+      }
+    } catch (e) {
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(errorMessage: "Error: ${e.toString()}"),
+      );
+      rethrow;
     }
   }
 }

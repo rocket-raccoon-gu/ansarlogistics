@@ -628,7 +628,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                         final product = cubit.productDBdata!;
 
                                         final priceToUse =
-                                            product.specialPrice != ""
+                                            product.specialPrice != "" &&
+                                                    product.specialPrice != null
                                                 ? product.specialPrice
                                                     .toString()
                                                 : product.regularPrice
@@ -643,7 +644,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                           editquantity,
                                           context,
                                           priceToUse,
-                                          product.erpCurrentPrice,
+                                          product.erpCurrentPrice ??
+                                              product.regularPrice,
                                           product.regularPrice,
                                           product.sku.toString(),
                                           barcodeController.text,

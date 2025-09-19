@@ -28,11 +28,14 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
 
   // Add these new variables
   bool _showManualForm = false;
+  bool _showBarcodeForm = false;
   final _formKey = GlobalKey<FormState>();
+  final _barcodeFormKey = GlobalKey<FormState>();
   final _productNameController = TextEditingController();
   final _productPriceController = TextEditingController();
   final _productOfferPriceController = TextEditingController();
   final _productDiscountController = TextEditingController();
+  final _barcodeController = TextEditingController();
 
   Future<void> scanBarcodeNormal(BuildContext ctx) async {
     String? barcodescanRes;
@@ -107,6 +110,7 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
     _productPriceController.dispose();
     _productOfferPriceController.dispose();
     _productDiscountController.dispose();
+    _barcodeController.dispose();
     super.dispose();
   }
 
@@ -193,30 +197,39 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                   child:
                       _showManualForm
                           ? _buildProductEntryForm()
+                          : _showBarcodeForm
+                          ? _buildBarcodeEntryForm()
                           : Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               InkWell(
                                 onTap: () {
-                                  scanBarcodeNormal(context);
+                                  // Kept existing scan UI for now (no action)
                                 },
-                                child: Column(
-                                  children: [
-                                    Image.asset(
-                                      'assets/barcode_scan.png',
-                                      height: 120.0,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 20.0),
-                                      child: Text(
-                                        "Tap To Scan Barcodes...",
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.BodyM_Bold,
-                                          color: FontColor.FontTertiary,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    scanBarcodeNormal(context);
+                                  },
+                                  child: Column(
+                                    children: [
+                                      Image.asset(
+                                        'assets/barcode_scan.png',
+                                        height: 120.0,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 20.0,
+                                        ),
+                                        child: Text(
+                                          "Tap To Scan Barcodes...",
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyM_Bold,
+                                            color: FontColor.FontTertiary,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -250,6 +263,7 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                   onPressed: () {
                     setState(() {
                       _showManualForm = !_showManualForm;
+                      _showBarcodeForm = false;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -265,30 +279,44 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                     children: [
                       Icon(Icons.add, size: 20),
                       SizedBox(width: 8),
-                      Text('Add Product'),
+                      Text('Add'),
                     ],
                   ),
                 ),
 
                 //Scan Barcode
                 //
-                ElevatedButton(
-                  onPressed: () => scanBarcodeNormal(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: HexColor('#b9d737'),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _showBarcodeForm = true;
+                      _showManualForm = false;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: HexColor('#b9d737'),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    elevation: 4,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset('assets/barcode_scan.png', height: 20.0),
-                      SizedBox(width: 8),
-                      Text('Scan Barcode'),
-                    ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 12.0,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.text_fields, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Text Barcode',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyM_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -399,9 +427,21 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          // TODO: Handle form submission
+                          final body = {
+                            "erp_sku": _productNameController.text.trim(),
+                            "erp_price": _productPriceController.text.trim(),
+                            "offer_price":
+                                _productOfferPriceController.text.trim(),
+                            "discount_perc":
+                                _productDiscountController.text.trim(),
+                          };
+
+                          await BlocProvider.of<SalesStaffDashboardCubit>(
+                            context,
+                          ).addProductToBarcodeDB(body: body);
+
                           _formKey.currentState!.reset();
                           setState(() {
                             _showManualForm = false;
@@ -428,6 +468,80 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBarcodeEntryForm() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _barcodeFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Enter SKU',
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_Bold,
+                color: FontColor.FontPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _barcodeController,
+              decoration: const InputDecoration(
+                labelText: 'SKU / Barcode',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.qr_code),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter a SKU';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_barcodeFormKey.currentState!.validate()) {
+                        // show loading and call checkBarcodeData
+                        sholoadingIndicator(context);
+                        await BlocProvider.of<SalesStaffDashboardCubit>(
+                          context,
+                        ).checkBarcodeData(_barcodeController.text.trim());
+                        // Clear and hide form after call
+                        _barcodeFormKey.currentState!.reset();
+                        setState(() {
+                          _showBarcodeForm = false;
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: HexColor('#b9d737'),
+                    ),
+                    child: const Text('Submit'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                TextButton(
+                  onPressed: () {
+                    _barcodeFormKey.currentState!.reset();
+                    setState(() {
+                      _showBarcodeForm = false;
+                    });
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -1122,6 +1122,28 @@ extension PDGeneralApi on PickerDriverApi {
       },
     );
   }
+
+  Future<http.Response> updateBarcodeData({
+    required Map<String, dynamic> body,
+  }) async {
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/updateBarcodeData.php',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    serviceSend("Update Barcode Data..!");
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
 }
 
 extension on PickerDriverApi {

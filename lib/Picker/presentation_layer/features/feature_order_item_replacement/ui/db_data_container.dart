@@ -63,12 +63,9 @@ class _DbDataContainerState extends State<DbDataContainer> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              widget.productDBdata!.specialPrice != ""
-                                  ? widget.productDBdata!.specialPrice
-                                      .toString()
-                                  : double.parse(
-                                    widget.productDBdata!.regularPrice,
-                                  ).toStringAsFixed(2).toString(),
+                              double.parse(
+                                widget.productDBdata!.currentPromotionPrice,
+                              ).toStringAsFixed(2),
                               style: customTextStyle(
                                 fontStyle: FontStyle.HeaderXS_Bold,
                                 color: FontColor.FontPrimary,
