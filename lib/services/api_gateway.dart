@@ -73,6 +73,27 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
+  Future loginOtheregion({
+    required String userId,
+    required String password,
+  }) async {
+    try {
+      final token = await pickerDriverApi.loginOtherRegionService(
+        userId: userId,
+        password: password,
+      );
+      return token;
+    } on TimeoutException catch (e) {
+      log("TimeoutException: ${e.message}");
+      networkStreamController.sink.add("Request timed out after 10 seconds.");
+      throw e; // Optionally rethrow or handle gracefully
+    } catch (e) {
+      log("An error occurred: $e");
+      serviceSendError("Login service Error: $e");
+      rethrow;
+    }
+  }
+
   @override
   Future orderRequestService({
     required pagesize,

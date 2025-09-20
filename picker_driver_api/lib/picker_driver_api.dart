@@ -186,6 +186,43 @@ extension PDGeneralApi on PickerDriverApi {
     }
   }
 
+  Future<http.Response> loginOtherRegionService({
+    required String userId,
+    required String password,
+  }) async {
+    Uri url = Uri.parse(
+      'https://uae.ahmarket.com/rest/V1/integration/admin/token',
+    );
+
+    final Map<String, dynamic> body = {
+      "username": userId,
+      "password": password,
+    };
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+    try {
+      serviceSend("Login");
+      // return _handleRequest(
+      //   onRequest:
+      //       () => _client.post(url, body: jsonEncode(body), headers: headers),
+      //   onResponse: (response) {
+      //     print(response.body);
+      //     // cookie = updateCookie(response);
+      //     // fullcookie = updateFullCookie(response);
+
+      //     return response;
+      //   },
+      // );
+
+      return _client.post(url, body: jsonEncode(body), headers: headers);
+    } catch (e) {
+      serviceSendError("Login");
+      rethrow;
+    }
+  }
+
   Future<http.Response> OrderService({
     required pagesize,
     required currentpage,

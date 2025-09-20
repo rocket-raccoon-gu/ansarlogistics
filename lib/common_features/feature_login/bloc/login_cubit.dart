@@ -97,64 +97,91 @@ class LoginCubit extends Cubit<LoginState> {
 
         final info = await PackageInfo.fromPlatform();
 
-        final String serverkey = await getAccessToken();
+        // final String serverkey = await getAccessToken();
 
         await PreferenceUtils.storeDataToShared("devicetoken", value);
 
-        Map<String, dynamic> data = {
-          "deviceid": androidInfo.id,
-          "device": androidInfo.device,
-          "model": androidInfo.model,
-        };
+        String? selectedRegion = await PreferenceUtils.getDataFromShared(
+          "selected_region",
+        );
 
-        LoginResponse loginResponse = await serviceLocator.tradingApi
-            .loginRequest(
-              userId: userId,
-              password: password,
-              token: value,
-              bearertoken: serverkey,
-              appversion: info.version,
-            );
-        DateTime responseTime = DateTime.now();
-
-        if (loginResponse.success == 1) {
-          UserController.userController.profile = loginResponse.profile;
-
-          await PreferenceUtils.storeDataToShared(
-            "usertoken",
-            loginResponse.token,
-          );
-
-          await PreferenceUtils.storeDataToShared(
-            "userid",
-            loginResponse.profile.id,
-          );
-
-          // // Encrypt the password
-          // String encryptedHex = encryptStringForUser(password, key);
-
-          await PreferenceUtils.storeDataToShared("password", password);
-
-          updateUserController(
-            sessionKey: "",
+        if (selectedRegion != null && selectedRegion.toLowerCase() == "uae") {
+          final token = await serviceLocator.tradingApi.loginOtheregion(
             userId: userId,
-            username: userId,
+            password: password,
           );
 
-          swithcnavigate(context, loginResponse.profile.role);
-
-          showSnackBar(
-            context: context,
-            snackBar: showSuccessDialogue(message: "Login Success....!"),
-          );
-
-          return true;
+          if (token.body.isNotEmpty) {
+            await PreferenceUtils.storeDataToShared("usertoken", token.body);
+            swithcnavigate(context, "7");
+            showSnackBar(
+              context: context,
+              snackBar: showSuccessDialogue(message: "Login Success....!"),
+            );
+            return true;
+          } else {
+            showSnackBar(
+              context: context,
+              snackBar: showErrorDialogue(errorMessage: "Login Failed"),
+            );
+            return false;
+          }
         } else {
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(errorMessage: "Login Failed"),
-          );
-          return false;
+          Map<String, dynamic> data = {
+            "deviceid": androidInfo.id,
+            "device": androidInfo.device,
+            "model": androidInfo.model,
+          };
+
+          LoginResponse loginResponse = await serviceLocator.tradingApi
+              .loginRequest(
+                userId: userId,
+                password: password,
+                token: value,
+                bearertoken: "",
+                appversion: info.version,
+              );
+          DateTime responseTime = DateTime.now();
+
+          if (loginResponse.success == 1) {
+            UserController.userController.profile = loginResponse.profile;
+
+            await PreferenceUtils.storeDataToShared(
+              "usertoken",
+              loginResponse.token,
+            );
+
+            await PreferenceUtils.storeDataToShared(
+              "userid",
+              loginResponse.profile.id,
+            );
+
+            // // Encrypt the password
+            // String encryptedHex = encryptStringForUser(password, key);
+
+            await PreferenceUtils.storeDataToShared("password", password);
+
+            updateUserController(
+              sessionKey: "",
+              userId: userId,
+              username: userId,
+            );
+
+            swithcnavigate(context, loginResponse.profile.role);
+
+            showSnackBar(
+              context: context,
+              snackBar: showSuccessDialogue(message: "Login Success....!"),
+            );
+
+            return true;
+          } else {
+            showSnackBar(
+              context: context,
+              snackBar: showErrorDialogue(errorMessage: "Login Failed"),
+            );
+            return false;
+          }
         }
       });
     } on SocketException {

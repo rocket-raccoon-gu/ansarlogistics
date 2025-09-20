@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:ansarlogistics/app.dart';
 import 'package:ansarlogistics/common_features/force_update_screen.dart';
 import 'package:ansarlogistics/common_features/update_checker.dart';
@@ -90,7 +89,7 @@ Future<void> main() async {
 
       const initialRoute = String.fromEnvironment(
         'INITIAL_ROUTE',
-        defaultValue: '/login',
+        defaultValue: '/selectregionspageroutename',
       );
 
       if (!kIsWeb) {
