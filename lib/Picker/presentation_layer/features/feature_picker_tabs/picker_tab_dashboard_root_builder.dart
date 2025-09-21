@@ -47,6 +47,7 @@ class PickerTabDashboardRootBuilder {
               allItems: items,
               preparationLabel: prepLabel,
               orderId: orderId,
+              serviceLocator: _serviceLocator,
             ),
         child: const PickerTabDashboard(),
       ),

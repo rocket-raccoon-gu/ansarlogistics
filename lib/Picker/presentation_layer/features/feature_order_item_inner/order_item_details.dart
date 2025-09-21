@@ -19,7 +19,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class OrderItemDetails extends StatefulWidget {
-  OrderItemDetails({super.key});
+  final Map<String, dynamic> data;
+  OrderItemDetails({super.key, required this.data});
 
   @override
   State<OrderItemDetails> createState() => _OrderItemDetailsState();
@@ -69,17 +70,17 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
           orderItem!,
           productSku!,
           action,
+          widget.data['preparationLabel'],
         );
 
         // print('✅ checkitemdb completed for barcode: $barcodeScanRes');
       }
 
-      if (mounted) {
-        setState(() {
-          isScanner = false;
-          // istextbarcode = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        isScanner = false;
+        // istextbarcode = false;
+      });
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
@@ -120,6 +121,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
           BlocProvider.of<OrderItemDetailsCubit>(context).orderItemNew!,
           productSku!,
           action,
+          widget.data['preparationLabel'],
         );
       }
     } catch (e) {}
@@ -688,7 +690,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   await requestCameraPermission();
                                                 }
                                                 setState(() {
-                                                  isScanner = true;
+                                                  isScanner = !isScanner;
                                                 });
                                               },
                                               child: Container(

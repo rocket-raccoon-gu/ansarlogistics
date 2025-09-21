@@ -56,7 +56,7 @@ class OrderItemInnerRouteBuilder {
           RepositoryProvider.value(value: serviceLocator.navigationService),
           RepositoryProvider<CubitsLocator>.value(value: serviceLocator),
         ],
-        child: OrderItemDetails(),
+        child: OrderItemDetails(data: data),
       ),
     );
   }

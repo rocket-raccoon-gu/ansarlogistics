@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:async';
 
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/app_bar/order_inner_app_bar.dart';
@@ -6,6 +7,7 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
+import 'package:ansarlogistics/utils/notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
@@ -28,6 +30,56 @@ class PickerOrderDetailsPage extends StatefulWidget {
 }
 
 class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
+  late List<OrderItemNew> _items;
+  StreamSubscription? _itemStatusSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _items = List<OrderItemNew>.from(widget.orderDetails.items);
+    _itemStatusSub = eventBus.on<ItemStatusUpdatedEvent>().listen((evt) {
+      if (!mounted) return;
+      setState(() {
+        _items =
+            _items
+                .map(
+                  (e) =>
+                      (e.id == evt.itemId)
+                          ? _cloneWithStatus(e, evt.newStatus)
+                          : e,
+                )
+                .toList();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _itemStatusSub?.cancel();
+    super.dispose();
+  }
+
+  OrderItemNew _cloneWithStatus(OrderItemNew src, String status) {
+    return OrderItemNew(
+      id: src.id,
+      name: src.name,
+      sku: src.sku,
+      price: src.price,
+      qtyOrdered: src.qtyOrdered,
+      qtyShipped: src.qtyShipped,
+      categoryId: src.categoryId,
+      categoryName: src.categoryName,
+      imageUrl: src.imageUrl,
+      deliveryType: src.deliveryType,
+      itemStatus: status,
+      rowTotal: src.rowTotal,
+      rowTotalInclTax: src.rowTotalInclTax,
+      productImage: src.productImage,
+      isProduce: src.isProduce,
+      subgroupIdentifier: src.subgroupIdentifier,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PickerOrderDetailsInnerCubit, PickerOrderDetailsState>(
@@ -236,7 +288,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
   }
 
   Widget _deliveryTypeGrid() {
-    final summaries = _buildTypeSummaries(widget.orderDetails.items);
+    final summaries = _buildTypeSummaries(_items);
 
     if (summaries.isEmpty) {
       return Center(
@@ -401,7 +453,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
           arg: {
             "suborder_id": t.meta.code,
             "order_id": widget.orderDetails.id,
-            "order_items": widget.orderDetails.items,
+            "order_items": _items,
             "preparation_label": widget.orderDetails.subgroupIdentifier,
           },
         );
@@ -488,6 +540,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
 
   Future<void> _onEndPicking() async {
     await _updateMainOrderMain(
+      preparationId: widget.orderDetails.id.toString(),
       status: 'end_picking',
       comment:
           "${UserController().profile.name} (${UserController().profile.empId}) is end picked the order",
@@ -496,6 +549,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
 
   Future<void> _onCustomerNotAnswering() async {
     await _updateMainOrderMain(
+      preparationId: widget.orderDetails.id.toString(),
       status: 'customer_not_answer',
       comment: 'Customer not answering',
     );
@@ -524,6 +578,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
     );
     if (ok == true) {
       await _updateMainOrderMain(
+        preparationId: widget.orderDetails.id.toString(),
         status: 'cancel_request',
         comment: 'Cancel Request for full order',
       );
@@ -531,6 +586,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
   }
 
   Future<void> _updateMainOrderMain({
+    required String preparationId,
     required String status,
     required String comment,
   }) async {
@@ -547,14 +603,14 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
     }
 
     try {
-      final resp = await widget.serviceLocator.tradingApi.updateMainOrderStat(
-        orderid: orderId,
-        orderstatus: status,
-        comment: comment,
-        userid: UserController().profile.id.toString(),
-        latitude: UserController.userController.locationlatitude,
-        longitude: UserController.userController.locationlongitude,
-      );
+      final resp = await widget.serviceLocator.tradingApi
+          .updateMainOrderStatNew(
+            preparationId: preparationId,
+            orderStatus: status,
+            comment: comment,
+            orderNumber: "",
+            token: UserController().app_token,
+          );
 
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body) as Map<String, dynamic>;
@@ -562,6 +618,9 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
             (data['message']?.toString().isNotEmpty ?? false)
                 ? data['message'].toString()
                 : 'Status updated';
+
+        context.gNavigationService.openPickerWorkspacePage(context);
+
         showSnackBar(
           context: context,
           snackBar: showSuccessDialogue(message: msg),

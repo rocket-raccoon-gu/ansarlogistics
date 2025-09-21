@@ -158,7 +158,12 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     }
   }
 
-  updateitemstatuspick(String qty, String scannedSku, String price) async {
+  updateitemstatuspick(
+    String qty,
+    String scannedSku,
+    String price,
+    String preparationLabel1,
+  ) async {
     // print("🚀 updateitemstatuspick() called");
     // print("🔢 Qty: $qty");
     // print("🔍 Scanned SKU: $scannedSku");
@@ -176,14 +181,14 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         "shipping": "",
         "price": double.parse(price),
         "qty": double.parse(qty).toInt(),
-        "preparation_id": preparationLabel,
+        "preparation_id": preparationLabel1,
         "reason": "",
         "picker_id": UserController().profile.id.toString(),
-        "is_produce": orderItemNew!.isProduce,
+        "is_produce": orderItemNew!.isProduce ?? false ? 1 : 0,
         "qty_orderd": orderItemNew!.qtyOrdered,
       };
 
-      // print("📦 Request Body: $body");
+      log("📦 Request Body: $body");
 
       loading = true;
 
@@ -201,6 +206,35 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
           context: context,
           snackBar: showSuccessDialogue(message: "Status Updated"),
         );
+
+        // Notify dashboard to move the item from ToPick to Picked
+        try {
+          final String? itemId = orderItemNew?.id;
+          if (itemId != null && itemId.isNotEmpty) {
+            final int pickedQty =
+                (() {
+                  final asInt = int.tryParse(qty);
+                  if (asInt != null) return asInt;
+                  final asDouble = double.tryParse(qty);
+                  return asDouble?.toInt() ?? 0;
+                })();
+            eventBus.fire(
+              ItemStatusUpdatedEvent(
+                itemId: itemId,
+                newStatus: 'end_picking',
+                newPrice: price,
+                newQty: pickedQty,
+              ),
+            );
+          }
+        } catch (_) {}
+
+        // Go back to the dashboard screen
+        Future.microtask(() {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        });
       } else {
         loading = false;
         // print("❌ API status update failed: ${response.statusCode}");
@@ -363,6 +397,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     OrderItemNew? orderItem,
     String productSku,
     String action,
+    String preparationLabel11,
   ) async {
     // print("🔍 checkitemdb() called");
     // print("📦 Qty: $qty");
@@ -422,6 +457,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       orderItem.isProduce == true
                           ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                           : (erPdata.erpPrice ?? ''),
+                  regularPrice: erPdata.erpPrice,
                   barcodeType: 'EAN-13',
                   onConfirm: () {
                     final calculatedPrice =
@@ -430,7 +466,12 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                             : erPdata.erpPrice;
 
                     if (orderItem.price == erPdata.erpPrice) {
-                      updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                      updateitemstatuspick(
+                        qty,
+                        scannedSku,
+                        calculatedPrice,
+                        preparationLabel11,
+                      );
                     } else {
                       showSnackBar(
                         context: context,
@@ -463,15 +504,22 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       orderItem.isProduce == true
                           ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                           : double.parse(
-                            productDBdata.currentPromotionPrice,
+                            productDBdata.specialPrice ?? '',
                           ).toStringAsFixed(2),
+                  regularPrice: productDBdata.regularPrice,
                   barcodeType: 'EAN-13',
                   onConfirm: () {
                     final calculatedPrice =
                         orderItem.isProduce == true
                             ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                            : productDBdata.currentPromotionPrice;
-                    updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                            : productDBdata.specialPrice ??
+                                productDBdata.regularPrice;
+                    updateitemstatuspick(
+                      qty,
+                      scannedSku,
+                      calculatedPrice,
+                      preparationLabel11,
+                    );
                   },
                   onClose: () {
                     // context.gNavigationService.back(context);
@@ -537,6 +585,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     required String sku,
     String? oldPrice,
     required String newPrice,
+    required String regularPrice,
     String? imageUrl,
     String? barcodeType,
     required VoidCallback onConfirm,
@@ -628,27 +677,40 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                                 color: Colors.black,
                               ),
                             ),
-                            if (oldPrice != null && oldPrice.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 6),
-                                child: Text(
-                                  _formatPrice(oldPrice),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black54,
-                                    decoration: TextDecoration.lineThrough,
-                                    fontWeight: FontWeight.w600,
+                            if (newPrice != null && newPrice.isNotEmpty)
+                              Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: Text(
+                                      _formatPrice(regularPrice),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black54,
+                                        decoration: TextDecoration.lineThrough,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
+                                  Text(
+                                    _formatPrice(newPrice),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFFD32F2F),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else
+                              Text(
+                                _formatPrice(regularPrice),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFFD32F2F),
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                            Text(
-                              _formatPrice(newPrice),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFFD32F2F),
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 8),

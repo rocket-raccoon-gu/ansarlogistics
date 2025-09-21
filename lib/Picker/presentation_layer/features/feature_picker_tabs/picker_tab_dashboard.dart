@@ -5,8 +5,11 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/tabs/picked_tab.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/tabs/to_pick_tab.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
+import 'package:ansarlogistics/utils/notifier.dart';
 
 class PickerTabDashboard extends StatefulWidget {
   const PickerTabDashboard({super.key});
@@ -18,6 +21,7 @@ class PickerTabDashboard extends StatefulWidget {
 class _PickerTabDashboardState extends State<PickerTabDashboard>
     with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
+  StreamSubscription? _statusSub;
 
   String _formatSuborderTitle(
     String suborderId,
@@ -56,6 +60,31 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
   }
 
   @override
+  void initState() {
+    super.initState();
+    _statusSub = eventBus.on<ItemStatusUpdatedEvent>().listen((evt) {
+      // Switch to Picked tab and update state immediately
+      if (mounted) {
+        setState(() {
+          _currentIndex = 1; // Picked tab
+        });
+        context.read<PickerDashboardTabCubit>().setItemStatusAndData(
+          evt.itemId,
+          evt.newStatus,
+          newPrice: evt.newPrice,
+          pickedQty: evt.newQty,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _statusSub?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<PickerDashboardTabCubit, PickerDashboardTabState>(
       builder: (context, state) {
@@ -73,6 +102,12 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
         }
 
         final s = state as PickerDashboardTabLoadedState;
+
+        final titleText = _formatSuborderTitle(
+          s.suborderId,
+          s.preparationLabel,
+          s.orderId,
+        );
         Widget body;
         switch (_currentIndex) {
           case 0:
@@ -82,7 +117,37 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
             );
             break;
           case 1:
-            body = PickedTab(groups: s.pickedByCategory);
+            final int toPickCount = s.toPickByCategory.values.fold<int>(
+              0,
+              (sum, list) => sum + (list.length),
+            );
+            body = PickedTab(
+              groups: s.pickedByCategory,
+              showFinishButton: toPickCount == 0,
+              onFinishPick: () {
+                if (s.orderId!.startsWith('PREN')) {
+                  // Navigate back to order details to finalize
+                  context.read<PickerDashboardTabCubit>().updateOrderStatus(
+                    suborderId: titleText,
+                    preparationLabel: s.orderId!,
+                    comment:
+                        'Order End Picked By ${UserController().profile.name} (${UserController().profile.empId})',
+                    status: 'end_picking',
+                    context: context,
+                  );
+                } else {
+                  // Navigate back to order details to finalize
+                  context.read<PickerDashboardTabCubit>().updateOrderStatus(
+                    suborderId: "",
+                    preparationLabel: s.orderId!,
+                    comment:
+                        'Order End Picked By ${UserController().profile.name} (${UserController().profile.empId})',
+                    status: 'end_picking',
+                    context: context,
+                  );
+                }
+              },
+            );
             break;
           case 2:
             body = OnHoldedTab(groups: s.holdedByCategory);
@@ -91,12 +156,6 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
           default:
             body = NotAvailableTab(groups: s.notAvailableByCategory);
         }
-
-        final titleText = _formatSuborderTitle(
-          s.suborderId,
-          s.preparationLabel,
-          s.orderId,
-        );
 
         return Scaffold(
           appBar: AppBar(

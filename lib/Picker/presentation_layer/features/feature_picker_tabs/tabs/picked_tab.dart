@@ -1,19 +1,27 @@
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class PickedTab extends StatelessWidget {
   final Map<String, List<OrderItemNew>> groups;
-  const PickedTab({super.key, required this.groups});
+  final bool showFinishButton;
+  final VoidCallback? onFinishPick;
+  const PickedTab({
+    super.key,
+    required this.groups,
+    this.showFinishButton = false,
+    this.onFinishPick,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (groups.isEmpty) return const Center(child: Text('No items'));
     final keys = groups.keys.toList();
-    return ListView.separated(
+    final list = ListView.separated(
       padding: const EdgeInsets.all(12),
       itemCount: keys.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -26,6 +34,43 @@ class PickedTab extends StatelessWidget {
           children: items.map((e) => _ItemTile(e)).toList(),
         );
       },
+    );
+
+    if (!showFinishButton) return list;
+
+    return Column(
+      children: [
+        Expanded(child: list),
+        SafeArea(
+          top: false,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+            color: Colors.white,
+            child: SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: HexColor('#2DBE60'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
+                onPressed: onFinishPick,
+                icon: const Icon(Icons.flag, color: Colors.white),
+                label: Text(
+                  'Finish Pick',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.White,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -77,8 +122,10 @@ class _ItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final raw = (item.imageUrl ?? '').toString().trim();
-    final imgUrl = raw.isEmpty ? noimageurl : resolveImageUrl(raw);
+    final rawImg = item.productImage;
+    final imgPath =
+        (rawImg == null || rawImg.isEmpty) ? '' : getFirstImage(rawImg);
+    final resolved = resolveImageUrl(imgPath);
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(12),
@@ -97,7 +144,7 @@ class _ItemTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: CachedNetworkImage(
-              imageUrl: imgUrl,
+              imageUrl: resolved,
               fit: BoxFit.contain,
               placeholder:
                   (context, _) => Center(
@@ -136,7 +183,7 @@ class _ItemTile extends StatelessWidget {
                 ),
 
                 Text(
-                  'Price: ${item.price ?? '-'}',
+                  'Price: ${num.tryParse(item.price ?? '0')?.toStringAsFixed(2) ?? '0.00'} QAR',
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyS_Regular,
                     color: FontColor.FontSecondary,
@@ -153,7 +200,7 @@ class _ItemTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              '${double.parse(item.qtyOrdered ?? '0').toInt()}/${double.parse(item.qtyOrdered ?? '0').toInt()}',
+              '${(item.qtyShipped ?? 0).toInt()}/${double.parse(item.qtyOrdered ?? '0').toInt()}',
               style: customTextStyle(
                 fontStyle: FontStyle.BodyS_Bold,
                 color: FontColor.FontPrimary,
