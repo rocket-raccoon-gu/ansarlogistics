@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/app_bar/order_inner_app_bar.dart';
 import 'package:ansarlogistics/constants/methods.dart';
@@ -235,6 +237,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
 
   Widget _deliveryTypeGrid() {
     final summaries = _buildTypeSummaries(widget.orderDetails.items);
+
     if (summaries.isEmpty) {
       return Center(
         child: Padding(
@@ -356,10 +359,12 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
       num subtotal = 0;
       for (final it in list) {
         final st = (it.itemStatus ?? '').toLowerCase();
-        if (st == 'assigned_picker') assignedCount++;
-        if (st == 'start_picking') startPickingCount++;
+        // if (st == 'assigned_picker') assignedCount++;
+        if (st == 'end_picking') startPickingCount++;
         subtotal += (it.rowTotalInclTax ?? it.rowTotal ?? 0);
       }
+
+      assignedCount = list.length;
 
       out.add(
         _TypeSummary(
@@ -386,6 +391,9 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
             : t.assignedCount;
     final ratio =
         (denom == 0) ? 0.0 : (t.startPickingCount / denom).clamp(0.0, 1.0);
+
+    log(t.assignedCount);
+
     return InkWell(
       onTap: () {
         context.gNavigationService.openPickerDashboardPage(

@@ -85,93 +85,91 @@ class LoginCubit extends Cubit<LoginState> {
     try {
       DateTime requestTime = DateTime.now();
 
-      context.gNavigationService.openSalesDashboard(context);
+      await FirebaseMessaging.instance.getToken().then((value) async {
+        UserController.userController.devicetoken = value!;
+        // print("devicetoken =" + value);
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        // print('Running on ${androidInfo.model}');
+        // print("Running on ${androidInfo.id}");
+        // print("Running on ${androidInfo.device}");
+        // print("Running on ${androidInfo.brand}");
 
-      //   await FirebaseMessaging.instance.getToken().then((value) async {
-      //     UserController.userController.devicetoken = value!;
-      //     // print("devicetoken =" + value);
-      //     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      //     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      //     // print('Running on ${androidInfo.model}');
-      //     // print("Running on ${androidInfo.id}");
-      //     // print("Running on ${androidInfo.device}");
-      //     // print("Running on ${androidInfo.brand}");
+        final info = await PackageInfo.fromPlatform();
 
-      //     final info = await PackageInfo.fromPlatform();
+        // final String serverkey = await getAccessToken();
 
-      //     // final String serverkey = await getAccessToken();
+        await PreferenceUtils.storeDataToShared("devicetoken", value);
 
-      //     await PreferenceUtils.storeDataToShared("devicetoken", value);
+        Map<String, dynamic> data = {
+          "deviceid": androidInfo.id,
+          "device": androidInfo.device,
+          "model": androidInfo.model,
+        };
 
-      //     Map<String, dynamic> data = {
-      //       "deviceid": androidInfo.id,
-      //       "device": androidInfo.device,
-      //       "model": androidInfo.model,
-      //     };
+        LoginResponse loginResponse = await serviceLocator.tradingApi
+            .loginRequest(
+              userId: userId,
+              password: password,
+              token: value,
+              bearertoken: "",
+              appversion: "2.0.16",
+            );
+        DateTime responseTime = DateTime.now();
 
-      //     LoginResponse loginResponse = await serviceLocator.tradingApi
-      //         .loginRequest(
-      //           userId: userId,
-      //           password: password,
-      //           token: value,
-      //           bearertoken: "",
-      //           appversion: "2.0.16",
-      //         );
-      //     DateTime responseTime = DateTime.now();
+        if (loginResponse.success) {
+          UserController.userController.profile = loginResponse.profile;
 
-      //     if (loginResponse.success) {
-      //       UserController.userController.profile = loginResponse.profile;
+          UserController().app_token = loginResponse.token;
 
-      //       UserController().app_token = loginResponse.token;
+          await PreferenceUtils.storeDataToShared(
+            "usertoken",
+            loginResponse.token,
+          );
 
-      //       await PreferenceUtils.storeDataToShared(
-      //         "usertoken",
-      //         loginResponse.token,
-      //       );
+          await PreferenceUtils.storeDataToShared(
+            "userid",
+            loginResponse.profile.id.toString(),
+          );
 
-      //       await PreferenceUtils.storeDataToShared(
-      //         "userid",
-      //         loginResponse.profile.id.toString(),
-      //       );
+          // // Encrypt the password
+          // String encryptedHex = encryptStringForUser(password, key);
 
-      //       // // Encrypt the password
-      //       // String encryptedHex = encryptStringForUser(password, key);
+          await PreferenceUtils.storeDataToShared("password", password);
 
-      //       await PreferenceUtils.storeDataToShared("password", password);
+          updateUserController(
+            sessionKey: "",
+            userId: userId,
+            username: userId,
+          );
 
-      //       updateUserController(
-      //         sessionKey: "",
-      //         userId: userId,
-      //         username: userId,
-      //       );
+          swithcnavigate(context, loginResponse.profile.role.toString());
 
-      //       swithcnavigate(context, loginResponse.profile.role.toString());
+          // context.gNavigationService.openPickerWorkspacePage(context);
 
-      //       // context.gNavigationService.openPickerWorkspacePage(context);
+          showSnackBar(
+            context: context,
+            snackBar: showSuccessDialogue(message: "Login Success....!"),
+          );
 
-      //       showSnackBar(
-      //         context: context,
-      //         snackBar: showSuccessDialogue(message: "Login Success....!"),
-      //       );
-
-      //       return true;
-      //     } else {
-      //       showSnackBar(
-      //         context: context,
-      //         snackBar: showErrorDialogue(errorMessage: "Login Failed"),
-      //       );
-      //       return false;
-      //     }
-      //   });
-      // } on SocketException {
-      //   if (state is LoginInitial) {
-      //     emit(
-      //       (state as LoginInitial).copyWith(error: "Network connectivity error"),
-      //     );
-      //   } else {
-      //     emit(LoginInitial(errorMessage: "Network connectivity error"));
-      //   }
-      //   return false;
+          return true;
+        } else {
+          showSnackBar(
+            context: context,
+            snackBar: showErrorDialogue(errorMessage: "Login Failed"),
+          );
+          return false;
+        }
+      });
+    } on SocketException {
+      if (state is LoginInitial) {
+        emit(
+          (state as LoginInitial).copyWith(error: "Network connectivity error"),
+        );
+      } else {
+        emit(LoginInitial(errorMessage: "Network connectivity error"));
+      }
+      return false;
     } catch (e, trace) {
       fatalError(e.toString(), trace, "login processing failed");
       if (state is LoginInitial) {

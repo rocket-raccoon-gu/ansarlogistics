@@ -1,4 +1,7 @@
+import 'package:ansarlogistics/constants/methods.dart';
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
 
@@ -74,6 +77,8 @@ class _ItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final raw = (item.imageUrl ?? '').toString().trim();
+    final imgUrl = raw.isEmpty ? noimageurl : resolveImageUrl(raw);
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(12),
@@ -91,7 +96,21 @@ class _ItemTile extends StatelessWidget {
               color: customColors().backgroundSecondary,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.image, color: Colors.grey),
+            child: CachedNetworkImage(
+              imageUrl: imgUrl,
+              fit: BoxFit.contain,
+              placeholder:
+                  (context, _) => Center(
+                    child: Image.asset(
+                      'assets/Iphone_spinner.gif',
+                      width: 32,
+                      height: 32,
+                    ),
+                  ),
+              errorWidget:
+                  (context, _, __) =>
+                      Image.network(noimageurl, fit: BoxFit.contain),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -134,7 +153,7 @@ class _ItemTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              '${item.qtyOrdered ?? 0}/${item.qtyOrdered ?? 0}',
+              '${double.parse(item.qtyOrdered ?? '0').toInt()}/${double.parse(item.qtyOrdered ?? '0').toInt()}',
               style: customTextStyle(
                 fontStyle: FontStyle.BodyS_Bold,
                 color: FontColor.FontPrimary,
