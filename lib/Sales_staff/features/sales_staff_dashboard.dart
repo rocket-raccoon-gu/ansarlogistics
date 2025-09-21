@@ -32,10 +32,28 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
   final _formKey = GlobalKey<FormState>();
   final _barcodeFormKey = GlobalKey<FormState>();
   final _productNameController = TextEditingController();
-  final _productPriceController = TextEditingController();
-  final _productOfferPriceController = TextEditingController();
+  final _staffIdController = TextEditingController();
+  final _branchCodeController = TextEditingController();
   final _productDiscountController = TextEditingController();
   final _barcodeController = TextEditingController();
+
+  // Branch dropdown state
+  final Map<String, String> _branches = const {
+    'Q002': 'Doha city',
+    'Q003': 'Ansari city',
+    'Q004': 'City center',
+    'Q005': 'Mansura',
+    'Q008': 'Rayyan',
+    'Q009': 'Alkhore',
+    'Q011': 'Barwa furniture & Home decor',
+    'Q013': 'Barwa super market and department store',
+    'Q015': 'Rawdha',
+    'Q016': 'new world',
+    'Q017': 'A&H fashion',
+    'Q018': 'A&H carpet',
+    'Q021': 'A&H Market online',
+  };
+  String? _selectedBranchCode;
 
   Future<void> scanBarcodeNormal(BuildContext ctx) async {
     String? barcodescanRes;
@@ -44,11 +62,9 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
       await requestCameraPermission();
 
       ScanResult scanResult = await BarcodeScanner.scan();
-      setState(() {
-        barcodescanRes = scanResult.rawContent;
-      });
+      barcodescanRes = scanResult.rawContent;
 
-      log(barcodescanRes!);
+      log(barcodescanRes);
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
@@ -83,9 +99,11 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
     try {
       sholoadingIndicator(context);
 
+      // Proceed to check barcode; UI updates happen via Bloc state.
       BlocProvider.of<SalesStaffDashboardCubit>(
         context,
       ).checkBarcodeData(barcodescanRes!);
+      // Keep discount as is unless backend fills it through state elsewhere
     } catch (e) {
       // ignore: use_build_context_synchronously
       showSnackBar(
@@ -101,14 +119,15 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
   void initState() {
     // TODO: implement initState
     super.initState();
-    _productDiscountController.addListener(_calculateDiscount);
+    // Initialize discount as not available
+    _productDiscountController.text = 'Not available';
   }
 
   @override
   void dispose() {
     _productNameController.dispose();
-    _productPriceController.dispose();
-    _productOfferPriceController.dispose();
+    _staffIdController.dispose();
+    _branchCodeController.dispose();
     _productDiscountController.dispose();
     _barcodeController.dispose();
     super.dispose();
@@ -130,6 +149,26 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
         ),
         body: BlocBuilder<SalesStaffDashboardCubit, SalesStaffDashboardState>(
           builder: (context, state) {
+            // React to scan results to auto-fill fields
+            if (state is SalesStaffBarcodeCheckSuccess) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_productNameController.text.trim() != state.erpSku) {
+                  _productNameController.text = state.erpSku;
+                }
+                final disc = state.discountPerc;
+                _productDiscountController.text =
+                    (disc == null || disc.trim().isEmpty)
+                        ? 'Not available'
+                        : disc;
+              });
+            } else if (state is SalesStaffBarcodeCheckNotFound) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_productNameController.text.trim() != state.scannedSku) {
+                  _productNameController.text = state.scannedSku;
+                }
+                _productDiscountController.text = 'Not available';
+              });
+            }
             return Column(
               children: [
                 Container(
@@ -262,9 +301,14 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
+                      _productNameController.clear();
+                      _productDiscountController.clear();
                       _showManualForm = !_showManualForm;
                       _showBarcodeForm = false;
                     });
+                    BlocProvider.of<SalesStaffDashboardCubit>(
+                      context,
+                    ).updateData();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: HexColor('#b9d737'),
@@ -292,6 +336,9 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                       _showBarcodeForm = true;
                       _showManualForm = false;
                     });
+                    BlocProvider.of<SalesStaffDashboardCubit>(
+                      context,
+                    ).updateData();
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -336,91 +383,111 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // SKU Field
+              // SKU Field with scanner
               TextFormField(
                 controller: _productNameController,
                 decoration: InputDecoration(
                   labelText: 'SKU',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.qr_code),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.qr_code),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.document_scanner),
+                    onPressed: () => scanBarcodeNormal(context),
+                    tooltip: 'Scan Barcode',
+                  ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Please enter SKU';
                   }
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-              // Price Field
+              // Staff ID Field
               TextFormField(
-                controller: _productPriceController,
-                decoration: InputDecoration(
-                  labelText: 'Price',
+                controller: _staffIdController,
+                decoration: const InputDecoration(
+                  labelText: 'Staff ID',
                   border: OutlineInputBorder(),
-                  prefixText: '\$ ',
-                  prefixIcon: Icon(Icons.attach_money),
+                  prefixIcon: Icon(Icons.badge),
                 ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter price';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter Staff ID';
                   }
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-              // Offer Price Field
-              TextFormField(
-                controller: _productOfferPriceController,
-                decoration: InputDecoration(
-                  labelText: 'Offer Price',
-                  border: OutlineInputBorder(),
-                  prefixText: '\$ ',
-                  prefixIcon: Icon(Icons.local_offer),
-                ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
-                    }
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-
-              // Discount Percentage Field
+              // Discount Percentage Field (read-only, auto-filled)
               TextFormField(
                 controller: _productDiscountController,
-                decoration: InputDecoration(
+                // readOnly: true,
+                decoration: const InputDecoration(
                   labelText: 'Discount %',
                   border: OutlineInputBorder(),
                   suffixText: '%',
                   prefixIcon: Icon(Icons.percent),
                 ),
-                keyboardType: TextInputType.number,
-
                 validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    final discount = double.tryParse(value);
-                    if (discount == null) {
-                      return 'Please enter a valid number';
-                    }
-                    if (discount < 0 || discount > 100) {
-                      return 'Discount must be between 0-100%';
-                    }
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Discount is required';
+                  }
+                  if (value.toLowerCase() == 'not available') {
+                    // Acceptable as per requirements
+                    return null;
+                  }
+                  final discount = double.tryParse(value);
+                  if (discount == null) {
+                    return 'Invalid discount value';
+                  }
+                  if (discount < 0 || discount > 100) {
+                    return 'Discount must be between 0-100%';
                   }
                   return null;
                 },
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // Branch Code Dropdown (required)
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                value: _selectedBranchCode,
+                items:
+                    _branches.entries
+                        .map(
+                          (entry) => DropdownMenuItem<String>(
+                            value: entry.key,
+                            child: Text(
+                              '${entry.value} (${entry.key})',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: false,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                onChanged: (val) {
+                  setState(() {
+                    _selectedBranchCode = val;
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Branch',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.apartment),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please select a Branch';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
 
               // Action Buttons
               Row(
@@ -431,11 +498,10 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                         if (_formKey.currentState!.validate()) {
                           final body = {
                             "erp_sku": _productNameController.text.trim(),
-                            "erp_price": _productPriceController.text.trim(),
-                            "offer_price":
-                                _productOfferPriceController.text.trim(),
                             "discount_perc":
                                 _productDiscountController.text.trim(),
+                            "staff_id": _staffIdController.text.trim(),
+                            "branch_code": _selectedBranchCode ?? '',
                           };
 
                           await BlocProvider.of<SalesStaffDashboardCubit>(
@@ -444,25 +510,39 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
 
                           _formKey.currentState!.reset();
                           setState(() {
+                            _productNameController.clear();
+                            _staffIdController.clear();
+                            _productDiscountController.text = 'Not available';
+                            _selectedBranchCode = null;
                             _showManualForm = false;
                           });
+                          BlocProvider.of<SalesStaffDashboardCubit>(
+                            context,
+                          ).updateData();
                         }
                       },
-                      child: Text('Add Product'),
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
+                      child: const Text('Submit'),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   TextButton(
                     onPressed: () {
                       _formKey.currentState!.reset();
                       setState(() {
+                        _productNameController.clear();
+                        _staffIdController.clear();
+                        _productDiscountController.text = 'Not available';
+                        _selectedBranchCode = null;
                         _showManualForm = false;
                       });
+                      BlocProvider.of<SalesStaffDashboardCubit>(
+                        context,
+                      ).updateData();
                     },
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                   ),
                 ],
               ),
@@ -518,8 +598,12 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                         // Clear and hide form after call
                         _barcodeFormKey.currentState!.reset();
                         setState(() {
+                          _barcodeController.clear();
                           _showBarcodeForm = false;
                         });
+                        BlocProvider.of<SalesStaffDashboardCubit>(
+                          context,
+                        ).updateData();
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -534,8 +618,12 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                   onPressed: () {
                     _barcodeFormKey.currentState!.reset();
                     setState(() {
+                      _barcodeController.clear();
                       _showBarcodeForm = false;
                     });
+                    BlocProvider.of<SalesStaffDashboardCubit>(
+                      context,
+                    ).updateData();
                   },
                   child: const Text('Cancel'),
                 ),
@@ -545,15 +633,5 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
         ),
       ),
     );
-  }
-
-  void _calculateDiscount() {
-    final price = double.tryParse(_productPriceController.text) ?? 0;
-    final offerPrice = double.tryParse(_productOfferPriceController.text) ?? 0;
-
-    if (price > 0 && offerPrice > 0 && offerPrice < price) {
-      final discount = ((price - offerPrice) / price * 100).toStringAsFixed(2);
-      _productDiscountController.text = discount;
-    }
   }
 }

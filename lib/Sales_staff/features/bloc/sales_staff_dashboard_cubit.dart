@@ -105,6 +105,8 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
             );
           },
         );
+        // Emit not-found state so UI can reflect the result
+        emit(SalesStaffBarcodeCheckNotFound(scannedSku: barcodescanRes));
       } else {
         showGeneralDialog(
           context: context,
@@ -176,13 +178,6 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                         ),
                       ),
                     ),
-                    // SizedBox(
-                    //   child: Center(
-                    //     child: GetPromotionStatus(
-                    //       promotionStatus: data['items'][0]['promotion_status'],
-                    //     ),
-                    //   ),
-                    // ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child:
@@ -242,6 +237,18 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
               ),
             );
           },
+        );
+        // Emit success state so UI can autofill fields
+        final String? discountPerc =
+            data['items'][0]['discount_perc']?.toString();
+        emit(
+          SalesStaffBarcodeCheckSuccess(
+            erpSku: barcodescanRes,
+            discountPerc:
+                (discountPerc != null && discountPerc.isNotEmpty)
+                    ? discountPerc
+                    : null,
+          ),
         );
       }
     } catch (e) {
