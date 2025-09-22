@@ -21,6 +21,29 @@ class ItemTile extends StatelessWidget {
     final imgPath =
         (rawImg == null || rawImg.isEmpty) ? '' : getFirstImage(rawImg);
     final resolved = resolveImageUrl(imgPath);
+
+    Color statusColor(String st) {
+      switch (st) {
+        case 'end_picking':
+          return HexColor('#2DBE60'); // green
+        case 'holded':
+          return customColors().dodgerBlue; // blue
+        case 'item_not_available':
+          return customColors().carnationRed; // red
+        case 'start_picking':
+          return HexColor('#D86A3A'); // orange
+        case 'material_request':
+          return HexColor('#8E44AD'); // purple
+        case 'assigned_picker':
+        default:
+          return customColors().fontSecondary; // neutral
+      }
+    }
+
+    final statusRaw = (item.itemStatus ?? '').toLowerCase();
+    final statusText =
+        statusRaw.isEmpty ? '—' : statusRaw.replaceAll('_', ' ').toUpperCase();
+
     return GestureDetector(
       onTap: () {
         context.gNavigationService.openOrderItemDetailsPage(
@@ -152,19 +175,47 @@ class ItemTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: HexColor('#D66435'),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                '0/${double.parse(item.qtyOrdered.toString()).toInt()}',
-                style: customTextStyle(
-                  fontStyle: FontStyle.BodyS_Bold,
-                  color: FontColor.White,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: HexColor('#D66435'),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '0/${double.parse(item.qtyOrdered.toString()).toInt()}',
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyS_Bold,
+                      color: FontColor.White,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor(statusRaw).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: statusColor(statusRaw), width: 1),
+                  ),
+                  child: Text(
+                    statusText,
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyS_Bold,
+                      color: FontColor.FontPrimary,
+                    ).copyWith(color: statusColor(statusRaw)),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

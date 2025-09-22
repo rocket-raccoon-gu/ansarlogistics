@@ -20,9 +20,9 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
       case _orderItemDetailsPageRouteName:
         final arg = settings.arguments as MapArguments;
         return routesFactory.createOrderItemDetailsPageRoute(arg.data);
-      // case _orderItemReplacementPageRouteName:
-      //   final arg = settings.arguments as MapArguments;
-      //   return routesFactory.createOrderItemReplacementPageRoute(arg.data);
+      case _orderItemReplacementPageRouteName:
+        final arg = settings.arguments as MapArguments;
+        return routesFactory.createOrderItemReplacementPageRoute(arg.data);
       // case _orderitemAddPageRouteName:
       //   final arg = settings.arguments as MapArguments;
       //   return routesFactory.createOrderItemAddPageRoute(arg.data);

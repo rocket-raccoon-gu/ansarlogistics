@@ -69,6 +69,7 @@ class _CategoryExpansion extends StatelessWidget {
         border: Border.all(color: customColors().backgroundTertiary),
       ),
       child: ExpansionTile(
+        initiallyExpanded: true,
         tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         title: Text(
           title,

@@ -1,10 +1,16 @@
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/ui/item_tile.dart';
 
 class NotAvailableTab extends StatelessWidget {
   final Map<String, List<OrderItemNew>> groups;
-  const NotAvailableTab({super.key, required this.groups});
+  final String preparationLabel;
+  const NotAvailableTab({
+    super.key,
+    required this.groups,
+    required this.preparationLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +26,13 @@ class NotAvailableTab extends StatelessWidget {
         return _CategoryExpansion(
           title: cat,
           subtitle: '${items.length} items',
-          children: items.map((e) => _ItemTile(e)).toList(),
+          children:
+              items
+                  .map(
+                    (e) =>
+                        ItemTile(item: e, preparationLabel: preparationLabel),
+                  )
+                  .toList(),
         );
       },
     );
@@ -46,6 +58,7 @@ class _CategoryExpansion extends StatelessWidget {
         border: Border.all(color: customColors().backgroundTertiary),
       ),
       child: ExpansionTile(
+        initiallyExpanded: true,
         tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         title: Text(
           title,
@@ -68,73 +81,4 @@ class _CategoryExpansion extends StatelessWidget {
   }
 }
 
-class _ItemTile extends StatelessWidget {
-  final OrderItemNew item;
-  const _ItemTile(this.item);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: customColors().backgroundTertiary),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: customColors().backgroundSecondary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.image, color: Colors.grey),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.name ?? '-',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyM_Bold,
-                    color: FontColor.FontPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'SKU: ${item.sku ?? '-'}',
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyS_Regular,
-                    color: FontColor.FontSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFE5E5),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              'Not Available',
-              style: customTextStyle(
-                fontStyle: FontStyle.BodyS_Bold,
-                color: FontColor.FontPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// Removed local _ItemTile in favor of shared ItemTile for consistent navigation.

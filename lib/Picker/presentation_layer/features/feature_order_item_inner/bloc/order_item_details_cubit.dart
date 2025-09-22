@@ -282,6 +282,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     String qty,
     String reason,
     String price,
+    String preparationLabel1,
   ) async {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
@@ -289,15 +290,18 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       Map<String, dynamic> body = {};
 
       body = {
-        "item_id": orderItem!.itemId,
-        "item_status": item_status,
+        "item_id": orderItemNew!.id,
+        "order_number": orderItemNew!.subgroupIdentifier,
+        // "scanned_sku": scannedSku,
+        "status": item_status,
         "shipping": "",
-        "price": orderItem!.price,
-        "qty": qty,
+        "price": double.parse(price),
+        "qty": double.parse(qty).toInt(),
+        "preparation_id": preparationLabel1,
         "reason": "",
-        "picker_id": UserController().profile.id,
-        "is_produce": orderItem!.isproduce,
-        "qty_orderd": orderItem!.qtyOrdered,
+        "picker_id": UserController().profile.id.toString(),
+        "is_produce": orderItemNew!.isProduce ?? false ? 1 : 0,
+        "qty_orderd": orderItemNew!.qtyOrdered,
       };
 
       loading = true;
@@ -308,36 +312,28 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       );
 
       if (response.statusCode == 200) {
-        // loading = false;
-
-        // if (item_status == "end_picking") {
-        //   UserController.userController.indexlist.add(orderItem!);
-        //   UserController.userController.pickerindexlist.add(orderItem!.itemId);
-        // } else
-        if (item_status == "item_not_available") {
-          // UserController.userController.itemnotavailablelist.add(orderItemNew!);
-          // UserController.userController.notavailableindexlist.add(
-          //   orderItemNew!.itemId,
-          // );
-        }
-
-        // // UserController.userController.alloworderupdated = true;
-
-        // showSnackBar(
-        //   context: context,
-        //   snackBar: showSuccessDialogue(message: "status updted"),
-        // );
-
-        eventBus.fire(DataChangedEvent("New Data from Screen B"));
-
-        Navigator.of(context).popUntil((route) => route.isFirst);
-
-        // context.read<PickerOrdersCubit>().loadPosts(0, 'all');
-
-        context.gNavigationService.openPickerOrderInnerPage(
-          context,
-          arg: {'orderitem': orderResponseItem},
+        // Mirror the success handling like end-pick: notify dashboard and navigate back
+        showSnackBar(
+          context: context,
+          snackBar: showSuccessDialogue(message: "Status Updated"),
         );
+
+        // Fire item status updated event so the dashboard can regroup and move item to the right tab
+        try {
+          final String? itemId = orderItemNew?.id ?? orderItem?.itemId;
+          if (itemId != null && itemId.isNotEmpty) {
+            eventBus.fire(
+              ItemStatusUpdatedEvent(itemId: itemId, newStatus: item_status),
+            );
+          }
+        } catch (_) {}
+
+        // Navigate back to the dashboard screen (pop current)
+        Future.microtask(() {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        });
       } else {
         loading = false;
         showSnackBar(

@@ -7,7 +7,7 @@ abstract class RoutesFactory {
   Route<dynamic> createPickerDashboardPageRoute();
   Route<dynamic> createPickerOrderDetailsPageRoute(Map<String, dynamic> data);
   Route<dynamic> createOrderItemDetailsPageRoute(Map<String, dynamic> data);
-  // Route<dynamic> createOrderItemReplacementPageRoute(Map<String, dynamic> data);
+  Route<dynamic> createOrderItemReplacementPageRoute(Map<String, dynamic> data);
   // Route<dynamic> createOrderItemAddPageRoute(Map<String, dynamic> data);
   // Route<dynamic> createDriverDashboardPageRoute();
   // Route<dynamic> createDriverOrderInnerPageRoute(Map<String, dynamic> data);

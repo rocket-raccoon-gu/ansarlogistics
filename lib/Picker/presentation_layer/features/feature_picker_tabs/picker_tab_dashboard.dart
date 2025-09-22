@@ -63,10 +63,25 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
   void initState() {
     super.initState();
     _statusSub = eventBus.on<ItemStatusUpdatedEvent>().listen((evt) {
-      // Switch to Picked tab and update state immediately
+      // Switch to appropriate tab based on status and update state immediately
       if (mounted) {
+        final status = (evt.newStatus ?? '').toLowerCase();
+        int nextIndex;
+        switch (status) {
+          case 'end_picking':
+            nextIndex = 1; // Picked tab
+            break;
+          case 'holded':
+            nextIndex = 2; // On Hold tab
+            break;
+          case 'item_not_available':
+            nextIndex = 3; // Not Available tab
+            break;
+          default:
+            nextIndex = 0; // To Pick tab
+        }
         setState(() {
-          _currentIndex = 1; // Picked tab
+          _currentIndex = nextIndex;
         });
         context.read<PickerDashboardTabCubit>().setItemStatusAndData(
           evt.itemId,
@@ -147,14 +162,21 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                   );
                 }
               },
+              preparationLabel: s.orderId!,
             );
             break;
           case 2:
-            body = OnHoldedTab(groups: s.holdedByCategory);
+            body = OnHoldedTab(
+              groups: s.holdedByCategory,
+              preparationLabel: s.orderId!,
+            );
             break;
           case 3:
           default:
-            body = NotAvailableTab(groups: s.notAvailableByCategory);
+            body = NotAvailableTab(
+              groups: s.notAvailableByCategory,
+              preparationLabel: s.orderId!,
+            );
         }
 
         return Scaffold(

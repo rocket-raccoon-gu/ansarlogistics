@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/erp_data_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 import 'package:picker_driver_api/responses/similiar_item_response.dart';
 import 'package:picker_driver_api/responses/product_bd_data_response.dart';
@@ -30,9 +31,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     updatedata();
   }
 
-  EndPicking? itemdata;
-
-  Order? orderItemsResponse;
+  OrderItemNew? itemdata;
 
   List<SimiliarItems> relatableitems = [];
 
@@ -56,33 +55,33 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
   ProductDBdata? productDBdata;
 
-  updateBarcodeLog(String sku, String scannedsku) async {
-    try {
-      final response = await serviceLocator.tradingApi.updateBarcodeLog(
-        orderid: orderItemsResponse!.subgroupIdentifier,
-        sku: sku,
-        scanned_sku: scannedsku,
-        user_id: UserController().profile.id.toString(),
-      );
+  // updateBarcodeLog(String sku, String scannedsku) async {
+  //   try {
+  //     final response = await serviceLocator.tradingApi.updateBarcodeLog(
+  //       orderid: orderItemsResponse!.subgroupIdentifier,
+  //       sku: sku,
+  //       scanned_sku: scannedsku,
+  //       user_id: UserController().profile.id.toString(),
+  //     );
 
-      if (response.statusCode == 200) {
-        log("Barcode Log Data Updated");
-      }
-    } catch (e) {
-      log("Barcode Log Update Failed ${e.toString()}");
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       log("Barcode Log Data Updated");
+  //     }
+  //   } catch (e) {
+  //     log("Barcode Log Update Failed ${e.toString()}");
+  //   }
+  // }
 
   updatedata() async {
     itemdata = data['item'];
-    orderItemsResponse = data['order'];
+    // orderItemsResponse = data['order'];
     if (!isClosed) {
       emit(ItemReplacementLoading());
     }
 
     try {
       final responce = await serviceLocator.tradingApi.getSimiliarItemsRequest(
-        productid: itemdata!.productId,
+        productid: itemdata!.id.toString(),
       );
 
       if (responce.statusCode == 200) {
@@ -165,9 +164,6 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     // String regularprice,
     // String scannedsku1,
     // String itemname,
-    // String scanned_sku,
-    // String producebarcode,
-
     //---------------------------------------------------------------------
     int selectedindex,
     String product_name,
@@ -180,6 +176,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     String scannedsku1,
     String producebarcode,
     String isProduce,
+    String product_id,
   ) async {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
@@ -199,26 +196,25 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
       int newProductQty = editedQty != 0 ? editedQty : orderedQty;
 
       Map<String, dynamic> body = {
-        "item_status": "replaced",
-        "item_id": itemdata!.itemId,
-        "canceled_sku": itemdata!.productSku,
-        "new_sku": scannedsku1,
-        "product_name": product_name,
-        "new_product_qty": newProductQty,
-        "order_id": orderItemsResponse!.subgroupIdentifier.toString(),
-        "picker_id": UserController.userController.profile.id,
-        "shipping": 0,
-        "reason": reason,
-        "price": isProduce == "1" ? newProducrPrice : price,
-        "promo_price": promo_price,
-        "regular_price": regularprice,
-        "scanned_sku": producebarcode,
+        'item_id': itemdata!.id,
+        'order_number': itemdata!.subgroupIdentifier,
+        'scanned_sku': scannedsku1,
+        'status': "replaced",
+        'price': price,
+        'qty': newProductQty,
+        'preparation_id': data['preparationId'],
+        'is_produce': isProduce == "1" ? 1 : 0,
+        'productId': product_id,
+        'name': product_name,
+        'reason': reason,
       };
 
       // print('📝 [DEBUG] Request body to send:');
       // body.forEach((key, value) {
       //   print('  • $key: $value');
       // });
+
+      log(body.toString());
 
       loading = true;
 
@@ -231,7 +227,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
           loading = false;
 
           UserController.userController.notavailableindexlist.add(
-            itemdata!.itemId,
+            itemdata!.id.toString(),
           );
 
           showSnackBar(
@@ -254,7 +250,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
             eventBus.fire(
               DataChangedEvent("New Data from Screen B").updatePriceData(
-                orderItemsResponse!.subgroupIdentifier,
+                itemdata!.subgroupIdentifier.toString(),
                 finalProducePrice,
               ),
             );
@@ -273,7 +269,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
             eventBus.fire(
               DataChangedEvent("New Data from Screen B").updatePriceData(
-                orderItemsResponse!.subgroupIdentifier,
+                itemdata!.subgroupIdentifier.toString(),
                 finalPrice,
               ),
             );
@@ -288,12 +284,14 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
           UserController.userController.alloworderupdated = true;
 
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          // Navigator.of(context).popUntil((route) => route.isFirst);
 
-          context.gNavigationService.openPickerOrderInnerPage(
-            context,
-            arg: {'orderitem': orderItemsResponse},
-          );
+          context.gNavigationService.openPickerWorkspacePage(context);
+
+          // context.gNavigationService.openPickerOrderInnerPage(
+          //   context,
+          //   arg: {'orderitem': orderItemsResponse},
+          // );
         } else {
           loading = false;
           // print("Update failed with status code: ${response.statusCode}");

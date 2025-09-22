@@ -179,92 +179,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
               ),
             ),
 
-            if (enablecancelrequest)
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 5.0, top: 5.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Reason of cancelation:",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (UserController().cancelreason == "Other Reasons")
-                    CustomTextFormField(
-                      context: context,
-                      maxLines: 3,
-                      bordercolor: customColors().fontSecondary,
-                      enablesuggesion: true,
-                      controller: commentcontroller,
-                      fieldName: "Please fill the reason",
-                      hintText: "Enter Reason..",
-
-                      validator: Validator.defaultValidator,
-                      onChange: (p0) {
-                        UserController().cancelreason = p0;
-                      },
-                      onFieldSubmit: (p0) {
-                        if (idFormKey.currentState != null) {
-                          if (!idFormKey.currentState!.validate())
-                            return "Please fill the reason";
-                        }
-                      },
-                    )
-                  else
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        border:
-                            UserController().cancelreason ==
-                                    "Please Select Reason"
-                                ? Border.all(color: customColors().danger)
-                                : Border.all(color: HexColor('#F0F0F0')),
-                      ),
-                      width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          // value: true,
-                          items:
-                              items.map((item) {
-                                return DropdownMenuItem(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
-                          onChanged: (value) {
-                            if (mounted) {
-                              setState(() {
-                                UserController().cancelreason = value!;
-                              });
-                            }
-                            // changereasons!(value);
-                          },
-                          hint: Text(
-                            UserController().cancelreason,
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyM_Bold,
-                              color: FontColor.FontPrimary,
-                            ),
-                            textAlign: TextAlign.end,
-                          ),
-                          style: TextStyle(
-                            color: Colors.black,
-                            decorationColor: Colors.red,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              )
-            else if (enableholdrequest)
+            if (enableholdrequest)
               CustomTextFormField(
                 context: context,
                 maxLines: 3,
@@ -311,53 +226,6 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                           ],
                         ),
                       ),
-
-                      // Padding(
-                      //   padding: const EdgeInsets.only(
-                      //     left: 8.0,
-                      //     right: 8.0,
-                      //     bottom: 8.0,
-                      //   ),
-                      //   child: Container(
-                      //     padding: const EdgeInsets.symmetric(
-                      //       horizontal: 8.0,
-                      //       vertical: 24.0,
-                      //     ),
-                      //     decoration: BoxDecoration(
-                      //       color: customColors().backgroundPrimary,
-                      //     ),
-                      //     child: Column(
-                      //       mainAxisAlignment: MainAxisAlignment.start,
-                      //       children: [
-                      //         Row(
-                      //           children: [
-                      //             FutureBuilder(
-                      //               future: getTranslateWord(
-                      //                 widget.orderResponseItem!.deliveryNote,
-                      //               ),
-                      //               builder: (context, snapshot) {
-                      //                 if (snapshot.hasData) {
-                      //                   return Expanded(
-                      //                     child: Text(
-                      //                       snapshot.data!,
-                      //                       textAlign: TextAlign.start,
-                      //                       style: customTextStyle(
-                      //                         fontStyle: FontStyle.Inter_Medium,
-                      //                         color: FontColor.FontPrimary,
-                      //                       ),
-                      //                     ),
-                      //                   );
-                      //                 } else {
-                      //                   return Text("");
-                      //                 }
-                      //               },
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -365,128 +233,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
           ],
         ),
 
-        if (enablecancelrequest)
-          Row(
-            children: [
-              Expanded(
-                child: BasketButton(
-                  bgcolor: customColors().carnationRed,
-                  textStyle: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Bold,
-                    color: FontColor.White,
-                  ),
-                  text: "Send Cancel Request",
-                  loading: sendcancelreq,
-                  onpress: () async {
-                    // if (UserController().cancelreason !=
-                    //         "Please Select Reason" &&
-                    //     UserController().cancelreason != "Other Reasons") {
-                    //   setState(() {
-                    //     sendcancelreq = true;
-                    //   });
-
-                    //   showSnackBar(
-                    //     context: context,
-                    //     snackBar: showSuccessDialogue(
-                    //       message: "status updating....!",
-                    //     ),
-                    //   );
-
-                    //   final resp = await context.gTradingApiGateway
-                    //       .updateMainOrderStat(
-                    //         orderid:
-                    //             widget.orderResponseItem!.subgroupIdentifier,
-                    //         orderstatus: "cancel_request",
-                    //         comment:
-                    //             "${UserController().profile.name.toString()} (${UserController().profile.empId}) is requested cancel the order for ${UserController().cancelreason.toString()}",
-                    //         userid: UserController().profile.id.toString(),
-                    //         latitude:
-                    //             UserController.userController.locationlatitude,
-                    //         longitude:
-                    //             UserController.userController.locationlongitude,
-                    //       );
-
-                    //   try {
-                    //     if (resp.statusCode == 200) {
-                    //       toastification.show(
-                    //         backgroundColor: customColors().secretGarden,
-                    //         context: context,
-                    //         autoCloseDuration: const Duration(seconds: 5),
-                    //         title: TranslatedText(
-                    //           text: "Requested For Cancel...!",
-                    //           style: customTextStyle(
-                    //             fontStyle: FontStyle.BodyL_Bold,
-                    //             color: FontColor.White,
-                    //           ),
-                    //         ),
-                    //       );
-
-                    //       UserController().cancelreason =
-                    //           "Please Select Reason";
-
-                    //       Navigator.of(
-                    //         context,
-                    //       ).popUntil((route) => route.isFirst);
-
-                    //       context.gNavigationService.openPickerWorkspacePage(
-                    //         context,
-                    //       );
-                    //     } else {
-                    //       setState(() {
-                    //         sendcancelreq = false;
-                    //       });
-
-                    //       toastification.show(
-                    //         backgroundColor: customColors().carnationRed,
-                    //         context: context,
-                    //         autoCloseDuration: const Duration(seconds: 5),
-                    //         title: TranslatedText(
-                    //           text: "Send Request Failed Please Try Again...!",
-                    //           style: customTextStyle(
-                    //             fontStyle: FontStyle.BodyL_Bold,
-                    //             color: FontColor.White,
-                    //           ),
-                    //         ),
-                    //       );
-                    //     }
-                    //   } catch (e) {
-                    //     setState(() {
-                    //       sendcancelreq = false;
-                    //     });
-
-                    //     toastification.show(
-                    //       backgroundColor: customColors().carnationRed,
-                    //       context: context,
-                    //       autoCloseDuration: const Duration(seconds: 5),
-                    //       title: TranslatedText(
-                    //         text: "Send Request Failed Please Try Again...!",
-                    //         style: customTextStyle(
-                    //           fontStyle: FontStyle.BodyL_Bold,
-                    //           color: FontColor.White,
-                    //         ),
-                    //       ),
-                    //     );
-                    //   }
-                    // } else {
-                    //   toastification.show(
-                    //     backgroundColor: customColors().carnationRed,
-                    //     context: context,
-                    //     autoCloseDuration: const Duration(seconds: 2),
-                    //     title: TranslatedText(
-                    //       text: "Please Update Reason...!",
-                    //       style: customTextStyle(
-                    //         fontStyle: FontStyle.BodyL_Bold,
-                    //         color: FontColor.White,
-                    //       ),
-                    //     ),
-                    //   );
-                    // }
-                  },
-                ),
-              ),
-            ],
-          )
-        else if (enableholdrequest)
+        if (enableholdrequest)
           Row(
             children: [
               Expanded(
@@ -618,15 +365,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                   ),
                 ],
               ),
-              SheetButton(
-                imagepath: 'assets/cancel_req.png',
-                sheettext: 'Cancel \n Request',
-                onTapbtn: () {
-                  setState(() {
-                    enablecancelrequest = true;
-                  });
-                },
-              ),
+
               SheetButton(
                 imagepath: 'assets/hold_req.png',
                 sheettext: 'Hold \n Order',

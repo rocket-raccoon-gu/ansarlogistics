@@ -32,6 +32,7 @@ class PickerOrderDetailsPage extends StatefulWidget {
 class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
   late List<OrderItemNew> _items;
   StreamSubscription? _itemStatusSub;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -90,29 +91,43 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
             child: AppBar(elevation: 0, backgroundColor: HexColor('#F9FBFF')),
           ),
           backgroundColor: customColors().backgroundPrimary,
-          body: Column(
+          body: Stack(
             children: [
-              // ------------------------------- header start ----------------------------------------
-              OrderInnerAppBar(
-                onTapBack: () async {
-                  context.gNavigationService.back(context);
-                },
-                orderResponseItem: widget.orderDetails,
-                onTapinfo: () {
-                  showTopModel(
-                    context,
-                    widget.serviceLocator,
-                    widget.orderDetails,
-                  );
-                },
-                onTaptranslate: () {
-                  // setState(() {
-                  //   translate = !translate;
-                  // });
-                },
+              Column(
+                children: [
+                  // ------------------------------- header start ----------------------------------------
+                  OrderInnerAppBar(
+                    onTapBack: () async {
+                      context.gNavigationService.back(context);
+                    },
+                    orderResponseItem: widget.orderDetails,
+                    onTapinfo: () {
+                      showTopModel(
+                        context,
+                        widget.serviceLocator,
+                        widget.orderDetails,
+                      );
+                    },
+                    onTaptranslate: () {
+                      // setState(() {
+                      //   translate = !translate;
+                      // });
+                    },
+                  ),
+                  _deliveryNotes(),
+                  Expanded(child: _deliveryTypeGrid()),
+                ],
               ),
-              _deliveryNotes(),
-              Expanded(child: _deliveryTypeGrid()),
+              if (_isSubmitting)
+                Positioned.fill(
+                  child: AbsorbPointer(
+                    absorbing: true,
+                    child: Container(
+                      color: Colors.black.withOpacity(0.25),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
+                ),
             ],
           ),
           bottomNavigationBar: SafeArea(
@@ -138,77 +153,87 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
                   ),
                   const SizedBox(height: 10),
                   // End Picking (primary)
-                  SizedBox(
-                    height: 44,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: HexColor('#D86A3A'),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  widget.orderDetails.status != 'end_picking'
+                      ? SizedBox(
+                        height: 44,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: HexColor('#D86A3A'),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: _isSubmitting ? null : _onEndPicking,
+                          icon: const Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            'End Picking',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyM_Bold,
+                              color: FontColor.White,
+                            ),
+                          ),
                         ),
-                        elevation: 0,
-                      ),
-                      onPressed: _onEndPicking,
-                      icon: const Icon(Icons.check_circle, color: Colors.white),
-                      label: Text(
-                        'End Picking',
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_Bold,
-                          color: FontColor.White,
-                        ),
-                      ),
-                    ),
-                  ),
+                      )
+                      : const SizedBox(),
                   const SizedBox(height: 8),
                   // Customer not answering (outline warning)
-                  SizedBox(
-                    height: 44,
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: customColors().warning),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  widget.orderDetails.status != 'customer_not_answering'
+                      ? SizedBox(
+                        height: 44,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: customColors().warning),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed:
+                              _isSubmitting ? null : _onCustomerNotAnswering,
+                          icon: Icon(
+                            Icons.restaurant_menu,
+                            color: customColors().warning,
+                          ),
+                          label: Text(
+                            'Customer not answering',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyM_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
                         ),
-                      ),
-                      onPressed: _onCustomerNotAnswering,
-                      icon: Icon(
-                        Icons.restaurant_menu,
-                        color: customColors().warning,
-                      ),
-                      label: Text(
-                        'Customer not answering',
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_Bold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
+                      )
+                      : const SizedBox(),
                   const SizedBox(height: 8),
                   // Cancel Request for full order (danger subtle)
-                  SizedBox(
-                    height: 44,
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: customColors().danger),
-                        backgroundColor: customColors().danger.withOpacity(
-                          0.06,
+                  widget.orderDetails.status != 'cancel_request'
+                      ? SizedBox(
+                        height: 44,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: customColors().danger),
+                            backgroundColor: customColors().danger.withOpacity(
+                              0.06,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: _isSubmitting ? null : _onCancelRequest,
+                          icon: const Icon(Icons.cancel, color: Colors.red),
+                          label: Text(
+                            'Cancel Request for full order',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyM_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: _onCancelRequest,
-                      icon: const Icon(Icons.cancel, color: Colors.red),
-                      label: Text(
-                        'Cancel Request for full order',
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_Bold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
+                      )
+                      : const SizedBox(),
                 ],
               ),
             ),
@@ -539,6 +564,23 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
   }
 
   Future<void> _onEndPicking() async {
+    // Guard: block end picking if any item is still assigned or in progress
+    final hasBlockedItems = _items.any((it) {
+      final st = (it.itemStatus ?? '').toLowerCase();
+      return st == 'assigned_picker' || st == 'start_picking';
+    });
+
+    if (hasBlockedItems) {
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(
+          errorMessage:
+              'Cannot end picking. Some items are still Assigned or In-Progress.',
+        ),
+      );
+      return;
+    }
+
     await _updateMainOrderMain(
       preparationId: widget.orderDetails.id.toString(),
       status: 'end_picking',
@@ -603,6 +645,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
     }
 
     try {
+      if (mounted) setState(() => _isSubmitting = true);
       final resp = await widget.serviceLocator.tradingApi
           .updateMainOrderStatNew(
             preparationId: preparationId,
@@ -640,6 +683,8 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
           errorMessage: 'Status update failed. Please try again.',
         ),
       );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 }

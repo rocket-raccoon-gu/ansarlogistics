@@ -643,249 +643,297 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                     ],
                                   ),
                                 ),
+
                                 // Quantity stepper + Scan Barcode button
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      // Stepper (uses existing CounterButton styles)
-                                      SizedBox(
-                                        width: 64,
-                                        child: CounterDropdown(
-                                          initNumber: 0,
-                                          counterCallback: (v) {
-                                            setState(() {
-                                              editquantity = v;
-                                            });
-                                          },
-                                          minNumber: 0,
-                                          maxNumber: 100,
-                                          showLabel: false,
-                                        ),
+                                item.itemStatus != "item_not_available"
+                                    ? Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0,
                                       ),
-                                      const SizedBox(width: 12),
-                                      // Scan barcode (green)
-                                      !isKeyboard
-                                          ? Expanded(
-                                            child: InkWell(
-                                              onTap: () async {
-                                                if (editquantity == 0 &&
-                                                    (item.isProduce != true)) {
-                                                  showSnackBar(
-                                                    context: context,
-                                                    snackBar: showErrorDialogue(
-                                                      errorMessage:
-                                                          'Please Confirm How Many Qty Picking...!',
-                                                    ),
-                                                  );
-                                                  return;
-                                                }
-                                                var status =
-                                                    await Permission
-                                                        .camera
-                                                        .status;
-                                                if (!status.isGranted) {
-                                                  await requestCameraPermission();
-                                                }
+                                      child: Row(
+                                        children: [
+                                          // Stepper (uses existing CounterButton styles)
+                                          SizedBox(
+                                            width: 64,
+                                            child: CounterDropdown(
+                                              initNumber: 0,
+                                              counterCallback: (v) {
                                                 setState(() {
-                                                  isScanner = !isScanner;
+                                                  editquantity = v;
                                                 });
                                               },
-                                              child: Container(
-                                                height: 44,
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      customColors()
-                                                          .secretGarden,
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Image.asset(
-                                                      'assets/barcode_scan.png',
-                                                      height: 18,
-                                                      color: Colors.white,
-                                                      errorBuilder:
-                                                          (_, __, ___) =>
-                                                              const SizedBox(),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    Text(
-                                                      'Scan Barcode',
-                                                      style: customTextStyle(
-                                                        fontStyle:
-                                                            FontStyle
-                                                                .BodyM_Bold,
-                                                        color: FontColor.White,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                          : Expanded(
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 5.0,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Colors.grey,
-                                                ),
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              child: TextFormField(
-                                                autofocus: true,
-                                                onFieldSubmitted: (v) {
-                                                  setState(() {
-                                                    isKeyboard = false;
-                                                  });
-                                                },
-                                                decoration: InputDecoration(
-                                                  border: InputBorder.none,
-                                                ),
-                                              ),
+                                              minNumber: 0,
+                                              maxNumber: 100,
+                                              showLabel: false,
                                             ),
                                           ),
-                                    ],
-                                  ),
-                                ),
+                                          const SizedBox(width: 12),
+                                          // Scan barcode (green)
+                                          !isKeyboard
+                                              ? Expanded(
+                                                child: InkWell(
+                                                  onTap: () async {
+                                                    if (editquantity == 0 &&
+                                                        (item.isProduce !=
+                                                            true)) {
+                                                      showSnackBar(
+                                                        context: context,
+                                                        snackBar: showErrorDialogue(
+                                                          errorMessage:
+                                                              'Please Confirm How Many Qty Picking...!',
+                                                        ),
+                                                      );
+                                                      return;
+                                                    }
+                                                    var status =
+                                                        await Permission
+                                                            .camera
+                                                            .status;
+                                                    if (!status.isGranted) {
+                                                      await requestCameraPermission();
+                                                    }
+                                                    setState(() {
+                                                      isScanner = !isScanner;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    height: 44,
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          customColors()
+                                                              .secretGarden,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Image.asset(
+                                                          'assets/barcode_scan.png',
+                                                          height: 18,
+                                                          color: Colors.white,
+                                                          errorBuilder:
+                                                              (_, __, ___) =>
+                                                                  const SizedBox(),
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Text(
+                                                          'Scan Barcode',
+                                                          style: customTextStyle(
+                                                            fontStyle:
+                                                                FontStyle
+                                                                    .BodyM_Bold,
+                                                            color:
+                                                                FontColor.White,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                              : Expanded(
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 5.0,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color: Colors.grey,
+                                                    ),
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                  ),
+                                                  child: TextFormField(
+                                                    autofocus: true,
+                                                    onFieldSubmitted: (v) {
+                                                      setState(() {
+                                                        isKeyboard = false;
+                                                      });
+                                                    },
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                        ],
+                                      ),
+                                    )
+                                    : Container(),
                                 const SizedBox(height: 16),
                                 // Actions row
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                    vertical: 10.0,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Actions',
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.BodyM_Bold,
-                                          color: FontColor.FontPrimary,
-                                        ),
+                                item.itemStatus != "item_not_available"
+                                    ? Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0,
+                                        vertical: 10.0,
                                       ),
-                                      const SizedBox(height: 10),
-                                      Row(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          // Replace
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 88,
-                                              child: _ActionChip(
-                                                label1: 'Replace',
-                                                label2: 'Item',
-                                                color:
-                                                    customColors()
-                                                        .backgroundSecondary,
-                                                textColor:
-                                                    customColors().dodgerBlue,
-                                                borderColor:
-                                                    customColors().dodgerBlue,
-                                                asset: Icons.swap_horiz,
-                                                onTap: () {
-                                                  // Navigate to replacement flow if available in existing app
-                                                  // Keeping as no-op if not wired in this screen yet.
-                                                },
-                                              ),
+                                          Text(
+                                            'Actions',
+                                            style: customTextStyle(
+                                              fontStyle: FontStyle.BodyM_Bold,
+                                              color: FontColor.FontPrimary,
                                             ),
                                           ),
-                                          const SizedBox(width: 12),
-                                          // Hold
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 88,
-                                              child: _ActionChip(
-                                                label1: 'Hold',
-                                                label2: 'Item',
-                                                color:
-                                                    customColors()
-                                                        .backgroundSecondary,
-                                                textColor:
-                                                    customColors().dodgerBlue,
-                                                borderColor:
-                                                    customColors().dodgerBlue,
-                                                asset: Icons.pause,
-                                                onTap: () {
-                                                  // Placeholder for hold logic
-                                                },
+                                          const SizedBox(height: 10),
+                                          Row(
+                                            children: [
+                                              // Replace
+                                              Expanded(
+                                                child: SizedBox(
+                                                  height: 88,
+                                                  child: _ActionChip(
+                                                    label1: 'Replace',
+                                                    label2: 'Item',
+                                                    color:
+                                                        customColors()
+                                                            .backgroundSecondary,
+                                                    textColor:
+                                                        customColors()
+                                                            .dodgerBlue,
+                                                    borderColor:
+                                                        customColors()
+                                                            .dodgerBlue,
+                                                    asset: Icons.swap_horiz,
+                                                    onTap: () {
+                                                      // Navigate to replacement flow if available in existing app
+                                                      // Keeping as no-op if not wired in this screen yet.
+                                                      context.gNavigationService
+                                                          .openOrderItemReplacementPage(
+                                                            context,
+                                                            arg: {
+                                                              'item': item,
+                                                              'preparationId':
+                                                                  widget
+                                                                      .data['preparationLabel'],
+                                                            },
+                                                          );
+                                                    },
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          // Not Available
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 88,
-                                              child: _ActionChip(
-                                                label1: 'Not',
-                                                label2: 'Available',
-                                                color: HexColor('#FFF1F1'),
-                                                textColor:
-                                                    customColors().carnationRed,
-                                                borderColor: Colors.transparent,
-                                                asset: Icons.close,
-                                                onTap: () {
-                                                  context
-                                                      .read<
-                                                        OrderItemDetailsCubit
-                                                      >()
-                                                      .updateitemstatus(
-                                                        'item_not_available',
-                                                        '${item.qtyOrdered ?? 0}',
-                                                        '',
-                                                        item.price ?? '0',
-                                                      );
-                                                },
+                                              const SizedBox(width: 12),
+                                              // Hold
+                                              Expanded(
+                                                child: SizedBox(
+                                                  height: 88,
+                                                  child: _ActionChip(
+                                                    label1: 'Hold',
+                                                    label2: 'Item',
+                                                    color:
+                                                        customColors()
+                                                            .backgroundSecondary,
+                                                    textColor:
+                                                        customColors()
+                                                            .dodgerBlue,
+                                                    borderColor:
+                                                        customColors()
+                                                            .dodgerBlue,
+                                                    asset: Icons.pause,
+                                                    onTap: () {
+                                                      // Placeholder for hold logic
+                                                      context
+                                                          .read<
+                                                            OrderItemDetailsCubit
+                                                          >()
+                                                          .updateitemstatus(
+                                                            'holded',
+                                                            '${item.qtyOrdered ?? 0}',
+                                                            '',
+                                                            item.price ?? '0',
+                                                            widget
+                                                                .data['preparationLabel'],
+                                                          );
+                                                    },
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          // Cancel Item
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 88,
-                                              child: _ActionChip(
-                                                label1: 'Cancel',
-                                                label2: 'Item',
-                                                color: Colors.white,
-                                                textColor:
-                                                    customColors().carnationRed,
-                                                borderColor:
-                                                    customColors().carnationRed,
-                                                asset: Icons.cancel,
-                                                onTap: () {
-                                                  context
-                                                      .read<
-                                                        OrderItemDetailsCubit
-                                                      >()
-                                                      .updateitemstatus(
-                                                        'canceled',
-                                                        '${item.qtyOrdered ?? 0}',
-                                                        'cancelled_by_picker',
-                                                        item.price ?? '0',
-                                                      );
-                                                },
+                                              const SizedBox(width: 12),
+                                              // Not Available
+                                              Expanded(
+                                                child: SizedBox(
+                                                  height: 88,
+                                                  child: _ActionChip(
+                                                    label1: 'Not',
+                                                    label2: 'Available',
+                                                    color: HexColor('#FFF1F1'),
+                                                    textColor:
+                                                        customColors()
+                                                            .carnationRed,
+                                                    borderColor:
+                                                        Colors.transparent,
+                                                    asset: Icons.close,
+                                                    onTap: () {
+                                                      context
+                                                          .read<
+                                                            OrderItemDetailsCubit
+                                                          >()
+                                                          .updateitemstatus(
+                                                            'item_not_available',
+                                                            '${item.qtyOrdered ?? 0}',
+                                                            '',
+                                                            item.price ?? '0',
+                                                            widget
+                                                                .data['preparationLabel'],
+                                                          );
+                                                    },
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                              const SizedBox(width: 12),
+                                              // Cancel Item
+                                              Expanded(
+                                                child: SizedBox(
+                                                  height: 88,
+                                                  child: _ActionChip(
+                                                    label1: 'Cancel',
+                                                    label2: 'Item',
+                                                    color: Colors.white,
+                                                    textColor:
+                                                        customColors()
+                                                            .carnationRed,
+                                                    borderColor:
+                                                        customColors()
+                                                            .carnationRed,
+                                                    asset: Icons.cancel,
+                                                    onTap: () {
+                                                      context
+                                                          .read<
+                                                            OrderItemDetailsCubit
+                                                          >()
+                                                          .updateitemstatus(
+                                                            'canceled',
+                                                            '${item.qtyOrdered ?? 0}',
+                                                            'cancelled_by_picker',
+                                                            item.price ?? '0',
+                                                            widget
+                                                                .data['preparationLabel'],
+                                                          );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
+                                    )
+                                    : Container(),
                                 const SizedBox(height: 16),
                               ],
                             ),
