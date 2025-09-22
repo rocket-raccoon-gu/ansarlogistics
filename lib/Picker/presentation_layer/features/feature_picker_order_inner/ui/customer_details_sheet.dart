@@ -27,12 +27,14 @@ class CustomerDetailsSheet extends StatefulWidget {
   final Function()? onTapClose;
   final ServiceLocator serviceLocator;
   final OrderNew orderResponseItem;
+  final String preparationId;
 
   CustomerDetailsSheet({
     Key? key,
     required this.onTapClose,
     required this.serviceLocator,
     required this.orderResponseItem,
+    required this.preparationId,
   }) : super(key: key);
 
   @override
@@ -246,6 +248,7 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
                     // else
                     PickerCustomerDetailsTab(
                       orderResponseItem: widget.orderResponseItem,
+                      preparationId: widget.preparationId,
                     ),
                     StatusHistory(
                       serviceLocator: widget.serviceLocator,

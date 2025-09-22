@@ -202,6 +202,7 @@ getFormatedDateForReport(String _date) {
 Future<void> showTopModel(
   BuildContext context,
   ServiceLocator serviceLocator,
+  String preparationId,
   OrderNew order,
 ) async {
   final value = await showTopModalSheet<String?>(
@@ -213,6 +214,7 @@ Future<void> showTopModel(
         context.gNavigationService.back(context);
       },
       orderResponseItem: order,
+      preparationId: preparationId,
     ),
   );
 }
