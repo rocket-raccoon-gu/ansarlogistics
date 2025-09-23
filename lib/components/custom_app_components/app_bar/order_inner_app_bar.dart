@@ -12,12 +12,14 @@ class OrderInnerAppBar extends StatelessWidget {
   Function()? onTapinfo;
   Function()? onTapBack;
   final Function()? onTaptranslate;
+  String? title;
   OrderInnerAppBar({
     super.key,
     required this.orderResponseItem,
     required this.onTapinfo,
     required this.onTapBack,
     this.onTaptranslate,
+    this.title,
   });
 
   bool translate = false;
@@ -68,7 +70,7 @@ class OrderInnerAppBar extends StatelessWidget {
                       InkWell(
                         onTap: onTapinfo,
                         child: Text(
-                          orderResponseItem.id.toString(),
+                          title ?? orderResponseItem.id.toString(),
                           style: customTextStyle(
                             fontStyle: FontStyle.Lato_Bold,
                             color: FontColor.FontPrimary,

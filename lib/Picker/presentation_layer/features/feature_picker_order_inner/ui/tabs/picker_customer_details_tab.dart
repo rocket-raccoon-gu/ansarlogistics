@@ -16,11 +16,12 @@ import 'package:toastification/toastification.dart';
 class PickerCustomerDetailsTab extends StatefulWidget {
   OrderNew? orderResponseItem;
   String preparationId;
-
+  String suborderId;
   PickerCustomerDetailsTab({
     super.key,
     required this.orderResponseItem,
     required this.preparationId,
+    required this.suborderId,
   });
 
   @override
@@ -270,7 +271,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                             orderStatus: "holded",
                             comment:
                                 "${UserController().profile.name.toString()} (${UserController().profile.empId}) was holded the order for ${UserController().cancelreason.toString()}",
-                            orderNumber: widget.orderResponseItem!.id!,
+                            orderNumber: widget.suborderId,
                             token: UserController().app_token,
                           );
 

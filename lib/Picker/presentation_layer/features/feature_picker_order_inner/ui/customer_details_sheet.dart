@@ -28,6 +28,7 @@ class CustomerDetailsSheet extends StatefulWidget {
   final ServiceLocator serviceLocator;
   final OrderNew orderResponseItem;
   final String preparationId;
+  final String suborderId;
 
   CustomerDetailsSheet({
     Key? key,
@@ -35,6 +36,7 @@ class CustomerDetailsSheet extends StatefulWidget {
     required this.serviceLocator,
     required this.orderResponseItem,
     required this.preparationId,
+    required this.suborderId,
   }) : super(key: key);
 
   @override
@@ -234,21 +236,10 @@ class _CustomerDetailsSheetState extends State<CustomerDetailsSheet>
                 child: TabBarView(
                   controller: tabController,
                   children: [
-                    // CustomerDetailsTab(
-                    //   orderResponseItem: widget.orderResponseItem,
-                    //   enablecancelrequest: enablecancelrequest,
-                    //   enableholdrequest: enableholdrequest,
-                    //   enablecsnotaanswer: enablecsnotanswrrequest,
-                    // ),
-                    // if (UserController().profile.role == "2" ||
-                    //     UserController().profile.role == "3")
-                    //   DriverCustomerDetailsTab(
-                    //     orderResponseItem: widget.orderResponseItem,
-                    //   )
-                    // else
                     PickerCustomerDetailsTab(
                       orderResponseItem: widget.orderResponseItem,
                       preparationId: widget.preparationId,
+                      suborderId: widget.suborderId,
                     ),
                     StatusHistory(
                       serviceLocator: widget.serviceLocator,

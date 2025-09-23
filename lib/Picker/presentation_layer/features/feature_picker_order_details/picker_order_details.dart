@@ -107,6 +107,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
                         widget.serviceLocator,
                         widget.orderDetails.id.toString(),
                         widget.orderDetails,
+                        "",
                       );
                     },
                     onTaptranslate: () {
@@ -481,6 +482,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
             "order_id": widget.orderDetails.id,
             "order_items": _items,
             "preparation_label": widget.orderDetails.subgroupIdentifier,
+            "order": widget.orderDetails,
           },
         );
       },

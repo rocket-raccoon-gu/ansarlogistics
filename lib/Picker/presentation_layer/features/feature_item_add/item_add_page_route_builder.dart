@@ -24,21 +24,16 @@ class ItemAddPageRouteBuilder {
                 data: data,
               ),
         ),
-        BlocProvider(
-          create:
-              (context) => PickerOrdersCubit(
-                serviceLocator.tradingApi,
-                context,
-                PostRepositories(PostService(serviceLocator, context)),
-              ),
-        ),
       ],
       child: MultiRepositoryProvider(
         providers: [
           RepositoryProvider.value(value: serviceLocator.navigationService),
           RepositoryProvider<CubitsLocator>.value(value: serviceLocator),
         ],
-        child: ItemAddPage(),
+        child: ItemAddPage(
+          preparationNumber: data['preparationNumber'],
+          orderNumber: data['orderNumber'],
+        ),
       ),
     );
   }

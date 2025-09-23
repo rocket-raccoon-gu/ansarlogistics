@@ -653,20 +653,22 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                       child: Row(
                                         children: [
                                           // Stepper (uses existing CounterButton styles)
-                                          SizedBox(
-                                            width: 64,
-                                            child: CounterDropdown(
-                                              initNumber: 0,
-                                              counterCallback: (v) {
-                                                setState(() {
-                                                  editquantity = v;
-                                                });
-                                              },
-                                              minNumber: 0,
-                                              maxNumber: 100,
-                                              showLabel: false,
-                                            ),
-                                          ),
+                                          item.isProduce == true
+                                              ? SizedBox()
+                                              : SizedBox(
+                                                width: 64,
+                                                child: CounterDropdown(
+                                                  initNumber: 0,
+                                                  counterCallback: (v) {
+                                                    setState(() {
+                                                      editquantity = v;
+                                                    });
+                                                  },
+                                                  minNumber: 0,
+                                                  maxNumber: 100,
+                                                  showLabel: false,
+                                                ),
+                                              ),
                                           const SizedBox(width: 12),
                                           // Scan barcode (green)
                                           !isKeyboard

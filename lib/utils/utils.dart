@@ -204,6 +204,7 @@ Future<void> showTopModel(
   ServiceLocator serviceLocator,
   String preparationId,
   OrderNew order,
+  String suborderId,
 ) async {
   final value = await showTopModalSheet<String?>(
     context,
@@ -215,6 +216,7 @@ Future<void> showTopModel(
       },
       orderResponseItem: order,
       preparationId: preparationId,
+      suborderId: suborderId,
     ),
   );
 }
@@ -317,6 +319,13 @@ Widget getitemstat(EndPicking data, BuildContext context) {
       ),
     );
   }
+}
+
+String getWeightFromBarcode(String orderprice, String scaleprice) {
+  double orderprice1 = double.parse(orderprice);
+  double scaleprice1 = double.parse(scaleprice);
+  double weight = orderprice1 / scaleprice1;
+  return weight.toStringAsFixed(3);
 }
 
 String getPriceFromBarcode(String code) {

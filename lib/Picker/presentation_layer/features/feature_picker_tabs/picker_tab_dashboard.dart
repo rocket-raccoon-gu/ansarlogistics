@@ -4,15 +4,27 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/tabs/on_holded_tab.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/tabs/picked_tab.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/tabs/to_pick_tab.dart';
+import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/components/custom_app_components/app_bar/order_inner_app_bar.dart';
+import 'package:ansarlogistics/constants/methods.dart';
+import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 import 'package:ansarlogistics/utils/notifier.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class PickerTabDashboard extends StatefulWidget {
-  const PickerTabDashboard({super.key});
+  final OrderNew orderResponseItem;
+  final ServiceLocator serviceLocator;
+  const PickerTabDashboard({
+    super.key,
+    required this.orderResponseItem,
+    required this.serviceLocator,
+  });
 
   @override
   State<PickerTabDashboard> createState() => _PickerTabDashboardState();
@@ -180,24 +192,69 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
         }
 
         return Scaffold(
-          appBar: AppBar(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  titleText,
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyM_Bold,
-                    color: FontColor.FontPrimary,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                const Icon(Icons.info_outline, size: 18),
-              ],
-            ),
-            centerTitle: true,
+          // appBar: AppBar(
+          //   title: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       Text(
+          //         titleText,
+          //         style: customTextStyle(
+          //           fontStyle: FontStyle.BodyM_Bold,
+          //           color: FontColor.FontPrimary,
+          //         ),
+          //       ),
+          //       const SizedBox(width: 6),
+          //       const Icon(Icons.info_outline, size: 18),
+          //     ],
+          //   ),
+          //   centerTitle: true,
+          // ),
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(0.0),
+            child: AppBar(elevation: 0, backgroundColor: HexColor('#F9FBFF')),
           ),
-          body: body,
+          body: Column(
+            children: [
+              OrderInnerAppBar(
+                onTapBack: () async {
+                  context.gNavigationService.back(context);
+                },
+                orderResponseItem: widget.orderResponseItem,
+                title: titleText,
+                onTapinfo: () {
+                  showTopModel(
+                    context,
+                    widget.serviceLocator,
+                    widget.orderResponseItem.id.toString(),
+                    widget.orderResponseItem,
+                    titleText,
+                  );
+                },
+                onTaptranslate: () {
+                  // setState(() {
+                  //   translate = !translate;
+                  // });
+                },
+              ),
+              Expanded(child: body),
+            ],
+          ),
+          floatingActionButton:
+              widget.orderResponseItem.status != 'end_picking'
+                  ? FloatingActionButton(
+                    onPressed: () {
+                      context.gNavigationService.openOrderItemAddPage(
+                        context,
+                        arg: {
+                          "order_id": widget.orderResponseItem,
+                          "preparationNumber": widget.orderResponseItem.id,
+                          "orderNumber": titleText,
+                        },
+                      );
+                    },
+                    child: const Icon(Icons.add),
+                  )
+                  : null,
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex,
             onTap: (i) => setState(() => _currentIndex = i),

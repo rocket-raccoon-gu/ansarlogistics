@@ -25,7 +25,13 @@ import 'package:camera/camera.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ItemAddPage extends StatefulWidget {
-  const ItemAddPage({super.key});
+  final String preparationNumber;
+  final String orderNumber;
+  const ItemAddPage({
+    super.key,
+    required this.preparationNumber,
+    required this.orderNumber,
+  });
 
   @override
   State<ItemAddPage> createState() => _ItemAddPageState();
@@ -69,6 +75,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
 
     setState(() {
       isScanner = false;
+      scannedBarcode = barcodeScanRes;
     });
   }
 
@@ -305,15 +312,19 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                           "null";
 
                                       cubit.updateItem(
-                                        editquantity,
-                                        context,
+                                        0,
+                                        scannedBarcode == ""
+                                            ? barcodeController.text
+                                            : scannedBarcode,
+                                        "",
                                         erp.erpPrice.toString(),
-                                        erp.erpPrice.toString(),
-                                        erp.erpPrice.toString(),
-                                        erp.erpSku.toString(),
-                                        erp.erpProductName.toString(),
-                                        barcodeController.text,
+                                        editquantity.toString(),
+                                        widget.preparationNumber,
+                                        int.parse(isProduce),
+                                        erp.erpId,
                                         isProduce,
+                                        widget.orderNumber,
+                                        context,
                                       );
                                     } else if (BlocProvider.of<
                                           ItemAddPageCubit
@@ -329,15 +340,19 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                               : product.regularPrice.toString();
 
                                       cubit.updateItem(
-                                        editquantity,
-                                        context,
+                                        0,
+                                        scannedBarcode == ""
+                                            ? barcodeController.text
+                                            : scannedBarcode,
+                                        "",
                                         priceToUse,
-                                        product.erpCurrentPrice,
-                                        product.regularPrice,
-                                        product.sku.toString(),
+                                        editquantity.toString(),
+                                        widget.preparationNumber,
+                                        int.parse(product.isProduce.toString()),
+                                        product.productId,
                                         product.skuName.toString(),
-                                        barcodeController.text,
-                                        product.isProduce.toString(),
+                                        widget.orderNumber,
+                                        context,
                                       );
                                     }
 

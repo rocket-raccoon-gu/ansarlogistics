@@ -23,9 +23,9 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
       case _orderItemReplacementPageRouteName:
         final arg = settings.arguments as MapArguments;
         return routesFactory.createOrderItemReplacementPageRoute(arg.data);
-      // case _orderitemAddPageRouteName:
-      //   final arg = settings.arguments as MapArguments;
-      //   return routesFactory.createOrderItemAddPageRoute(arg.data);
+      case _orderitemAddPageRouteName:
+        final arg = settings.arguments as MapArguments;
+        return routesFactory.createOrderItemAddPageRoute(arg.data);
       // case _driverDashBoardPageRouteName:
       //   return routesFactory.createDriverDashboardPageRoute();
       // case _driverOrderInnerPageRouteName:

@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/erp_data_response.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 import 'package:toastification/toastification.dart';
@@ -37,7 +38,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
 
   ProductDBdata? productDBdata;
 
-  Order? orderItemsResponse;
+  OrderNew? orderItemsResponse;
 
   String? token;
 
@@ -177,31 +178,44 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
   }
 
   updateItem(
-    int qty,
-    BuildContext ctxt,
+    int itemId,
+    String scannedSku,
+    String reason,
     String price,
-    String promo_price,
-    String regularprice,
-    String scannedsku1,
-    String itemname,
-    String scanned_sku,
-    String producebarcode,
+    String qty,
+    String preparationId,
+    int isProduce,
+    int productId,
+    String productName,
+    String orderNumber,
+    BuildContext ctxt,
   ) async {
     try {
       // print("🛠️ Preparing body for updateItem...");
       Map<String, dynamic> body = {
-        "item_status": "new",
-        "item_id": "0",
-        "order_id": orderItemsResponse!.subgroupIdentifier,
-        "productSku": scannedsku1,
-        "productQty": qty,
-        "picker_id": UserController.userController.profile.id,
-        "shipping": 0,
-        "item_name": itemname,
-        "price": price,
-        "promo_price": promo_price,
-        "regular_price": regularprice,
-        "scanned_sku": scanned_sku,
+        "item_id": itemId,
+        "order_number": orderNumber,
+        // "scanned_sku": scannedSku,
+        "status": "new",
+        "shipping": "",
+        "price": double.parse(price),
+        // Normalize qty: if produce, treat large values as grams and convert to kg, round to 3 decimals; else 2 decimals
+        "qty":
+            (() {
+              final normalized = qty.replaceAll(',', '.');
+              double raw = double.tryParse(normalized) ?? 0.0;
+              if (isProduce == true) {
+                double kg = raw >= 10 ? (raw / 1000.0) : raw;
+                return double.parse(kg.toStringAsFixed(3));
+              } else {
+                return double.parse(raw.toStringAsFixed(2));
+              }
+            })(),
+        "preparation_id": preparationId,
+        "reason": reason,
+        "picker_id": UserController().profile.id.toString(),
+        "is_produce": isProduce,
+        "qty_orderd": qty,
       };
 
       log("📦 Request Body: $body");
@@ -233,28 +247,28 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         // );
 
         String newProducrPrice = getPriceFromBarcode(
-          getLastSixDigits(scanned_sku),
+          getLastSixDigits(scannedSku),
         );
 
         // print("📢 Firing DataChangedEvent");
         // print("🧾 producebarcode Body: ${producebarcode}");
 
-        if (producebarcode == "1") {
-          eventBus.fire(
-            DataChangedEvent("New Data from Screen B").updatePriceData(
-              orderItemsResponse!.subgroupIdentifier,
-              newProducrPrice,
-            ),
-          );
-        } else {
-          String finalPrice = price * qty;
-          eventBus.fire(
-            DataChangedEvent("New Data from Screen B").updatePriceData(
-              orderItemsResponse!.subgroupIdentifier,
-              finalPrice,
-            ),
-          );
-        }
+        // if (isProduce == "1") {
+        //   eventBus.fire(
+        //     DataChangedEvent("New Data from Screen B").updatePriceData(
+        //       orderItemsResponse!.subgroupIdentifier,
+        //       newProducrPrice,
+        //     ),
+        //   );
+        // } else {
+        //   String finalPrice = price * qty;
+        //   eventBus.fire(
+        //     DataChangedEvent("New Data from Screen B").updatePriceData(
+        //       orderItemsResponse!.subgroupIdentifier,
+        //       finalPrice,
+        //     ),
+        //   );
+        // }
 
         // print("✅ Setting alloworderupdated to true");
         UserController.userController.alloworderupdated = true;

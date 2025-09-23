@@ -15,7 +15,7 @@ class PickerTabDashboardRootBuilder {
 
     // Expect either a flattened list of OrderItemNew in 'order_items'
     // or an 'order' (OrderNew) object to take items from.
-    final dynamic itemsArg = _data['order_items'] ?? _data['order'];
+    final dynamic itemsArg = _data['order'];
     final List<OrderItemNew> items =
         (itemsArg is OrderNew)
             ? itemsArg.items
@@ -49,7 +49,10 @@ class PickerTabDashboardRootBuilder {
               orderId: orderId,
               serviceLocator: _serviceLocator,
             ),
-        child: const PickerTabDashboard(),
+        child: PickerTabDashboard(
+          orderResponseItem: itemsArg,
+          serviceLocator: _serviceLocator,
+        ),
       ),
     );
   }

@@ -22,6 +22,7 @@ class ToPickTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(12),
       itemCount: keys.length,
+      shrinkWrap: true,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (ctx, i) {
         final cat = keys[i];

@@ -286,6 +286,7 @@ class Item {
   String finalPrice;
   String webprice;
   String? imageurl;
+  String? productName;
 
   Item({
     required this.itemId,
@@ -302,6 +303,7 @@ class Item {
     required this.finalPrice,
     required this.webprice,
     required this.imageurl,
+    required this.productName,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
@@ -319,6 +321,7 @@ class Item {
     finalPrice: json["final_price"] ?? "",
     webprice: json["web_price"] ?? "",
     imageurl: json["image_url"] ?? "",
+    productName: json["product_name"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -336,6 +339,7 @@ class Item {
     "final_price": finalPrice,
     "webprice": webprice,
     "image_url": imageurl,
+    "product_name": productName,
   };
 }
 

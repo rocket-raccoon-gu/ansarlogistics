@@ -14,11 +14,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:picker_driver_api/responses/product_bd_data_response.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:picker_driver_api/responses/erp_data_response.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/bloc/picker_order_details_cubit.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'dart:developer';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   ServiceLocator serviceLocator;
@@ -178,9 +179,21 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         "order_number": orderItemNew!.subgroupIdentifier,
         "scanned_sku": scannedSku,
         "status": "end_picking",
-        "shipping": "",
+        "shipping": double.parse(price),
         "price": double.parse(price),
-        "qty": double.parse(qty).toInt(),
+        // Normalize qty: if produce, treat large values as grams and convert to kg, round to 3 decimals; else 2 decimals
+        "qty":
+            (() {
+              final normalized = qty.replaceAll(',', '.');
+              double raw = double.tryParse(normalized) ?? 0.0;
+              if (orderItemNew!.isProduce == true) {
+                // Heuristic: barcode-derived qty might be grams (e.g., 1200). Convert to kg.
+                double kg = raw >= 10 ? (raw / 1000.0) : raw;
+                return double.parse(kg.toStringAsFixed(3));
+              } else {
+                return double.parse(raw.toStringAsFixed(2));
+              }
+            })(),
         "preparation_id": preparationLabel1,
         "reason": "",
         "picker_id": UserController().profile.id.toString(),
@@ -296,7 +309,18 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         "status": item_status,
         "shipping": "",
         "price": double.parse(price),
-        "qty": double.parse(qty).toInt(),
+        // Normalize qty: if produce, treat large values as grams and convert to kg, round to 3 decimals; else 2 decimals
+        "qty":
+            (() {
+              final normalized = qty.replaceAll(',', '.');
+              double raw = double.tryParse(normalized) ?? 0.0;
+              if (orderItemNew!.isProduce == true) {
+                double kg = raw >= 10 ? (raw / 1000.0) : raw;
+                return double.parse(kg.toStringAsFixed(3));
+              } else {
+                return double.parse(raw.toStringAsFixed(2));
+              }
+            })(),
         "preparation_id": preparationLabel1,
         "reason": "",
         "picker_id": UserController().profile.id.toString(),
@@ -308,8 +332,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
       final response = await serviceLocator.tradingApi.updateItemStatusService(
         body: body,
-        token: token,
+        token: UserController().app_token,
       );
+
+      // print("📡 API Response Status Code: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         // Mirror the success handling like end-pick: notify dashboard and navigate back
@@ -336,6 +362,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         });
       } else {
         loading = false;
+        // print("❌ API status update failed: ${response.statusCode}");
+
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(
@@ -445,6 +473,28 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 povisvible = true;
                 // print("🧾 Showing confirmation dialog for ERP item");
 
+                // Validate barcode prefix for produce items: first 6 digits must match
+                if (orderItem.isProduce == true) {
+                  final String orderPrefix =
+                      productSku.length >= 6
+                          ? productSku.substring(0, 6)
+                          : productSku;
+                  final String scanPrefix =
+                      scannedSku.length >= 6
+                          ? scannedSku.substring(0, 6)
+                          : scannedSku;
+                  if (orderPrefix != scanPrefix) {
+                    showSnackBar(
+                      context: context,
+                      snackBar: showErrorDialogue(
+                        errorMessage: 'Product not same barcode',
+                      ),
+                    );
+                    povisvible = false;
+                    return;
+                  }
+                }
+
                 _showPickConfirmBottomSheet(
                   name: erPdata.erpProductName ?? '-',
                   sku: erPdata.erpSku ?? '-',
@@ -453,6 +503,14 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       orderItem.isProduce == true
                           ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                           : (erPdata.erpPrice ?? ''),
+                  weight:
+                      orderItem.isProduce == true
+                          ? getWeightFromBarcode(
+                            getLastSixDigits(scannedSku),
+                            orderItem.price?.toString() ?? '0',
+                          )
+                          : (erPdata.erpPrice ?? ''),
+                  isproduce: orderItem.isProduce ?? false,
                   regularPrice: erPdata.erpPrice,
                   barcodeType: 'EAN-13',
                   onConfirm: () {
@@ -463,7 +521,12 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
                     if (orderItem.price == erPdata.erpPrice) {
                       updateitemstatuspick(
-                        qty,
+                        orderItem.isProduce == true
+                            ? getWeightFromBarcode(
+                              getLastSixDigits(scannedSku),
+                              orderItem.price?.toString() ?? '0',
+                            )
+                            : qty,
                         scannedSku,
                         calculatedPrice,
                         preparationLabel11,
@@ -492,6 +555,28 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 povisvible = true;
                 // print("🧾 Showing confirmation dialog for ProductDB item");
 
+                // Validate barcode prefix for produce items: first 6 digits must match
+                if (orderItem.isProduce == true) {
+                  final String orderPrefix =
+                      productSku.length >= 6
+                          ? productSku.substring(0, 6)
+                          : productSku;
+                  final String scanPrefix =
+                      scannedSku.length >= 6
+                          ? scannedSku.substring(0, 6)
+                          : scannedSku;
+                  if (orderPrefix != scanPrefix) {
+                    showSnackBar(
+                      context: context,
+                      snackBar: showErrorDialogue(
+                        errorMessage: 'Product not same barcode',
+                      ),
+                    );
+                    povisvible = false;
+                    return;
+                  }
+                }
+
                 _showPickConfirmBottomSheet(
                   name: productDBdata.skuName ?? '-',
                   sku: productDBdata.sku ?? '-',
@@ -502,6 +587,15 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                           : double.parse(
                             productDBdata.specialPrice ?? '',
                           ).toStringAsFixed(2),
+                  weight:
+                      orderItem.isProduce == true
+                          ? getWeightFromBarcode(
+                            getLastSixDigits(scannedSku),
+                            orderItem.price?.toString() ?? '0',
+                          )
+                          : (productDBdata.specialPrice ??
+                              productDBdata.regularPrice),
+                  isproduce: orderItem.isProduce ?? false,
                   regularPrice: productDBdata.regularPrice,
                   barcodeType: 'EAN-13',
                   onConfirm: () {
@@ -511,7 +605,12 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                             : productDBdata.specialPrice ??
                                 productDBdata.regularPrice;
                     updateitemstatuspick(
-                      qty,
+                      orderItem.isProduce == true
+                          ? getWeightFromBarcode(
+                            getLastSixDigits(scannedSku),
+                            orderItem.price?.toString() ?? '0',
+                          )
+                          : qty,
                       scannedSku,
                       calculatedPrice,
                       preparationLabel11,
@@ -586,6 +685,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     String? barcodeType,
     required VoidCallback onConfirm,
     VoidCallback? onClose,
+    bool isproduce = false,
+    String? weight,
   }) {
     if (_isDialogShowing) return;
     _isDialogShowing = true;
@@ -710,6 +811,36 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                           ],
                         ),
                         const SizedBox(height: 8),
+                        if (isproduce)
+                          Row(
+                            children: [
+                              Builder(
+                                builder: (_) {
+                                  // Parse incoming weight; it may be already in kg or in grams.
+                                  double raw =
+                                      double.tryParse(weight ?? '') ?? 0.0;
+                                  // Heuristic: if value looks like grams (>= 10), convert to kg.
+                                  // Receipt-like barcodes often encode ~900-1200 for grams.
+                                  final double kg =
+                                      raw >= 10 ? (raw / 1000.0) : raw;
+                                  final String display =
+                                      kg < 1
+                                          ? kg.toStringAsFixed(3) // e.g., 0.978
+                                          : kg.toStringAsFixed(1); // e.g., 1.2
+                                  return Text(
+                                    'Weight: $display kg',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.blue.shade600,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          )
+                        else
+                          SizedBox(height: 8),
                         // Type and EXP badge
                         Row(
                           children: [
