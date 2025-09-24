@@ -152,6 +152,20 @@ class _ItemAddPageState extends State<ItemAddPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text("Is Produce"),
+                          Switch(
+                            value: producebarcode,
+                            onChanged: (value) {
+                              setState(() {
+                                producebarcode = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: Column(
@@ -181,14 +195,23 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                   // );.
                                   // print(barcodeController.text);
 
-                                  await BlocProvider.of<ItemAddPageCubit>(
-                                    context,
-                                  ).getScannedProductData(
-                                    barcodeController.text,
-                                    producebarcode,
-                                    barcodeController.text,
-                                    "additional",
-                                  );
+                                  if (barcodeController.text.isEmpty) {
+                                    showSnackBar(
+                                      context: context,
+                                      snackBar: showErrorDialogue(
+                                        errorMessage: "Please enter barcode",
+                                      ),
+                                    );
+                                  } else {
+                                    await BlocProvider.of<ItemAddPageCubit>(
+                                      context,
+                                    ).getScannedProductData(
+                                      barcodeController.text,
+                                      producebarcode,
+                                      barcodeController.text,
+                                      "additional",
+                                    );
+                                  }
                                 },
                                 bgcolor: customColors().dodgerBlue,
                                 text: "Enter",

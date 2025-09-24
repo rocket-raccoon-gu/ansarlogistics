@@ -192,15 +192,38 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
   ) async {
     try {
       // print("🛠️ Preparing body for updateItem...");
+      // Map<String, dynamic> body = {
+      //   "item_id": itemId,
+      //   "order_number": orderNumber,
+      //   // "scanned_sku": scannedSku,
+      //   "status": "new",
+      //   "price": double.parse(price),
+      //   // Normalize qty: if produce, treat large values as grams and convert to kg, round to 3 decimals; else 2 decimals
+      //   "qty":
+      //       (() {
+      //         final normalized = qty.replaceAll(',', '.');
+      //         double raw = double.tryParse(normalized) ?? 0.0;
+      //         if (isProduce == true) {
+      //           double kg = raw >= 10 ? (raw / 1000.0) : raw;
+      //           return double.parse(kg.toStringAsFixed(3));
+      //         } else {
+      //           return double.parse(raw.toStringAsFixed(2));
+      //         }
+      //       })(),
+      //   "preparation_id": preparationId,
+      //   "reason": reason,
+      //   "is_produce": isProduce,
+      //   "productId": productId,
+      //   "name": productName,
+      // };
+
       Map<String, dynamic> body = {
-        "item_id": itemId,
-        "order_number": orderNumber,
-        // "scanned_sku": scannedSku,
-        "status": "new",
-        "shipping": "",
-        "price": double.parse(price),
-        // Normalize qty: if produce, treat large values as grams and convert to kg, round to 3 decimals; else 2 decimals
-        "qty":
+        'item_id': itemId,
+        'order_number': orderNumber,
+        'scanned_sku': scannedSku,
+        'status': "new",
+        'price': double.parse(price),
+        'qty':
             (() {
               final normalized = qty.replaceAll(',', '.');
               double raw = double.tryParse(normalized) ?? 0.0;
@@ -211,11 +234,11 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
                 return double.parse(raw.toStringAsFixed(2));
               }
             })(),
-        "preparation_id": preparationId,
-        "reason": reason,
-        "picker_id": UserController().profile.id.toString(),
-        "is_produce": isProduce,
-        "qty_orderd": qty,
+        'preparation_id': preparationId,
+        'is_produce': isProduce,
+        'productId': productId,
+        'name': productName,
+        'reason': reason,
       };
 
       log("📦 Request Body: $body");
@@ -277,10 +300,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         Navigator.of(ctxt).popUntil((route) => route.isFirst);
 
         // print("➡️ Opening PickerOrderInnerPage...");
-        ctxt.gNavigationService.openPickerOrderInnerPage(
-          ctxt,
-          arg: {'orderitem': orderItemsResponse},
-        );
+        context.gNavigationService.openPickerWorkspacePage(context);
       } else {
         // print("❌ API call failed with status code: ${response.statusCode}");
         showSnackBar(
