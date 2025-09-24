@@ -7,6 +7,7 @@ import 'package:ansarlogistics/main.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,7 +23,11 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
     updateData();
   }
 
-  updateData() {
+  String? selectedRegion;
+
+  updateData() async {
+    selectedRegion = await PreferenceUtils.getDataFromShared("selected_region");
+
     emit(SalesStaffDashboardInitialState());
   }
 
@@ -217,6 +222,242 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                                   data['items'][0]['offer_price'] != ""
                               ? Text(
                                 "${double.parse(data['items'][0]['offer_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyM_Bold,
+                                  color: FontColor.CarnationRed,
+                                ),
+                              )
+                              : Text(
+                                "",
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyM_Bold,
+                                  color: FontColor.CarnationRed,
+                                ),
+                              ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+        // Emit success state so UI can autofill fields
+        final String? discountPerc =
+            data['items'][0]['discount_perc']?.toString();
+        emit(
+          SalesStaffBarcodeCheckSuccess(
+            erpSku: barcodescanRes,
+            discountPerc:
+                (discountPerc != null && discountPerc.isNotEmpty)
+                    ? discountPerc
+                    : null,
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.pop(context);
+
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(
+          errorMessage: "Barcode not read please check again...!",
+        ),
+      );
+    }
+  }
+
+  checkBarcodeDataUae(String barcodescanRes) async {
+    try {
+      String response = await serviceLocator.tradingApi
+          .generalPromotionServiceUae(endpoint: barcodescanRes);
+
+      log(response);
+
+      Map<String, dynamic> data = jsonDecode(response);
+
+      Navigator.pop(context);
+
+      log(data.toString());
+
+      if (data['items'].isEmpty) {
+        showGeneralDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierLabel: "",
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return Container();
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            var curve = Curves.easeInOut.transform(animation.value);
+
+            return Transform.scale(
+              scale: curve,
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(Icons.close, size: 25.0),
+                        ),
+                      ],
+                    ),
+                    Lottie.asset(
+                      "assets/lottie_files/update_error.json",
+                      height: 150.0,
+                      width: 150.0,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        barcodescanRes,
+                        textAlign: TextAlign.center,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        "Oh No, This Item Not In The Promotion",
+                        textAlign: TextAlign.center,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+        // Emit not-found state so UI can reflect the result
+        emit(SalesStaffBarcodeCheckNotFound(scannedSku: barcodescanRes));
+      } else {
+        showGeneralDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierLabel: "",
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return Container();
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            var curve = Curves.easeInOut.transform(animation.value);
+
+            return Transform.scale(
+              scale: curve,
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(Icons.close, size: 25.0),
+                        ),
+                      ],
+                    ),
+                    Lottie.asset(
+                      "assets/lottie_files/success_animation.json",
+                      height: 150.0,
+                      width: 150.0,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        data['items'][0]['product_name'],
+                        textAlign: TextAlign.center,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        barcodescanRes,
+                        textAlign: TextAlign.center,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        "Standard Price : ${double.parse(data['items'][0]['retail_price']).toStringAsFixed(2)} AED",
+                        textAlign: TextAlign.center,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child:
+                          data['items'][0]['discount_perc'] != null &&
+                                  data['items'][0]['discount_perc'] != ""
+                              ? Text(
+                                "Discount Percentage : ${double.parse(data['items'][0]['discount_perc']).toStringAsFixed(2)} %",
+                                textAlign: TextAlign.center,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyM_Bold,
+                                  color: FontColor.FontPrimary,
+                                ),
+                              )
+                              : Text(
+                                "Discount Percentage :  %",
+                                textAlign: TextAlign.center,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyM_Bold,
+                                  color: FontColor.FontPrimary,
+                                ),
+                              ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Offer Price : ",
+                            textAlign: TextAlign.center,
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyM_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
+                          data['items'][0]['offer_price'] != null &&
+                                  data['items'][0]['offer_price'] != ""
+                              ? Text(
+                                "${double.parse(data['items'][0]['offer_price']).toStringAsFixed(2)} AED",
                                 style: customTextStyle(
                                   fontStyle: FontStyle.BodyM_Bold,
                                   color: FontColor.CarnationRed,

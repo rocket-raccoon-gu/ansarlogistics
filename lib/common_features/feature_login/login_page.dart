@@ -7,6 +7,7 @@ import 'package:ansarlogistics/components/custom_app_components/scrollable_botto
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -162,17 +163,38 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
 
+                            // Padding(
+                            //   padding: const EdgeInsets.only(top: 5.0),
+                            //   child: InkWell(
+                            //     onTap: () async {
+                            //       context.gNavigationService.openSignupPage(
+                            //         context,
+                            //         arg: {},
+                            //       );
+                            //     },
+                            //     child: Text(
+                            //       "Create New Account",
+                            //       style: customTextStyle(
+                            //         fontStyle: FontStyle.BodyL_Bold,
+                            //         color: FontColor.DodgerBlue,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                             Padding(
                               padding: const EdgeInsets.only(top: 5.0),
                               child: InkWell(
                                 onTap: () async {
-                                  context.gNavigationService.openSignupPage(
-                                    context,
-                                    arg: {},
+                                  await PreferenceUtils.removeDataFromShared(
+                                    'selected_region',
                                   );
+
+                                  if (!mounted) return;
+                                  context.gNavigationService
+                                      .openSelectRegionsPage(context);
                                 },
                                 child: Text(
-                                  "Create New Account",
+                                  "Change Region",
                                   style: customTextStyle(
                                     fontStyle: FontStyle.BodyL_Bold,
                                     color: FontColor.DodgerBlue,

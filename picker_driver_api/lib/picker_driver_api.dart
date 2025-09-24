@@ -968,6 +968,25 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future checkPromotionServiceUae({required String endpoint}) async {
+    final url = Uri.parse(
+      'https://uae.ahmarket.com/custom-api/api/scan_barcode_percentage.php?barcode=$endpoint',
+    );
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
+  }
+
   Future<http.Response> checkBarcodeDB({
     required String endpoint,
     required String productSku,

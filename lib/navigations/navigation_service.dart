@@ -57,15 +57,15 @@ class NavigationService {
     BuildContext context, {
     Map<String, dynamic>? arg,
   }) {
-    // print("📦 Navigating to PickerOrderDetails page...");
+    // print(" Navigating to PickerOrderDetails page...");
 
     if (arg == null) {
-      // print("❌ Error: 'arg' is null. Cannot proceed to navigation.");
+      // print(" Error: 'arg' is null. Cannot proceed to navigation.");
       return Future.value(); // Prevent crash by returning early
     }
 
-    // print("✅ Navigation arguments: $arg");
-    // print("➡️ Route: $_pickerOrderDetailsPageRouteName");
+    // print(" Navigation arguments: $arg");
+    // print(" Route: $_pickerOrderDetailsPageRouteName");
 
     return Navigator.of(
       context,
@@ -152,9 +152,10 @@ class NavigationService {
     ).pushNamed(_newScanBarcodePageRouteName, arguments: MapArguments(data));
   }
 
-  // Future<void> openSelectRegionsPage(
-  //   BuildContext context
-  // ){
-  //  return Navigator.of(context)
-  // }
+  Future<void> openSelectRegionsPage(BuildContext context) {
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      _selectRegionsPageRouteName,
+      (Route<dynamic> route) => false,
+    );
+  }
 }

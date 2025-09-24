@@ -5,6 +5,7 @@ import 'package:ansarlogistics/Sales_staff/features/bloc/sales_staff_dashboard_c
 import 'package:ansarlogistics/Sales_staff/features/bloc/sales_staff_dashboard_state.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
@@ -54,6 +55,7 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
     'Q021': 'A&H Market online',
   };
   String? _selectedBranchCode;
+  String? _selectedRegion;
 
   Future<void> scanBarcodeNormal(BuildContext ctx) async {
     String? barcodescanRes;
@@ -99,10 +101,22 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
     try {
       sholoadingIndicator(context);
 
+      // Use region from Cubit (cached) instead of reading preferences each time
+      final bool isUae =
+          (context.read<SalesStaffDashboardCubit>().selectedRegion ?? '')
+              .toLowerCase() ==
+          'uae';
+
       // Proceed to check barcode; UI updates happen via Bloc state.
-      BlocProvider.of<SalesStaffDashboardCubit>(
-        context,
-      ).checkBarcodeData(barcodescanRes!);
+      if (mounted && isUae) {
+        BlocProvider.of<SalesStaffDashboardCubit>(
+          context,
+        ).checkBarcodeDataUae(barcodescanRes!);
+      } else {
+        BlocProvider.of<SalesStaffDashboardCubit>(
+          context,
+        ).checkBarcodeData(barcodescanRes!);
+      }
       // Keep discount as is unless backend fills it through state elsewhere
     } catch (e) {
       // ignore: use_build_context_synchronously
@@ -190,7 +204,7 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                             Padding(
                               padding: const EdgeInsets.only(left: 6.0),
                               child: Text(
-                                "Sales DashBoard",
+                                "${UserController().userName}",
                                 style: customTextStyle(
                                   fontStyle: FontStyle.BodyL_Bold,
                                   color: FontColor.FontSecondary,
@@ -278,98 +292,104 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
             );
           },
         ),
-        // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        // floatingActionButton: FloatingActionButton(
-        //   backgroundColor: customColors().backgroundTertiary,
-        //   elevation: 10.0,
-        //   onPressed: () {
-        //     scanBarcodeNormal(context);
-        //   },
-        //   child: Image.asset('assets/barcode_scan.png', height: 25.0),
-        // ),
-        bottomNavigationBar: Container(
-          // height: screenSize.height * 0.025,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 16.0,
-              horizontal: 16.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Add Product Button
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _productNameController.clear();
-                      _productDiscountController.clear();
-                      _showManualForm = !_showManualForm;
-                      _showBarcodeForm = false;
-                    });
-                    BlocProvider.of<SalesStaffDashboardCubit>(
-                      context,
-                    ).updateData();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: HexColor('#b9d737'),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 4,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.add, size: 20),
-                      SizedBox(width: 8),
-                      Text('Add'),
-                    ],
-                  ),
-                ),
 
-                //Scan Barcode
-                //
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showBarcodeForm = true;
-                      _showManualForm = false;
-                    });
-                    BlocProvider.of<SalesStaffDashboardCubit>(
-                      context,
-                    ).updateData();
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: HexColor('#b9d737'),
-                      borderRadius: BorderRadius.circular(8),
+        bottomNavigationBar:
+            BlocBuilder<SalesStaffDashboardCubit, SalesStaffDashboardState>(
+              builder: (context, state) {
+                final bool isUae =
+                    (context.read<SalesStaffDashboardCubit>().selectedRegion ??
+                            '')
+                        .toLowerCase() ==
+                    'uae';
+
+                return Container(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 16.0,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 12.0,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.text_fields, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Text Barcode',
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyM_Bold,
-                              color: FontColor.FontPrimary,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Add Product Button (hidden for UAE region)
+                        !isUae
+                            ? ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _productNameController.clear();
+                                  _productDiscountController.clear();
+                                  _showManualForm = !_showManualForm;
+                                  _showBarcodeForm = false;
+                                });
+                                BlocProvider.of<SalesStaffDashboardCubit>(
+                                  context,
+                                ).updateData();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: HexColor('#b9d737'),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                elevation: 4,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.add, size: 20),
+                                  SizedBox(width: 8),
+                                  Text('Add'),
+                                ],
+                              ),
+                            )
+                            : const SizedBox(),
+
+                        // Scan Barcode shortcut
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _showBarcodeForm = true;
+                              _showManualForm = false;
+                            });
+                            BlocProvider.of<SalesStaffDashboardCubit>(
+                              context,
+                            ).updateData();
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: HexColor('#b9d737'),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 12.0,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.text_fields, size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Text Barcode',
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_Bold,
+                                      color: FontColor.FontPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
-          ),
-        ),
       ),
     );
   }
@@ -592,9 +612,27 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                       if (_barcodeFormKey.currentState!.validate()) {
                         // show loading and call checkBarcodeData
                         sholoadingIndicator(context);
-                        await BlocProvider.of<SalesStaffDashboardCubit>(
-                          context,
-                        ).checkBarcodeData(_barcodeController.text.trim());
+
+                        // Use region from Cubit (cached) instead of reading preferences each time
+                        final bool isUae =
+                            (context
+                                        .read<SalesStaffDashboardCubit>()
+                                        .selectedRegion ??
+                                    '')
+                                .toLowerCase() ==
+                            'uae';
+
+                        // Proceed to check barcode; UI updates happen via Bloc state.
+                        if (mounted && isUae) {
+                          BlocProvider.of<SalesStaffDashboardCubit>(
+                            context,
+                          ).checkBarcodeDataUae(_barcodeController.text.trim());
+                        } else {
+                          BlocProvider.of<SalesStaffDashboardCubit>(
+                            context,
+                          ).checkBarcodeData(_barcodeController.text.trim());
+                        }
+
                         // Clear and hide form after call
                         _barcodeFormKey.currentState!.reset();
                         setState(() {

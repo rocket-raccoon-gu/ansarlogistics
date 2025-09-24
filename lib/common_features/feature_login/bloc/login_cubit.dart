@@ -33,6 +33,8 @@ class LoginCubit extends Cubit<LoginState> {
           UserController().userName =
               (await PreferenceUtils.getDataFromShared("userCode")) ?? "";
       String val = await PreferenceUtils.getDataFromShared("password") ?? "";
+      String selectedRegion =
+          await PreferenceUtils.getDataFromShared("selected_region") ?? "";
 
       if (id != "" && val != "") {
         // Validate the encrypted password
@@ -40,12 +42,22 @@ class LoginCubit extends Cubit<LoginState> {
         try {
           // String pass = decryptStringForUser(val, keyVal(id));
           if (val != "") {
-            if (await sendLoginRequest(
-              context: context,
-              userId: id,
-              password: val,
-            )) {
-              return;
+            if (selectedRegion.toLowerCase() == "uae") {
+              if (await sendLoginRequest(
+                context: context,
+                userId: id,
+                password: val,
+              )) {
+                return;
+              }
+            } else {
+              if (await sendLoginRequest(
+                context: context,
+                userId: id,
+                password: val,
+              )) {
+                return;
+              }
             }
           } else {
             // Handle invalid password
@@ -113,6 +125,14 @@ class LoginCubit extends Cubit<LoginState> {
 
           if (token.body.isNotEmpty) {
             await PreferenceUtils.storeDataToShared("usertoken", token.body);
+
+            updateUserController(
+              sessionKey: "",
+              userId: userId,
+              username: userId,
+              password: password,
+            );
+
             swithcnavigate(context, "7");
             showSnackBar(
               context: context,
@@ -165,6 +185,7 @@ class LoginCubit extends Cubit<LoginState> {
               sessionKey: "",
               userId: userId,
               username: userId,
+              password: password,
             );
 
             swithcnavigate(context, loginResponse.profile.role);
@@ -250,6 +271,7 @@ updateUserController({
   required String sessionKey,
   required String userId,
   required String username,
+  required String password,
 }) {
   // UserController().sessionKey = sessionKey;
   UserController().userName = username;
@@ -267,11 +289,16 @@ updateUserController({
         UserController.userController.userShortName.length > 1 ? 2 : 1,
       );
   UserController().userName = userId;
-  updateUserData(username: username, userId: userId);
+  updateUserData(username: username, userId: userId, password: password);
 }
 
-updateUserData({required String username, required String userId}) async {
+updateUserData({
+  required String username,
+  required String userId,
+  required String password,
+}) async {
   await PreferenceUtils.storeDataToShared("userCode", userId);
+  await PreferenceUtils.storeDataToShared("password", password);
   if (!(await PreferenceUtils.preferenceHasKey(userId))) {
     UserSettings.userSettings.fromJson({});
     await PreferenceUtils.storeDataToShared(
