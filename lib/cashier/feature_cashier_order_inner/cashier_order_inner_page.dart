@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:ansarlogistics/cashier/feature_cashier/cashier_orders_page.dart';
 import 'package:ansarlogistics/components/custom_app_components/image_widgets/list_image_widget.dart';
@@ -1155,12 +1156,16 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         final unitPrice = pickerPrice != 0 ? pickerPrice : orderPrice;
 
         final subtotal =
-            item.finalPrice != 0
+            item.finalPrice != "0.0000"
                 ? double.parse(item.finalPrice.toString())
-                : unitPrice * qty;
+                : double.parse(item.price.toString()) * qty;
+
+        log("subtotal ${item.price} * Qty $qty");
+
+        log("subtotal value $subtotal");
 
         totalQty += qty;
-        totalSubtotal += subtotal;
+        // totalSubtotal += subtotal;
 
         rows.add(
           DataRow(

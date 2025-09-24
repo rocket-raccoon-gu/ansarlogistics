@@ -46,6 +46,8 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
   DateTime? specialFromDate;
   DateTime? specialToDate;
 
+  double? produceprice;
+
   // updatedata(String sku, bool produce) async {
   //   if (sku.startsWith(']C1')) {
   //     log('contains c1');
@@ -98,8 +100,18 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     }
   }
 
-  getProduct(String sku, String productSku, String action) async {
+  getProduct(String sku, String productSku, String action, bool produce) async {
     try {
+      if (produce) {
+        // Replace the last 4 digits with '0'
+        sku = sku.substring(0, sku.length - 6) + '000000';
+
+        log("sku $sku");
+
+        // getProduct(updatedBarcode);
+        produceprice = double.parse(getPriceFromBarcode(sku));
+      }
+
       final productresponse = await serviceLocator.tradingApi
           .checkBarcodeDBService(
             endpoint: sku,
@@ -358,7 +370,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     String productSku,
     String action,
   ) async {
-    getProduct(barcodeString, productSku, action);
+    getProduct(barcodeString, productSku, action, produce);
   }
 
   updateFormState() async {

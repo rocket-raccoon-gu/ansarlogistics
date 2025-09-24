@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_incomplete_orders/bloc/incomplete_orders_cubit.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_incomplete_orders/ui/incomplete_orders_page.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/picker_orders_page.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/services/post_repositories.dart';
@@ -174,6 +176,10 @@ class _PickerDashboardPageState extends State<PickerDashboardPage> {
                   ),
                   ProductsPage(),
                   ProfilePage(serviceLocator: widget.serviceLocator),
+                  BlocProvider(
+                    create: (context) => IncompleteOrdersCubit(),
+                    child: IncompleteOrdersPage(),
+                  ),
                 ],
               );
             }
@@ -193,6 +199,12 @@ class _PickerDashboardPageState extends State<PickerDashboardPage> {
                   break;
                 case 3:
                   selectedIndex = 3;
+                  break;
+                case 4:
+                  selectedIndex = 4;
+                  break;
+                default:
+                  selectedIndex = 0;
                   break;
               }
               setState(() {});
