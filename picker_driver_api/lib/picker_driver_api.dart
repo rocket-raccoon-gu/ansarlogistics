@@ -968,9 +968,12 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
-  Future checkPromotionServiceUae({required String endpoint}) async {
+  Future checkPromotionServiceUae({
+    required String endpoint,
+    required String branch,
+  }) async {
     final url = Uri.parse(
-      'https://uae.ahmarket.com/custom-api/api/scan_barcode_percentage.php?barcode=$endpoint',
+      'https://uae.ahmarket.com/custom-api/api/scan_barcode_percentage.php?barcode=$endpoint&branch=$branch',
     );
 
     log(url.toString());

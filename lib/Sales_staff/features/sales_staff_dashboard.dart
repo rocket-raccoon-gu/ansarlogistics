@@ -111,7 +111,7 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
       if (mounted && isUae) {
         BlocProvider.of<SalesStaffDashboardCubit>(
           context,
-        ).checkBarcodeDataUae(barcodescanRes!);
+        ).checkBarcodeDataUae(barcodescanRes!, UserController().userName);
       } else {
         BlocProvider.of<SalesStaffDashboardCubit>(
           context,
@@ -626,7 +626,10 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                         if (mounted && isUae) {
                           BlocProvider.of<SalesStaffDashboardCubit>(
                             context,
-                          ).checkBarcodeDataUae(_barcodeController.text.trim());
+                          ).checkBarcodeDataUae(
+                            _barcodeController.text.trim(),
+                            UserController().userName,
+                          );
                         } else {
                           BlocProvider.of<SalesStaffDashboardCubit>(
                             context,

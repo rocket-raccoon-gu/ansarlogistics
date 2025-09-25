@@ -268,10 +268,18 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
     }
   }
 
-  checkBarcodeDataUae(String barcodescanRes) async {
+  checkBarcodeDataUae(String barcodescanRes, String username) async {
     try {
+      String branch = '';
+
+      if (username == 'ahuae_sales') {
+        branch = 'AM';
+      } else {
+        branch = 'DXB';
+      }
+
       String response = await serviceLocator.tradingApi
-          .generalPromotionServiceUae(endpoint: barcodescanRes);
+          .generalPromotionServiceUae(endpoint: barcodescanRes, branch: branch);
 
       log(response);
 
@@ -281,7 +289,9 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
 
       log(data.toString());
 
-      if (data['items'].isEmpty) {
+      if (data['items'] ==
+              'No records found for the given barcode and branch' ||
+          data['items'].isEmpty) {
         showGeneralDialog(
           context: context,
           barrierDismissible: true,

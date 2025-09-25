@@ -642,11 +642,13 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
-  @override
-  Future generalPromotionServiceUae({required String endpoint}) async {
+  Future generalPromotionServiceUae({
+    required String endpoint,
+    required String branch,
+  }) async {
     try {
       final response = await pickerDriverApi
-          .checkPromotionServiceUae(endpoint: endpoint)
+          .checkPromotionServiceUae(endpoint: endpoint, branch: branch)
           .catchError((e) {
             networkStreamController.sink.add(e.toString());
             throw e;
