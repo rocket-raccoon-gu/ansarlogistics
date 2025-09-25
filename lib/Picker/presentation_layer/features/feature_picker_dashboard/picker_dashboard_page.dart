@@ -176,10 +176,6 @@ class _PickerDashboardPageState extends State<PickerDashboardPage> {
                   ),
                   ProductsPage(),
                   ProfilePage(serviceLocator: widget.serviceLocator),
-                  BlocProvider(
-                    create: (context) => IncompleteOrdersCubit(),
-                    child: IncompleteOrdersPage(),
-                  ),
                 ],
               );
             }

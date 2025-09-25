@@ -242,12 +242,16 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
           }
         } catch (_) {}
 
-        // Go back to the dashboard screen
-        Future.microtask(() {
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
-        });
+        if (data.containsKey('from') && data['from'] == "incomplete_orders") {
+          context.gNavigationService.openPickerWorkspacePage(context);
+        } else {
+          // Go back to the dashboard screen
+          Future.microtask(() {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          });
+        }
       } else {
         loading = false;
         // print("❌ API status update failed: ${response.statusCode}");
@@ -259,15 +263,15 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
           ),
         );
 
-        if (!isClosed) {
-          emit(
-            OrderItemDetailErrorState(
-              loading: loading,
-              orderItem: orderItemNew!,
-            ),
-          );
-          // print("⚠️ Error state emitted");
-        }
+        // if (!isClosed) {
+        //   emit(
+        //     OrderItemDetailErrorState(
+        //       loading: loading,
+        //       orderItem: orderItemNew!,
+        //     ),
+        //   );
+        // print("⚠️ Error state emitted");
+        // }
       }
     } catch (e, stacktrace) {
       loading = false;
@@ -281,12 +285,12 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         ),
       );
 
-      if (!isClosed) {
-        emit(
-          OrderItemDetailErrorState(loading: loading, orderItem: orderItemNew!),
-        );
-        // print("⚠️ Error state emitted after exception");
-      }
+      // if (!isClosed) {
+      //   emit(
+      //     OrderItemDetailErrorState(loading: loading, orderItem: orderItemNew!),
+      //   );
+      //   // print("⚠️ Error state emitted after exception");
+      // }
     }
   }
 
@@ -348,9 +352,15 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         try {
           final String? itemId = orderItemNew?.id ?? orderItem?.itemId;
           if (itemId != null && itemId.isNotEmpty) {
-            eventBus.fire(
-              ItemStatusUpdatedEvent(itemId: itemId, newStatus: item_status),
-            );
+            if (item_status == "end_picking" &&
+                data.containsKey('from') &&
+                data['from'] == "incomplete_orders") {
+              context.gNavigationService.openPickerWorkspacePage(context);
+            } else {
+              eventBus.fire(
+                ItemStatusUpdatedEvent(itemId: itemId, newStatus: item_status),
+              );
+            }
           }
         } catch (_) {}
 
@@ -551,77 +561,80 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
               // print("🏷️ Priority 2 item detected");
               ProductDBdata productDBdata = ProductDBdata.fromJson(data);
 
-              if (!povisvible) {
-                povisvible = true;
-                // print("🧾 Showing confirmation dialog for ProductDB item");
+              // if (!povisvible) {
+              //   povisvible = true;
+              // print("🧾 Showing confirmation dialog for ProductDB item");
 
-                // Validate barcode prefix for produce items: first 6 digits must match
-                if (orderItem.isProduce == true) {
-                  final String orderPrefix =
-                      productSku.length >= 6
-                          ? productSku.substring(0, 6)
-                          : productSku;
-                  final String scanPrefix =
-                      scannedSku.length >= 6
-                          ? scannedSku.substring(0, 6)
-                          : scannedSku;
-                  if (orderPrefix != scanPrefix) {
-                    showSnackBar(
-                      context: context,
-                      snackBar: showErrorDialogue(
-                        errorMessage: 'Product not same barcode',
-                      ),
-                    );
-                    povisvible = false;
-                    return;
-                  }
+              // Validate barcode prefix for produce items: first 6 digits must match
+              if (orderItem.isProduce == true) {
+                final String orderPrefix =
+                    productSku.length >= 6
+                        ? productSku.substring(0, 6)
+                        : productSku;
+                final String scanPrefix =
+                    scannedSku.length >= 6
+                        ? scannedSku.substring(0, 6)
+                        : scannedSku;
+                if (orderPrefix != scanPrefix) {
+                  showSnackBar(
+                    context: context,
+                    snackBar: showErrorDialogue(
+                      errorMessage: 'Product not same barcode',
+                    ),
+                  );
+                  povisvible = false;
+                  return;
                 }
+              }
 
-                _showPickConfirmBottomSheet(
-                  name: productDBdata.skuName ?? '-',
-                  sku: productDBdata.sku ?? '-',
-                  oldPrice: orderItem.price?.toString(),
-                  newPrice:
+              _showPickConfirmBottomSheet(
+                name: productDBdata.skuName ?? '-',
+                sku: productDBdata.sku ?? '-',
+                oldPrice: orderItem.price?.toString(),
+                newPrice:
+                    orderItem.isProduce == true
+                        ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                        : double.parse(
+                          productDBdata.specialPrice != ""
+                              ? productDBdata.specialPrice
+                              : productDBdata.regularPrice,
+                        ).toStringAsFixed(2),
+                weight:
+                    orderItem.isProduce == true
+                        ? getWeightFromBarcode(
+                          getLastSixDigits(scannedSku),
+                          orderItem.price?.toString() ?? '0',
+                        )
+                        : (productDBdata.specialPrice ??
+                            productDBdata.regularPrice),
+                isproduce: orderItem.isProduce ?? false,
+                regularPrice: productDBdata.regularPrice,
+                barcodeType: 'EAN-13',
+                onConfirm: () {
+                  final calculatedPrice =
                       orderItem.isProduce == true
                           ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                          : double.parse(
-                            productDBdata.specialPrice ?? '',
-                          ).toStringAsFixed(2),
-                  weight:
-                      orderItem.isProduce == true
-                          ? getWeightFromBarcode(
-                            getLastSixDigits(scannedSku),
-                            orderItem.price?.toString() ?? '0',
-                          )
-                          : (productDBdata.specialPrice ??
-                              productDBdata.regularPrice),
-                  isproduce: orderItem.isProduce ?? false,
-                  regularPrice: productDBdata.regularPrice,
-                  barcodeType: 'EAN-13',
-                  onConfirm: () {
-                    final calculatedPrice =
-                        orderItem.isProduce == true
-                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                            : productDBdata.specialPrice ??
-                                productDBdata.regularPrice;
-                    updateitemstatuspick(
-                      orderItem.isProduce == true
-                          ? getWeightFromBarcode(
-                            getLastSixDigits(scannedSku),
-                            orderItem.price?.toString() ?? '0',
-                          )
-                          : qty,
-                      scannedSku,
-                      calculatedPrice,
-                      preparationLabel11,
-                    );
-                  },
-                  onClose: () {
-                    // context.gNavigationService.back(context);
-                    povisvible = false;
-                  },
-                );
-              }
+                          : productDBdata.specialPrice != ""
+                          ? productDBdata.specialPrice
+                          : productDBdata.regularPrice;
+                  updateitemstatuspick(
+                    orderItem.isProduce == true
+                        ? getWeightFromBarcode(
+                          getLastSixDigits(scannedSku),
+                          orderItem.price?.toString() ?? '0',
+                        )
+                        : qty,
+                    scannedSku,
+                    calculatedPrice,
+                    preparationLabel11,
+                  );
+                },
+                onClose: () {
+                  // context.gNavigationService.back(context);
+                  povisvible = false;
+                },
+              );
+              // }
             } else if (data.containsKey('suggestion')) {
               // print("💡 Suggestion found in response: ${data['message']}");
               showSnackBar(

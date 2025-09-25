@@ -803,29 +803,44 @@ Future<int> getAndroidSdkVersion() async {
   return androidInfo.version.sdkInt;
 }
 
-// Widget getSection(String branchCode, HomeSectionInchargeState state) {
-//   switch (branchCode) {
-//     case 'Q013':
-//       return HomeSection(state: state);
-//     // case 'Q009':
-//     //   return OtherBranchSection(state: state);
-//     // case 'Q015':
-//     //   // if (UserController.userController.profile.empId == "veg_rawdah") {
-//     //   //   return ArBranchSection(state: state);
-//     //   // } else {
-//     //   return OtherBranchSection(state: state);
-//     // // }
-//     // case 'Q008':
-//     //   // if (UserController.userController.profile.empId == "veg_rayyan") {
-//     //   //   return ArBranchSection(state: state);
-//     //   // } else {
-//     //   return OtherBranchSection(state: state);
-//     // // }
+String formatDate(dynamic input, {String outputPattern = 'dd/MM/yyyy'}) {
+  if (input == null) return '-';
 
-//     default:
-//       return OtherBranchSection(state: state);
-//   }
-// }
+  DateTime? dt;
+  try {
+    if (input is DateTime) {
+      dt = input;
+    } else if (input is int) {
+      // epoch seconds vs milliseconds
+      if (input > 1000000000000) {
+        dt = DateTime.fromMillisecondsSinceEpoch(input);
+      } else if (input > 1000000000) {
+        dt = DateTime.fromMillisecondsSinceEpoch(input * 1000);
+      } else {
+        dt = DateTime.fromMillisecondsSinceEpoch(input);
+      }
+    } else if (input is String) {
+      dt = DateTime.tryParse(input);
+      if (dt == null) {
+        for (final p in [
+          'yyyy-MM-dd HH:mm:ss',
+          'yyyy-MM-ddTHH:mm:ss',
+          'yyyy-MM-dd',
+          'MM/dd/yyyy',
+          'dd/MM/yyyy',
+        ]) {
+          try {
+            dt = DateFormat(p).parseStrict(input);
+            if (dt != null) break;
+          } catch (_) {}
+        }
+      }
+    }
+  } catch (_) {}
+
+  if (dt == null) return input.toString();
+  return DateFormat(outputPattern).format(dt);
+}
 
 Future<void> requestCameraPermission() async {
   var status = await Permission.camera.request();

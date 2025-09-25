@@ -278,7 +278,7 @@ class GroupedProduct {
   final num? price;
   final int? totalQuantity;
   final List<String> itemIds;
-  final List<String> orders;
+  final List<ProductOrders> orders;
   final List<String> orderReferences; // order numbers/refs for "View Orders"
   final String? imageUrl;
   final String? productImages;
@@ -309,7 +309,7 @@ class GroupedProduct {
             .toList(),
     orders:
         (json['orders'] as List<dynamic>? ?? const [])
-            .map((e) => e.toString())
+            .map((e) => ProductOrders.fromJson(e))
             .toList(),
     orderReferences:
         (json['orderReferences'] as List<dynamic>? ?? const [])
@@ -334,4 +334,52 @@ class GroupedProduct {
           return imgs.toString();
         })(),
   );
+}
+
+class ProductOrders {
+  String orderId;
+  String orderStatus;
+  String suborderType;
+  String suborderStatus;
+  DateTime deliveryDate;
+  dynamic timeRange;
+  int quantity;
+  int itemId;
+  String subgroupIdentifier;
+
+  ProductOrders({
+    required this.orderId,
+    required this.orderStatus,
+    required this.suborderType,
+    required this.suborderStatus,
+    required this.deliveryDate,
+    required this.timeRange,
+    required this.quantity,
+    required this.itemId,
+    required this.subgroupIdentifier,
+  });
+
+  factory ProductOrders.fromJson(Map<String, dynamic> json) => ProductOrders(
+    orderId: json["orderId"]?.toString() ?? '',
+    orderStatus: json["orderStatus"]?.toString() ?? '',
+    suborderType: json["suborderType"]?.toString() ?? '',
+    suborderStatus: json["suborderStatus"]?.toString() ?? '',
+    deliveryDate: DateTime.parse(json["deliveryDate"]?.toString() ?? ''),
+    timeRange: json["timeRange"]?.toString() ?? '',
+    quantity: json["quantity"] ?? 0,
+    itemId: json["itemId"] ?? 0,
+    subgroupIdentifier: json["subgroupIdentifier"]?.toString() ?? '',
+  );
+
+  Map<String, dynamic> toJson() => {
+    "orderId": orderId,
+    "orderStatus": orderStatus,
+    "suborderType": suborderType,
+    "suborderStatus": suborderStatus,
+    "deliveryDate": deliveryDate.toIso8601String(),
+    "timeRange": timeRange,
+    "quantity": quantity,
+    "itemId": itemId,
+    "subgroupIdentifier": subgroupIdentifier,
+  };
 }

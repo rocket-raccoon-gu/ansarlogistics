@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_incomplete_orders/bloc/incomplete_orders_cubit.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_incomplete_orders/ui/incomplete_orders_page.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/ui/empty_box.dart';
@@ -334,7 +337,29 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                 ),
                                 const Spacer(),
                                 ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => BlocProvider(
+                                              create:
+                                                  (_) =>
+                                                      IncompleteOrdersCubit(),
+                                              child: IncompleteOrdersPage(
+                                                args: {
+                                                  'product': it,
+                                                  'ordersNew':
+                                                      context
+                                                          .read<
+                                                            PickerOrdersCubit
+                                                          >()
+                                                          .ordersNew,
+                                                },
+                                              ),
+                                            ),
+                                      ),
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.black,
                                     foregroundColor: Colors.white,
