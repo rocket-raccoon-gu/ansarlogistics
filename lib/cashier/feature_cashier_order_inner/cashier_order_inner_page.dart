@@ -1157,7 +1157,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
         final subtotal =
             item.finalPrice != "0.0000"
-                ? double.parse(item.finalPrice.toString())
+                ? double.parse(item.finalPrice.toString()) * qty
                 : double.parse(item.price.toString()) * qty;
 
         log("subtotal ${item.price} * Qty $qty");
