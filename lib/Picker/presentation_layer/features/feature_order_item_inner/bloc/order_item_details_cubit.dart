@@ -485,7 +485,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     orderItem.isproduce == "1"
                         ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                         : double.parse(
-                          productDBdata.currentPromotionPrice,
+                          productDBdata.specialPrice ??
+                              productDBdata.regularPrice,
                         ).toStringAsFixed(2),
                     qty,
                     productDBdata.skuName,
@@ -506,7 +507,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                               ? getPriceFromBarcode(
                                 getLastSixDigits(scannedSku),
                               )
-                              : productDBdata.currentPromotionPrice;
+                              : double.parse(
+                                productDBdata.specialPrice ??
+                                    productDBdata.regularPrice,
+                              ).toStringAsFixed(2);
                       // print("💰 Calculated Price: $calculatedPrice");
 
                       updateitemstatuspick(qty, scannedSku, calculatedPrice);
@@ -515,7 +519,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     orderItem.isproduce == "1"
                         ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                         : double.parse(
-                          productDBdata.currentPromotionPrice,
+                          productDBdata.specialPrice ??
+                              productDBdata.regularPrice,
                         ).toStringAsFixed(2),
                     qty,
                     productDBdata.skuName,
@@ -536,7 +541,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                               ? getPriceFromBarcode(
                                 getLastSixDigits(scannedSku),
                               )
-                              : productDBdata.currentPromotionPrice;
+                              : double.parse(
+                                productDBdata.specialPrice ??
+                                    productDBdata.regularPrice,
+                              ).toStringAsFixed(2);
                       // print("💰 Calculated Price: $calculatedPrice");
 
                       updateitemstatuspick(qty, scannedSku, calculatedPrice);
@@ -544,7 +552,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     orderItem.productSku,
                     orderItem.isproduce == "1"
                         ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                        : double.parse(orderItem.price).toStringAsFixed(2),
+                        : double.parse(
+                          productDBdata.specialPrice ??
+                              productDBdata.regularPrice,
+                        ).toStringAsFixed(2),
                     qty,
                     orderItem.productName,
                     () {
