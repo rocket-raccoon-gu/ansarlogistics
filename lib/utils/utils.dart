@@ -199,6 +199,13 @@ getFormatedDateForReport(String _date) {
 }
 
 String getWeightFromBarcode(String orderprice, String scaleprice) {
+  log("orderprice: $orderprice");
+  log("scaleprice: $scaleprice");
+
+  if (orderprice == "0.00" || scaleprice == "0.00") {
+    return "0.00";
+  }
+
   double orderprice1 = double.parse(orderprice);
   double scaleprice1 = double.parse(scaleprice);
   double weight = orderprice1 / scaleprice1;
@@ -1110,7 +1117,7 @@ String getcurrencyfromurl(String url) {
   }
 }
 
-void _showPickConfirmBottomSheet({
+void showPickConfirmBottomSheet({
   required String name,
   required String sku,
   String? oldPrice,
@@ -1209,7 +1216,7 @@ void _showPickConfirmBottomSheet({
                               color: Colors.black,
                             ),
                           ),
-                          if (newPrice != null && newPrice.isNotEmpty)
+                          if (newPrice.isNotEmpty && newPrice != "0.00")
                             Row(
                               children: [
                                 Padding(

@@ -466,103 +466,181 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 // print("🧾 Showing confirmation dialog for ProductDB item");
 
                 if (productDBdata.barcodes.contains(scannedSku.trim())) {
-                  showPickConfirmDialogue(
-                    context,
-                    'Barcode Found in System',
-                    () {
-                      // print("🟢 Confirm clicked for ProductDB item");
-                      final calculatedPrice =
-                          orderItem.isproduce == "1"
-                              ? getPriceFromBarcode(
-                                getLastSixDigits(scannedSku),
-                              )
-                              : productDBdata.currentPromotionPrice;
-                      // print("💰 Calculated Price: $calculatedPrice");
+                  // showPickConfirmDialogue(
+                  //   context,
+                  //   'Barcode Found in System',
+                  //   () {
+                  //     // print("🟢 Confirm clicked for ProductDB item");
+                  //     final calculatedPrice =
+                  //         orderItem.isproduce == "1"
+                  //             ? getPriceFromBarcode(
+                  //               getLastSixDigits(scannedSku),
+                  //             )
+                  //             : productDBdata.currentPromotionPrice;
+                  //     // print("💰 Calculated Price: $calculatedPrice");
 
-                      updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                  //     updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                  //   },
+                  //   productDBdata.sku,
+                  //   orderItem.isproduce == "1"
+                  //       ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                  //       : double.parse(
+                  //         productDBdata.specialPrice ??
+                  //             productDBdata.regularPrice,
+                  //       ).toStringAsFixed(2),
+                  //   qty,
+                  //   productDBdata.skuName,
+                  //   () {
+                  //     // print("🔙 Closing ProductDB dialog");
+                  //     context.gNavigationService.back(context);
+                  //     povisvible = false;
+                  //   },
+                  // );
+
+                  showPickConfirmBottomSheet(
+                    name: productDBdata.skuName,
+                    sku: productDBdata.sku,
+                    oldPrice: productDBdata.regularPrice,
+                    newPrice: productDBdata.specialPrice,
+                    regularPrice: productDBdata.regularPrice,
+                    imageUrl: "",
+                    barcodeType: "",
+                    onConfirm: () {
+                      updateitemstatuspick(
+                        qty,
+                        scannedSku,
+                        productDBdata.regularPrice,
+                      );
                     },
-                    productDBdata.sku,
-                    orderItem.isproduce == "1"
-                        ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                        : double.parse(
-                          productDBdata.specialPrice ??
-                              productDBdata.regularPrice,
-                        ).toStringAsFixed(2),
-                    qty,
-                    productDBdata.skuName,
-                    () {
-                      // print("🔙 Closing ProductDB dialog");
-                      context.gNavigationService.back(context);
+                    onClose: () {
                       povisvible = false;
                     },
+                    isproduce: orderItem.isproduce == "1",
+                    weight: getWeightFromBarcode(
+                      orderItem.price,
+                      getPriceFromBarcode(scannedSku),
+                    ),
+                    context: context,
                   );
                 } else if (productDBdata.sku == orderItem.productSku) {
-                  showPickConfirmDialogue(
-                    context,
-                    'Barcode Found in System',
-                    () {
-                      // print("🟢 Confirm clicked for ProductDB item");
-                      final calculatedPrice =
-                          orderItem.isproduce == "1"
-                              ? getPriceFromBarcode(
-                                getLastSixDigits(scannedSku),
-                              )
-                              : double.parse(
-                                productDBdata.specialPrice ??
-                                    productDBdata.regularPrice,
-                              ).toStringAsFixed(2);
-                      // print("💰 Calculated Price: $calculatedPrice");
+                  // showPickConfirmDialogue(
+                  //   context,
+                  //   'Barcode Found in System',
+                  //   () {
+                  //     // print("🟢 Confirm clicked for ProductDB item");
+                  //     final calculatedPrice =
+                  //         orderItem.isproduce == "1"
+                  //             ? getPriceFromBarcode(
+                  //               getLastSixDigits(scannedSku),
+                  //             )
+                  //             : double.parse(
+                  //               productDBdata.specialPrice ??
+                  //                   productDBdata.regularPrice,
+                  //             ).toStringAsFixed(2);
+                  //     // print("💰 Calculated Price: $calculatedPrice");
 
-                      updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                  //     updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                  //   },
+                  //   productDBdata.sku,
+                  //   orderItem.isproduce == "1"
+                  //       ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                  //       : double.parse(
+                  //         productDBdata.specialPrice ??
+                  //             productDBdata.regularPrice,
+                  //       ).toStringAsFixed(2),
+                  //   qty,
+                  //   productDBdata.skuName,
+                  //   () {
+                  //     // print("🔙 Closing ProductDB dialog");
+                  //     context.gNavigationService.back(context);
+                  //     povisvible = false;
+                  //   },
+                  // );
+
+                  showPickConfirmBottomSheet(
+                    name: productDBdata.skuName,
+                    sku: productDBdata.sku,
+                    oldPrice: productDBdata.regularPrice,
+                    newPrice:
+                        orderItem.isproduce == "1"
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : double.parse(
+                              productDBdata.specialPrice ?? "0.00",
+                            ).toStringAsFixed(2),
+                    regularPrice: productDBdata.regularPrice,
+                    imageUrl: "",
+                    barcodeType: "",
+                    onConfirm: () {
+                      updateitemstatuspick(
+                        qty,
+                        scannedSku,
+                        productDBdata.regularPrice,
+                      );
                     },
-                    productDBdata.sku,
-                    orderItem.isproduce == "1"
-                        ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                        : double.parse(
-                          productDBdata.specialPrice ??
-                              productDBdata.regularPrice,
-                        ).toStringAsFixed(2),
-                    qty,
-                    productDBdata.skuName,
-                    () {
-                      // print("🔙 Closing ProductDB dialog");
-                      context.gNavigationService.back(context);
+                    onClose: () {
                       povisvible = false;
                     },
+                    isproduce: orderItem.isproduce == "1",
+                    weight: getWeightFromBarcode(
+                      orderItem.price,
+                      getPriceFromBarcode(getLastSixDigits(scannedSku)),
+                    ),
+                    context: context,
                   );
                 } else if (scannedSku.trim() == orderItem.productSku.trim()) {
-                  showPickConfirmDialogue(
-                    context,
-                    'Barcode Found in System',
-                    () {
-                      // print("🟢 Confirm clicked for ProductDB item");
-                      final calculatedPrice =
-                          orderItem.isproduce == "1"
-                              ? getPriceFromBarcode(
-                                getLastSixDigits(scannedSku),
-                              )
-                              : double.parse(
-                                productDBdata.specialPrice ??
-                                    productDBdata.regularPrice,
-                              ).toStringAsFixed(2);
-                      // print("💰 Calculated Price: $calculatedPrice");
+                  // showPickConfirmDialogue(
+                  //   context,
+                  //   'Barcode Found in System',
+                  //   () {
+                  //     // print("🟢 Confirm clicked for ProductDB item");
+                  //     final calculatedPrice =
+                  //         orderItem.isproduce == "1"
+                  //             ? getPriceFromBarcode(
+                  //               getLastSixDigits(scannedSku),
+                  //             )
+                  //             : double.parse(
+                  //               productDBdata.specialPrice ??
+                  //                   productDBdata.regularPrice,
+                  //             ).toStringAsFixed(2);
+                  //     // print("💰 Calculated Price: $calculatedPrice");
 
-                      updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                  //     updateitemstatuspick(qty, scannedSku, calculatedPrice);
+                  //   },
+                  //   orderItem.productSku,
+                  //   orderItem.isproduce == "1"
+                  //       ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                  //       : double.parse(
+                  //         productDBdata.specialPrice ??
+                  //             productDBdata.regularPrice,
+                  //       ).toStringAsFixed(2),
+                  //   qty,
+                  //   orderItem.productName,
+                  //   () {
+                  //     // print("🔙 Closing ProductDB dialog");
+                  //     context.gNavigationService.back(context);
+                  //     povisvible = false;
+                  //   },
+                  // );
+                  showPickConfirmBottomSheet(
+                    name: orderItem.productName,
+                    sku: orderItem.productSku,
+                    oldPrice: orderItem.price,
+                    newPrice: orderItem.price,
+                    regularPrice: orderItem.price,
+                    imageUrl: "",
+                    barcodeType: "",
+                    onConfirm: () {
+                      updateitemstatuspick(qty, scannedSku, orderItem.price);
                     },
-                    orderItem.productSku,
-                    orderItem.isproduce == "1"
-                        ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                        : double.parse(
-                          productDBdata.specialPrice ??
-                              productDBdata.regularPrice,
-                        ).toStringAsFixed(2),
-                    qty,
-                    orderItem.productName,
-                    () {
-                      // print("🔙 Closing ProductDB dialog");
-                      context.gNavigationService.back(context);
+                    onClose: () {
                       povisvible = false;
                     },
+                    isproduce: orderItem.isproduce == "1",
+                    weight: getWeightFromBarcode(
+                      orderItem.price,
+                      getPriceFromBarcode(scannedSku),
+                    ),
+                    context: context,
                   );
                 } else {
                   showSnackBar(
