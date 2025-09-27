@@ -198,6 +198,13 @@ getFormatedDateForReport(String _date) {
   return date2.toString();
 }
 
+String getWeightFromBarcode(String orderprice, String scaleprice) {
+  double orderprice1 = double.parse(orderprice);
+  double scaleprice1 = double.parse(scaleprice);
+  double weight = orderprice1 / scaleprice1;
+  return weight.toStringAsFixed(3);
+}
+
 Future<void> showTopModel(
   BuildContext context,
   ServiceLocator serviceLocator,
@@ -1101,4 +1108,287 @@ String getcurrencyfromurl(String url) {
     default:
       return 'QAR';
   }
+}
+
+void _showPickConfirmBottomSheet({
+  required String name,
+  required String sku,
+  String? oldPrice,
+  required String newPrice,
+  required String regularPrice,
+  String? imageUrl,
+  String? barcodeType,
+  required VoidCallback onConfirm,
+  VoidCallback? onClose,
+  bool isproduce = false,
+  String? weight,
+  required BuildContext context,
+  bool isDialogShowing = false,
+}) {
+  if (isDialogShowing) return;
+  isDialogShowing = true;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: false,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (ctx) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Container(
+              width: 48,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Product image
+                Container(
+                  width: 96,
+                  height: 96,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child:
+                      imageUrl == null || imageUrl.isEmpty
+                          ? const Icon(Icons.image, color: Colors.grey)
+                          : Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (_, __, ___) =>
+                                    const Icon(Icons.image, color: Colors.grey),
+                          ),
+                ),
+                const SizedBox(width: 12),
+                // Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'SKU: $sku',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Price line
+                      Row(
+                        children: [
+                          const Text(
+                            'Price: QAR ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+                          if (newPrice != null && newPrice.isNotEmpty)
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: Text(
+                                    _formatPrice(regularPrice),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black54,
+                                      decoration: TextDecoration.lineThrough,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  _formatPrice(newPrice),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFFD32F2F),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            )
+                          else
+                            Text(
+                              _formatPrice(regularPrice),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFFD32F2F),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (isproduce)
+                        Row(
+                          children: [
+                            Builder(
+                              builder: (_) {
+                                // Parse incoming weight; it may be already in kg or in grams.
+                                double raw =
+                                    double.tryParse(weight ?? '') ?? 0.0;
+                                // Heuristic: if value looks like grams (>= 10), convert to kg.
+                                // Receipt-like barcodes often encode ~900-1200 for grams.
+                                final double kg =
+                                    raw >= 10 ? (raw / 1000.0) : raw;
+                                final String display =
+                                    kg < 1
+                                        ? kg.toStringAsFixed(3) // e.g., 0.978
+                                        : kg.toStringAsFixed(1); // e.g., 1.2
+                                return Text(
+                                  'Weight: $display kg',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.blue.shade600,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        )
+                      else
+                        SizedBox(height: 8),
+                      // Type and EXP badge
+                      Row(
+                        children: [
+                          Text(
+                            'Type: ${barcodeType ?? '-'}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.blue.shade600,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F5E9),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(
+                                  Icons.circle,
+                                  color: Color(0xFF2E7D32),
+                                  size: 10,
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  'EXP',
+                                  style: TextStyle(
+                                    color: Color(0xFF2E7D32),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      isDialogShowing = false;
+                      if (onClose != null) onClose();
+                      Navigator.of(context).maybePop();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text(
+                      'Close',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      isDialogShowing = false;
+                      Navigator.of(context).maybePop();
+                      onConfirm();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black87,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text(
+                      'Pickup Item',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  ).whenComplete(() {
+    isDialogShowing = false;
+  });
+}
+
+String _formatPrice(String value) {
+  final n = num.tryParse(value);
+  if (n != null) {
+    return n.toStringAsFixed(2);
+  }
+  return value;
 }
