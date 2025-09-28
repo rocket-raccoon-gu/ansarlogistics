@@ -240,8 +240,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
                       DbDataContainer(
                         productDBdata: state.productDBdata,
                         specialPrice:
-                            state.specialPrice == null
-                                ? 0
+                            context.read<ItemAddPageCubit>().specialPrice !=
+                                    null
+                                ? context.read<ItemAddPageCubit>().specialPrice
                                 : double.parse(
                                   state.productDBdata!.regularPrice,
                                 ),

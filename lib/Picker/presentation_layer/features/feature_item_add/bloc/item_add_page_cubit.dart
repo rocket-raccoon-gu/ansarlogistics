@@ -106,6 +106,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
     try {
       if (isproduce) {
         specialPrice = double.parse(getPriceFromBarcode(getLastSixDigits(sku)));
+        log("specialPrice: $specialPrice");
         sku = sku.substring(0, sku.length - 6) + '000000';
       }
 
@@ -137,6 +138,8 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
           snackBar: showErrorDialogue(errorMessage: "Product Not Found ...!"),
         );
       }
+
+      log("specialPrice: $specialPrice");
 
       if (!isClosed) {
         emit(ItemAddPageInitialState(erPdata, productDBdata, specialPrice));
