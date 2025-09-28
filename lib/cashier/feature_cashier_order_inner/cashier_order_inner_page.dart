@@ -1471,7 +1471,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             : order.grandTotal,
       );
       // Use onlinePaidAmount as paid
-      final paid = _toDouble(order.onlinePaidAmount);
+      final paid = _toDouble(order.orderAmount);
       final due = grandTotal - paid;
 
       final resp = await context.gTradingApiGateway.updateMainOrderStat(
@@ -2086,7 +2086,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                         );
                                         // Use onlinePaidAmount as paid
                                         final paid = _toDouble(
-                                          order.onlinePaidAmount,
+                                          order.orderAmount,
                                         );
                                         final due = grandTotal - paid;
 
