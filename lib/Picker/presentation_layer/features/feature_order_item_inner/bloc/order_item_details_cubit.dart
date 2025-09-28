@@ -416,7 +416,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     final calculatedPrice =
                         orderItem.isproduce == "1"
                             ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                            : erPdata.erpPrice;
+                            : double.parse(orderItem.price).toStringAsFixed(2);
 
                     // print(
                     //   "💰 Order price: ${orderItem.price}, ERP Price: ${erPdata.erpPrice}",
@@ -447,7 +447,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                   erPdata.erpSku,
                   orderItem.isproduce == "1"
                       ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                      : erPdata.erpPrice,
+                      : double.parse(orderItem.price).toStringAsFixed(2),
                   qty,
                   erPdata.erpProductName,
                   () {
@@ -509,7 +509,9 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       updateitemstatuspick(
                         qty,
                         scannedSku,
-                        productDBdata.regularPrice,
+                        orderItem.isproduce == "1"
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : double.parse(orderItem.price).toStringAsFixed(2),
                       );
                     },
                     onClose: () {
@@ -574,7 +576,9 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       updateitemstatuspick(
                         qty,
                         scannedSku,
-                        productDBdata.regularPrice,
+                        orderItem.isproduce == "1"
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : double.parse(orderItem.price).toStringAsFixed(2),
                       );
                     },
                     onClose: () {
@@ -630,7 +634,11 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     imageUrl: "",
                     barcodeType: "",
                     onConfirm: () {
-                      updateitemstatuspick(qty, scannedSku, orderItem.price);
+                      updateitemstatuspick(
+                        qty,
+                        scannedSku,
+                        double.parse(orderItem.price).toStringAsFixed(2),
+                      );
                     },
                     onClose: () {
                       povisvible = false;
