@@ -1160,9 +1160,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                 ? double.parse(item.finalPrice.toString()) * qty
                 : double.parse(item.price.toString()) * qty;
 
-        log("subtotal ${item.price} * Qty $qty");
+        // log("subtotal ${item.price} * Qty $qty");
 
-        log("subtotal value $subtotal");
+        // log("subtotal value $subtotal");
 
         totalQty += qty;
         // totalSubtotal += subtotal;
@@ -1464,6 +1464,16 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       final lat = UserController.userController.locationlatitude;
       final lng = UserController.userController.locationlongitude;
 
+      final grandTotal = _toDouble(
+        order.endPickTotal != 0
+            ? double.parse(order.endPickTotal.toString()) +
+                double.parse(order.shippingCharge.toString())
+            : order.grandTotal,
+      );
+      // Use onlinePaidAmount as paid
+      final paid = _toDouble(order.onlinePaidAmount);
+      final due = grandTotal - paid;
+
       final resp = await context.gTradingApiGateway.updateMainOrderStat(
         orderid: order.subgroupIdentifier,
         // If your backend expects a different keyword, adjust here
@@ -1484,6 +1494,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                       double.parse(order.shippingCharge.toString())
                   : order.grandTotal,
             ).toString(),
+        dueAmount: ((due < 0 ? 0 : due).toStringAsFixed(2)),
       );
 
       if (mounted) {
@@ -2058,6 +2069,66 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                       'Discount',
                                       _toDouble(order.discountValue ?? 0),
                                     ),
+
+                                    Builder(
+                                      builder: (_) {
+                                        final grandTotal = _toDouble(
+                                          order.endPickTotal != 0
+                                              ? double.parse(
+                                                    order.endPickTotal
+                                                        .toString(),
+                                                  ) +
+                                                  double.parse(
+                                                    order.shippingCharge
+                                                        .toString(),
+                                                  )
+                                              : order.grandTotal,
+                                        );
+                                        // Use onlinePaidAmount as paid
+                                        final paid = _toDouble(
+                                          order.onlinePaidAmount,
+                                        );
+                                        final due = grandTotal - paid;
+
+                                        final labelStyle = customTextStyle(
+                                          fontStyle: FontStyle.BodyM_SemiBold,
+                                          color: FontColor.FontPrimary,
+                                        ).copyWith(fontSize: 16, height: 1.3);
+
+                                        final valueStyle = customTextStyle(
+                                          fontStyle: FontStyle.BodyL_Bold,
+                                          color: FontColor.FontPrimary,
+                                        ).copyWith(
+                                          fontSize: 18,
+                                          height: 1.4,
+                                          // Red if negative, default otherwise
+                                          color: due < 0 ? Colors.red : null,
+                                        );
+
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 6,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  'Due Amount',
+                                                  style: labelStyle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                _fmtQar(due),
+                                                style: valueStyle,
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+
                                     _kvMoney(
                                       'Online Paid Amount',
                                       _toDouble(order.onlinePaidAmount),

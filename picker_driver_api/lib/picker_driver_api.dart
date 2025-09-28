@@ -393,6 +393,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String latitude,
     required String longitude,
     String? grandTotal,
+    String? dueAmount,
   }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
@@ -413,6 +414,7 @@ extension PDGeneralApi on PickerDriverApi {
       "latitude": latitude,
       "longitude": longitude,
       "grand_total": grandTotal,
+      "due_amount": dueAmount,
     };
 
     // print(url);
