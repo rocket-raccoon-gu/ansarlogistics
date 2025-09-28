@@ -198,18 +198,127 @@ getFormatedDateForReport(String _date) {
   return date2.toString();
 }
 
-String getWeightFromBarcode(String orderprice, String scaleprice) {
-  log("orderprice: $orderprice");
-  log("scaleprice: $scaleprice");
+// String getWeightFromBarcode(String orderprice, String scaleprice) {
+//   log("orderprice: $orderprice");
+//   log("scaleprice: $scaleprice");
 
-  if (orderprice == "0.00" || scaleprice == "0.00") {
+//   if (orderprice == "0.00" || scaleprice == "0.00") {
+//     return "0.00";
+//   }
+
+//   double orderprice1 = double.parse(orderprice);
+//   double scaleprice1 = double.parse(scaleprice);
+//   double weight = orderprice1 / scaleprice1;
+//   return weight.toStringAsFixed(3);
+// }
+
+String getActualWeight(
+  String sellingPrice,
+  String scaledPrice,
+  String itemName,
+) {
+  log("sellingPrice: $sellingPrice"); // 5.875 (fixed price for UOM)
+  log("scaledPrice: $scaledPrice"); // 5.99 (price from scale machine)
+  log("itemName: $itemName"); // Kiwi 500g
+
+  if (sellingPrice == "0.00" || scaledPrice == "0.00") {
     return "0.00";
   }
 
-  double orderprice1 = double.parse(orderprice);
-  double scaleprice1 = double.parse(scaleprice);
-  double weight = orderprice1 / scaleprice1;
-  return weight.toStringAsFixed(3);
+  double sellingPrice1 = double.parse(sellingPrice);
+  double scaledPrice1 = double.parse(scaledPrice);
+
+  // Extract UOM from item name
+  String uom = extractUomFromItemName(itemName);
+  double uomWeightInGrams = getUomWeightInGrams(uom);
+  log("UOM: $uom, Weight in Grams: $uomWeightInGrams");
+
+  // Calculate price per gram for the selling price
+  double pricePerGram = sellingPrice1 / uomWeightInGrams;
+
+  // Calculate actual weight based on scaled price
+  double actualWeightInGrams = scaledPrice1 / pricePerGram;
+
+  log("Price per gram: $pricePerGram, Actual Weight: ${actualWeightInGrams}g");
+
+  return actualWeightInGrams.toStringAsFixed(2); // in grams
+}
+
+double getUomWeightInGrams(String uom) {
+  uom = uom.toLowerCase();
+
+  if (uom == '500g') return 500.0;
+  if (uom == '1kg') return 1000.0;
+  if (uom == '250g') return 250.0;
+  if (uom == '2kg') return 2000.0;
+
+  // Parse dynamic values
+  if (uom.contains('kg')) {
+    return double.parse(uom.replaceAll('kg', '').trim()) * 1000;
+  } else if (uom.contains('g')) {
+    return double.parse(uom.replaceAll('g', '').trim());
+  }
+
+  return 1000.0; // default to 1kg
+}
+
+String extractUomFromItemName(String itemName) {
+  log("Original itemName: $itemName");
+
+  // More specific pattern with better unit detection
+  final pattern = RegExp(
+    r'(\d+(?:\.\d+)?)\s*(kg|kilogram|kilo|g|gram|gm|lb|lbs?|pound|ounce|oz)\b',
+    caseSensitive: false,
+  );
+
+  var match = pattern.firstMatch(itemName);
+  if (match != null) {
+    String number = match.group(1)!;
+    String unit = match.group(2)!.toLowerCase();
+    log("Matched number: $number, unit: $unit");
+
+    // Normalize unit abbreviations
+    Map<String, String> unitMap = {
+      'kilogram': 'kg',
+      'kilo': 'kg',
+      'gram': 'g',
+      'gm': 'g',
+      'lbs': 'lb',
+      'pound': 'lb',
+      'ounce': 'oz',
+    };
+
+    String normalizedUnit = unitMap[unit] ?? unit;
+    log("Normalized UOM: $number$normalizedUnit");
+
+    return '$number$normalizedUnit';
+  }
+
+  log("No UOM found, using default: 1kg");
+  return '1kg';
+}
+
+double getUomWeightInKg(String uom) {
+  uom = uom.toLowerCase();
+
+  if (uom == '500g' || uom == '500gram') return 0.5;
+  if (uom == '1kg' || uom == '1000g') return 1.0;
+  if (uom == '250g' || uom == '250gram') return 0.25;
+  if (uom == '2kg' || uom == '2000g') return 2.0;
+  if (uom == '5kg' || uom == '5000g') return 5.0;
+
+  // Parse dynamic values
+  if (uom.contains('kg')) {
+    return double.parse(uom.replaceAll('kg', '').trim());
+  } else if (uom.contains('g')) {
+    return double.parse(uom.replaceAll('g', '').trim()) / 1000;
+  } else if (uom.contains('lb')) {
+    return double.parse(uom.replaceAll('lb', '').trim()) * 0.453592;
+  } else if (uom.contains('oz')) {
+    return double.parse(uom.replaceAll('oz', '').trim()) * 0.0283495;
+  }
+
+  return 1.0; // default to 1kg
 }
 
 Future<void> showTopModel(

@@ -17,6 +17,7 @@ import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picker_driver_api/responses/erp_data_response.dart';
+import 'package:ansarlogistics/utils/price_weight_calculator.dart';
 
 class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
   ServiceLocator serviceLocator;
@@ -501,7 +502,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     name: productDBdata.skuName,
                     sku: productDBdata.sku,
                     oldPrice: productDBdata.regularPrice,
-                    newPrice: productDBdata.specialPrice,
+                    newPrice:
+                        orderItem.isproduce == "1"
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : double.parse(orderItem.price).toStringAsFixed(2),
                     regularPrice: productDBdata.regularPrice,
                     imageUrl: "",
                     barcodeType: "",
@@ -518,9 +522,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       povisvible = false;
                     },
                     isproduce: orderItem.isproduce == "1",
-                    weight: getWeightFromBarcode(
-                      orderItem.price,
+                    weight: PriceWeightCalculator.getActualWeight(
+                      productDBdata.specialPrice ?? productDBdata.regularPrice,
                       getPriceFromBarcode(scannedSku),
+                      productDBdata.skuName,
                     ),
                     context: context,
                   );
@@ -565,7 +570,19 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     oldPrice: productDBdata.regularPrice,
                     newPrice:
                         orderItem.isproduce == "1"
-                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            ? PriceWeightCalculator.getPriceFromWeight(
+                              productDBdata.specialPrice ??
+                                  productDBdata.regularPrice,
+                              PriceWeightCalculator.getActualWeight(
+                                productDBdata.specialPrice ??
+                                    productDBdata.regularPrice,
+                                getPriceFromBarcode(
+                                  getLastSixDigits(scannedSku),
+                                ),
+                                productDBdata.skuName,
+                              ),
+                              productDBdata.skuName,
+                            )
                             : double.parse(
                               productDBdata.specialPrice ?? "0.00",
                             ).toStringAsFixed(2),
@@ -577,7 +594,19 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         qty,
                         scannedSku,
                         orderItem.isproduce == "1"
-                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            ? PriceWeightCalculator.getPriceFromWeight(
+                              productDBdata.specialPrice ??
+                                  productDBdata.regularPrice,
+                              PriceWeightCalculator.getActualWeight(
+                                productDBdata.specialPrice ??
+                                    productDBdata.regularPrice,
+                                getPriceFromBarcode(
+                                  getLastSixDigits(scannedSku),
+                                ),
+                                productDBdata.skuName,
+                              ),
+                              productDBdata.skuName,
+                            )
                             : double.parse(orderItem.price).toStringAsFixed(2),
                       );
                     },
@@ -585,9 +614,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       povisvible = false;
                     },
                     isproduce: orderItem.isproduce == "1",
-                    weight: getWeightFromBarcode(
-                      orderItem.price,
+                    weight: PriceWeightCalculator.getActualWeight(
+                      productDBdata.specialPrice ?? productDBdata.regularPrice,
                       getPriceFromBarcode(getLastSixDigits(scannedSku)),
+                      productDBdata.skuName,
                     ),
                     context: context,
                   );
@@ -644,9 +674,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       povisvible = false;
                     },
                     isproduce: orderItem.isproduce == "1",
-                    weight: getWeightFromBarcode(
+                    weight: PriceWeightCalculator.getActualWeight(
                       orderItem.price,
                       getPriceFromBarcode(scannedSku),
+                      orderItem.productName,
                     ),
                     context: context,
                   );
