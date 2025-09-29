@@ -349,9 +349,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                           "null";
 
                                       cubit.updateItem(
-                                        editquantity,
+                                        isProduce == "1" ? 1 : editquantity,
                                         context,
-                                        isProduce == "true"
+                                        isProduce == "1"
                                             ? cubit.specialPrice.toString()
                                             : erp.erpPrice.toString(),
                                         erp.erpPrice,
@@ -403,9 +403,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                       // );
 
                                       cubit.updateItem(
-                                        editquantity,
+                                        isProduce == "1" ? 1 : editquantity,
                                         context,
-                                        isProduce == "true"
+                                        isProduce == "1"
                                             ? cubit.specialPrice.toString()
                                             : priceToUse,
                                         product.erpCurrentPrice ??
