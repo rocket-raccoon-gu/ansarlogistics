@@ -210,9 +210,11 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         "picker_id": UserController.userController.profile.id,
         "shipping": 0,
         "item_name": itemname,
-        "price": price,
-        "promo_price": promo_price,
-        "regular_price": regularprice,
+        "price": double.parse(price.toString()).toStringAsFixed(2),
+        "promo_price": double.parse(promo_price.toString()).toStringAsFixed(2),
+        "regular_price": double.parse(
+          regularprice.toString(),
+        ).toStringAsFixed(2),
         "scanned_sku": scanned_sku,
       };
 
@@ -259,7 +261,9 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
             ),
           );
         } else {
-          String finalPrice = price * qty;
+          String finalPrice =
+              (double.parse(price.toString()).toStringAsFixed(2) * qty)
+                  .toString();
           eventBus.fire(
             DataChangedEvent("New Data from Screen B").updatePriceData(
               orderItemsResponse!.subgroupIdentifier,
