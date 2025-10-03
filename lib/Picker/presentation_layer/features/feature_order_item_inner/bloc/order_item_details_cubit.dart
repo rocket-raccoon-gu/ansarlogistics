@@ -364,6 +364,17 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     // print("📦 Qty: $qty");
     log("🔍 Scanned SKU: $scannedSku");
     log("🏷️ Product SKU: $productSku");
+
+    final now = DateTime.now();
+    final createdAt = orderResponseItem?.createdAt;
+
+    // Compare by local calendar day
+    final isSameDayOrder =
+        createdAt != null &&
+        createdAt.toLocal().year == now.year &&
+        createdAt.toLocal().month == now.month &&
+        createdAt.toLocal().day == now.day;
+
     // print("🔁 Action: $action");
 
     try {
@@ -416,7 +427,20 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
                     final calculatedPrice =
                         orderItem.isproduce == "1"
-                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            ? orderResponseItem?.createdAt != null &&
+                                    isSameDayOrder
+                                ? getPriceFromBarcode(
+                                  getLastSixDigits(scannedSku),
+                                )
+                                : getPriceFromBarcodeWithWeight(
+                                  orderItem.price,
+                                  PriceWeightCalculator.getActualWeight(
+                                    erPdata.erpPrice,
+                                    getPriceFromBarcode(scannedSku),
+                                    erPdata.erpProductName,
+                                  ),
+                                  erPdata.erpSellingUom,
+                                )
                             : double.parse(orderItem.price).toStringAsFixed(2);
 
                     // print(
@@ -504,7 +528,16 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     oldPrice: productDBdata.regularPrice,
                     newPrice:
                         orderItem.isproduce == "1"
-                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            ? getPriceFromBarcode(
+                              getLastSixDigits(scannedSku),
+                              weight: PriceWeightCalculator.getActualWeight(
+                                productDBdata.specialPrice ??
+                                    productDBdata.regularPrice,
+                                getPriceFromBarcode(scannedSku),
+                                productDBdata.skuName,
+                              ),
+                              qty: qty,
+                            )
                             : double.parse(orderItem.price).toStringAsFixed(2),
                     regularPrice: productDBdata.regularPrice,
                     imageUrl: "",
@@ -514,7 +547,16 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         qty,
                         scannedSku,
                         orderItem.isproduce == "1"
-                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            ? getPriceFromBarcode(
+                              getLastSixDigits(scannedSku),
+                              weight: PriceWeightCalculator.getActualWeight(
+                                productDBdata.specialPrice ??
+                                    productDBdata.regularPrice,
+                                getPriceFromBarcode(scannedSku),
+                                productDBdata.skuName,
+                              ),
+                              qty: qty,
+                            )
                             : double.parse(orderItem.price).toStringAsFixed(2),
                       );
                     },

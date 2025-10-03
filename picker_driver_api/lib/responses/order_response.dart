@@ -67,6 +67,7 @@ class Order {
   Items items;
   int itemCount;
   String shippingCharges;
+  DateTime createdAt;
   // String weightUnit;
 
   Order({
@@ -98,6 +99,7 @@ class Order {
     required this.items,
     required this.itemCount,
     required this.shippingCharges,
+    required this.createdAt,
     // required this.weightUnit,
   });
 
@@ -158,6 +160,7 @@ class Order {
     items: items ?? this.items,
     itemCount: itemCount ?? this.itemCount,
     shippingCharges: shippingCharges ?? this.shippingCharges,
+    createdAt: createdAt ?? this.createdAt,
     // weightUnit: weightUnit ?? this.weightUnit,
   );
 
@@ -194,6 +197,7 @@ class Order {
     items: Items.fromJson(json["items"].length == 0 ? {} : json["items"]),
     itemCount: json["item_count"] ?? "",
     shippingCharges: json['shipping_charge'] ?? "",
+    createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toString()),
     // weightUnit: json['weight_unit'] ?? "",
   );
 
