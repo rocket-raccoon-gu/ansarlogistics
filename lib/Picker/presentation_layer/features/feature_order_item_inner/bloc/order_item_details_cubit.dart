@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/order_item_details.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
@@ -594,10 +595,26 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     oldPrice: productDBdata.regularPrice,
                     newPrice:
                         orderItem.isproduce == "1"
-                            ? PriceWeightCalculator.getPriceFromWeight(
-                              productDBdata.specialPrice ??
-                                  productDBdata.regularPrice,
-                              PriceWeightCalculator.getActualWeight(
+                            ? isSameDayOrder
+                                ? PriceWeightCalculator.getPriceFromWeight(
+                                  productDBdata.specialPrice ??
+                                      productDBdata.regularPrice,
+                                  PriceWeightCalculator.getWeightFromPrice(
+                                    productDBdata.specialPrice ??
+                                        productDBdata.regularPrice,
+                                    getPriceFromBarcode(
+                                      getLastSixDigits(scannedSku),
+                                    ),
+                                    productDBdata.skuName,
+                                  ),
+                                  productDBdata.skuName,
+                                )
+                                : double.parse(
+                                  productDBdata.specialPrice ?? "0.00",
+                                ).toStringAsFixed(2)
+                            : getPriceFromBarcodeWithWeight(
+                              orderItem.price,
+                              PriceWeightCalculator.getWeightFromPrice(
                                 productDBdata.specialPrice ??
                                     productDBdata.regularPrice,
                                 getPriceFromBarcode(
@@ -605,11 +622,19 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                                 ),
                                 productDBdata.skuName,
                               ),
-                              productDBdata.skuName,
-                            )
-                            : double.parse(
-                              productDBdata.specialPrice ?? "0.00",
-                            ).toStringAsFixed(2),
+                              calculateTotalWeight(
+                                qty,
+                                PriceWeightCalculator.getWeightFromPrice(
+                                  productDBdata.specialPrice ??
+                                      productDBdata.regularPrice,
+                                  getPriceFromBarcode(
+                                    getLastSixDigits(scannedSku),
+                                  ),
+                                  productDBdata.skuName,
+                                ),
+                                orderItem.weightUnit,
+                              ),
+                            ),
                     regularPrice: productDBdata.regularPrice,
                     imageUrl: "",
                     barcodeType: "",

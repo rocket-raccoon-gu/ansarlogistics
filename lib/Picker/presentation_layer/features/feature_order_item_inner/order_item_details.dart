@@ -141,34 +141,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
   bool isTranslate = false;
 
-  String calculateTotalWeight(
-    String qtyOrdered,
-    String itemWeight,
-    String weightUnit,
-  ) {
-    if (qtyOrdered.isEmpty || itemWeight.isEmpty) {
-      return "0 gm";
-    }
-
-    double qty = double.tryParse(qtyOrdered) ?? 0.0;
-    double weightPerItem = double.tryParse(itemWeight) ?? 0.0;
-
-    double totalWeightInGrams;
-
-    if (weightUnit.toLowerCase() == "kg") {
-      totalWeightInGrams = qty * (weightPerItem * 1000);
-    } else {
-      totalWeightInGrams = qty * weightPerItem;
-    }
-
-    if (totalWeightInGrams >= 1000) {
-      double totalInKg = totalWeightInGrams / 1000;
-      return "${totalInKg.toStringAsFixed(2)} kg";
-    } else {
-      return "${totalWeightInGrams.toStringAsFixed(0)} gm";
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -1784,5 +1756,33 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                 ),
               ),
     );
+  }
+}
+
+String calculateTotalWeight(
+  String qtyOrdered,
+  String itemWeight,
+  String weightUnit,
+) {
+  if (qtyOrdered.isEmpty || itemWeight.isEmpty) {
+    return "0 gm";
+  }
+
+  double qty = double.tryParse(qtyOrdered) ?? 0.0;
+  double weightPerItem = double.tryParse(itemWeight) ?? 0.0;
+
+  double totalWeightInGrams;
+
+  if (weightUnit.toLowerCase() == "kg") {
+    totalWeightInGrams = qty * (weightPerItem * 1000);
+  } else {
+    totalWeightInGrams = qty * weightPerItem;
+  }
+
+  if (totalWeightInGrams >= 1000) {
+    double totalInKg = totalWeightInGrams / 1000;
+    return "${totalInKg.toStringAsFixed(2)} kg";
+  } else {
+    return "${totalWeightInGrams.toStringAsFixed(0)} gm";
   }
 }

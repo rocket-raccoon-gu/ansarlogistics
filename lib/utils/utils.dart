@@ -443,6 +443,26 @@ String getPriceFromBarcode(String code) {
   return price;
 }
 
+String getPriceFromBarcodeWithWeight(
+  String
+  orderPrice, // price for the sellingUom (e.g., 500g pack price or 1kg price)
+  String weightGrams, // current measured weight in grams
+  String sellingUom, { // e.g., "500g", "1kg", "250g"
+  String qty = "1",
+}) {
+  final selling = double.tryParse(orderPrice) ?? 0.0;
+  final grams = double.tryParse(weightGrams) ?? 0.0;
+  final quantity = double.tryParse(qty) ?? 1.0;
+
+  final uomGrams = getUomWeightInGrams(sellingUom);
+  if (uomGrams <= 0) return "0.00";
+
+  final pricePerGram = selling / uomGrams; // derive unit price per gram
+  final total = pricePerGram * grams * quantity;
+
+  return total.toStringAsFixed(2);
+}
+
 String getLastSixDigits(String barcode) {
   if (barcode.length <= 6) {
     return barcode; // Return as-is if 6 or fewer characters
