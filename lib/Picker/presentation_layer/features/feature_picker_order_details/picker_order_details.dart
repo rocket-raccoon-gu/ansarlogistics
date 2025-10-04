@@ -102,13 +102,13 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
                     },
                     orderResponseItem: widget.orderDetails,
                     onTapinfo: () {
-                      showTopModel(
-                        context,
-                        widget.serviceLocator,
-                        widget.orderDetails.id.toString(),
-                        widget.orderDetails,
-                        "",
-                      );
+                      // showTopModel(
+                      //   context,
+                      //   widget.serviceLocator,
+                      //   widget.orderDetails.id.toString(),
+                      //   widget.orderDetails,
+                      //   "",
+                      // );
                     },
                     onTaptranslate: () {
                       // setState(() {

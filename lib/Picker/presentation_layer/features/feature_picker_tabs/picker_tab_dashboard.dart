@@ -222,13 +222,13 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                 orderResponseItem: widget.orderResponseItem,
                 title: titleText,
                 onTapinfo: () {
-                  showTopModel(
-                    context,
-                    widget.serviceLocator,
-                    widget.orderResponseItem.id.toString(),
-                    widget.orderResponseItem,
-                    titleText,
-                  );
+                  // showTopModel(
+                  //   context,
+                  //   widget.serviceLocator,
+                  //   widget.orderResponseItem.id.toString(),
+                  //   widget.orderResponseItem,
+                  //   titleText,
+                  // );
                 },
                 onTaptranslate: () {
                   // setState(() {

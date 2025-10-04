@@ -278,9 +278,9 @@ class _IncompleteOrdersPageState extends State<IncompleteOrdersPage> {
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final o = orders[index]; // ProductOrders
-                final dateStr = formatDate(
-                  o.deliveryDate,
-                ); // DateTime -> formatted
+                // final dateStr = formatDate(
+                //   o.deliveryDate,
+                // ); // DateTime -> formatted
 
                 void openDetails() {
                   OrderNew? match;
@@ -375,13 +375,13 @@ class _IncompleteOrdersPageState extends State<IncompleteOrdersPage> {
                               color: HexColor('#28A745'),
                             ),
                             const SizedBox(width: 6),
-                            Text(
-                              'Delivery Date  $dateStr',
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyS_Regular,
-                                color: FontColor.FontPrimary,
-                              ),
-                            ),
+                            // // Text(
+                            // //   'Delivery Date  $dateStr',
+                            // //   style: customTextStyle(
+                            // //     fontStyle: FontStyle.BodyS_Regular,
+                            // //     color: FontColor.FontPrimary,
+                            // //   ),
+                            // ),
                           ],
                         ),
                         const SizedBox(height: 6),

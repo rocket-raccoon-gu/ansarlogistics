@@ -151,10 +151,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                   const SizedBox(height: 2),
                   Text('SKU: ${item.sku}', style: _subtitleStyle()),
                   const SizedBox(height: 2),
-                  Text(
-                    'Status: ${getItemStatus(item.itemStatus)}',
-                    style: _subtitleStyle(),
-                  ),
+                  Text('Status: ${item.itemStatus}', style: _subtitleStyle()),
                 ],
               ),
             ),
@@ -531,22 +528,53 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     });
 
     try {
+      // final file = await _compressImageIfNeeded(_pickedImage!);
+      // if (_cancelRequested) {
+      //   throw FirebaseException(plugin: 'firebase_storage', code: 'canceled');
+      // }
+      // final ts = DateTime.now().millisecondsSinceEpoch;
+      // final ref = FirebaseStorage.instance.ref().child(
+      //   'pos_bills/${order.subgroupIdentifier}/bill_${order.subgroupIdentifier}.jpg',
+      // );
+
+      // final uploadTask = ref.putFile(
+      //   file,
+      //   SettableMetadata(contentType: 'image/jpeg'),
+      // );
+      // _currentUploadTask = uploadTask;
+
+      // // Start countdown timer; auto-cancel when time is up
+      // _uploadTimer?.cancel();
+      // _uploadTimer = Timer.periodic(const Duration(seconds: 1), (t) async {
+      //   if (!mounted) return;
+      //   setState(
+      //     () =>
+      //         _secondsLeft = (_secondsLeft - 1).clamp(0, _uploadTimeoutSeconds),
+      //   );
+      //   if (_secondsLeft <= 0) {
+      //     await _currentUploadTask?.cancel();
+      //     t.cancel();
+      //   }
+      // });
+
+      // uploadTask.snapshotEvents.listen((snapshot) {
+      //   if (snapshot.totalBytes > 0) {
+      //     final p = snapshot.bytesTransferred / snapshot.totalBytes;
+      //     if (mounted) {
+      //       setState(() => _uploadProgress = p);
+      //     }
+      //   }
+      // });
+
+      // // Enforce a hard timeout on the future as well
+      // final taskSnapshot = await uploadTask.timeout(
+      //   Duration(seconds: _uploadTimeoutSeconds + 5),
+      // );
+      // final url = await taskSnapshot.ref.getDownloadURL();
+
       final file = await _compressImageIfNeeded(_pickedImage!);
-      if (_cancelRequested) {
-        throw FirebaseException(plugin: 'firebase_storage', code: 'canceled');
-      }
-      final ts = DateTime.now().millisecondsSinceEpoch;
-      final ref = FirebaseStorage.instance.ref().child(
-        'pos_bills/${order.subgroupIdentifier}/bill_${order.subgroupIdentifier}.jpg',
-      );
 
-      final uploadTask = ref.putFile(
-        file,
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
-      _currentUploadTask = uploadTask;
-
-      // Start countdown timer; auto-cancel when time is up
+      // Start countdown timer (visual only)
       _uploadTimer?.cancel();
       _uploadTimer = Timer.periodic(const Duration(seconds: 1), (t) async {
         if (!mounted) return;
@@ -554,47 +582,61 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           () =>
               _secondsLeft = (_secondsLeft - 1).clamp(0, _uploadTimeoutSeconds),
         );
-        if (_secondsLeft <= 0) {
-          await _currentUploadTask?.cancel();
-          t.cancel();
-        }
       });
 
-      uploadTask.snapshotEvents.listen((snapshot) {
-        if (snapshot.totalBytes > 0) {
-          final p = snapshot.bytesTransferred / snapshot.totalBytes;
-          if (mounted) {
-            setState(() => _uploadProgress = p);
-          }
-        }
-      });
+      // Build multipart request to provided API
+      final uri = Uri.parse(
+        'https://pickerdriver.testuatah.com/v1/api/qatar/upload-pos-bill.php',
+      );
+      final request =
+          http.MultipartRequest('POST', uri)
+            ..fields['order_number'] = order.subgroupIdentifier
+            ..files.add(
+              await http.MultipartFile.fromPath(
+                'bill',
+                file.path,
+                filename: 'bill_${order.subgroupIdentifier}.jpg',
+              ),
+            );
 
-      // Enforce a hard timeout on the future as well
-      final taskSnapshot = await uploadTask.timeout(
+      final streamedResponse = await request.send().timeout(
         Duration(seconds: _uploadTimeoutSeconds + 5),
       );
-      final url = await taskSnapshot.ref.getDownloadURL();
 
-      if (mounted) {
-        setState(() => _posBillUrl = url);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('POS bill uploaded successfully')),
+      final respBody = await streamedResponse.stream.bytesToString();
+      if (streamedResponse.statusCode == 200) {
+        if (mounted) {
+          // Try to capture a URL if the API returns one
+          String uploadedUrl = 'uploaded';
+          try {
+            final parsed = jsonDecode(respBody);
+            if (parsed is Map && parsed['url'] != null) {
+              uploadedUrl = parsed['url'].toString();
+            } else if (parsed is String && parsed.startsWith('http')) {
+              uploadedUrl = parsed;
+            }
+          } catch (_) {}
+
+          setState(() => _posBillUrl = uploadedUrl);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('POS bill uploaded successfully')),
+          );
+          await _removePendingBill(order.subgroupIdentifier);
+        }
+
+        if (_posSheetOpen) {
+          Navigator.of(context).pop();
+          _posSheetOpen = false;
+        }
+      } else {
+        throw Exception(
+          'Server responded ${streamedResponse.statusCode}: $respBody',
         );
-        // Clear pending flag once bill is actually uploaded
-        await _removePendingBill(order.subgroupIdentifier);
-      }
-
-      // Auto-close the bottom sheet if it's still open
-      if (_posSheetOpen) {
-        Navigator.of(context).pop();
-        _posSheetOpen = false;
       }
     } catch (e) {
       final msg =
           e is TimeoutException
               ? 'Upload timed out. Please try again.'
-              : (e is FirebaseException && e.code == 'canceled')
-              ? 'Upload canceled.'
               : 'Upload failed: $e';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
@@ -656,33 +698,35 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
   Future<void> _loadExistingPosBillIfAny() async {
     try {
-      final dirRef = FirebaseStorage.instance.ref().child(
-        'pos_bills/${order.subgroupIdentifier}',
+      final orderNo = order.subgroupIdentifier;
+      final uri = Uri.parse(
+        'https://pickerdriver.testuatah.com/v1/api/qatar/get_bill_data.php?order_number='
+        '${Uri.encodeQueryComponent(orderNo)}',
       );
-      final listResult = await dirRef.listAll();
-      if (listResult.items.isEmpty) return;
 
-      // Prefer files named like bill_<timestamp>.jpg; pick the latest by name
-      final candidates =
-          listResult.items
-              .where(
-                (r) =>
-                    r.name.toLowerCase().endsWith('.jpg') ||
-                    r.name.toLowerCase().endsWith('.png'),
-              )
-              .toList();
-      if (candidates.isEmpty) return;
+      final resp = await http.get(uri).timeout(const Duration(seconds: 20));
+      if (resp.statusCode != 200) return;
 
-      candidates.sort((a, b) => a.name.compareTo(b.name));
-      final latest = candidates.last;
-      final url = await latest.getDownloadURL();
-      if (mounted) {
-        setState(() {
-          _posBillUrl = url;
-        });
+      final data = jsonDecode(resp.body);
+      bool exists = false;
+      String? url;
+
+      if (data is Map<String, dynamic>) {
+        final bill = data['bill'];
+        exists =
+            (data['success'] == true) &&
+            (bill is Map && (bill['exists'] == true));
+        if (bill is Map && bill['url'] != null) {
+          url = bill['url'].toString();
+        }
       }
-    } catch (e) {
-      // Silently ignore if folder doesn't exist or permission denied
+
+      if (!mounted) return;
+      setState(() {
+        _posBillUrl = (exists && url != null && url!.isNotEmpty) ? url : null;
+      });
+    } catch (_) {
+      // keep silent on load errors
     }
   }
 
