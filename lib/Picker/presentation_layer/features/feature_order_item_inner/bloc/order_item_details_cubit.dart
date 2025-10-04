@@ -439,7 +439,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                                     getPriceFromBarcode(scannedSku),
                                     erPdata.erpProductName,
                                   ),
-                                  erPdata.erpSellingUom,
+                                  orderItem.weightUnit,
                                 )
                             : double.parse(orderItem.price).toStringAsFixed(2);
 
@@ -528,16 +528,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     oldPrice: productDBdata.regularPrice,
                     newPrice:
                         orderItem.isproduce == "1"
-                            ? getPriceFromBarcode(
-                              getLastSixDigits(scannedSku),
-                              weight: PriceWeightCalculator.getActualWeight(
-                                productDBdata.specialPrice ??
-                                    productDBdata.regularPrice,
-                                getPriceFromBarcode(scannedSku),
-                                productDBdata.skuName,
-                              ),
-                              qty: qty,
-                            )
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : double.parse(orderItem.price).toStringAsFixed(2),
                     regularPrice: productDBdata.regularPrice,
                     imageUrl: "",
@@ -547,16 +538,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         qty,
                         scannedSku,
                         orderItem.isproduce == "1"
-                            ? getPriceFromBarcode(
-                              getLastSixDigits(scannedSku),
-                              weight: PriceWeightCalculator.getActualWeight(
-                                productDBdata.specialPrice ??
-                                    productDBdata.regularPrice,
-                                getPriceFromBarcode(scannedSku),
-                                productDBdata.skuName,
-                              ),
-                              qty: qty,
-                            )
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : double.parse(orderItem.price).toStringAsFixed(2),
                       );
                     },
