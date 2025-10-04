@@ -27,6 +27,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:ansarlogistics/utils/preference_utils.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 
 class CashierOrderInnerPage extends StatefulWidget {
   const CashierOrderInnerPage({super.key, required this.arguments});
@@ -45,6 +46,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   XFile? _pickedImage;
   double? _uploadProgress; // 0.0 - 1.0
   final Set<int> _selectedItemIds = <int>{};
+
+  // Dispatch method selected by cashier: 'normal' | 'driver' | 'rider'
+  String? dispatchMethod;
 
   // Sadad QA payment lookup state
   bool _sadadLoading = false;
@@ -149,9 +153,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text('SKU: ${item.sku}', style: _subtitleStyle()),
+                  Text('SKU: ${item.sku}', style: subtitleStyle()),
                   const SizedBox(height: 2),
-                  Text('Status: ${item.itemStatus}', style: _subtitleStyle()),
+                  Text('Status: ${item.itemStatus}', style: subtitleStyle()),
                 ],
               ),
             ),
@@ -160,26 +164,26 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('Qty: ${_toInt(item.qtyShipped)}', style: _subtitleStyle()),
+              Text('Qty: ${_toInt(item.qtyShipped)}', style: subtitleStyle()),
               const SizedBox(height: 2),
               Text(
                 'Order Price: ${orderPrice.toStringAsFixed(2)}',
-                style: _subtitleStyle(),
+                style: subtitleStyle(),
               ),
               const SizedBox(height: 2),
               Text(
                 'Picker Price: ${pickerPrice.toStringAsFixed(2)}',
-                style: _subtitleStyle(),
+                style: subtitleStyle(),
               ),
               const SizedBox(height: 2),
               Text(
                 'Current Price: ${webPrice.toStringAsFixed(2)}',
-                style: _subtitleStyle(),
+                style: subtitleStyle(),
               ),
               const SizedBox(height: 2),
               Text(
                 'Total: ${total.toStringAsFixed(2)}',
-                style: _subtitleStyle(),
+                style: subtitleStyle(),
               ),
             ],
           ),
@@ -196,37 +200,18 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     _maybeFetchSadad();
   }
 
-  TextStyle _titleStyle() => customTextStyle(
-    fontStyle: FontStyle.BodyL_Bold,
-    color: FontColor.FontPrimary,
-  );
-
-  TextStyle _subtitleStyle() => customTextStyle(
-    fontStyle: FontStyle.BodyM_Bold,
-    color: FontColor.FontSecondary,
-  );
-
-  TextStyle _amountBold() => customTextStyle(
-    fontStyle: FontStyle.BodyL_Bold,
-    color: FontColor.FontPrimary,
-  );
-
-  Widget _sectionTitle(String text) {
-    return Text(text, style: _titleStyle());
-  }
-
   Widget _kv(String label, String value, {TextStyle? valueStyle}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: _subtitleStyle())),
+          Expanded(child: Text(label, style: subtitleStyle())),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: valueStyle ?? _subtitleStyle(),
+              style: valueStyle ?? subtitleStyle(),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
@@ -325,11 +310,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              Text('Upload POS Bill', style: _titleStyle()),
+              Text('Upload POS Bill', style: titleStyle()),
               const SizedBox(height: 8),
               Text(
                 'Attach a clear photo or file of the POS bill before marking the order ready to dispatch.',
-                style: _subtitleStyle(),
+                style: subtitleStyle(),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -423,12 +408,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                         _uploadProgress == null
                             ? 'Uploading...'
                             : 'Uploading ${((_uploadProgress! * 100).toStringAsFixed(0))}%',
-                        style: _subtitleStyle(),
+                        style: subtitleStyle(),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Time left: ${_secondsLeft > 0 ? _secondsLeft : 0}s',
-                        style: _subtitleStyle(),
+                        style: subtitleStyle(),
                       ),
                       const SizedBox(height: 8),
                       TextButton.icon(
@@ -447,7 +432,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                       const Icon(Icons.check_circle, color: Colors.green),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text('Bill uploaded', style: _subtitleStyle()),
+                        child: Text('Bill uploaded', style: subtitleStyle()),
                       ),
                     ],
                   ),
@@ -487,7 +472,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Uploading POS bill...', style: _titleStyle()),
+                  Text('Uploading POS bill...', style: titleStyle()),
                   const SizedBox(height: 12),
                   LinearProgressIndicator(
                     minHeight: 6,
@@ -501,12 +486,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     _uploadProgress == null
                         ? 'Starting...'
                         : '${(_uploadProgress! * 100).toStringAsFixed(0)}%',
-                    style: _subtitleStyle(),
+                    style: subtitleStyle(),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     'Time left: ${_secondsLeft > 0 ? _secondsLeft : 0}s',
-                    style: _subtitleStyle(),
+                    style: subtitleStyle(),
                   ),
                   const SizedBox(height: 8),
                   Align(
@@ -974,13 +959,13 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                         horizontal: 8,
                         vertical: 6,
                       ),
-                      child: Text('Shipping', style: _titleStyle()),
+                      child: Text('Shipping', style: titleStyle()),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         addressLines.join('\n'),
-                        style: _subtitleStyle(),
+                        style: subtitleStyle(),
                       ),
                     ),
                   ],
@@ -1002,7 +987,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                         horizontal: 8,
                         vertical: 6,
                       ),
-                      child: Text('Payment Method', style: _titleStyle()),
+                      child: Text('Payment Method', style: titleStyle()),
                     ),
 
                     // Padding(
@@ -1014,11 +999,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Keep the existing payment label as-is
-                          Text(paymentLabel, style: _subtitleStyle()),
+                          Text(paymentLabel, style: subtitleStyle()),
                           const SizedBox(height: 6),
 
-                          // Additional row(s) for Sadad QA results
                           if ((order.paymentMethod ?? '')
                                   .trim()
                                   .toLowerCase() ==
@@ -1040,14 +1023,14 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                             else if (_sadadError != null)
                               Text(
                                 _sadadError!,
-                                style: _subtitleStyle().copyWith(
+                                style: subtitleStyle().copyWith(
                                   color: Colors.red,
                                 ),
                               )
                             else if (_sadadTxns.isEmpty)
                               Text(
                                 '- No online transactions found -',
-                                style: _subtitleStyle(),
+                                style: subtitleStyle(),
                               )
                             else ...[
                               for (final t in _sadadTxns) ...[
@@ -1093,7 +1076,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                       const SizedBox(height: 6),
                                       Text(
                                         '${t['modeName'] ?? '-'}',
-                                        style: _subtitleStyle(),
+                                        style: subtitleStyle(),
                                       ),
                                       if ((t['invoice'] ?? '')
                                           .toString()
@@ -1101,7 +1084,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                         const SizedBox(height: 2),
                                         Text(
                                           '${t['invoice']}',
-                                          style: _subtitleStyle(),
+                                          style: subtitleStyle(),
                                         ),
                                       ],
                                     ],
@@ -1132,7 +1115,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                         horizontal: 8,
                         vertical: 6,
                       ),
-                      child: Text('Shipping Method', style: _titleStyle()),
+                      child: Text('Shipping Method', style: titleStyle()),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -1141,7 +1124,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                         children: [
                           Text(
                             shippingLabel.isEmpty ? '-' : shippingLabel,
-                            style: _subtitleStyle(),
+                            style: subtitleStyle(),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -1149,11 +1132,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                 (shippingCharge == 0
                                     ? 'Free Shipping'
                                     : shippingCharge.toStringAsFixed(2)),
-                            style: _subtitleStyle(),
+                            style: subtitleStyle(),
                           ),
                           Text(
                             '(Total Shipping Charges QAR ${shippingCharge.toStringAsFixed(2)})',
-                            style: _subtitleStyle(),
+                            style: subtitleStyle(),
                           ),
                         ],
                       ),
@@ -1407,7 +1390,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     }
 
     if (sections.isEmpty) {
-      sections.add(Center(child: Text('-', style: _subtitleStyle())));
+      sections.add(Center(child: Text('-', style: subtitleStyle())));
     }
 
     return Card(
@@ -1427,6 +1410,18 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     String status = 'ready_to_dispatch',
   }) async {
     final colors = customColors();
+
+    // Require selection of dispatch type before proceeding
+    if (dispatchMethod == null || dispatchMethod!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please select dispatch type (Normal / Driver / Rider)',
+          ),
+        ),
+      );
+      return;
+    }
     // If POS bill missing, offer Upload Now / Upload Later
     if (_posBillUrl == null && !forceLater) {
       final choice = await showDialog<String>(
@@ -1626,8 +1621,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           title: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text('#${order.subgroupIdentifier}', style: _titleStyle()),
+                Text('#${order.subgroupIdentifier}', style: titleStyle()),
+
                 if (order.combinedSubgroupIdentifiers
                     .where((id) => id != order.subgroupIdentifier)
                     .isNotEmpty) ...[
@@ -1706,6 +1703,15 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               ],
             ),
           ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: dispatchSelector(
+                value: dispatchMethod,
+                onChanged: (value) => setState(() => dispatchMethod = value),
+              ),
+            ),
+          ],
         ),
         body: BlocBuilder<
           CashierOrderInnerPageCubit,
@@ -1722,7 +1728,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(state.message, style: _subtitleStyle()),
+                      child: Text(state.message, style: subtitleStyle()),
                     ),
                     const SizedBox(height: 8),
                     ElevatedButton(
@@ -1903,7 +1909,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                             // Customer Information
                             Padding(
                               padding: const EdgeInsets.only(left: 12.0),
-                              child: _sectionTitle('Customer'),
+                              child: sectionTitle('Customer'),
                             ),
                             const SizedBox(height: 8),
                             Padding(
@@ -1990,7 +1996,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                 _posBillUrl == null
                                                     ? 'POS bill not uploaded'
                                                     : 'POS bill attached',
-                                                style: _subtitleStyle(),
+                                                style: subtitleStyle(),
                                               ),
                                             ),
                                             if (_posBillUrl != null) ...[
@@ -2068,7 +2074,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                             // Items (table format)
                             Padding(
                               padding: const EdgeInsets.only(left: 12.0),
-                              child: _sectionTitle('Items'),
+                              child: sectionTitle('Items'),
                             ),
                             const SizedBox(height: 8),
                             Padding(
@@ -2081,7 +2087,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                             // Price Details
                             Padding(
                               padding: const EdgeInsets.only(left: 12.0),
-                              child: _sectionTitle('Price Details'),
+                              child: sectionTitle('Price Details'),
                             ),
                             const SizedBox(height: 8),
                             Card(

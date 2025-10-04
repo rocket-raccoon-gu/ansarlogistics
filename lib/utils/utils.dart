@@ -53,6 +53,100 @@ bool get applyTheme {
   return true;
 }
 
+TextStyle titleStyle() => customTextStyle(
+  fontStyle: FontStyle.BodyL_Bold,
+  color: FontColor.FontPrimary,
+);
+
+TextStyle subtitleStyle() => customTextStyle(
+  fontStyle: FontStyle.BodyM_Bold,
+  color: FontColor.FontSecondary,
+);
+
+TextStyle amountBold() => customTextStyle(
+  fontStyle: FontStyle.BodyL_Bold,
+  color: FontColor.FontPrimary,
+);
+
+Widget sectionTitle(String text) {
+  return Text(text, style: titleStyle());
+}
+
+// UI: Dispatch type selector (Normal / Driver / Rider)
+// UI: Dispatch type selector (Normal / Driver / Rider)
+Widget dispatchSelector({
+  required String? value,
+  required ValueChanged<String> onChanged,
+}) {
+  final colors = customColors();
+  const options = [
+    {'key': 'normal', 'label': 'Normal'},
+    {'key': 'driver', 'label': 'Driver'},
+    {'key': 'rider', 'label': 'Rider'},
+  ];
+  return Row(
+    children: [
+      Text('Dispatch Type', style: titleStyle()),
+      const SizedBox(width: 8),
+      Wrap(
+        spacing: 8,
+        alignment: WrapAlignment.end,
+        children:
+            options.map((o) {
+              final key = o['key']!;
+              final selected = value == key;
+
+              // Pick selected background color by option
+              final Color selectedBg = switch (key) {
+                'driver' => const Color(0xFF9729BA),
+                'rider' => Colors.red,
+                _ => customColors().islandAqua,
+              };
+
+              // Pick an icon per option
+              IconData icon = switch (key) {
+                'driver' => Icons.directions_car_filled_outlined,
+                'rider' => Icons.pedal_bike_outlined,
+                _ => Icons.local_shipping_outlined,
+              };
+
+              return ChoiceChip(
+                // small, neat chips
+                visualDensity: VisualDensity.comfortable,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                labelPadding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 2,
+                ),
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 16,
+                      color: selected ? customColors().backgroundPrimary : null,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      o['label']!,
+                      style: customTextStyle(
+                        fontStyle: FontStyle.BodyL_SemiBold,
+                        color:
+                            selected ? FontColor.White : FontColor.FontPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                selected: selected,
+                onSelected: (_) => onChanged(key),
+                selectedColor: selectedBg,
+              );
+            }).toList(),
+      ),
+    ],
+  );
+}
+
 showSnackBar({required BuildContext context, required SnackBar snackBar}) {
   ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
