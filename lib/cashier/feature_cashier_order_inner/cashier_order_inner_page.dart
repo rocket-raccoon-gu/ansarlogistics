@@ -28,6 +28,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
+import 'package:flutter/services.dart';
 
 class CashierOrderInnerPage extends StatefulWidget {
   const CashierOrderInnerPage({super.key, required this.arguments});
@@ -46,6 +47,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   XFile? _pickedImage;
   double? _uploadProgress; // 0.0 - 1.0
   final Set<int> _selectedItemIds = <int>{};
+
+  // Editable Grand Total state
+  final TextEditingController _grandTotalController = TextEditingController();
+  double? _grandTotalOverride; // if null, use base computed value
 
   // Dispatch method selected by cashier: 'normal' | 'driver' | 'rider'
   String? dispatchMethod;
@@ -72,6 +77,15 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         pickerPrice != 0 && (pickerPrice - orderPrice).abs() > 0.0001;
     bool diffWeb = webPrice != 0 && (webPrice - orderPrice).abs() > 0.0001;
     return diffPicker || diffWeb;
+  }
+
+  double _baseGrandTotal() {
+    return _toDouble(
+      order.endPickTotal != 0
+          ? double.parse(order.endPickTotal.toString()) +
+              double.parse(order.shippingCharge.toString())
+          : order.grandTotal,
+    );
   }
 
   Widget _buildItemRow(Item item) {
@@ -198,6 +212,15 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     order = widget.arguments['order'] as Datum;
     _loadExistingPosBillIfAny();
     _maybeFetchSadad();
+
+    _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
+    _grandTotalOverride = null;
+  }
+
+  @override
+  void dispose() {
+    _grandTotalController.dispose();
+    super.dispose();
   }
 
   Widget _kv(String label, String value, {TextStyle? valueStyle}) {
@@ -1503,12 +1526,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       final lat = UserController.userController.locationlatitude;
       final lng = UserController.userController.locationlongitude;
 
-      final grandTotal = _toDouble(
-        order.endPickTotal != 0
-            ? double.parse(order.endPickTotal.toString()) +
-                double.parse(order.shippingCharge.toString())
-            : order.grandTotal,
-      );
+      final grandTotal = _toDouble(_grandTotalOverride ?? _baseGrandTotal());
       // Use onlinePaidAmount as paid
       final paid = _toDouble(order.orderAmount);
       final due = grandTotal - paid;
@@ -1534,6 +1552,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                   : order.grandTotal,
             ).toString(),
         dueAmount: ((due < 0 ? 0 : due).toStringAsFixed(2)),
+        dispatchMethod: dispatchMethod,
       );
 
       if (mounted) {
@@ -1608,6 +1627,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           setState(() {
             order = state.response;
             _posBillUrl = null;
+            _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
+            _grandTotalOverride = null;
           });
 
           _maybeFetchSadad();
@@ -1704,13 +1725,14 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             ),
           ),
           actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: dispatchSelector(
-                value: dispatchMethod,
-                onChanged: (value) => setState(() => dispatchMethod = value),
+            if (order.orderStatus != 'ready_to_dispatch')
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: dispatchSelector(
+                  value: dispatchMethod,
+                  onChanged: (value) => setState(() => dispatchMethod = value),
+                ),
               ),
-            ),
           ],
         ),
         body: BlocBuilder<
@@ -2193,20 +2215,82 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                       ),
                                       child: Divider(height: 1),
                                     ),
-                                    _kvMoney(
-                                      'Grand Total',
-                                      _toDouble(
-                                        order.endPickTotal != 0
-                                            ? double.parse(
-                                                  order.endPickTotal.toString(),
-                                                ) +
-                                                double.parse(
-                                                  order.shippingCharge
-                                                      .toString(),
-                                                )
-                                            : order.grandTotal,
+                                    // _kvMoney(
+                                    //   'Grand Total',
+                                    //   _toDouble(
+                                    //     order.endPickTotal != 0
+                                    //         ? double.parse(
+                                    //               order.endPickTotal.toString(),
+                                    //             ) +
+                                    //             double.parse(
+                                    //               order.shippingCharge
+                                    //                   .toString(),
+                                    //             )
+                                    //         : order.grandTotal,
+                                    //   ),
+                                    //   bold: true,
+                                    // ),
+                                    // Editable Grand Total
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 6,
                                       ),
-                                      bold: true,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              'Grand Total',
+                                              style: customTextStyle(
+                                                fontStyle: FontStyle.BodyM_Bold,
+                                                color: FontColor.FontPrimary,
+                                              ).copyWith(
+                                                fontSize: 16,
+                                                height: 1.3,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          SizedBox(
+                                            width: 180,
+                                            child: TextField(
+                                              controller: _grandTotalController,
+                                              textAlign: TextAlign.right,
+                                              keyboardType:
+                                                  const TextInputType.numberWithOptions(
+                                                    decimal: true,
+                                                  ),
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter.allow(
+                                                  RegExp(r'[0-9\\.]'),
+                                                ),
+                                              ],
+                                              style: customTextStyle(
+                                                fontStyle: FontStyle.BodyL_Bold,
+                                                color: FontColor.FontPrimary,
+                                              ).copyWith(
+                                                fontSize: 18,
+                                                height: 1.4,
+                                              ),
+                                              decoration: const InputDecoration(
+                                                isDense: true,
+                                                prefixText: 'QAR ',
+                                                border: OutlineInputBorder(),
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 8,
+                                                    ),
+                                              ),
+                                              onChanged: (val) {
+                                                setState(() {
+                                                  _grandTotalOverride =
+                                                      _toDouble(val);
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),

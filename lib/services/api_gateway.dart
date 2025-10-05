@@ -302,6 +302,7 @@ class PDApiGateway implements AuthenticationService {
     required String longitude,
     String? grandTotal,
     String? dueAmount,
+    String? dispatchMethod,
   }) async {
     try {
       final responce = await pickerDriverApi
@@ -309,11 +310,12 @@ class PDApiGateway implements AuthenticationService {
             orderid: orderid,
             order_status: orderstatus,
             comment: comment,
-            user_id: userid,
+            userId: userid,
             latitude: latitude,
             longitude: longitude,
             grandTotal: grandTotal,
             dueAmount: dueAmount,
+            dispatchMethod: dispatchMethod,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());

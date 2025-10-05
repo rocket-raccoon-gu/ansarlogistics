@@ -389,11 +389,12 @@ extension PDGeneralApi on PickerDriverApi {
     required String orderid,
     required String order_status,
     required String comment,
-    required String user_id,
+    required String userId,
     required String latitude,
     required String longitude,
     String? grandTotal,
     String? dueAmount,
+    String? dispatchMethod,
   }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
@@ -406,15 +407,29 @@ extension PDGeneralApi on PickerDriverApi {
       'Content-Type': ContentTypes.applicationJson,
     };
 
+    if (dispatchMethod != null) {
+      switch (dispatchMethod) {
+        case 'driver':
+          dispatchMethod = 'rafeeq';
+          break;
+        case 'rider':
+          dispatchMethod = 'rider';
+          break;
+        default:
+          dispatchMethod = 'normal';
+      }
+    }
+
     final Map<String, dynamic> body = {
       "order_id": orderid,
       "order_status": order_status,
       "comment": comment,
-      "user_id": user_id,
+      "user_id": userId,
       "latitude": latitude,
       "longitude": longitude,
       "grand_total": grandTotal,
       "due_amount": dueAmount,
+      "driver_type": dispatchMethod,
     };
 
     // print(url);
