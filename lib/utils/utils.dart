@@ -440,6 +440,8 @@ String getPriceFromBarcode(String code) {
     price = priceString;
   }
 
+  log("Price from barcode: $price");
+
   return price;
 }
 

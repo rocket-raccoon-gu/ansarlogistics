@@ -46,13 +46,59 @@ class PriceWeightCalculator {
   static String getActualWeight(
     String sellingPrice,
     String scaledPrice,
-    String itemName,
+    String sellingweight,
+    String sellinguom,
   ) {
     double selling = double.parse(sellingPrice);
     double scaled = double.parse(scaledPrice);
-    double uomGrams = getUomWeightInGrams(extractUomFromItemName(itemName));
 
-    double pricePerGram = selling / uomGrams;
-    return (scaled / pricePerGram).toStringAsFixed(2);
+    double pricepergram =
+        selling / convertWeightToGrams(sellingweight, sellinguom);
+    double scaledgram = scaled / pricepergram;
+
+    return scaledgram.toStringAsFixed(2);
+  }
+
+  static double convertWeightToGrams(String weight, String uom) {
+    switch (uom.toLowerCase()) {
+      case 'g':
+        return double.parse(weight);
+      case 'kg':
+        return double.parse(weight) * 1000;
+      case 'lb':
+        return double.parse(weight) * 453.592;
+      case 'oz':
+        return double.parse(weight) * 28.3495;
+      default:
+        return double.parse(weight);
+    }
+  }
+
+  static String getPrice(
+    String sellingPrice,
+    String weightGrams,
+    String uom,
+    String pickedWeight,
+  ) {
+    double selling = double.parse(sellingPrice);
+    double weight = convertWeightToGrams(weightGrams, uom);
+
+    double pricePerGram = selling / weight;
+
+    log("pricePerGram: $pricePerGram");
+
+    log("weight: $weight");
+
+    log("selling: $selling");
+
+    log("pricePerGram: ${pricePerGram.toStringAsFixed(2)}");
+
+    log("pickedWeight: $pickedWeight");
+
+    double pickedWeightInGrams = convertWeightToGrams(pickedWeight, uom);
+
+    log("pickedWeightInGrams: $pickedWeightInGrams");
+
+    return (pickedWeightInGrams * pricePerGram).toStringAsFixed(2);
   }
 }
