@@ -282,22 +282,50 @@ class OrderTile extends StatelessWidget {
                 order.isWhatsappOrder == 1
                     ? const Icon(Icons.chat_bubble)
                     : const SizedBox.shrink(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: getStatusColor(order.orderStatus),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    getStatus(order.orderStatus),
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyM_SemiBold,
-                      color: FontColor.White,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: getStatusColor(order.orderStatus),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        getStatus(order.orderStatus),
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_SemiBold,
+                          color: FontColor.White,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (order.statusHistory != null &&
+                        DateUtils.isSameDay(
+                          order.statusHistory!.createdAt,
+                          DateTime.now(),
+                        )) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: customColors().islandAqua,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Ready to Dispatch',
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyS_Bold,
+                            color: FontColor.White,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
