@@ -156,7 +156,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
       Map<String, dynamic> body = {
         "item_id": int.parse(orderItem!.itemId),
-        "scanned_sku": scannedSku,
+        "scanned_sku":
+            orderItem!.isproduce == "1" && !isSameDayOrder
+                ? orderItem!.productSku
+                : scannedSku,
         "item_status": "end_picking",
         "shipping": "",
         "price": double.parse(price),
