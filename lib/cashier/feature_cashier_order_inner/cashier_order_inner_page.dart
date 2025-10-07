@@ -47,6 +47,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   XFile? _pickedImage;
   double? _uploadProgress; // 0.0 - 1.0
   final Set<int> _selectedItemIds = <int>{};
+  String? paymentMethodnew;
 
   // Editable Grand Total state
   final TextEditingController _grandTotalController = TextEditingController();
@@ -1115,6 +1116,43 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                 ),
                               ],
                             ],
+                          ] else ...[
+                            Row(
+                              children: [
+                                Text('Change:', style: subtitleStyle()),
+                                const SizedBox(width: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: colors.backgroundPrimary,
+                                    border: Border.all(
+                                      color: colors.primary.withOpacity(0.3),
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    underline: const SizedBox(),
+                                    value: order.paymentMethod,
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: 'cashondelivery',
+                                        child: Text('Cash on Delivery'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'banktransfer',
+                                        child: Text('Card on Delivery'),
+                                      ),
+                                    ],
+                                    onChanged: (val) {
+                                      if (val != null) _setPaymentMethod(val);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ],
                       ),
@@ -1553,6 +1591,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             ).toString(),
         dueAmount: ((due < 0 ? 0 : due).toStringAsFixed(2)),
         dispatchMethod: dispatchMethod,
+        paymentMethod: paymentMethodnew ?? order.paymentMethod,
       );
 
       if (mounted) {
@@ -1627,7 +1666,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           setState(() {
             order = state.response;
             _posBillUrl = null;
-            _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
+            _grandTotalController.text =
+                (order.endPickTotal != 0
+                        ? double.parse(order.endPickTotal.toString()) +
+                            double.parse(order.shippingCharge.toString())
+                        : double.parse(order.grandTotal))
+                    .toString();
             _grandTotalOverride = null;
           });
 
@@ -1688,7 +1732,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                             .toList(),
                   ),
 
-                  order.driverType != null && order.driverType != ''
+                  order.driverType != null &&
+                          (order.driverType == 'rider' ||
+                              order.driverType == 'rafeeq')
                       ? Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Container(
@@ -2416,5 +2462,24 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).maybePop();
     }
+  }
+
+  // Helper: get current dropdown value based on order.paymentMethod
+  String _currentPaymentValue() {
+    final pm = (order.paymentMethod ?? '').trim().toLowerCase();
+    if (pm == 'cardondelivery') return 'cardondelivery';
+    return 'cashondelivery';
+  }
+
+  // Update local state for payment method and refresh Sadad section visibility
+  void _setPaymentMethod(String method) {
+    final prev = (order.paymentMethod ?? '').trim().toLowerCase();
+    if (prev == 'sadadqa') return; // Do not allow changing from online
+    if (prev == method) return;
+    setState(() {
+      order.paymentMethod = method;
+      paymentMethodnew = method;
+    });
+    _maybeFetchSadad();
   }
 }

@@ -395,6 +395,7 @@ extension PDGeneralApi on PickerDriverApi {
     String? grandTotal,
     String? dueAmount,
     String? dispatchMethod,
+    String? paymentMethod,
   }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
@@ -430,6 +431,7 @@ extension PDGeneralApi on PickerDriverApi {
       "grand_total": grandTotal,
       "due_amount": dueAmount,
       "driver_type": dispatchMethod,
+      "payment_method": paymentMethod,
     };
 
     // print(url);

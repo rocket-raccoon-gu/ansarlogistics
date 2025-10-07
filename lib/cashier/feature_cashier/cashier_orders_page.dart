@@ -248,7 +248,9 @@ class OrderTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                order.driverType != null && order.driverType != ''
+                order.driverType != null &&
+                        (order.driverType == 'rafeeq' ||
+                            order.driverType == 'rider')
                     ? Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -358,6 +360,7 @@ class OrderTile extends StatelessWidget {
 String getDriverType(String driverType) {
   switch (driverType.toLowerCase()) {
     case 'rafeeq':
+    case 'rider':
       return 'Rafeeq';
     case 'rad':
       return 'RAD';
