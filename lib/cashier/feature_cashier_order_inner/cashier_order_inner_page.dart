@@ -246,12 +246,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   }
 
   // More readable labeled row with selectable value
-  Widget _kvSelectable(String label, String value) {
+  Widget _kvSelectable(String label, String value, {TextStyle? valueStyle}) {
     final labelStyle = customTextStyle(
       fontStyle: FontStyle.BodyM_SemiBold,
       color: FontColor.FontPrimary,
     ).copyWith(fontSize: 16, height: 1.3);
-    final valueStyle = customTextStyle(
+    final defaultStyle = customTextStyle(
       fontStyle: FontStyle.BodyM_Regular,
       color: FontColor.FontPrimary,
     ).copyWith(fontSize: 16, height: 1.4);
@@ -265,7 +265,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           Expanded(
             child: SelectableText(
               value.isEmpty ? '-' : value,
-              style: valueStyle,
+              style: valueStyle ?? defaultStyle,
             ),
           ),
         ],
@@ -2017,6 +2017,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                         _kvSelectable(
                                           'Delivery Note',
                                           order.deliveryNote!.trim(),
+                                          valueStyle: TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       if ((order.pickername ?? '')
                                           .toString()
