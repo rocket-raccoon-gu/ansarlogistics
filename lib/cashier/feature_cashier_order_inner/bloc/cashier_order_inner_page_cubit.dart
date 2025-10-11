@@ -22,8 +22,10 @@ class CashierOrderInnerPageCubit extends Cubit<CashierOrderInnerPageState> {
     if (_serviceLocator == null) return;
     emit(CashierOrderInnerPageStateLoading());
     try {
+      final numericKey = subgroupId.replaceAll(RegExp(r'[^0-9]'), '');
+
       final response = await _serviceLocator!.tradingApi.getCashierOrdersSearch(
-        key: subgroupId,
+        key: numericKey,
         token: UserController.userController.app_token,
       );
 
@@ -66,7 +68,8 @@ class CashierOrderInnerPageCubit extends Cubit<CashierOrderInnerPageState> {
         return;
       }
 
-      emit(CashierOrderInnerPageStateLoaded(response: found));
+      // emit(CashierOrderInnerPageStateLoaded(response: found));
+      initialize(serviceLocator: _serviceLocator!, initialOrder: found);
     } catch (e) {
       emit(CashierOrderInnerPageStateError(message: e.toString()));
     }

@@ -50,7 +50,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   String? paymentMethodnew;
 
   // Editable Grand Total state
-  final TextEditingController _grandTotalController = TextEditingController();
+  // final TextEditingController _grandTotalController = TextEditingController();
   double? _grandTotalOverride; // if null, use base computed value
 
   // Dispatch method selected by cashier: 'normal' | 'driver' | 'rider'
@@ -214,13 +214,13 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     _loadExistingPosBillIfAny();
     _maybeFetchSadad();
 
-    _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
+    // _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
     _grandTotalOverride = null;
   }
 
   @override
   void dispose() {
-    _grandTotalController.dispose();
+    // _grandTotalController.dispose();
     super.dispose();
   }
 
@@ -1586,7 +1586,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             _toDouble(
               order.endPickTotal != 0
                   ? double.parse(order.endPickTotal.toString()) +
-                      double.parse(order.shippingCharge.toString())
+                      (order.combinedOrderPlacedTotal! > 99
+                          ? 0
+                          : double.parse(order.shippingCharge.toString()))
                   : order.grandTotal,
             ).toString(),
         dueAmount: ((due < 0 ? 0 : due).toStringAsFixed(2)),
@@ -1660,18 +1662,20 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           }
         })();
 
-    return BlocListener<CashierOrderInnerPageCubit, CashierOrderInnerPageState>(
+    return BlocConsumer<CashierOrderInnerPageCubit, CashierOrderInnerPageState>(
       listener: (context, state) {
         if (state is CashierOrderInnerPageStateLoaded) {
           setState(() {
             order = state.response;
             _posBillUrl = null;
-            _grandTotalController.text =
-                (order.endPickTotal != 0
-                        ? double.parse(order.endPickTotal.toString()) +
-                            double.parse(order.shippingCharge.toString())
-                        : double.parse(order.grandTotal))
-                    .toString();
+            // _grandTotalController.text =
+            //     (order.endPickTotal != 0
+            //             ? double.parse(order.endPickTotal.toString()) +
+            //                 (order.combinedOrderPlacedTotal! > 99
+            //                     ? 0
+            //                     : double.parse(order.shippingCharge.toString()))
+            //             : double.parse(order.grandTotal))
+            //         .toString();
             _grandTotalOverride = null;
           });
 
@@ -1679,761 +1683,782 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           _loadExistingPosBillIfAny();
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: colors.backgroundPrimary,
-          title: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('#${order.subgroupIdentifier}', style: titleStyle()),
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: colors.backgroundPrimary,
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('#${order.subgroupIdentifier}', style: titleStyle()),
 
-                if (order.combinedSubgroupIdentifiers
-                    .where((id) => id != order.subgroupIdentifier)
-                    .isNotEmpty) ...[
-                  const SizedBox(width: 12),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children:
-                        order.combinedSubgroupIdentifiers
-                            .where((id) => id != order.subgroupIdentifier)
-                            .map(
-                              (id) => InkWell(
-                                borderRadius: BorderRadius.circular(16),
-                                onTap: () {
-                                  setState(() => _posBillUrl = null);
-                                  context
-                                      .read<CashierOrderInnerPageCubit>()
-                                      .loadBySubgroupId(id);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: colors.backgroundSecondary,
-                                    border: Border.all(color: colors.primary),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Text(
-                                    '#$id',
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyS_Bold,
-                                      color: FontColor.FontPrimary,
+                  if (order.combinedSubgroupIdentifiers
+                      .where((id) => id != order.subgroupIdentifier)
+                      .isNotEmpty) ...[
+                    const SizedBox(width: 12),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children:
+                          order.combinedSubgroupIdentifiers
+                              .where((id) => id != order.subgroupIdentifier)
+                              .map(
+                                (id) => InkWell(
+                                  borderRadius: BorderRadius.circular(16),
+                                  onTap: () {
+                                    setState(() => _posBillUrl = null);
+                                    context
+                                        .read<CashierOrderInnerPageCubit>()
+                                        .loadBySubgroupId(id);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: colors.backgroundSecondary,
+                                      border: Border.all(color: colors.primary),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Text(
+                                      '#$id',
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyS_Bold,
+                                        color: FontColor.FontPrimary,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            )
-                            .toList(),
-                  ),
+                              )
+                              .toList(),
+                    ),
 
-                  order.driverType != null &&
-                          (order.driverType == 'rider' ||
-                              order.driverType == 'rafeeq')
-                      ? Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.purple,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                'assets/rafeeq_logo.png',
-                                width: 24,
-                                height: 24,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                getDriverType(order.driverType!),
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_SemiBold,
-                                  color: FontColor.White,
+                    order.driverType != null &&
+                            (order.driverType == 'rider' ||
+                                order.driverType == 'rafeeq')
+                        ? Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.purple,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  'assets/rafeeq_logo.png',
+                                  width: 24,
+                                  height: 24,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                Text(
+                                  getDriverType(order.driverType!),
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyL_SemiBold,
+                                    color: FontColor.White,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      )
-                      : const SizedBox.shrink(),
-                ],
-              ],
-            ),
-          ),
-          actions: [
-            if (order.orderStatus != 'ready_to_dispatch')
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: dispatchSelector(
-                  value: dispatchMethod,
-                  onChanged: (value) => setState(() => dispatchMethod = value),
-                ),
-              ),
-          ],
-        ),
-        body: BlocBuilder<
-          CashierOrderInnerPageCubit,
-          CashierOrderInnerPageState
-        >(
-          builder: (context, state) {
-            if (state is CashierOrderInnerPageStateLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state is CashierOrderInnerPageStateError) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(state.message, style: subtitleStyle()),
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed:
-                          () => context
-                              .read<CashierOrderInnerPageCubit>()
-                              .loadBySubgroupId(order.subgroupIdentifier),
-                      child: const Text('Retry'),
-                    ),
+                        )
+                        : const SizedBox.shrink(),
                   ],
+                ],
+              ),
+            ),
+            actions: [
+              if (order.orderStatus != 'ready_to_dispatch')
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: dispatchSelector(
+                    value: dispatchMethod,
+                    onChanged:
+                        (value) => setState(() => dispatchMethod = value),
+                  ),
                 ),
-              );
-            }
-            return LayoutBuilder(
-              builder: (ctx, constraints) {
-                final isTablet = constraints.maxWidth >= 900;
-                // Let the inner page use full available width on larger screens
-                final maxWidth = isTablet ? constraints.maxWidth : 640.0;
+            ],
+          ),
+          body: BlocBuilder<
+            CashierOrderInnerPageCubit,
+            CashierOrderInnerPageState
+          >(
+            builder: (context, state) {
+              if (state is CashierOrderInnerPageStateLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (state is CashierOrderInnerPageStateError) {
                 return Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: maxWidth),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.only(
-                          left: isTablet ? 8 : 16,
-                          right: isTablet ? 8 : 16,
-                          top: 16,
-                          bottom: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Order Barcode
-                            Card(
-                              color: colors.backgroundSecondary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Constrain barcode area on tablets to avoid full-width
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth:
-                                            isTablet
-                                                ? 420
-                                                : MediaQuery.of(
-                                                      context,
-                                                    ).size.width *
-                                                    0.8,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: double.infinity,
-                                            child: AspectRatio(
-                                              aspectRatio: 3,
-                                              child: BarcodeWidget(
-                                                barcode: Barcode.code128(),
-                                                data: order.subgroupIdentifier,
-                                                color: colors.fontPrimary,
-                                                drawText: false,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            order.subgroupIdentifier,
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyM_Bold,
-                                              color: FontColor.FontPrimary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    // Status chip aligned to the right
-                                    Column(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(state.message, style: subtitleStyle()),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed:
+                            () => context
+                                .read<CashierOrderInnerPageCubit>()
+                                .loadBySubgroupId(order.subgroupIdentifier),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (state is CashierOrderInnerPageStateLoaded) {
+                return LayoutBuilder(
+                  builder: (ctx, constraints) {
+                    final isTablet = constraints.maxWidth >= 900;
+                    // Let the inner page use full available width on larger screens
+                    final maxWidth = isTablet ? constraints.maxWidth : 640.0;
+                    return Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: maxWidth),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.only(
+                              left: isTablet ? 8 : 16,
+                              right: isTablet ? 8 : 16,
+                              top: 16,
+                              bottom: 16,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Order Barcode
+                                Card(
+                                  color: colors.backgroundSecondary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Row(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.end,
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
+                                        // Constrain barcode area on tablets to avoid full-width
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxWidth:
+                                                isTablet
+                                                    ? 420
+                                                    : MediaQuery.of(
+                                                          context,
+                                                        ).size.width *
+                                                        0.8,
                                           ),
-                                          decoration: BoxDecoration(
-                                            color: getStatusColor(
-                                              order.orderStatus.toString(),
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            getStatus(
-                                              order.orderStatus.toString(),
-                                            ),
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyM_Bold,
-                                              color: FontColor.White,
-                                            ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: AspectRatio(
+                                                  aspectRatio: 3,
+                                                  child: BarcodeWidget(
+                                                    barcode: Barcode.code128(),
+                                                    data:
+                                                        order
+                                                            .subgroupIdentifier,
+                                                    color: colors.fontPrimary,
+                                                    drawText: false,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                order.subgroupIdentifier,
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        if (order.statusHistory != null &&
-                                            DateUtils.isSameDay(
-                                              order.statusHistory!.createdAt,
-                                              DateTime.now(),
-                                            )) ...[
-                                          const SizedBox(height: 6),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: customColors().islandAqua,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Text(
-                                              'Ready to Dispatch',
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyS_Bold,
-                                                color: FontColor.White,
+                                        const Spacer(),
+                                        // Status chip aligned to the right
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: getStatusColor(
+                                                  order.orderStatus.toString(),
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
+                                              child: Text(
+                                                getStatus(
+                                                  order.orderStatus.toString(),
+                                                ),
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color: FontColor.White,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                        if (order.isWhatsappOrder == 1) ...[
-                                          const SizedBox(height: 6),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  customColors().secretGarden,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                  Icons.chat_bubble_outline,
-                                                  size: 16,
-                                                  color: Colors.white,
+                                            if (order.statusHistory != null &&
+                                                DateUtils.isSameDay(
+                                                  order
+                                                      .statusHistory!
+                                                      .createdAt,
+                                                  DateTime.now(),
+                                                )) ...[
+                                              const SizedBox(height: 6),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 6,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      customColors().islandAqua,
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
                                                 ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  'WhatsApp Order',
+                                                child: Text(
+                                                  'Ready to Dispatch',
                                                   style: customTextStyle(
                                                     fontStyle:
                                                         FontStyle.BodyS_Bold,
                                                     color: FontColor.White,
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                                              ),
+                                            ],
+                                            if (order.isWhatsappOrder == 1) ...[
+                                              const SizedBox(height: 6),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 6,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      customColors()
+                                                          .secretGarden,
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.chat_bubble_outline,
+                                                      size: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    Text(
+                                                      'WhatsApp Order',
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .BodyS_Bold,
+                                                        color: FontColor.White,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
                                       ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                            // Customer Information
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12.0),
-                              child: sectionTitle('Customer'),
-                            ),
-                            const SizedBox(height: 8),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12.0),
+                                // Customer Information
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12.0),
+                                  child: sectionTitle('Customer'),
+                                ),
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12.0),
 
-                              child: Card(
-                                color: colors.backgroundSecondary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _kvSelectable('Name', name),
-                                      _kvSelectable('Address', address),
-                                      _kvSelectable(
-                                        'Phone',
-                                        (order.telephone).toString(),
-                                      ),
-                                      _kvSelectable(
-                                        'Delivery Date',
-                                        deliveryDateText,
-                                      ),
-                                      if ((timeRangeText ?? '').isNotEmpty)
-                                        _kvSelectable(
-                                          'Delivery Window',
-                                          timeRangeText!,
-                                        ),
-                                      if ((order.deliveryNote ?? '')
-                                          .toString()
-                                          .trim()
-                                          .isNotEmpty)
-                                        _kvSelectable(
-                                          'Delivery Note',
-                                          order.deliveryNote!.trim(),
-                                          valueStyle: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold,
+                                  child: Card(
+                                    color: colors.backgroundSecondary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 0,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _kvSelectable('Name', name),
+                                          _kvSelectable('Address', address),
+                                          _kvSelectable(
+                                            'Phone',
+                                            (order.telephone).toString(),
                                           ),
-                                        ),
-                                      if ((order.pickername ?? '')
-                                          .toString()
-                                          .trim()
-                                          .isNotEmpty)
-                                        _kvSelectable(
-                                          'Picked By',
-                                          order.pickername!.trim(),
-                                        ),
-                                      if ((order.drivername ?? '')
-                                          .toString()
-                                          .trim()
-                                          .isNotEmpty)
-                                        _kvSelectable(
-                                          'Driver Name',
-                                          order.drivername!.trim(),
-                                        ),
-                                      const SizedBox(height: 12),
-                                      Container(
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: colors.backgroundPrimary,
-                                          border: Border.all(
-                                            color: colors.primary,
+                                          _kvSelectable(
+                                            'Delivery Date',
+                                            deliveryDateText,
                                           ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        padding: const EdgeInsets.all(8),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              _posBillUrl == null
-                                                  ? Icons.receipt_long_outlined
-                                                  : Icons.receipt_long,
-                                              color:
-                                                  _posBillUrl == null
-                                                      ? colors.fontSecondary
-                                                      : Colors.green,
+                                          if ((timeRangeText ?? '').isNotEmpty)
+                                            _kvSelectable(
+                                              'Delivery Window',
+                                              timeRangeText!,
                                             ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: Text(
-                                                _posBillUrl == null
-                                                    ? 'POS bill not uploaded'
-                                                    : 'POS bill attached',
-                                                style: subtitleStyle(),
+                                          if ((order.deliveryNote ?? '')
+                                              .toString()
+                                              .trim()
+                                              .isNotEmpty)
+                                            _kvSelectable(
+                                              'Delivery Note',
+                                              order.deliveryNote!.trim(),
+                                              valueStyle: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            if (_posBillUrl != null) ...[
-                                              const SizedBox(width: 8),
-                                              GestureDetector(
-                                                onTap:
-                                                    () =>
-                                                        _openImage(_posBillUrl),
-                                                child: SizedBox(
-                                                  width: 80,
-                                                  height: 80,
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          6,
+                                          if ((order.pickername ?? '')
+                                              .toString()
+                                              .trim()
+                                              .isNotEmpty)
+                                            _kvSelectable(
+                                              'Picked By',
+                                              order.pickername!.trim(),
+                                            ),
+                                          if ((order.drivername ?? '')
+                                              .toString()
+                                              .trim()
+                                              .isNotEmpty)
+                                            _kvSelectable(
+                                              'Driver Name',
+                                              order.drivername!.trim(),
+                                            ),
+                                          const SizedBox(height: 12),
+                                          Container(
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color: colors.backgroundPrimary,
+                                              border: Border.all(
+                                                color: colors.primary,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            padding: const EdgeInsets.all(8),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  _posBillUrl == null
+                                                      ? Icons
+                                                          .receipt_long_outlined
+                                                      : Icons.receipt_long,
+                                                  color:
+                                                      _posBillUrl == null
+                                                          ? colors.fontSecondary
+                                                          : Colors.green,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                    _posBillUrl == null
+                                                        ? 'POS bill not uploaded'
+                                                        : 'POS bill attached',
+                                                    style: subtitleStyle(),
+                                                  ),
+                                                ),
+                                                if (_posBillUrl != null) ...[
+                                                  const SizedBox(width: 8),
+                                                  GestureDetector(
+                                                    onTap:
+                                                        () => _openImage(
+                                                          _posBillUrl,
                                                         ),
-                                                    child: CachedNetworkImage(
-                                                      imageUrl: _posBillUrl!,
-                                                      fit: BoxFit.cover,
-                                                      placeholder:
-                                                          (
-                                                            context,
-                                                            _,
-                                                          ) => const Center(
-                                                            child: SizedBox(
-                                                              width: 16,
-                                                              height: 16,
-                                                              child:
-                                                                  CircularProgressIndicator(
+                                                    child: SizedBox(
+                                                      width: 80,
+                                                      height: 80,
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              6,
+                                                            ),
+                                                        child: CachedNetworkImage(
+                                                          imageUrl:
+                                                              _posBillUrl!,
+                                                          fit: BoxFit.cover,
+                                                          placeholder:
+                                                              (
+                                                                context,
+                                                                _,
+                                                              ) => const Center(
+                                                                child: SizedBox(
+                                                                  width: 16,
+                                                                  height: 16,
+                                                                  child: CircularProgressIndicator(
                                                                     strokeWidth:
                                                                         2,
                                                                   ),
-                                                            ),
-                                                          ),
-                                                      errorWidget:
-                                                          (
-                                                            context,
-                                                            _,
-                                                            __,
-                                                          ) => Image.network(
-                                                            noimageurl,
-                                                            fit: BoxFit.cover,
-                                                          ),
+                                                                ),
+                                                              ),
+                                                          errorWidget:
+                                                              (
+                                                                context,
+                                                                _,
+                                                                __,
+                                                              ) => Image.network(
+                                                                noimageurl,
+                                                                fit:
+                                                                    BoxFit
+                                                                        .cover,
+                                                              ),
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ),
-                                            ],
-                                            TextButton(
-                                              onPressed:
-                                                  _uploading
-                                                      ? null
-                                                      : _openUploadPosBillSheet,
-                                              child: Text(
-                                                _posBillUrl == null
-                                                    ? 'Upload'
-                                                    : 'Replace',
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-
-                            // Order summary header blocks (Shipping | Payment Method | Shipping Method)
-                            _buildOrderSummaryHeader(),
-
-                            const SizedBox(height: 16),
-
-                            // Items (table format)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12.0),
-                              child: sectionTitle('Items'),
-                            ),
-                            const SizedBox(height: 8),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 14.0),
-                              child: _buildItemsTableSection(),
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            // Price Details
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12.0),
-                              child: sectionTitle('Price Details'),
-                            ),
-                            const SizedBox(height: 8),
-                            Card(
-                              color: customColors().secretGarden.withValues(
-                                alpha: 0.50,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _kvMoney(
-                                      'Order Amount',
-                                      _toDouble(order.orderAmount),
-                                    ),
-                                    _kvMoney(
-                                      'End Pick Total',
-                                      _toDouble(order.endPickTotal),
-                                    ),
-                                    _kvMoney(
-                                      'Shipping Charge',
-                                      _toDouble(order.shippingCharge),
-                                    ),
-                                    _kvMoney(
-                                      'Discount',
-                                      _toDouble(order.discountValue ?? 0),
-                                    ),
-
-                                    Builder(
-                                      builder: (_) {
-                                        final grandTotal = _toDouble(
-                                          order.endPickTotal != 0
-                                              ? double.parse(
-                                                    order.endPickTotal
-                                                        .toString(),
-                                                  ) +
-                                                  double.parse(
-                                                    order.shippingCharge
-                                                        .toString(),
-                                                  )
-                                              : order.grandTotal,
-                                        );
-                                        // Use onlinePaidAmount as paid
-                                        final paid = _toDouble(
-                                          order.orderAmount,
-                                        );
-                                        final due = grandTotal - paid;
-
-                                        final labelStyle = customTextStyle(
-                                          fontStyle: FontStyle.BodyM_SemiBold,
-                                          color: FontColor.FontPrimary,
-                                        ).copyWith(fontSize: 16, height: 1.3);
-
-                                        final valueStyle = customTextStyle(
-                                          fontStyle: FontStyle.BodyL_Bold,
-                                          color: FontColor.FontPrimary,
-                                        ).copyWith(
-                                          fontSize: 18,
-                                          height: 1.4,
-                                          // Red if negative, default otherwise
-                                          color: due < 0 ? Colors.red : null,
-                                        );
-
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 6,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  'Due Amount',
-                                                  style: labelStyle,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                _fmtQar(due),
-                                                style: valueStyle,
-                                                textAlign: TextAlign.right,
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                    _kvMoney(
-                                      'Online Paid Amount',
-                                      _toDouble(order.onlinePaidAmount),
-                                    ),
-                                    // _kvMoney(
-                                    //   'POS Amount',
-                                    //   _toDouble(order.posAmount ?? 0),
-                                    // ),
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 8.0,
-                                      ),
-                                      child: Divider(height: 1),
-                                    ),
-                                    // _kvMoney(
-                                    //   'Grand Total',
-                                    //   _toDouble(
-                                    //     order.endPickTotal != 0
-                                    //         ? double.parse(
-                                    //               order.endPickTotal.toString(),
-                                    //             ) +
-                                    //             double.parse(
-                                    //               order.shippingCharge
-                                    //                   .toString(),
-                                    //             )
-                                    //         : order.grandTotal,
-                                    //   ),
-                                    //   bold: true,
-                                    // ),
-                                    // Editable Grand Total
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 6,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              'Grand Total',
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyM_Bold,
-                                                color: FontColor.FontPrimary,
-                                              ).copyWith(
-                                                fontSize: 16,
-                                                height: 1.3,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          SizedBox(
-                                            width: 180,
-                                            child: TextField(
-                                              controller: _grandTotalController,
-                                              textAlign: TextAlign.right,
-                                              keyboardType:
-                                                  const TextInputType.numberWithOptions(
-                                                    decimal: true,
+                                                ],
+                                                TextButton(
+                                                  onPressed:
+                                                      _uploading
+                                                          ? null
+                                                          : _openUploadPosBillSheet,
+                                                  child: Text(
+                                                    _posBillUrl == null
+                                                        ? 'Upload'
+                                                        : 'Replace',
                                                   ),
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter.allow(
-                                                  RegExp(r'[0-9\\.]'),
                                                 ),
                                               ],
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyL_Bold,
-                                                color: FontColor.FontPrimary,
-                                              ).copyWith(
-                                                fontSize: 18,
-                                                height: 1.4,
-                                              ),
-                                              decoration: const InputDecoration(
-                                                isDense: true,
-                                                prefixText: 'QAR ',
-                                                border: OutlineInputBorder(),
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 8,
-                                                    ),
-                                              ),
-                                              onChanged: (val) {
-                                                setState(() {
-                                                  _grandTotalOverride =
-                                                      _toDouble(val);
-                                                });
-                                              },
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-        bottomNavigationBar:
-        // order.subgroupIdentifier.startsWith('SUP') ||
-        //         order.subgroupIdentifier.startsWith('WAR')
-        //     ? SafeArea(
-        //       top: false,
-        //       child: Padding(
-        //         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        //         child: SizedBox(
-        //           height: 48,
-        //           width: double.infinity,
-        //           child: ElevatedButton(
-        //             style: ElevatedButton.styleFrom(
-        //               backgroundColor: colors.islandAqua,
-        //             ),
-        //             onPressed: () {
-        //               _confirmAndMarkReady(status: 'sfo_order');
-        //             },
-        //             child: const Text('SFO Done'),
-        //           ),
-        //         ),
-        //       ),
-        //     )
-        //     :
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child:
-                order.orderStatus.toString() == 'ready_to_dispatch' ||
-                        order.orderStatus.toString() != 'end_picking'
-                    ? const SizedBox.shrink()
-                    : SizedBox(
-                      height: 48,
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.islandAqua,
-                        ),
-                        onPressed:
-                            _submitting
-                                ? null
-                                : () {
-                                  if (_posBillUrl == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Please upload POS bill before proceeding',
-                                        ),
-                                      ),
-                                    );
-                                    // _openUploadPosBillSheet();
-                                    // return;
-                                  } else {
-                                    _confirmAndMarkReady();
-                                  }
-                                },
-                        icon:
-                            _submitting
-                                ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
                                   ),
-                                )
-                                : const Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.white,
                                 ),
-                        label: const Text(
-                          'Mark Ready to Dispatch',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                                const SizedBox(height: 16),
+
+                                // Order summary header blocks (Shipping | Payment Method | Shipping Method)
+                                _buildOrderSummaryHeader(),
+
+                                const SizedBox(height: 16),
+
+                                // Items (table format)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12.0),
+                                  child: sectionTitle('Items'),
+                                ),
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 14.0),
+                                  child: _buildItemsTableSection(),
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                // Price Details
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12.0),
+                                  child: sectionTitle('Price Details'),
+                                ),
+                                const SizedBox(height: 8),
+                                Card(
+                                  color: customColors().secretGarden.withValues(
+                                    alpha: 0.50,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _kvMoney(
+                                          'Order Amount',
+                                          _toDouble(order.orderAmount),
+                                        ),
+                                        _kvMoney(
+                                          'End Pick Total',
+                                          _toDouble(order.endPickTotal),
+                                        ),
+                                        _kvMoney(
+                                          'Shipping Charge',
+                                          _toDouble(
+                                            order.combinedOrderPlacedTotal! > 99
+                                                ? 0
+                                                : 10.00,
+                                          ),
+                                        ),
+                                        _kvMoney(
+                                          'Discount',
+                                          _toDouble(order.discountValue ?? 0),
+                                        ),
+
+                                        Builder(
+                                          builder: (_) {
+                                            final grandTotal = _toDouble(
+                                              order.endPickTotal != 0
+                                                  ? double.parse(
+                                                    order.endPickTotal
+                                                        .toString(),
+                                                  )
+                                                  : order.grandTotal,
+                                            );
+                                            // Use onlinePaidAmount as paid
+                                            final paid = _toDouble(
+                                              order.orderAmount,
+                                            );
+                                            final due = grandTotal - paid;
+
+                                            final labelStyle = customTextStyle(
+                                              fontStyle:
+                                                  FontStyle.BodyM_SemiBold,
+                                              color: FontColor.FontPrimary,
+                                            ).copyWith(
+                                              fontSize: 16,
+                                              height: 1.3,
+                                            );
+
+                                            final valueStyle = customTextStyle(
+                                              fontStyle: FontStyle.BodyL_Bold,
+                                              color: FontColor.FontPrimary,
+                                            ).copyWith(
+                                              fontSize: 18,
+                                              height: 1.4,
+                                              // Red if negative, default otherwise
+                                              color:
+                                                  due < 0 ? Colors.red : null,
+                                            );
+
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 6,
+                                                  ),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      'Due Amount',
+                                                      style: labelStyle,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Text(
+                                                    _fmtQar(due),
+                                                    style: valueStyle,
+                                                    textAlign: TextAlign.right,
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+
+                                        _kvMoney(
+                                          'Online Paid Amount',
+                                          _toDouble(order.onlinePaidAmount),
+                                        ),
+                                        // _kvMoney(
+                                        //   'POS Amount',
+                                        //   _toDouble(order.posAmount ?? 0),
+                                        // ),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 8.0,
+                                          ),
+                                          child: Divider(height: 1),
+                                        ),
+                                        _kvMoney(
+                                          'Grand Total',
+                                          _toDouble(
+                                            order.endPickTotal != 0
+                                                ? double.parse(
+                                                      order.endPickTotal
+                                                          .toString(),
+                                                    ) +
+                                                    (order.combinedOrderPlacedTotal! >
+                                                            99
+                                                        ? 0
+                                                        : double.parse(
+                                                          order.shippingCharge
+                                                              .toString(),
+                                                        ))
+                                                : order.grandTotal,
+                                          ),
+                                          bold: true,
+                                        ),
+
+                                        // Editable Grand Total
+                                        // Padding(
+                                        //   padding: const EdgeInsets.symmetric(
+                                        //     vertical: 6,
+                                        //   ),
+                                        //   child: Row(
+                                        //     children: [
+                                        //       Expanded(
+                                        //         child: Text(
+                                        //           'Grand Total',
+                                        //           style: customTextStyle(
+                                        //             fontStyle:
+                                        //                 FontStyle.BodyM_Bold,
+                                        //             color:
+                                        //                 FontColor.FontPrimary,
+                                        //           ).copyWith(
+                                        //             fontSize: 16,
+                                        //             height: 1.3,
+                                        //           ),
+                                        //         ),
+                                        //       ),
+                                        //       const SizedBox(width: 12),
+                                        //       SizedBox(
+                                        //         width: 180,
+                                        //         child: TextField(
+                                        //           controller:
+                                        //               _grandTotalController,
+                                        //           textAlign: TextAlign.right,
+                                        //           keyboardType:
+                                        //               const TextInputType.numberWithOptions(
+                                        //                 decimal: true,
+                                        //               ),
+                                        //           inputFormatters: [
+                                        //             FilteringTextInputFormatter.allow(
+                                        //               RegExp(r'[0-9\\.]'),
+                                        //             ),
+                                        //           ],
+                                        //           style: customTextStyle(
+                                        //             fontStyle:
+                                        //                 FontStyle.BodyL_Bold,
+                                        //             color:
+                                        //                 FontColor.FontPrimary,
+                                        //           ).copyWith(
+                                        //             fontSize: 18,
+                                        //             height: 1.4,
+                                        //           ),
+                                        //           decoration:
+                                        //               const InputDecoration(
+                                        //                 isDense: true,
+                                        //                 prefixText: 'QAR ',
+                                        //                 border:
+                                        //                     OutlineInputBorder(),
+                                        //                 contentPadding:
+                                        //                     EdgeInsets.symmetric(
+                                        //                       horizontal: 8,
+                                        //                       vertical: 8,
+                                        //                     ),
+                                        //               ),
+                                        //           onChanged: (val) {
+                                        //             setState(() {
+                                        //               _grandTotalOverride =
+                                        //                   _toDouble(val);
+                                        //             });
+                                        //           },
+                                        //         ),
+                                        //       ),
+                                        //     ],
+                                        //   ),
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    );
+                  },
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
           ),
-        ),
-      ),
+          bottomNavigationBar: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child:
+                  order.orderStatus.toString() == 'ready_to_dispatch' ||
+                          order.orderStatus.toString() != 'end_picking'
+                      ? const SizedBox.shrink()
+                      : SizedBox(
+                        height: 48,
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.islandAqua,
+                          ),
+                          onPressed:
+                              _submitting
+                                  ? null
+                                  : () {
+                                    if (_posBillUrl == null) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Please upload POS bill before proceeding',
+                                          ),
+                                        ),
+                                      );
+                                      // _openUploadPosBillSheet();
+                                      // return;
+                                    } else {
+                                      _confirmAndMarkReady();
+                                    }
+                                  },
+                          icon:
+                              _submitting
+                                  ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : const Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.white,
+                                  ),
+                          label: const Text(
+                            'Mark Ready to Dispatch',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ),
+                      ),
+            ),
+          ),
+        );
+      },
     );
   }
 

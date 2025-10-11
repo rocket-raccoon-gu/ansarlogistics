@@ -92,6 +92,8 @@ class Datum {
   int isWhatsappOrder;
   String? endPickTotal;
   String? driverType;
+  double? orderPlacedTotal;
+  double? combinedOrderPlacedTotal;
 
   Datum({
     required this.subgroupIdentifier,
@@ -144,6 +146,8 @@ class Datum {
     required this.isWhatsappOrder,
     required this.endPickTotal,
     required this.driverType,
+    required this.orderPlacedTotal,
+    required this.combinedOrderPlacedTotal,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -205,6 +209,9 @@ class Datum {
     isWhatsappOrder: json["is_whatsapp_order"] ?? 0,
     endPickTotal: json["end_picked_total"].toString(),
     driverType: json["driver_type"] ?? "",
+    orderPlacedTotal: json["order_placed_total"]?.toDouble() ?? 0,
+    combinedOrderPlacedTotal:
+        json["combined_order_placed_total"]?.toDouble() ?? 0,
   );
 
   Map<String, dynamic> toJson() => {
@@ -260,6 +267,8 @@ class Datum {
     "is_whatsapp_order": isWhatsappOrder,
     "end_picked_total": endPickTotal,
     "driver_type": driverType,
+    "order_placed_total": orderPlacedTotal,
+    "combined_order_placed_total": combinedOrderPlacedTotal,
   };
 }
 
