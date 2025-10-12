@@ -64,7 +64,7 @@ class _DbDataContainerState extends State<DbDataContainer> {
                           children: [
                             Text(
                               double.parse(
-                                widget.productDBdata!.currentPromotionPrice,
+                                widget.productDBdata!.regularPrice,
                               ).toStringAsFixed(2),
                               style: customTextStyle(
                                 fontStyle: FontStyle.HeaderXS_Bold,
@@ -113,13 +113,13 @@ class _DbDataContainerState extends State<DbDataContainer> {
                       minNumber: 0,
                     ),
                   ),
-                  if (widget.specialPrice != null)
+                  if (widget.productDBdata!.specialPrice != null)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("Special Price"),
                         Text(
-                          widget.specialPrice.toString(),
+                          "${double.parse(widget.productDBdata!.specialPrice!).toStringAsFixed(2)} QAR",
                           style: customTextStyle(
                             fontStyle: FontStyle.HeaderXS_Bold,
                             color: FontColor.FontPrimary,

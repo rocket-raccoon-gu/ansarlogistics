@@ -123,3 +123,20 @@ String getUserType(String name) {
       return "2";
   }
 }
+
+// Branch dropdown state
+final Map<String, String> branches = const {
+  'Q002': 'Doha city',
+  'Q003': 'Ansari city',
+  'Q004': 'City center',
+  'Q005': 'Mansura',
+  'Q008': 'Rayyan',
+  'Q009': 'Alkhore',
+  'Q011': 'Barwa furniture & Home decor',
+  'Q013': 'Barwa super market and department store',
+  'Q015': 'Rawdha',
+  'Q016': 'new world',
+  'Q017': 'A&H fashion',
+  'Q018': 'A&H carpet',
+  'Q021': 'A&H Market online',
+};

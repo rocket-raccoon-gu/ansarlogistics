@@ -118,18 +118,18 @@ class Profile {
     driverType: json["driver_type"] ?? "",
     distance: json["distance"] ?? "",
     branchCode: json["branch_code"] ?? "",
-    regularShiftTime: json["regular_shift_time"],
-    fridayShiftTime: json["friday_shift_time"],
-    offDay: json["off_day"],
+    regularShiftTime: json["regular_shift_time"] ?? "",
+    fridayShiftTime: json["friday_shift_time"] ?? "",
+    offDay: json["off_day"] ?? "",
     orderLimit: json["order_limit"].toString() ?? "",
     appVersion: json["app_version"] ?? "",
     latitude: json["latitude"] ?? "",
     longitude: json["longitude"] ?? "",
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
-    rpToken: json["rp_token"],
+    rpToken: json["rp_token"] ?? "",
     rpTokenCreatedAt: DateTime.parse(json["rp_token_created_at"]),
-    categoryIds: json["category_ids"],
+    categoryIds: json["category_ids"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {

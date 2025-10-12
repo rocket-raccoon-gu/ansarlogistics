@@ -904,6 +904,27 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future<http.Response> staffRegisterService({
+    required Map<String, dynamic> staffdata,
+  }) async {
+    final url = _endpointWithApplicationPath('staff_register.php');
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    return _handleRequest(
+      onRequest:
+          () =>
+              _client.post(url, headers: headers, body: jsonEncode(staffdata)),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
   Future<http.Response> getLastID() async {
     // Uri urlorder;
     final url = _endpointWithApplicationPath('get_last_Id.php');

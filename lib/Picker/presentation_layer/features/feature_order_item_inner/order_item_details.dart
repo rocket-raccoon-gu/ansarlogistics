@@ -1712,21 +1712,102 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                 final isProduce = cubit.orderItem!.isproduce;
 
                                 if (editquantity != 0 || isProduce == "1") {
-                                  if (ismanual) {
-                                    updateManualScan(
-                                      barcodeController.text.toString(),
+                                  // qty confirmation
+                                  // if qty is not equal to qty ordered
+                                  if (isProduce == "0" &&
+                                      editquantity !=
+                                          double.parse(
+                                            cubit.orderItem!.qtyOrdered,
+                                          ).toInt()) {
+                                    showGeneralDialog(
+                                      context: context,
+                                      barrierDismissible: true,
+                                      barrierLabel: "",
+                                      pageBuilder: (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                      ) {
+                                        return Container();
+                                      },
+                                      transitionBuilder: (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                        child,
+                                      ) {
+                                        var curve = Curves.easeInOut.transform(
+                                          animation.value,
+                                        );
+                                        return Transform.scale(
+                                          scale: curve,
+                                          child: AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            title: Text(
+                                              "Qty Ordered: ${double.parse(cubit.orderItem!.qtyOrdered).toInt()}",
+                                            ),
+                                            content: Text(
+                                              "Qty Picking: $editquantity",
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text("Cancel"),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  Navigator.pop(context);
+                                                  if (ismanual) {
+                                                    updateManualScan(
+                                                      barcodeController.text
+                                                          .toString(),
+                                                    );
+                                                  } else {
+                                                    var status =
+                                                        await Permission
+                                                            .camera
+                                                            .status;
+                                                    if (!status.isGranted) {
+                                                      await requestCameraPermission();
+                                                    }
+
+                                                    // scanBarcodeNormal();
+                                                    setState(() {
+                                                      isScanner = !isScanner;
+                                                    });
+                                                  }
+                                                },
+                                                child: Text("OK"),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
                                     );
                                   } else {
-                                    var status = await Permission.camera.status;
-                                    if (!status.isGranted) {
-                                      await requestCameraPermission();
-                                    }
+                                    if (ismanual) {
+                                      updateManualScan(
+                                        barcodeController.text.toString(),
+                                      );
+                                    } else {
+                                      var status =
+                                          await Permission.camera.status;
+                                      if (!status.isGranted) {
+                                        await requestCameraPermission();
+                                      }
 
-                                    // scanBarcodeNormal();
-                                    setState(() {
-                                      isScanner = !isScanner;
-                                    });
+                                      // scanBarcodeNormal();
+                                      setState(() {
+                                        isScanner = !isScanner;
+                                      });
+                                    }
                                   }
+                                  // qty confirmation end
                                 } else {
                                   showSnackBar(
                                     context: context,

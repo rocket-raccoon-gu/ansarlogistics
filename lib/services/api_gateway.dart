@@ -556,6 +556,22 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
+  Future setStaffRegister({required Map<String, dynamic> staffdata}) async {
+    try {
+      final response = await pickerDriverApi
+          .staffRegisterService(staffdata: staffdata)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("GetClient requesterror");
+      rethrow;
+    }
+  }
+
   Future getLastId() async {
     try {
       final response = await pickerDriverApi.getLastID().catchError((e, trace) {
