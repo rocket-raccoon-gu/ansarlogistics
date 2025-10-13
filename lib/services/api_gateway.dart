@@ -793,4 +793,34 @@ class PDApiGateway implements AuthenticationService {
       rethrow;
     }
   }
+
+  Future checkInventoryBarcodeData({required String endpoint}) async {
+    try {
+      final response = await pickerDriverApi
+          .checkInventoryData(endpoint: endpoint)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("Check Inventory Data API Error");
+      rethrow;
+    }
+  }
+
+  Future updateInventoryData({required Map<String, dynamic> body}) async {
+    try {
+      final response = await pickerDriverApi
+          .updateInventoryData(body: body)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("Update Inventory Data API Error");
+      rethrow;
+    }
+  }
 }

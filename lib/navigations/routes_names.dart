@@ -20,3 +20,4 @@ const _photographyDashBorardPageRouteName =
     '/photographydashboardpageroutename';
 const _salesStaffDashboardPageRouteName = '/salesstaffdashboardpageroutename';
 const _signupStaffPageRouteName = '/signupstaffpageroutename';
+const _staffMainPanelPageRouteName = '/staffmainpanelpageroutename';

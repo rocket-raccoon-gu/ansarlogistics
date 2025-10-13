@@ -76,6 +76,7 @@ class UserController {
     rpToken: "",
     rpTokenCreatedAt: DateTime.now(),
     categoryIds: "",
+    section: "",
   );
 
   dispose() {

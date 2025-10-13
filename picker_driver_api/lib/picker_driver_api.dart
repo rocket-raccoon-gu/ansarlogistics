@@ -1011,6 +1011,25 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future<http.Response> checkInventoryData({required String endpoint}) async {
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/scan_barcode_inventory.php?barcode=$endpoint',
+    );
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
   Future<http.Response> checkBarcodeDB({
     required String endpoint,
     required String productSku,
@@ -1215,6 +1234,28 @@ extension PDGeneralApi on PickerDriverApi {
     };
 
     serviceSend("Update Barcode Data..!");
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
+  Future<http.Response> updateInventoryData({
+    required Map<String, dynamic> body,
+  }) async {
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/updateInventoryBarcodeData.php',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    serviceSend("Update Inventory Data..!");
 
     return _handleRequest(
       onRequest:

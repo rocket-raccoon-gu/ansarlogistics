@@ -10,6 +10,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/picker_order_details_page_route_builder.dart';
 import 'package:ansarlogistics/Sales_staff/features/sales_staff_dashboard_root_builder.dart';
 import 'package:ansarlogistics/Sales_staff/features/signup_staff/signup_page_staff_root_builder.dart';
+import 'package:ansarlogistics/Sales_staff/features/staff_main_panel/staff_main_panel_root_builder.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/home_section_incharge_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_login/login_page_route_builder.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/new_scan_page_route_builder.dart';
@@ -179,6 +180,14 @@ class AppRoutesFactory extends RoutesFactory {
   Route createSignupStaffPageRoute() {
     // TODO: implement createSignupStaffPageRoute
     return CustomRoute(builder: SignupPageStaffRootBuilder(_serviceLocator));
+  }
+
+  @override
+  Route createStaffMainPanelPageRoute() {
+    // TODO: implement createStaffMainPanelPageRoute
+    return CustomRoute(
+      builder: StaffMainPanelRootBuilder(serviceLocator: _serviceLocator),
+    );
   }
 }
 

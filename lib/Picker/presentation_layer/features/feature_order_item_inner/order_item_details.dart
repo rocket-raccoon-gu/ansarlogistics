@@ -997,7 +997,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                         editquantity = v;
                                                       });
                                                     },
-                                                    maxNumber: 100,
+                                                    maxNumber: 150,
                                                     minNumber: 0,
                                                   ),
                                                 )
@@ -1427,7 +1427,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   editquantity = v;
                                                 });
                                               },
-                                              maxNumber: 100,
+                                              maxNumber: 150,
                                               minNumber: 0,
                                             ),
                                           ),

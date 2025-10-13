@@ -160,8 +160,12 @@ class NavigationService {
   }
 
   Future<void> openSignupStaffPage(BuildContext context) {
+    return Navigator.of(context).pushNamed(_signupStaffPageRouteName);
+  }
+
+  Future<void> openStaffMainPanelPage(BuildContext context) {
     return Navigator.of(context).pushNamedAndRemoveUntil(
-      _signupStaffPageRouteName,
+      _staffMainPanelPageRouteName,
       (Route<dynamic> route) => false,
     );
   }
