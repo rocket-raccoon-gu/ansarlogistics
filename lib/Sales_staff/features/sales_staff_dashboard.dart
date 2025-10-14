@@ -99,7 +99,7 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
     }
 
     try {
-      sholoadingIndicator(context);
+      sholoadingIndicator(context, 'Checking barcode...');
 
       // Use region from Cubit (cached) instead of reading preferences each time
       final bool isUae =
@@ -611,7 +611,7 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
                     onPressed: () async {
                       if (_barcodeFormKey.currentState!.validate()) {
                         // show loading and call checkBarcodeData
-                        sholoadingIndicator(context);
+                        sholoadingIndicator(context, 'Checking barcode...');
 
                         // Use region from Cubit (cached) instead of reading preferences each time
                         final bool isUae =

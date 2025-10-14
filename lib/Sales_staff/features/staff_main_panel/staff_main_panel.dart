@@ -31,6 +31,84 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
   final _manualFormKey = GlobalKey<FormState>();
   late TextEditingController _manualBarcodeController;
   //
+  List<Map<String, dynamic>> _bulkList = [];
+
+  Future<void> _loadBulkList() async {
+    final list = await PreferenceUtils.getstoremap('staff_bulk_queue');
+    setState(() {
+      _bulkList =
+          list
+              .map<Map<String, dynamic>>(
+                (e) => Map<String, dynamic>.from(e as Map),
+              )
+              .toList();
+    });
+  }
+
+  Future<void> _saveBulkList() async {
+    await PreferenceUtils.storeListmap('staff_bulk_queue', _bulkList);
+  }
+
+  Future<void> _addCurrentToBulk() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final sku = _skuController.text.trim();
+      final name = _productNameController.text.trim();
+      final uom = _uomController.text.trim();
+      final qty = num.tryParse(_qtyController.text.trim()) ?? 0;
+      if (sku.isEmpty || name.isEmpty || uom.isEmpty || qty <= 0) return;
+
+      final alreadyExists = _bulkList.any(
+        (e) =>
+            (e['erp_sku']?.toString() ?? '') == sku &&
+            (e['uom']?.toString() ?? '') == uom,
+      );
+      if (alreadyExists) {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(errorMessage: 'Item already in list'),
+        );
+        return;
+      }
+
+      final item = {
+        'erp_sku': sku,
+        'erp_product_name': name,
+        'uom': uom,
+        'erp_qty': qty,
+      };
+      setState(() {
+        _bulkList.add(item);
+      });
+      await _saveBulkList();
+      _formKey.currentState?.reset();
+      _skuController.clear();
+      _productNameController.clear();
+      _uomController.clear();
+      _qtyController.text = '1';
+      context.read<StaffMainPanelCubit>().loadpage();
+    }
+  }
+
+  Future<void> _removeFromBulk(int index) async {
+    setState(() {
+      _bulkList.removeAt(index);
+    });
+    await _saveBulkList();
+  }
+
+  Future<void> _uploadAllBulk() async {
+    if (_bulkList.isEmpty) return;
+    sholoadingIndicator(context, 'Uploading bulk items...');
+    await context.read<StaffMainPanelCubit>().submitBulkItems(_bulkList);
+    if (Navigator.of(context, rootNavigator: true).canPop()) {
+      Navigator.of(context, rootNavigator: true).maybePop();
+    }
+    await _saveBulkList();
+    if (mounted) {
+      context.read<StaffMainPanelCubit>().loadpage();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +117,7 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
     _uomController = TextEditingController();
     _qtyController = TextEditingController(text: '1');
     _manualBarcodeController = TextEditingController();
+    _loadBulkList();
   }
 
   @override
@@ -73,7 +152,7 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
       }
 
       try {
-        sholoadingIndicator(context);
+        sholoadingIndicator(context, 'Checking barcode...');
 
         BlocProvider.of<StaffMainPanelCubit>(
           context,
@@ -139,6 +218,36 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
                   ],
                 ),
                 const SizedBox(height: 12),
+                if (_bulkList.isNotEmpty) ...[
+                  Text(
+                    'Saved barcodes (' + _bulkList.length.toString() + ')',
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyL_Bold,
+                      color: FontColor.FontPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 150,
+                    child: ListView.builder(
+                      itemCount: _bulkList.length,
+                      itemBuilder: (ctx, i) {
+                        final it = _bulkList[i];
+                        final code =
+                            (it['barcode'] ?? it['erp_sku'] ?? '').toString();
+                        final qty =
+                            (it['erp_qty'] ?? it['qty'] ?? '').toString();
+                        return ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.qr_code_2),
+                          title: Text(code),
+                          subtitle: Text('Qty: ' + qty),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 TextFormField(
                   controller: _manualBarcodeController,
                   autofocus: true,
@@ -157,7 +266,7 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
                     if (_manualFormKey.currentState?.validate() ?? false) {
                       final code = _manualBarcodeController.text.trim();
                       Navigator.of(ctx).pop();
-                      sholoadingIndicator(context);
+                      sholoadingIndicator(context, 'Checking barcode...');
                       context.read<StaffMainPanelCubit>().checkBarcodeData(
                         code,
                       );
@@ -212,7 +321,7 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
                   (item['uom'] ?? item['unit'] ?? item['uom_name'] ?? '')
                       .toString();
               // if ((_qtyController.text).trim().isEmpty) {
-              _qtyController.text = '1';
+              _qtyController.text = '';
               // }
             }
           },
@@ -251,6 +360,14 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
                         Row(
                           children: [
                             // Clock(),
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: Colors.black),
+                              ),
+                              onPressed: _openManualBarcodeEntry,
+                              icon: const Icon(Icons.keyboard),
+                              label: const Text('Text'),
+                            ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 7.0,
@@ -369,35 +486,8 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: ElevatedButton(
-                                          onPressed: () {
-                                            if (_formKey.currentState
-                                                    ?.validate() ??
-                                                false) {
-                                              final sku =
-                                                  _skuController.text.trim();
-                                              final name =
-                                                  _productNameController.text
-                                                      .trim();
-                                              final uom =
-                                                  _uomController.text.trim();
-                                              final qty =
-                                                  num.tryParse(
-                                                    _qtyController.text.trim(),
-                                                  ) ??
-                                                  0;
-                                              if (qty > 0) {
-                                                context
-                                                    .read<StaffMainPanelCubit>()
-                                                    .submitScannedItem(
-                                                      sku: sku,
-                                                      productName: name,
-                                                      uom: uom,
-                                                      qty: qty,
-                                                    );
-                                              }
-                                            }
-                                          },
-                                          child: const Text('Submit'),
+                                          onPressed: _addCurrentToBulk,
+                                          child: const Text('Add to List'),
                                         ),
                                       ),
                                     ],
@@ -407,39 +497,56 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
                             ),
                           )
                           : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              InkWell(
-                                onTap: () {
-                                  // Kept existing scan UI for now (no action)
-                                },
-                                child: GestureDetector(
-                                  onTap: () {
-                                    scanBarcodeNormal(context);
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Image.asset(
-                                        'assets/barcode_scan.png',
-                                        height: 120.0,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 20.0,
-                                        ),
-                                        child: Text(
-                                          "Tap To Scan Barcodes...",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.FontTertiary,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                    ],
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  _bulkList.isEmpty
+                                      ? 'No saved barcodes'
+                                      : 'Saved barcodes (' +
+                                          _bulkList.length.toString() +
+                                          ')',
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyL_Bold,
+                                    color: FontColor.FontPrimary,
                                   ),
                                 ),
                               ),
+                              if (_bulkList.isNotEmpty)
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: _bulkList.length,
+                                    itemBuilder: (ctx, i) {
+                                      final it = _bulkList[i];
+                                      final code =
+                                          (it['barcode'] ?? it['erp_sku'] ?? '')
+                                              .toString();
+                                      final qty =
+                                          (it['erp_qty'] ?? it['qty'] ?? '')
+                                              .toString();
+                                      final uom = (it['uom'] ?? '').toString();
+                                      return ListTile(
+                                        dense: true,
+                                        leading: const Icon(Icons.qr_code_2),
+                                        title: Text(code),
+                                        subtitle: Text(
+                                          'Qty: ' +
+                                              qty +
+                                              (uom.isNotEmpty
+                                                  ? (' • ' + uom)
+                                                  : ''),
+                                        ),
+                                        trailing: IconButton(
+                                          icon: const Icon(
+                                            Icons.delete_outline,
+                                          ),
+                                          onPressed: () => _removeFromBulk(i),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
                             ],
                           ),
                 ),
@@ -447,17 +554,54 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
             );
           },
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            scanBarcodeNormal(context);
+          },
+          child: const Icon(Icons.qr_code_2),
+        ),
         bottomNavigationBar: SizedBox(
           height: 100,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              OutlinedButton.icon(
-                onPressed: _openManualBarcodeEntry,
-                icon: const Icon(Icons.keyboard),
-                label: const Text('Type Barcode'),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_bulkList.isNotEmpty)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        setState(() {
+                          _bulkList.clear();
+                        });
+                        await PreferenceUtils.removeDataFromShared(
+                          'staff_bulk_queue',
+                        );
+                      },
+                      icon: const Icon(Icons.delete_sweep_outlined),
+                      label: const Text('Clear All'),
+                    ),
+                  ),
+                const SizedBox(width: 12),
+                if (_bulkList.isNotEmpty)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: customColors().primary,
+                      ),
+                      onPressed: _uploadAllBulk,
+                      icon: const Icon(
+                        Icons.cloud_upload_outlined,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        'Upload All',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

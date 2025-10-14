@@ -944,7 +944,7 @@ Future<void> requestCameraPermission() async {
   }
 }
 
-sholoadingIndicator(BuildContext context) {
+sholoadingIndicator(BuildContext context, String message) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -968,7 +968,7 @@ sholoadingIndicator(BuildContext context) {
               Padding(
                 padding: const EdgeInsets.only(top: 25.0, bottom: 25.0),
                 child: Text(
-                  "Fetching data....!",
+                  message,
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyL_Bold,
                     color: FontColor.FontPrimary,

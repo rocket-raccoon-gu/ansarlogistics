@@ -30,6 +30,9 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
   String? _selectedBranchCode;
 
   TextEditingController sectionNameController = TextEditingController();
+
+  TextEditingController deviceidController = TextEditingController();
+
   String? selectedSection;
 
   @override
@@ -47,11 +50,15 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
       body: BlocConsumer<SignupPageStaffCubit, SignupPageStaffState>(
         listener: (context, state) {
           if (state is SignupPageStaffSuccess) {
+            // Prefill device ID once fetched if user hasn't typed anything yet
+            final id = context.read<SignupPageStaffCubit>().currentid;
+            if (deviceidController.text.isEmpty && id.isNotEmpty) {
+              deviceidController.text = id;
+            }
+
             showSnackBar(
               context: context,
-              snackBar: showSuccessDialogue(
-                message: "Staff registered successfully",
-              ),
+              snackBar: showSuccessDialogue(message: "Device ID Prefilled"),
             );
           }
 
@@ -166,10 +173,33 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
 
                           //
                           //
+                          // enter device id
+                          CustomTextFormField(
+                            context: context,
+                            controller: deviceidController,
+                            fieldName: "Device ID",
+                            hintText: "Enter your device ID here",
+                            validator: Validator.defaultValidator,
+                            readonlyState:
+                                context
+                                    .read<SignupPageStaffCubit>()
+                                    .currentid
+                                    .isNotEmpty,
+                            enabled:
+                                context
+                                    .read<SignupPageStaffCubit>()
+                                    .currentid
+                                    .isEmpty,
+                          ),
+
+                          //
+                          //
                           // enter your password
                           CustomTextFormField(
                             context: context,
                             controller: passwordController,
+                            obscureIcon: true,
+                            obscureTextStatus: true,
                             fieldName: "Password",
                             hintText: "Enter your password here",
                             validator: Validator.defaultValidator,
@@ -233,75 +263,23 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
                                 ),
                               ),
                               onChanged: (value) {
-                                if (value == '__ADD_NEW_SECTION__') {
-                                  final TextEditingController _newSectionCtrl =
-                                      TextEditingController();
-                                  showDialog<String>(
-                                    context: context,
-                                    builder: (ctx) {
-                                      return AlertDialog(
-                                        title: const Text('Add new section'),
-                                        content: TextField(
-                                          controller: _newSectionCtrl,
-                                          decoration: const InputDecoration(
-                                            hintText: 'Enter section name',
-                                          ),
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed:
-                                                () => Navigator.of(ctx).pop(),
-                                            child: const Text('Cancel'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop(
-                                                _newSectionCtrl.text.trim(),
-                                              );
-                                            },
-                                            child: const Text('Add'),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ).then((newName) {
-                                    if (newName != null &&
-                                        newName.toString().trim().isNotEmpty) {
-                                      final n = newName.toString().trim();
-                                      context
-                                          .read<SignupPageStaffCubit>()
-                                          .addSection(n);
-                                      setState(() {
-                                        selectedSection = n;
-                                      });
-                                    }
-                                  });
-                                  return;
-                                }
                                 setState(() {
                                   selectedSection = value;
                                 });
                               },
-                              items: [
-                                const DropdownMenuItem<String>(
-                                  value: '__ADD_NEW_SECTION__',
-                                  child: Text('+ Add new section...'),
-                                ),
-                                ...context
-                                    .read<SignupPageStaffCubit>()
-                                    .sections
-                                    .map(
-                                      (s) => DropdownMenuItem(
-                                        value: s,
-                                        child: Text(s),
-                                      ),
-                                    )
-                                    .toList(),
-                              ],
+                              items:
+                                  context
+                                      .read<SignupPageStaffCubit>()
+                                      .sections
+                                      .map(
+                                        (s) => DropdownMenuItem(
+                                          value: s,
+                                          child: Text(s),
+                                        ),
+                                      )
+                                      .toList(),
                               validator: (value) {
-                                if (value == null ||
-                                    value.isEmpty ||
-                                    value == '__ADD_NEW_SECTION__') {
+                                if (value == null || value.isEmpty) {
                                   return 'Please select a section';
                                 }
                                 return null;
@@ -342,7 +320,8 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
                       "password": passwordController.text.toString(),
                       "role": 7,
                       "branch_code": _selectedBranchCode,
-                      "section": selectedSection,
+                      "section_id": selectedSection,
+                      "device_id": deviceidController.text.toString(),
                       "version": info.version,
                       "build": info.buildNumber,
                     };

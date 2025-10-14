@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'staff_main_panel_state.dart';
@@ -48,8 +49,12 @@ class StaffMainPanelCubit extends Cubit<StaffMainPanelState> {
           }
           emit(StaffMainPanelSuccessState(data));
         }
-      } else {
-        emit(StaffMainPanelErrorState('Request failed'));
+      } else if (response.statusCode == 404) {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(errorMessage: 'Barcode Not Found'),
+        );
+        emit(StaffMainPanelErrorState('Barcode Not Found'));
       }
     } catch (e) {
       showSnackBar(
@@ -100,6 +105,59 @@ class StaffMainPanelCubit extends Cubit<StaffMainPanelState> {
         context: context,
         snackBar: showErrorDialogue(errorMessage: 'Save error'),
       );
+    }
+  }
+
+  Future<void> submitBulkItems(List<Map<String, dynamic>> items) async {
+    try {
+      emit(StaffMainPanelLoadingState());
+
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+      deviceInfo.androidInfo.then((value) {
+        log(value.model);
+      });
+
+      final List<Map<String, dynamic>> payloadItems = [];
+      for (final it in items) {
+        final sku = (it['erp_sku'] ?? it['sku'] ?? '').toString();
+        final uom = (it['uom'] ?? '').toString();
+        final qtyNum = it['erp_qty'] ?? it['qty'] ?? 0;
+        final num? qty =
+            qtyNum is num ? qtyNum : num.tryParse(qtyNum.toString());
+        if (sku.isEmpty || uom.isEmpty || (qty == null) || qty <= 0) continue;
+        payloadItems.add({
+          'erp_sku': sku,
+          'erp_qty': qty,
+          'staff_id': UserController().profile.empId,
+          'branch_code': UserController().profile.branchCode,
+          'section_id': UserController().profile.section,
+          'device_id': androidInfo.model,
+          'uom': uom,
+        });
+      }
+
+      if (payloadItems.isEmpty) {
+        emit(StaffMainPanelErrorState('No valid items to upload'));
+        return;
+      }
+
+      final response = await serviceLocator.tradingApi.updateInventoryData(
+        body: {'items': payloadItems},
+      );
+
+      if (response.statusCode == 200) {
+        showSnackBar(
+          context: context,
+          snackBar: showSuccessDialogue(message: 'Bulk upload completed'),
+        );
+        emit(StaffMainPanelInitialState());
+      } else {
+        emit(StaffMainPanelErrorState('Bulk upload failed'));
+      }
+    } catch (e) {
+      emit(StaffMainPanelErrorState('Bulk upload error'));
     }
   }
 }
