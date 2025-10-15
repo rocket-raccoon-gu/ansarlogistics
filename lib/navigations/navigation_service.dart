@@ -169,4 +169,8 @@ class NavigationService {
       (Route<dynamic> route) => false,
     );
   }
+
+  Future<void> openStaffSummeryListPage(BuildContext context) {
+    return Navigator.of(context).pushNamed(_staffSummeryListPageRouteName);
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ansarlogistics/Sales_staff/features/signup_staff/cubit/signup_page_staff_cubit.dart';
 import 'package:ansarlogistics/Sales_staff/features/signup_staff/cubit/signup_page_staff_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
@@ -51,15 +53,15 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
         listener: (context, state) {
           if (state is SignupPageStaffSuccess) {
             // Prefill device ID once fetched if user hasn't typed anything yet
-            final id = context.read<SignupPageStaffCubit>().currentid;
-            if (deviceidController.text.isEmpty && id.isNotEmpty) {
-              deviceidController.text = id;
-            }
+            // final id = context.read<SignupPageStaffCubit>().currentid;
+            // if (deviceidController.text.isEmpty && id.isNotEmpty) {
+            //   deviceidController.text = id;
+            // }
 
-            showSnackBar(
-              context: context,
-              snackBar: showSuccessDialogue(message: "Device ID Prefilled"),
-            );
+            // showSnackBar(
+            //   context: context,
+            //   snackBar: showSuccessDialogue(message: "Device ID Prefilled"),
+            // );
           }
 
           if (state is SignupPageStaffFailure) {
@@ -180,16 +182,16 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
                             fieldName: "Device ID",
                             hintText: "Enter your device ID here",
                             validator: Validator.defaultValidator,
-                            readonlyState:
-                                context
-                                    .read<SignupPageStaffCubit>()
-                                    .currentid
-                                    .isNotEmpty,
-                            enabled:
-                                context
-                                    .read<SignupPageStaffCubit>()
-                                    .currentid
-                                    .isEmpty,
+                            // readonlyState:
+                            //     context
+                            //         .read<SignupPageStaffCubit>()
+                            //         .currentid
+                            //         .isNotEmpty,
+                            // enabled:
+                            //     context
+                            //         .read<SignupPageStaffCubit>()
+                            //         .currentid
+                            //         .isEmpty,
                           ),
 
                           //
@@ -325,6 +327,8 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
                       "version": info.version,
                       "build": info.buildNumber,
                     };
+
+                    log(data.toString());
 
                     context.read<SignupPageStaffCubit>().signup(data, context);
                   }

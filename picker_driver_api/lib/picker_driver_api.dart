@@ -1257,9 +1257,46 @@ extension PDGeneralApi on PickerDriverApi {
 
     serviceSend("Update Inventory Data..!");
 
+    log(body.toString());
+
     return _handleRequest(
       onRequest:
           () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
+  Future<http.Response> getStaffSummaryData({
+    required String staffCode,
+    DateTime? date,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final params = <String, String>{
+      'staff_id': staffCode,
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+    if (date != null) {
+      params['date'] = date.toIso8601String().split('T').first;
+    }
+    final uri = Uri.parse('https://pickerdriver.testuatah.com').replace(
+      path: '/v1/api/qatar/get_inventory_barcodes.php',
+      queryParameters: params,
+    );
+
+    log(uri.toString());
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+    };
+
+    serviceSend("get Staff Summary Data...!");
+
+    return _handleRequest(
+      onRequest: () => _client.get(uri, headers: headers),
       onResponse: (response) {
         return response;
       },

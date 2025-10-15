@@ -823,4 +823,29 @@ class PDApiGateway implements AuthenticationService {
       rethrow;
     }
   }
+
+  Future getStaffSummaryData({
+    required String staffCode,
+    DateTime? date,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .getStaffSummaryData(
+            staffCode: staffCode,
+            date: date,
+            page: page,
+            limit: limit,
+          )
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("get Staff Summary Data API Error");
+      rethrow;
+    }
+  }
 }

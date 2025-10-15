@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
+import 'package:ansarlogistics/Sales_staff/features/staff_summery_list.dart/staff_summery_list_page.dart';
+import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -99,11 +101,20 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
   Future<void> _uploadAllBulk() async {
     if (_bulkList.isEmpty) return;
     sholoadingIndicator(context, 'Uploading bulk items...');
-    await context.read<StaffMainPanelCubit>().submitBulkItems(_bulkList);
+    final success = await context.read<StaffMainPanelCubit>().submitBulkItems(
+      _bulkList,
+    );
     if (Navigator.of(context, rootNavigator: true).canPop()) {
       Navigator.of(context, rootNavigator: true).maybePop();
     }
-    await _saveBulkList();
+    if (success) {
+      setState(() {
+        _bulkList.clear();
+      });
+      await PreferenceUtils.removeDataFromShared('staff_bulk_queue');
+    } else {
+      await _saveBulkList();
+    }
     if (mounted) {
       context.read<StaffMainPanelCubit>().loadpage();
     }
@@ -296,6 +307,69 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
           preferredSize: const Size.fromHeight(0.0),
           child: AppBar(elevation: 0, backgroundColor: HexColor('#b9d737')),
         ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(color: HexColor('#b9d737')),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${UserController().profile.name}",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "${UserController().profile.section}",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "${UserController().profile.empId}",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.list),
+                title: const Text('Summary'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.gNavigationService.openStaffSummeryListPage(context);
+                },
+              ),
+              const SizedBox(height: 8),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await PreferenceUtils.removeDataFromShared("userCode");
+                  await PreferenceUtils.removeDataFromShared("profiledetails");
+                  await PreferenceUtils.clear();
+                  await logout(context);
+                },
+              ),
+            ],
+          ),
+        ),
         body: BlocConsumer<StaffMainPanelCubit, StaffMainPanelState>(
           listener: (context, state) {
             if (state is StaffMainPanelSuccessState ||
@@ -463,6 +537,9 @@ class _StaffMainPanelState extends State<StaffMainPanel> {
                                       if (n == null || n <= 0)
                                         return 'Qty must be > 0';
                                       return null;
+                                    },
+                                    onFieldSubmitted: (v) {
+                                      _addCurrentToBulk();
                                     },
                                   ),
                                   const SizedBox(height: 20),

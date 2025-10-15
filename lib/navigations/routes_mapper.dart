@@ -55,6 +55,8 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
         return routesFactory.createSignupStaffPageRoute();
       case _staffMainPanelPageRouteName:
         return routesFactory.createStaffMainPanelPageRoute();
+      case _staffSummeryListPageRouteName:
+        return routesFactory.createStaffSummeryListPageRoute();
       default:
         return null;
     }

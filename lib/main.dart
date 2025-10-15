@@ -89,7 +89,7 @@ Future<void> main() async {
 
       const initialRoute = String.fromEnvironment(
         'INITIAL_ROUTE',
-        defaultValue: '/selectregionspageroutename',
+        defaultValue: '/login',
       );
 
       if (!kIsWeb) {

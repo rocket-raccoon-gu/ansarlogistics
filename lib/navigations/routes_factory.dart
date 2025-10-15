@@ -22,4 +22,5 @@ abstract class RoutesFactory {
   Route<dynamic> createSalesSectionDashBoardPageRoute();
   Route<dynamic> createSignupStaffPageRoute();
   Route<dynamic> createStaffMainPanelPageRoute();
+  Route<dynamic> createStaffSummeryListPageRoute();
 }

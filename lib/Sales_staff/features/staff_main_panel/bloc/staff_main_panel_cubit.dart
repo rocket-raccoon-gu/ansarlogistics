@@ -83,7 +83,7 @@ class StaffMainPanelCubit extends Cubit<StaffMainPanelState> {
         'erp_qty': qty,
         'branch_code': UserController().profile.branchCode,
         'staff_id': UserController().profile.empId,
-        'section': UserController().profile.section,
+        'section_id': UserController().profile.section,
       };
 
       final response = await serviceLocator.tradingApi.updateInventoryData(
@@ -108,7 +108,7 @@ class StaffMainPanelCubit extends Cubit<StaffMainPanelState> {
     }
   }
 
-  Future<void> submitBulkItems(List<Map<String, dynamic>> items) async {
+  Future<bool> submitBulkItems(List<Map<String, dynamic>> items) async {
     try {
       emit(StaffMainPanelLoadingState());
 
@@ -133,15 +133,17 @@ class StaffMainPanelCubit extends Cubit<StaffMainPanelState> {
           'staff_id': UserController().profile.empId,
           'branch_code': UserController().profile.branchCode,
           'section_id': UserController().profile.section,
-          'device_id': androidInfo.model,
+          'device_id': UserController().profile.deviceId,
           'uom': uom,
         });
       }
 
       if (payloadItems.isEmpty) {
         emit(StaffMainPanelErrorState('No valid items to upload'));
-        return;
+        return false;
       }
+
+      log(payloadItems.toString());
 
       final response = await serviceLocator.tradingApi.updateInventoryData(
         body: {'items': payloadItems},
@@ -153,11 +155,14 @@ class StaffMainPanelCubit extends Cubit<StaffMainPanelState> {
           snackBar: showSuccessDialogue(message: 'Bulk upload completed'),
         );
         emit(StaffMainPanelInitialState());
+        return true;
       } else {
         emit(StaffMainPanelErrorState('Bulk upload failed'));
+        return false;
       }
     } catch (e) {
       emit(StaffMainPanelErrorState('Bulk upload error'));
+      return false;
     }
   }
 }
