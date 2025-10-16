@@ -38,6 +38,14 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
   String? selectedSection;
 
   @override
+  void initState() {
+    super.initState();
+    if (deviceidController.text.isEmpty) {
+      deviceidController.text = 'MPDT-';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HexColor('#F9FBFF'),
@@ -182,6 +190,20 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
                             fieldName: "Device ID",
                             hintText: "Enter your device ID here",
                             validator: Validator.defaultValidator,
+                            onChange: (value) {
+                              if (!value.startsWith('MPDT-')) {
+                                final rest = value.replaceFirst(
+                                  RegExp(r'^MPDT-?'),
+                                  '',
+                                );
+                                deviceidController.value = TextEditingValue(
+                                  text: 'MPDT-$rest',
+                                  selection: TextSelection.collapsed(
+                                    offset: 'MPDT-'.length + rest.length,
+                                  ),
+                                );
+                              }
+                            },
                             // readonlyState:
                             //     context
                             //         .read<SignupPageStaffCubit>()
@@ -316,6 +338,12 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
                   if (idFormKey.currentState!.validate()) {
                     final info = await PackageInfo.fromPlatform();
 
+                    final rawDeviceId = deviceidController.text.trim();
+                    final deviceId =
+                        rawDeviceId.startsWith('MPDT-')
+                            ? rawDeviceId
+                            : 'MPDT-' + rawDeviceId;
+
                     Map<String, dynamic> data = {
                       "employee_id": employeeidController.text.toString(),
                       "name": nameController.text.toString(),
@@ -323,7 +351,7 @@ class _SignupPageStaffState extends State<SignupPageStaff> {
                       "role": 7,
                       "branch_code": _selectedBranchCode,
                       "section_id": selectedSection,
-                      "device_id": deviceidController.text.toString(),
+                      "device_id": deviceId,
                       "version": info.version,
                       "build": info.buildNumber,
                     };
