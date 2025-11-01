@@ -248,37 +248,42 @@ class OrderTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                order.driverType != null &&
-                        (order.driverType == 'rafeeq' ||
-                            order.driverType == 'rider')
-                    ? Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.purple,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            'assets/rafeeq_logo.png',
-                            width: 24,
-                            height: 24,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            getDriverType(order.driverType!),
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_SemiBold,
-                              color: FontColor.White,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                    : const SizedBox.shrink(),
+                // order.driverType != null &&
+                //         (order.driverType == 'rafeeq' ||
+                //             order.driverType == 'driver')
+                //     ? Container(
+                //       padding: const EdgeInsets.symmetric(
+                //         horizontal: 8,
+                //         vertical: 4,
+                //       ),
+                //       decoration: BoxDecoration(
+                //         color: Colors.purple,
+                //         borderRadius: BorderRadius.circular(4),
+                //       ),
+                //       child: Row(
+                //         children: [
+                //           Image.asset(
+                //             'assets/rafeeq_logo.png',
+                //             width: 24,
+                //             height: 24,
+                //           ),
+                //           const SizedBox(width: 8),
+                //           Text(
+                //             getDriverType(order.driverType!),
+                //             style: customTextStyle(
+                //               fontStyle: FontStyle.BodyL_SemiBold,
+                //               color: FontColor.White,
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //     )
+                //     : const SizedBox.shrink(),
+                getDriverTypeWidget(
+                  order.driverType!,
+                  getDriverType(order.driverType!),
+                ),
+
                 order.isWhatsappOrder == 1
                     ? const Icon(Icons.chat_bubble)
                     : const SizedBox.shrink(),

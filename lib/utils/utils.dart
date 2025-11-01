@@ -77,13 +77,36 @@ Widget sectionTitle(String text) {
 Widget dispatchSelector({
   required String? value,
   required ValueChanged<String> onChanged,
+  required String postcode,
+  required String subgroupId,
 }) {
   final colors = customColors();
-  const options = [
+  final options = <Map<String, String>>[
     {'key': 'normal', 'label': 'Normal'},
-    {'key': 'driver', 'label': 'Driver'},
-    {'key': 'rider', 'label': 'Rider'},
   ];
+
+  // Check if subgroup ID starts with 'EXP'
+  if (subgroupId.startsWith('EXP')) {
+    // Add Rafeeq Driver for EXP subgroups
+    options.add({'key': 'driver', 'label': 'Rafeeq Driver'});
+
+    // Add Snoonu Rider option only for specific postcodes in EXP subgroups
+    final postcodePrefix =
+        postcode.isNotEmpty ? int.tryParse(postcode.substring(0, 2)) : null;
+    if (postcodePrefix != null &&
+        ((postcodePrefix >= 42 && postcodePrefix <= 46) ||
+            postcodePrefix == 50 ||
+            (postcodePrefix >= 56 && postcodePrefix <= 58))) {
+      options.add({'key': 'rider', 'label': 'Snoonu Rider'});
+    }
+  }
+
+  final Color selectedBg = switch (value) {
+    'driver' => const Color(0xFF9729BA),
+    'rider' => Colors.red,
+    _ => customColors().islandAqua,
+  };
+
   return Row(
     children: [
       Text('Dispatch Type', style: titleStyle()),
@@ -98,8 +121,8 @@ Widget dispatchSelector({
 
               // Pick selected background color by option
               final Color selectedBg = switch (key) {
-                'driver' => const Color(0xFF9729BA),
-                'rider' => Colors.red,
+                'driver' => HexColor('#9729BA'),
+                'rider' => HexColor('#FF0000'),
                 _ => customColors().islandAqua,
               };
 
@@ -140,11 +163,100 @@ Widget dispatchSelector({
                 selected: selected,
                 onSelected: (_) => onChanged(key),
                 selectedColor: selectedBg,
+                backgroundColor: selectedBg,
               );
             }).toList(),
       ),
     ],
   );
+}
+
+Widget getDriverTypeWidget(String driverType, String type) {
+  switch (driverType) {
+    case 'rafeeq':
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.purple,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            Image.asset('assets/rafeeq_logo.png', width: 24, height: 24),
+            const SizedBox(width: 8),
+            Text(
+              type,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_SemiBold,
+                color: FontColor.White,
+              ),
+            ),
+          ],
+        ),
+      );
+    case 'driver':
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.purple,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            Image.asset('assets/rafeeq_logo.png', width: 24, height: 24),
+            const SizedBox(width: 8),
+            Text(
+              type,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_SemiBold,
+                color: FontColor.White,
+              ),
+            ),
+          ],
+        ),
+      );
+    case 'rider':
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            Image.asset('assets/snoonu_logo.png', width: 24, height: 24),
+            const SizedBox(width: 8),
+            Text(
+              type,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_SemiBold,
+                color: FontColor.White,
+              ),
+            ),
+          ],
+        ),
+      );
+    case 'snoonu':
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+        child: Row(
+          children: [
+            Image.asset('assets/snoonu_logo.png', height: 16),
+            const SizedBox(width: 8),
+            Text(
+              type,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_SemiBold,
+                color: FontColor.White,
+              ),
+            ),
+          ],
+        ),
+      );
+    default:
+      return const Icon(Icons.local_shipping_outlined);
+  }
 }
 
 showSnackBar({required BuildContext context, required SnackBar snackBar}) {

@@ -49,6 +49,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   final Set<int> _selectedItemIds = <int>{};
   String? paymentMethodnew;
 
+  double _editableGrandTotal = 0.0;
+
   // Editable Grand Total state
   // final TextEditingController _grandTotalController = TextEditingController();
   double? _grandTotalOverride; // if null, use base computed value
@@ -216,6 +218,15 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
     // _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
     _grandTotalOverride = null;
+
+    _editableGrandTotal = _toDouble(
+      order.endPickTotal != 0
+          ? double.parse(order.endPickTotal.toString()) +
+              (order.combinedOrderPlacedTotal! > 99
+                  ? 0
+                  : double.parse(order.shippingCharge.toString()))
+          : order.grandTotal,
+    );
   }
 
   @override
@@ -299,6 +310,55 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           Expanded(child: Text(label, style: labelStyle)),
           const SizedBox(width: 12),
           Text(_fmtQar(value), style: valueStyle, textAlign: TextAlign.right),
+        ],
+      ),
+    );
+  }
+
+  Widget _editableKvMoney(
+    String label,
+    double value, {
+    required Function(double) onChanged,
+    bool bold = false,
+  }) {
+    final labelStyle = customTextStyle(
+      fontStyle: bold ? FontStyle.BodyM_Bold : FontStyle.BodyM_SemiBold,
+      color: FontColor.FontPrimary,
+    ).copyWith(fontSize: 16, height: 1.3);
+
+    final valueStyle = customTextStyle(
+      fontStyle: bold ? FontStyle.BodyL_Bold : FontStyle.BodyM_Regular,
+      color: FontColor.FontPrimary,
+    ).copyWith(fontSize: bold ? 18 : 16, height: 1.4);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: labelStyle)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextFormField(
+              initialValue: _fmtQar(value),
+              style: valueStyle,
+              textAlign: TextAlign.right,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 4,
+                  horizontal: 8,
+                ),
+                isDense: true,
+              ),
+              onChanged: (value) {
+                final numericValue =
+                    double.tryParse(value.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                    0.0;
+                onChanged(numericValue);
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -1582,15 +1642,16 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         userid: userId,
         latitude: lat,
         longitude: lng,
-        grandTotal:
-            _toDouble(
-              order.endPickTotal != 0
-                  ? double.parse(order.endPickTotal.toString()) +
-                      (order.combinedOrderPlacedTotal! > 99
-                          ? 0
-                          : double.parse(order.shippingCharge.toString()))
-                  : order.grandTotal,
-            ).toString(),
+        // grandTotal:
+        //     _toDouble(
+        //       order.endPickTotal != 0
+        //           ? double.parse(order.endPickTotal.toString()) +
+        //               (order.combinedOrderPlacedTotal! > 99
+        //                   ? 0
+        //                   : double.parse(order.shippingCharge.toString()))
+        //           : order.grandTotal,
+        //     ).toString(),
+        grandTotal: _editableGrandTotal.toString(),
         dueAmount: ((due < 0 ? 0 : due).toStringAsFixed(2)),
         dispatchMethod: dispatchMethod,
         paymentMethod: paymentMethodnew ?? order.paymentMethod,
@@ -1737,50 +1798,60 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                               .toList(),
                     ),
 
-                    order.driverType != null &&
-                            (order.driverType == 'rider' ||
-                                order.driverType == 'rafeeq')
-                        ? Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.purple,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  'assets/rafeeq_logo.png',
-                                  width: 24,
-                                  height: 24,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  getDriverType(order.driverType!),
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_SemiBold,
-                                    color: FontColor.White,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                        : const SizedBox.shrink(),
+                    // order.driverType != null &&
+                    //         (order.driverType == 'rider' ||
+                    //             order.driverType == 'rafeeq')
+                    //     ? Padding(
+                    //       padding: const EdgeInsets.only(left: 8.0),
+                    //       child: Container(
+                    //         padding: const EdgeInsets.symmetric(
+                    //           horizontal: 8,
+                    //           vertical: 4,
+                    //         ),
+                    //         decoration: BoxDecoration(
+                    //           color: Colors.purple,
+                    //           borderRadius: BorderRadius.circular(4),
+                    //         ),
+                    //         child: Row(
+                    //           children: [
+                    //             Image.asset(
+                    //               'assets/rafeeq_logo.png',
+                    //               width: 24,
+                    //               height: 24,
+                    //             ),
+                    //             const SizedBox(width: 8),
+                    //             Text(
+                    //               getDriverType(order.driverType!),
+                    //               style: customTextStyle(
+                    //                 fontStyle: FontStyle.BodyL_SemiBold,
+                    //                 color: FontColor.White,
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     )
+                    //     : const SizedBox.shrink(),
                   ],
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: getDriverTypeWidget(
+                      order.driverType!,
+                      getDriverType(order.driverType!),
+                    ),
+                  ),
                 ],
               ),
             ),
             actions: [
-              if (order.orderStatus != 'ready_to_dispatch')
+              if (order.orderStatus == 'end_picking')
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: dispatchSelector(
                     value: dispatchMethod,
+                    postcode: order.postcode,
+                    subgroupId: order.subgroupIdentifier,
                     onChanged:
                         (value) => setState(() => dispatchMethod = value),
                   ),
@@ -2295,23 +2366,36 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                           ),
                                           child: Divider(height: 1),
                                         ),
-                                        _kvMoney(
+
+                                        // _kvMoney(
+                                        //   'Grand Total',
+                                        //   _toDouble(
+                                        //     order.endPickTotal != 0
+                                        //         ? double.parse(
+                                        //               order.endPickTotal
+                                        //                   .toString(),
+                                        //             ) +
+                                        //             (order.combinedOrderPlacedTotal! >
+                                        //                     99
+                                        //                 ? 0
+                                        //                 : double.parse(
+                                        //                   order.shippingCharge
+                                        //                       .toString(),
+                                        //                 ))
+                                        //         : order.grandTotal,
+                                        //   ),
+                                        //   bold: true,
+                                        // ),
+                                        _editableKvMoney(
                                           'Grand Total',
-                                          _toDouble(
-                                            order.endPickTotal != 0
-                                                ? double.parse(
-                                                      order.endPickTotal
-                                                          .toString(),
-                                                    ) +
-                                                    (order.combinedOrderPlacedTotal! >
-                                                            99
-                                                        ? 0
-                                                        : double.parse(
-                                                          order.shippingCharge
-                                                              .toString(),
-                                                        ))
-                                                : order.grandTotal,
-                                          ),
+                                          _editableGrandTotal,
+                                          onChanged: (newValue) {
+                                            setState(() {
+                                              _editableGrandTotal = newValue;
+                                            });
+                                            // If you need to update the order's grand total:
+                                            // widget.order.grandTotal = newValue;
+                                          },
                                           bold: true,
                                         ),
 
