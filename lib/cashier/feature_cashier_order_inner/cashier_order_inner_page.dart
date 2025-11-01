@@ -1852,6 +1852,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     value: dispatchMethod,
                     postcode: order.postcode,
                     subgroupId: order.subgroupIdentifier,
+                    paymentMethod: order.paymentMethod!,
                     onChanged:
                         (value) => setState(() => dispatchMethod = value),
                   ),

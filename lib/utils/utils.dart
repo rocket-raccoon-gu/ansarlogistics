@@ -79,6 +79,7 @@ Widget dispatchSelector({
   required ValueChanged<String> onChanged,
   required String postcode,
   required String subgroupId,
+  required String paymentMethod,
 }) {
   final colors = customColors();
   final options = <Map<String, String>>[
@@ -86,7 +87,8 @@ Widget dispatchSelector({
   ];
 
   // Check if subgroup ID starts with 'EXP'
-  if (subgroupId.startsWith('EXP')) {
+  if (subgroupId.startsWith('EXP') &&
+      paymentMethod.toLowerCase() == 'cashondelivery') {
     // Add Rafeeq Driver for EXP subgroups
     options.add({'key': 'driver', 'label': 'Rafeeq Driver'});
 
