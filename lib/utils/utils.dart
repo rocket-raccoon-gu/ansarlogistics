@@ -94,7 +94,7 @@ Widget dispatchSelector({
 
     // Add Snoonu Rider option only for specific postcodes in EXP subgroups
     final postcodePrefix =
-        postcode.isNotEmpty ? int.tryParse(postcode.substring(0, 2)) : null;
+        postcode.length >= 2 ? int.tryParse(postcode.substring(0, 2)) : null;
     if (postcodePrefix != null &&
         ((postcodePrefix >= 42 && postcodePrefix <= 46) ||
             postcodePrefix == 50 ||
