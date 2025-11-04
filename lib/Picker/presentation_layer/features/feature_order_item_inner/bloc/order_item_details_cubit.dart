@@ -436,28 +436,30 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
                     final calculatedPrice =
                         orderItem.isproduce == "1"
-                            ? !isSameDayOrder
-                                ? PriceWeightCalculator.getPrice(
-                                  orderItem.price,
-                                  orderItem.itemWeight,
-                                  orderItem.weightUnit,
-                                  PriceWeightCalculator.getActualWeight(
-                                    erPdata.erpPrice,
-                                    getPriceFromBarcode(scannedSku),
-                                    orderItem.itemWeight,
-                                    orderItem.weightUnit,
-                                  ),
-                                )
-                                : getPriceFromBarcodeWithWeight(
-                                  orderItem.price,
-                                  PriceWeightCalculator.getActualWeight(
-                                    erPdata.erpPrice,
-                                    getPriceFromBarcode(scannedSku),
-                                    orderItem.itemWeight,
-                                    orderItem.weightUnit,
-                                  ),
-                                  orderItem.weightUnit,
-                                )
+                            ?
+                            // !isSameDayOrder
+                            //     ? PriceWeightCalculator.getPrice(
+                            //       orderItem.price,
+                            //       orderItem.itemWeight,
+                            //       orderItem.weightUnit,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         erPdata.erpPrice,
+                            //         getPriceFromBarcode(scannedSku),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //     )
+                            //     : getPriceFromBarcodeWithWeight(
+                            //       orderItem.price,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         erPdata.erpPrice,
+                            //         getPriceFromBarcode(scannedSku),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //       orderItem.weightUnit,
+                            //     )
+                            getPriceFromBarcode(scannedSku)
                             : double.parse(orderItem.price).toStringAsFixed(2);
 
                     // print(
@@ -545,24 +547,24 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     oldPrice: productDBdata.regularPrice,
                     newPrice:
                         orderItem.isproduce == "1"
-                            ? !isSameDayOrder
-                                ? PriceWeightCalculator.getPrice(
-                                  orderItem.price,
-                                  orderItem.itemWeight,
-                                  orderItem.weightUnit,
-                                  PriceWeightCalculator.getActualWeight(
-                                    productDBdata.specialPrice ??
-                                        productDBdata.regularPrice,
-                                    getPriceFromBarcode(
-                                      getLastSixDigits(scannedSku),
-                                    ),
-                                    orderItem.itemWeight,
-                                    orderItem.weightUnit,
-                                  ),
-                                )
-                                : getPriceFromBarcode(
-                                  getLastSixDigits(scannedSku),
-                                )
+                            ?
+                            // !isSameDayOrder
+                            //     ? PriceWeightCalculator.getPrice(
+                            //       orderItem.price,
+                            //       orderItem.itemWeight,
+                            //       orderItem.weightUnit,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         productDBdata.specialPrice ??
+                            //             productDBdata.regularPrice,
+                            //         getPriceFromBarcode(
+                            //           getLastSixDigits(scannedSku),
+                            //         ),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //     )
+                            //     :
+                            getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : double.parse(orderItem.price).toStringAsFixed(2),
                     regularPrice: productDBdata.regularPrice,
                     imageUrl: "",
@@ -572,24 +574,24 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         qty,
                         scannedSku,
                         orderItem.isproduce == "1"
-                            ? !isSameDayOrder
-                                ? PriceWeightCalculator.getPrice(
-                                  orderItem.price,
-                                  orderItem.itemWeight,
-                                  orderItem.weightUnit,
-                                  PriceWeightCalculator.getActualWeight(
-                                    productDBdata.specialPrice ??
-                                        productDBdata.regularPrice,
-                                    getPriceFromBarcode(
-                                      getLastSixDigits(scannedSku),
-                                    ),
-                                    orderItem.itemWeight,
-                                    orderItem.weightUnit,
-                                  ),
-                                )
-                                : getPriceFromBarcode(
-                                  getLastSixDigits(scannedSku),
-                                )
+                            ?
+                            // !isSameDayOrder
+                            //     ? PriceWeightCalculator.getPrice(
+                            //       orderItem.price,
+                            //       orderItem.itemWeight,
+                            //       orderItem.weightUnit,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         productDBdata.specialPrice ??
+                            //             productDBdata.regularPrice,
+                            //         getPriceFromBarcode(
+                            //           getLastSixDigits(scannedSku),
+                            //         ),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //     )
+                            //     :
+                            getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : double.parse(orderItem.price).toStringAsFixed(2),
                         isSameDayOrder: isSameDayOrder,
                       );
@@ -647,24 +649,23 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     oldPrice: productDBdata.regularPrice,
                     newPrice:
                         orderItem.isproduce == "1"
-                            ? !isSameDayOrder
-                                ? PriceWeightCalculator.getPrice(
-                                  orderItem.price,
-                                  orderItem.itemWeight,
-                                  orderItem.weightUnit,
-                                  PriceWeightCalculator.getActualWeight(
-                                    productDBdata.specialPrice ??
-                                        productDBdata.regularPrice,
-                                    getPriceFromBarcode(
-                                      getLastSixDigits(scannedSku),
-                                    ),
-                                    orderItem.itemWeight,
-                                    orderItem.weightUnit,
-                                  ),
-                                )
-                                : getPriceFromBarcode(
-                                  getLastSixDigits(scannedSku),
-                                )
+                            ?
+                            // !isSameDayOrder
+                            //     ? PriceWeightCalculator.getPrice(
+                            //       orderItem.price,
+                            //       orderItem.itemWeight,
+                            //       orderItem.weightUnit,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         productDBdata.specialPrice ??
+                            //             productDBdata.regularPrice,
+                            //         getPriceFromBarcode(
+                            //           getLastSixDigits(scannedSku),
+                            //         ),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //     )
+                            getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : double.parse(orderItem.price).toStringAsFixed(2),
                     regularPrice: productDBdata.regularPrice,
                     imageUrl: "",
@@ -674,24 +675,24 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         qty,
                         scannedSku,
                         orderItem.isproduce == "1"
-                            ? !isSameDayOrder
-                                ? PriceWeightCalculator.getPrice(
-                                  orderItem.price,
-                                  orderItem.itemWeight,
-                                  orderItem.weightUnit,
-                                  PriceWeightCalculator.getActualWeight(
-                                    productDBdata.specialPrice ??
-                                        productDBdata.regularPrice,
-                                    getPriceFromBarcode(
-                                      getLastSixDigits(scannedSku),
-                                    ),
-                                    orderItem.itemWeight,
-                                    orderItem.weightUnit,
-                                  ),
-                                )
-                                : getPriceFromBarcode(
-                                  getLastSixDigits(scannedSku),
-                                )
+                            ?
+                            // !isSameDayOrder
+                            //     ? PriceWeightCalculator.getPrice(
+                            //       orderItem.price,
+                            //       orderItem.itemWeight,
+                            //       orderItem.weightUnit,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         productDBdata.specialPrice ??
+                            //             productDBdata.regularPrice,
+                            //         getPriceFromBarcode(
+                            //           getLastSixDigits(scannedSku),
+                            //         ),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //     )
+                            //     :
+                            getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : double.parse(orderItem.price).toStringAsFixed(2),
                         isSameDayOrder: isSameDayOrder,
                       );
@@ -748,24 +749,24 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     oldPrice: productDBdata.regularPrice,
                     newPrice:
                         orderItem.isproduce == "1"
-                            ? !isSameDayOrder
-                                ? PriceWeightCalculator.getPrice(
-                                  orderItem.price,
-                                  orderItem.itemWeight,
-                                  orderItem.weightUnit,
-                                  PriceWeightCalculator.getActualWeight(
-                                    productDBdata.specialPrice ??
-                                        productDBdata.regularPrice,
-                                    getPriceFromBarcode(
-                                      getLastSixDigits(scannedSku),
-                                    ),
-                                    orderItem.itemWeight,
-                                    orderItem.weightUnit,
-                                  ),
-                                )
-                                : getPriceFromBarcode(
-                                  getLastSixDigits(scannedSku),
-                                )
+                            ?
+                            //  !isSameDayOrder
+                            //     ? PriceWeightCalculator.getPrice(
+                            //       orderItem.price,
+                            //       orderItem.itemWeight,
+                            //       orderItem.weightUnit,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         productDBdata.specialPrice ??
+                            //             productDBdata.regularPrice,
+                            //         getPriceFromBarcode(
+                            //           getLastSixDigits(scannedSku),
+                            //         ),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //     )
+                            //     :
+                            getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : double.parse(orderItem.price).toStringAsFixed(2),
                     regularPrice: orderItem.price,
                     imageUrl: "",
@@ -775,24 +776,24 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         qty,
                         scannedSku,
                         orderItem.isproduce == "1"
-                            ? !isSameDayOrder
-                                ? PriceWeightCalculator.getPrice(
-                                  orderItem.price,
-                                  orderItem.itemWeight,
-                                  orderItem.weightUnit,
-                                  PriceWeightCalculator.getActualWeight(
-                                    productDBdata.specialPrice ??
-                                        productDBdata.regularPrice,
-                                    getPriceFromBarcode(
-                                      getLastSixDigits(scannedSku),
-                                    ),
-                                    orderItem.itemWeight,
-                                    orderItem.weightUnit,
-                                  ),
-                                )
-                                : getPriceFromBarcode(
-                                  getLastSixDigits(scannedSku),
-                                )
+                            ?
+                            // !isSameDayOrder
+                            //     ? PriceWeightCalculator.getPrice(
+                            //       orderItem.price,
+                            //       orderItem.itemWeight,
+                            //       orderItem.weightUnit,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         productDBdata.specialPrice ??
+                            //             productDBdata.regularPrice,
+                            //         getPriceFromBarcode(
+                            //           getLastSixDigits(scannedSku),
+                            //         ),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //     )
+                            //     :
+                            getPriceFromBarcode(getLastSixDigits(scannedSku))
                             : double.parse(orderItem.price).toStringAsFixed(2),
                         isSameDayOrder: isSameDayOrder,
                       );
