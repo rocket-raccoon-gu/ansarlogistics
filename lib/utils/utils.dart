@@ -87,21 +87,21 @@ Widget dispatchSelector({
   ];
 
   // Check if subgroup ID starts with 'EXP'
-  if (subgroupId.startsWith('EXP') &&
-      paymentMethod.toLowerCase() == 'cashondelivery') {
-    // Add Rafeeq Driver for EXP subgroups
-    options.add({'key': 'driver', 'label': 'Rafeeq Driver'});
+  // if (subgroupId.startsWith('EXP') &&
+  //     paymentMethod.toLowerCase() == 'cashondelivery') {
+  // Add Rafeeq Driver for EXP subgroups
+  options.add({'key': 'driver', 'label': 'Rafeeq Driver'});
 
-    // Add Snoonu Rider option only for specific postcodes in EXP subgroups
-    final postcodePrefix =
-        postcode.length >= 2 ? int.tryParse(postcode.substring(0, 2)) : null;
-    if (postcodePrefix != null &&
-        ((postcodePrefix >= 42 && postcodePrefix <= 46) ||
-            postcodePrefix == 50 ||
-            (postcodePrefix >= 56 && postcodePrefix <= 58))) {
-      options.add({'key': 'rider', 'label': 'Snoonu Rider'});
-    }
-  }
+  // Add Snoonu Rider option only for specific postcodes in EXP subgroups
+  // final postcodePrefix =
+  //     postcode.length >= 2 ? int.tryParse(postcode.substring(0, 2)) : null;
+  // if (postcodePrefix != null &&
+  //     ((postcodePrefix >= 42 && postcodePrefix <= 46) ||
+  //         postcodePrefix == 50 ||
+  //         (postcodePrefix >= 56 && postcodePrefix <= 58))) {
+  options.add({'key': 'rider', 'label': 'Snoonu Rider'});
+  // }
+  // }
 
   final Color selectedBg = switch (value) {
     'driver' => const Color(0xFF9729BA),

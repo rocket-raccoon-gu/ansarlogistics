@@ -113,7 +113,7 @@ class LoginCubit extends Cubit<LoginState> {
               password: password,
               token: value,
               bearertoken: "",
-              appversion: "2.0.23",
+              appversion: "2.0.24",
             );
         DateTime responseTime = DateTime.now();
 

@@ -219,14 +219,20 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     // _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
     _grandTotalOverride = null;
 
-    _editableGrandTotal = _toDouble(
-      order.endPickTotal != 0
-          ? double.parse(order.endPickTotal.toString()) +
-              (order.combinedOrderPlacedTotal! > 99
-                  ? 0
-                  : double.parse(order.shippingCharge.toString()))
-          : order.grandTotal,
-    );
+    _editableGrandTotal =
+        order.posAmount != null &&
+                order.posAmount != 0 &&
+                order.posAmount != "" &&
+                order.subgroupIdentifier.startsWith("EXP")
+            ? _toDouble(order.posAmount!.toString())
+            : _toDouble(
+              order.endPickTotal != 0
+                  ? double.parse(order.endPickTotal.toString()) +
+                      (order.combinedOrderPlacedTotal! > 99
+                          ? 0
+                          : double.parse(order.shippingCharge.toString()))
+                  : order.grandTotal,
+            );
   }
 
   @override
@@ -340,6 +346,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           Expanded(
             child: TextFormField(
               initialValue: _fmtQar(value),
+              readOnly: !order.subgroupIdentifier.startsWith("EXP"),
               style: valueStyle,
               textAlign: TextAlign.right,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -2294,14 +2301,27 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
                                         Builder(
                                           builder: (_) {
-                                            final grandTotal = _toDouble(
-                                              order.endPickTotal != 0
-                                                  ? double.parse(
-                                                    order.endPickTotal
-                                                        .toString(),
-                                                  )
-                                                  : order.grandTotal,
-                                            );
+                                            double grandTotal = 0;
+
+                                            if (order.posAmount != null &&
+                                                order.posAmount != 0 &&
+                                                order.posAmount != "" &&
+                                                order.subgroupIdentifier
+                                                    .startsWith("EXP")) {
+                                              grandTotal = _toDouble(
+                                                order.posAmount!,
+                                              );
+                                            } else {
+                                              grandTotal = _toDouble(
+                                                order.endPickTotal != 0
+                                                    ? double.parse(
+                                                      order.endPickTotal
+                                                          .toString(),
+                                                    )
+                                                    : order.grandTotal,
+                                              );
+                                            }
+
                                             // Use onlinePaidAmount as paid
                                             final paid = _toDouble(
                                               order.orderAmount,
