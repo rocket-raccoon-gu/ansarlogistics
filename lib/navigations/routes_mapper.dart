@@ -62,6 +62,9 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
       case _cashierOrderInnerPageRouteName:
         final arg = settings.arguments as MapArguments;
         return routesFactory.createCashierOrderInnerPageRoute(arg.data);
+      case _itemBatchPickupRouteName:
+        final arg = settings.arguments as MapArguments;
+        return routesFactory.createItemBatchPickupRoute(arg.data);
       default:
         return null;
     }

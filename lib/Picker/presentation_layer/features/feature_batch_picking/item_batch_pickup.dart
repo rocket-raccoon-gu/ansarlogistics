@@ -1,0 +1,239 @@
+import 'dart:developer';
+
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/bloc/item_batch_pickup_cubit.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/bloc/item_batch_pickup_state.dart';
+import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/constants/methods.dart';
+import 'package:ansarlogistics/constants/texts.dart';
+import 'package:ansarlogistics/themes/style.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+
+class ItemBatchPickup extends StatefulWidget {
+  const ItemBatchPickup({super.key});
+
+  @override
+  State<ItemBatchPickup> createState() => _ItemBatchPickupState();
+}
+
+class _ItemBatchPickupState extends State<ItemBatchPickup> {
+  int selectedindex = 0;
+
+  int editquantity = 0;
+
+  bool loading = false;
+
+  bool ismanual = false;
+
+  bool pricechange = false;
+
+  bool isScanner = false;
+
+  bool isKeyboard = false;
+
+  TextEditingController barcodeController = TextEditingController();
+
+  MobileScannerController cameraController = MobileScannerController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0.0),
+        child: AppBar(
+          elevation: 0,
+          backgroundColor: Color.fromRGBO(183, 214, 53, 1),
+        ),
+      ),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            padding: const EdgeInsets.symmetric(
+              vertical: 15.0,
+              horizontal: 15.0,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                bottom: BorderSide(
+                  width: 2.0,
+                  color: customColors().backgroundTertiary,
+                ),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: customColors().backgroundTertiary.withOpacity(1.0),
+                  spreadRadius: 3,
+                  blurRadius: 5,
+                  // offset: Offset(0, 3), // changes the position of the shadow
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    context.gNavigationService.back(context);
+                  },
+                  child: Icon(
+                    Icons.arrow_back,
+                    size: 23,
+                    color: HexColor("#A3A3A3"),
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: Text(
+                          "Batch Pickup",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isKeyboard = !isKeyboard;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.keyboard,
+                    size: 30,
+                    color: HexColor("#A3A3A3"),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (isScanner)
+            Expanded(
+              child: MobileScanner(
+                controller: cameraController,
+                onDetect: (capture) {
+                  final List<Barcode> barcodes = capture.barcodes;
+                  for (final barcode in barcodes) {
+                    log('Barcode found! ${barcode.rawValue}');
+                    //  scanBarcodeNormal(barcode.rawValue!);
+                  }
+                },
+              ),
+            )
+          else
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    BlocConsumer<ItemBatchPickupCubit, ItemBatchPickupState>(
+                      listener: (context, state) {},
+                      builder: (context, state) {
+                        if (state is ItemBatchPickupLoadedState) {
+                          final item = state.item;
+
+                          return Container(
+                            color: Colors.white,
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6.0),
+                                  child: FutureBuilder<Map<String, dynamic>>(
+                                    future: getData(),
+                                    builder: (context, snapshot) {
+                                      final String base =
+                                          snapshot.data != null
+                                              ? (snapshot.data!['mediapath'] ??
+                                                      '')
+                                                  .toString()
+                                              : '';
+                                      // Build images list from imageUrl or productImage (comma separated)
+                                      final List<String> images =
+                                          (() {
+                                            final List<String> acc = [];
+                                            if ((item.productImages ?? '')
+                                                .isNotEmpty) {
+                                              acc.add(item.productImages!);
+                                            }
+                                            if ((item.imageUrl ?? '')
+                                                .isNotEmpty) {
+                                              acc.addAll(
+                                                item.imageUrl!.split(','),
+                                              );
+                                            }
+                                            return acc.isEmpty
+                                                ? [noimageurl]
+                                                : acc;
+                                          })();
+                                      String resolve(String p) {
+                                        if (p.startsWith('http')) return p;
+                                        return '$base$p';
+                                      }
+
+                                      final String mainUrl = resolve(
+                                        images[selectedindex.clamp(
+                                          0,
+                                          images.length - 1,
+                                        )],
+                                      );
+
+                                      final qty = item.totalQuantity ?? 0;
+                                      final rawImg =
+                                          item.productImages ?? item.imageUrl;
+                                      // final imgPath =
+                                      //     (rawImg == null || rawImg.isEmpty)
+                                      //         ? ''
+                                      //         : getFirstImage(rawImg);
+                                      // final resolved = resolveImageUrl(imgPath);
+
+                                      return SizedBox(
+                                        height: 275.0,
+                                        width: 275.0,
+                                        child: Center(
+                                          child: CachedNetworkImage(
+                                            imageUrl: mainUrl,
+                                            imageBuilder: (
+                                              context,
+                                              imageProvider,
+                                            ) {
+                                              return Container(
+                                                decoration: BoxDecoration(
+                                                  image: DecorationImage(
+                                                    image: imageProvider,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

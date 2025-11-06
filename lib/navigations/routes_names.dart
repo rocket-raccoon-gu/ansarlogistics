@@ -23,3 +23,4 @@ const _pickerOrderDetailsRouteName = '/pickerorderdetailsinnerpageroute';
 const _cashierDashboardRouteName = '/cashierdashboardpageroutename';
 const _pickerDashboardRouteName = '/pickerdashboardpageroutename';
 const _cashierOrderInnerPageRouteName = '/cashierorderinnerpageroute';
+const _itemBatchPickupRouteName = '/itembatchpickuppageroutename';

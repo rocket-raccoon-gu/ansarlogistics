@@ -251,163 +251,173 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
             final imgPath =
                 (rawImg == null || rawImg.isEmpty) ? '' : getFirstImage(rawImg);
             final resolved = resolveImageUrl(imgPath);
-            return Container(
-              decoration: BoxDecoration(
-                color: customColors().backgroundSecondary,
-                borderRadius: BorderRadius.circular(12.0),
-                border: Border.all(color: customColors().backgroundTertiary),
-              ),
-              padding: const EdgeInsets.all(10.0),
-              child: Stack(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child:
-                            resolved.isNotEmpty
-                                ? CachedNetworkImage(
-                                  imageUrl: resolved,
-                                  width: 64,
-                                  height: 64,
-                                  fit: BoxFit.cover,
-                                  errorWidget:
-                                      (_, __, ___) => Image.asset(
-                                        'assets/ansar-logistics.png',
-                                        width: 64,
-                                        height: 64,
-                                        fit: BoxFit.cover,
-                                      ),
-                                )
-                                : Image.asset(
-                                  'assets/ansar-logistics.png',
-                                  width: 64,
-                                  height: 64,
-                                  fit: BoxFit.cover,
-                                ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              it.name ?? '-',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyM_Bold,
-                                color: FontColor.FontPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'SKU: ${it.sku ?? '-'}',
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyS_Regular,
-                                color: FontColor.FontSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10.0,
-                                    vertical: 4.0,
+            return InkWell(
+              onTap: () {
+                context.gNavigationService.openItemBatchPickupPage(
+                  context,
+                  arg: {'items_data': it},
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: customColors().backgroundSecondary,
+                  borderRadius: BorderRadius.circular(12.0),
+                  border: Border.all(color: customColors().backgroundTertiary),
+                ),
+                padding: const EdgeInsets.all(10.0),
+                child: Stack(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child:
+                              resolved.isNotEmpty
+                                  ? CachedNetworkImage(
+                                    imageUrl: resolved,
+                                    width: 64,
+                                    height: 64,
+                                    fit: BoxFit.cover,
+                                    errorWidget:
+                                        (_, __, ___) => Image.asset(
+                                          'assets/ansar-logistics.png',
+                                          width: 64,
+                                          height: 64,
+                                          fit: BoxFit.cover,
+                                        ),
+                                  )
+                                  : Image.asset(
+                                    'assets/ansar-logistics.png',
+                                    width: 64,
+                                    height: 64,
+                                    fit: BoxFit.cover,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    border: Border.all(
-                                      color: HexColor('#2D7EFF'),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    it.price != null
-                                        ? 'QAR ${(it.price as num).toStringAsFixed(2)}'
-                                        : '—',
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyS_Bold,
-                                      color: FontColor.Info,
-                                    ).copyWith(color: HexColor('#2D7EFF')),
-                                  ),
-                                ),
-                                const Spacer(),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder:
-                                            (_) => BlocProvider(
-                                              create:
-                                                  (_) =>
-                                                      IncompleteOrdersCubit(),
-                                              child: IncompleteOrdersPage(
-                                                args: {
-                                                  'product': it,
-                                                  'ordersNew':
-                                                      context
-                                                          .read<
-                                                            PickerOrdersCubit
-                                                          >()
-                                                          .ordersNew,
-                                                },
-                                              ),
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12.0,
-                                      vertical: 8.0,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'View Orders',
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyS_Bold,
-                                      color: FontColor.White,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    top: 2,
-                    right: 2,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: HexColor('#D66435'),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      child: Text(
-                        '$qty',
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_Bold,
-                          color: FontColor.White,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                it.name ?? '-',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyM_Bold,
+                                  color: FontColor.FontPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'SKU: ${it.sku ?? '-'}',
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyS_Regular,
+                                  color: FontColor.FontSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0,
+                                      vertical: 4.0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      border: Border.all(
+                                        color: HexColor('#2D7EFF'),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      it.price != null
+                                          ? 'QAR ${(it.price as num).toStringAsFixed(2)}'
+                                          : '—',
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyS_Bold,
+                                        color: FontColor.Info,
+                                      ).copyWith(color: HexColor('#2D7EFF')),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) => BlocProvider(
+                                                create:
+                                                    (_) =>
+                                                        IncompleteOrdersCubit(),
+                                                child: IncompleteOrdersPage(
+                                                  args: {
+                                                    'product': it,
+                                                    'ordersNew':
+                                                        context
+                                                            .read<
+                                                              PickerOrdersCubit
+                                                            >()
+                                                            .ordersNew,
+                                                  },
+                                                ),
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12.0,
+                                        vertical: 8.0,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          10.0,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'View Orders',
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyS_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                      top: 2,
+                      right: 2,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: HexColor('#D66435'),
+                          borderRadius: BorderRadius.circular(6.0),
+                        ),
+                        child: Text(
+                          '$qty',
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyM_Bold,
+                            color: FontColor.White,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },

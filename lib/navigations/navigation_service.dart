@@ -186,6 +186,15 @@ class NavigationService {
     ).pushNamed(_pickerDashboardRouteName, arguments: MapArguments(arg!));
   }
 
+  Future<void> openItemBatchPickupPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_itemBatchPickupRouteName, arguments: MapArguments(arg!));
+  }
+
   // Future<void> openSelectRegionsPage(
   //   BuildContext context
   // ){
