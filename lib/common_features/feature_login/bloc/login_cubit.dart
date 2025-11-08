@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:ansarlogistics/navigations/navigation.dart';
@@ -39,36 +40,46 @@ class LoginCubit extends Cubit<LoginState> {
       if (id != "" && val != "") {
         // Validate the encrypted password
 
-        try {
-          // String pass = decryptStringForUser(val, keyVal(id));
-          if (val != "") {
-            if (selectedRegion.toLowerCase() == "uae") {
-              if (await sendLoginRequest(
-                context: context,
-                userId: id,
-                password: val,
-              )) {
-                return;
-              }
-            } else {
-              if (await sendLoginRequest(
-                context: context,
-                userId: id,
-                password: val,
-              )) {
-                return;
-              }
-            }
-          } else {
-            // Handle invalid password
-            // print("Decrypted password is empty");
-            if (!isClosed) emit(LoginInitial());
-          }
-        } catch (e) {
-          // Handle decryption errors
-          // print("Decryption failed: $e");
-          if (!isClosed) emit(LoginInitial());
+        String? profileJson = await PreferenceUtils.getDataFromShared(
+          "user_profile",
+        );
+
+        if (profileJson != null) {
+          UserController().profile = Profile.fromJson(jsonDecode(profileJson));
+
+          swithcnavigate(context, UserController().profile.role);
         }
+
+        // try {
+        //   // String pass = decryptStringForUser(val, keyVal(id));
+        //   if (val != "") {
+        //     if (selectedRegion.toLowerCase() == "uae") {
+        //       if (await sendLoginRequest(
+        //         context: context,
+        //         userId: id,
+        //         password: val,
+        //       )) {
+        //         return;
+        //       }
+        //     } else {
+        //       if (await sendLoginRequest(
+        //         context: context,
+        //         userId: id,
+        //         password: val,
+        //       )) {
+        //         return;
+        //       }
+        //     }
+        //   } else {
+        //     // Handle invalid password
+        //     // print("Decrypted password is empty");
+        //     if (!isClosed) emit(LoginInitial());
+        //   }
+        // } catch (e) {
+        //   // Handle decryption errors
+        //   // print("Decryption failed: $e");
+        //   if (!isClosed) emit(LoginInitial());
+        // }
       } else {
         // Handle empty or invalid data
         // print("Invalid or empty userCode or password");
@@ -174,6 +185,12 @@ class LoginCubit extends Cubit<LoginState> {
             await PreferenceUtils.storeDataToShared(
               "userid",
               loginResponse.profile.id,
+            );
+
+            // Store complete profile data
+            await PreferenceUtils.storeDataToShared(
+              "user_profile",
+              jsonEncode(loginResponse.profile.toJson()),
             );
 
             // // Encrypt the password
