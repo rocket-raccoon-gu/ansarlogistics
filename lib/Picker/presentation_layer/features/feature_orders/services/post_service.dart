@@ -39,7 +39,8 @@ class PostService {
         if (map.containsKey("items")) {
           OrderResponse orderResponse = OrderResponse.fromJson(map);
           orderlist = orderResponse.items;
-        } else if (map.containsKey("success") && map["success"] == 0) {
+        } else if (map.containsKey("message") &&
+            map["message"] == 'Expired token') {
           // print("ok");
           // ignore: use_build_context_synchronously
           sessionTimeOutBottomSheet(
