@@ -527,6 +527,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                     ),
                                   ),
                                 ),
+
                                 // Details card (title/SKU/price/qty)
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -774,6 +775,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                     )
                                     : Container(),
                                 const SizedBox(height: 16),
+
                                 // Actions row
                                 item.itemStatus != "item_not_available"
                                     ? Padding(
