@@ -2,8 +2,13 @@ import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/services/post_repositories.dart';
+import 'package:ansarlogistics/Picker/repository_layer/more_content.dart'
+    show logout;
+import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart'
+    show sessionTimeOutBottomSheet;
+import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/session_out_bottom_sheet.dart';
 import 'package:ansarlogistics/services/api_gateway.dart';
-import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/picker_driver_api.dart';
@@ -45,6 +50,17 @@ class PickerOrdersCubit extends Cubit<PickerOrdersState> {
           emit(
             PickerOrdersNewErrorState(resp?.message ?? 'Failed to load orders'),
           );
+        if (!isClosed && resp?.message == "Expired token") {
+          sessionTimeOutBottomSheet(
+            context: context,
+            inputWidget: SessionOutBottomSheet(
+              onTap: () async {
+                await PreferenceUtils.removeDataFromShared("userCode");
+                await logout(context);
+              },
+            ),
+          );
+        }
       }
     } catch (e) {
       if (!isClosed) emit(PickerOrdersNewErrorState('Error: $e'));

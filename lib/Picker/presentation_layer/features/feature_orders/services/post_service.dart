@@ -159,6 +159,7 @@ class PostService {
             },
           ),
         );
+
         return null;
       } else {
         showSnackBar(

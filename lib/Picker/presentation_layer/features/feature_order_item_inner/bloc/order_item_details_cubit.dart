@@ -688,7 +688,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     }
   }
 
-  void _showPickConfirmBottomSheet({
+  void showPickConfirmBottomSheet({
     required String name,
     required String sku,
     String? oldPrice,
@@ -793,7 +793,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                                   Padding(
                                     padding: const EdgeInsets.only(right: 6),
                                     child: Text(
-                                      _formatPrice(regularPrice),
+                                      formatPrice(regularPrice),
                                       style: const TextStyle(
                                         fontSize: 14,
                                         color: Colors.black54,
@@ -803,7 +803,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                                     ),
                                   ),
                                   Text(
-                                    _formatPrice(newPrice),
+                                    formatPrice(newPrice),
                                     style: const TextStyle(
                                       fontSize: 14,
                                       color: Color(0xFFD32F2F),
@@ -814,7 +814,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                               )
                             else
                               Text(
-                                _formatPrice(regularPrice),
+                                formatPrice(regularPrice),
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Color(0xFFD32F2F),
@@ -964,13 +964,5 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     ).whenComplete(() {
       _isDialogShowing = false;
     });
-  }
-
-  String _formatPrice(String value) {
-    final n = num.tryParse(value);
-    if (n != null) {
-      return n.toStringAsFixed(2);
-    }
-    return value;
   }
 }

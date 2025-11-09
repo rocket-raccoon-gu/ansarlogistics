@@ -52,6 +52,8 @@ class LoginCubit extends Cubit<LoginState> {
 
           // Create Profile object from Map
           final profile = Profile.fromJson(profileMap);
+
+          UserController().profile = profile;
         }
 
         swithcnavigate(context, role);

@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 
 class OrderItemDetails extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -801,7 +802,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                               Expanded(
                                                 child: SizedBox(
                                                   height: 88,
-                                                  child: _ActionChip(
+                                                  child: ActionChips(
                                                     label1: 'Replace',
                                                     label2: 'Item',
                                                     color:
@@ -836,7 +837,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                               Expanded(
                                                 child: SizedBox(
                                                   height: 88,
-                                                  child: _ActionChip(
+                                                  child: ActionChips(
                                                     label1: 'Hold',
                                                     label2: 'Item',
                                                     color:
@@ -872,7 +873,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                               Expanded(
                                                 child: SizedBox(
                                                   height: 88,
-                                                  child: _ActionChip(
+                                                  child: ActionChips(
                                                     label1: 'Not',
                                                     label2: 'Available',
                                                     color: HexColor('#FFF1F1'),
@@ -904,7 +905,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                               Expanded(
                                                 child: SizedBox(
                                                   height: 88,
-                                                  child: _ActionChip(
+                                                  child: ActionChips(
                                                     label1: 'Cancel',
                                                     label2: 'Item',
                                                     color: Colors.white,
@@ -2205,67 +2206,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
         ],
       ),
       bottomNavigationBar: null,
-    );
-  }
-}
-
-class _ActionChip extends StatelessWidget {
-  final String label1;
-  final String label2;
-  final Color color;
-  final Color? textColor;
-  final Color? borderColor;
-  final IconData asset;
-  final VoidCallback? onTap;
-
-  const _ActionChip({
-    super.key,
-    required this.label1,
-    required this.label2,
-    required this.color,
-    this.textColor,
-    this.borderColor,
-    required this.asset,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
-        height: 85,
-        width: 87,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(6.0),
-          border: Border.all(color: borderColor ?? customColors().fontTertiary),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(asset, size: 18, color: textColor ?? Colors.black),
-            const SizedBox(height: 6),
-            Text(
-              label1,
-              overflow: TextOverflow.ellipsis,
-              style: customTextStyle(
-                fontStyle: FontStyle.BodyM_Bold,
-                color: FontColor.FontPrimary,
-              ),
-            ),
-            Text(
-              label2,
-              overflow: TextOverflow.ellipsis,
-              style: customTextStyle(
-                fontStyle: FontStyle.BodyM_Bold,
-                color: FontColor.FontPrimary,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

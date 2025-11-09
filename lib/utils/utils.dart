@@ -19,6 +19,7 @@ import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -1216,6 +1217,14 @@ showPickConfirmDialogue(
   );
 }
 
+String formatPrice(String value) {
+  final n = num.tryParse(value);
+  if (n != null) {
+    return n.toStringAsFixed(2);
+  }
+  return value;
+}
+
 void priceMismatchDialog(
   BuildContext context, {
   required dynamic orderItem,
@@ -1358,5 +1367,147 @@ String getcurrencyfromurl(String url) {
       return 'BHD';
     default:
       return 'QAR';
+  }
+}
+
+class ActionChips extends StatelessWidget {
+  final String label1;
+  final String label2;
+  final Color color;
+  final Color? textColor;
+  final Color? borderColor;
+  final IconData asset;
+  final VoidCallback? onTap;
+
+  const ActionChips({
+    super.key,
+    required this.label1,
+    required this.label2,
+    required this.color,
+    this.textColor,
+    this.borderColor,
+    required this.asset,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
+        height: 85,
+        width: 87,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(6.0),
+          border: Border.all(color: borderColor ?? customColors().fontTertiary),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(asset, size: 18, color: textColor ?? Colors.black),
+            const SizedBox(height: 6),
+            Text(
+              label1,
+              overflow: TextOverflow.ellipsis,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyM_Bold,
+                color: FontColor.FontPrimary,
+              ),
+            ),
+            Text(
+              label2,
+              overflow: TextOverflow.ellipsis,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyM_Bold,
+                color: FontColor.FontPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ConfirmBottomSheet extends StatelessWidget {
+  final String name;
+  final String sku;
+  final String? oldPrice;
+  final String newPrice;
+  final String regularPrice;
+  final String? imageUrl;
+  final String? barcodeType;
+  final bool isProduce;
+  final String? weight;
+  final VoidCallback onConfirm;
+  final VoidCallback? onClose;
+
+  const ConfirmBottomSheet({
+    Key? key,
+    required this.name,
+    required this.sku,
+    this.oldPrice,
+    required this.newPrice,
+    required this.regularPrice,
+    this.imageUrl,
+    this.barcodeType,
+    required this.onConfirm,
+    this.onClose,
+    this.isProduce = false,
+    this.weight,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Confirm Details',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: onClose ?? () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (imageUrl != null)
+            Center(
+              child: CachedNetworkImage(
+                imageUrl: imageUrl!,
+                height: 100,
+                width: 100,
+                fit: BoxFit.contain,
+              ),
+            ),
+          const SizedBox(height: 16),
+          Text('Name: $name'),
+          Text('SKU: $sku'),
+          if (oldPrice != null) Text('Old Price: $oldPrice'),
+          Text('New Price: $newPrice'),
+          Text('Regular Price: $regularPrice'),
+          if (barcodeType != null) Text('Barcode Type: $barcodeType'),
+          if (weight != null) Text('Weight: $weight'),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onConfirm,
+              child: const Text('Confirm'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -282,6 +282,7 @@ class GroupedProduct {
   final List<String> orderReferences; // order numbers/refs for "View Orders"
   final String? imageUrl;
   final String? productImages;
+  final String? itemStatus;
 
   GroupedProduct({
     this.name,
@@ -293,6 +294,7 @@ class GroupedProduct {
     this.orderReferences = const [],
     this.imageUrl,
     this.productImages,
+    this.itemStatus,
   });
 
   factory GroupedProduct.fromJson(Map<String, dynamic> json) => GroupedProduct(
@@ -316,6 +318,7 @@ class GroupedProduct {
             .map((e) => e.toString())
             .toList(),
     imageUrl: json['imageUrl']?.toString(),
+
     productImages:
         (() {
           final dynamic imgs =
@@ -333,6 +336,7 @@ class GroupedProduct {
           }
           return imgs.toString();
         })(),
+    itemStatus: json['item_status']?.toString(),
   );
 }
 

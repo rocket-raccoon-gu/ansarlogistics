@@ -731,6 +731,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.4"
+  flutter_scankit:
+    dependency: "direct main"
+    description:
+      name: flutter_scankit
+      sha256: bcccc62fb1441211db8df3ef971f432274e29269b8d16d017e8de8cc1d8ed21e
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.6"
   flutter_staggered_grid_view:
     dependency: "direct main"
     description:
