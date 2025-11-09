@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/bloc/item_batch_pickup_state.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,14 +41,16 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     // print("🔁 Action: $action");
 
     try {
-      String? token = UserController.userController.app_token;
+      final token = await PreferenceUtils.getDataFromShared("usertoken");
 
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
         endpoint: scannedSku,
         productSku: productSku,
         action: action,
-        token1: token,
+        token1: token!,
       );
+
+      log(response.body);
 
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
@@ -54,18 +58,59 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
         if (data['priority'] == 1) {
           ErPdata erPdata = ErPdata.fromJson(data);
 
-          // showPickConfirmBottomSheet(
-          //   name: erPdata.name ?? '',
-          //   sku: erPdata.sku ?? '',
-          //   newPrice: erPdata.price?.toString() ?? '0',
-          //   regularPrice: erPdata.regularPrice?.toString() ?? '0',
-          //   onConfirm: () {
-          //     // Handle confirm action
-          //     Navigator.pop(context);
-          //   },
-          // );
+          if (!_isDialogShowing) {
+            _isDialogShowing = true;
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              builder:
+                  (context) => buildPriority1BottomSheet(context, erPdata, () {
+                    if (scannedSku == erPdata.erpSku ||
+                        scannedSku == productSku) {
+                      //
+                      // picking logic here
+                    } else {
+                      showSnackBar(
+                        context: context,
+                        snackBar: showErrorDialogue(
+                          errorMessage: "Barcode Not Matching!",
+                        ),
+                      );
+                    }
+                  }),
+            ).whenComplete(() {
+              _isDialogShowing = false;
+            });
+          }
         } else if (data['priority'] == 2) {
           ProductDBdata productDBdata = ProductDBdata.fromJson(data);
+
+          if (!_isDialogShowing) {
+            _isDialogShowing = true;
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              builder:
+                  (context) =>
+                      buildPriority2BottomSheet(context, productDBdata, () {
+                        if (scannedSku == productSku ||
+                            productDBdata.barcodes.contains(scannedSku)) {
+                          //
+                          // picking logic here
+                        } else {
+                          Navigator.pop(context);
+                          showSnackBar(
+                            context: context,
+                            snackBar: showErrorDialogue(
+                              errorMessage: "Barcode Not Matching!",
+                            ),
+                          );
+                        }
+                      }),
+            ).whenComplete(() {
+              _isDialogShowing = false;
+            });
+          }
         } else if (data['priority'] == 0) {
           showSnackBar(
             context: context,

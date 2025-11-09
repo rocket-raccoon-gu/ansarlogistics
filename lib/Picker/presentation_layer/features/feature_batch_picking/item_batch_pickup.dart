@@ -14,9 +14,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_scankit/flutter_scankit.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class ItemBatchPickup extends StatefulWidget {
-  const ItemBatchPickup({super.key});
+  final Map<String, dynamic> data;
+  const ItemBatchPickup({super.key, required this.data});
 
   @override
   State<ItemBatchPickup> createState() => _ItemBatchPickupState();
@@ -45,7 +47,22 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
   @override
   void initState() {
     super.initState();
-    scanKit = ScanKit();
+    scanKit = ScanKit(
+      photoMode: true,
+      viewType:
+          ScanTypes.qRCode.bit |
+          ScanTypes.code128.bit |
+          ScanTypes.ean13.bit |
+          ScanTypes.code39.bit |
+          ScanTypes.code93.bit |
+          ScanTypes.aztec.bit |
+          ScanTypes.dataMatrix.bit |
+          ScanTypes.pdf417.bit |
+          ScanTypes.upcCodeA.bit |
+          ScanTypes.upcCodeE.bit |
+          ScanTypes.ean8.bit |
+          ScanTypes.all.bit,
+    );
     scanKit.onResult.listen((val) {
       setState(() => result = val.originalValue);
       scanBarcodeNormal(result);
@@ -55,7 +72,8 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
   Future<void> _startScan() async {
     try {
       await scanKit.startScan(
-        scanTypes: ScanTypes.qRCode.bit | ScanTypes.code128.bit,
+        scanTypes:
+            ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
       );
     } on PlatformException catch (e) {
       debugPrint('Error: ${e.message}');
@@ -64,12 +82,20 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
 
   scanBarcodeNormal(String? barcodeScanRes) async {
     try {
+      // log(widget.data['items_data'].toString());
+
+      final item = widget.data['items_data'];
+
+      GroupedProduct groupedProduct = item;
+
+      log(groupedProduct.sku.toString());
+
       if (barcodeScanRes != null) {
         context.read<ItemBatchPickupCubit>().checkitemdb(
           "",
           barcodeScanRes,
-          "",
-          "",
+          groupedProduct.sku!,
+          "pick",
           context,
         );
       }
@@ -163,20 +189,6 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
             ),
           ),
 
-          // if (isScanner)
-          //   Expanded(
-          //     child: MobileScanner(
-          //       controller: cameraController,
-          //       onDetect: (capture) {
-          //         final List<Barcode> barcodes = capture.barcodes;
-          //         for (final barcode in barcodes) {
-          //           log('Barcode found! ${barcode.rawValue}');
-          //           //  scanBarcodeNormal(barcode.rawValue!);
-          //         }
-          //       },
-          //     ),
-          //   )
-          // else
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -232,23 +244,7 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                             ? resolve(imageUrls[selectedindex])
                                             : '';
 
-                                    // final String mainUrl = resolve(
-                                    //   images[selectedindex.clamp(
-                                    //     0,
-                                    //     images.length - 1,
-                                    //   )],
-                                    // );
-
-                                    // final qty = item.totalQuantity ?? 0;
-                                    // final rawImg =
-                                    //     item.productImages ?? item.imageUrl;
-
                                     log(mainUrl);
-                                    // final imgPath =
-                                    //     (rawImg == null || rawImg.isEmpty)
-                                    //         ? ''
-                                    //         : getFirstImage(rawImg);
-                                    // final resolved = resolveImageUrl(imgPath);
 
                                     return SizedBox(
                                       height: 275.0,
@@ -479,33 +475,6 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                           ),
                                         ),
                                         const SizedBox(width: 8),
-
-                                        // if ((item.deliveryType ?? '')
-                                        //         .toUpperCase() ==
-                                        //     'NOL')
-                                        //   Container(
-                                        //     padding:
-                                        //         const EdgeInsets.symmetric(
-                                        //           horizontal: 6,
-                                        //           vertical: 2,
-                                        //         ),
-                                        //     decoration: BoxDecoration(
-                                        //       border: Border.all(
-                                        //         color:
-                                        //             customColors().dodgerBlue,
-                                        //       ),
-                                        //       borderRadius:
-                                        //           BorderRadius.circular(6),
-                                        //     ),
-                                        //     child: Text(
-                                        //       'NOL',
-                                        //       style: customTextStyle(
-                                        //         fontStyle:
-                                        //             FontStyle.BodyS_Bold,
-                                        //         color: FontColor.Info,
-                                        //       ),
-                                        //     ),
-                                        //   ),
                                       ],
                                     ),
                                     const SizedBox(height: 8),
@@ -567,37 +536,10 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                     ),
                                     child: Row(
                                       children: [
-                                        // Stepper (uses existing CounterButton styles)
-                                        // SizedBox(
-                                        //   width: 64,
-                                        //   child: CounterDropdown(
-                                        //     initNumber: 0,
-                                        //     counterCallback: (v) {
-                                        //       setState(() {
-                                        //         editquantity = v;
-                                        //       });
-                                        //     },
-                                        //     minNumber: 0,
-                                        //     maxNumber: 100,
-                                        //     showLabel: false,
-                                        //   ),
-                                        // ),
-                                        // const SizedBox(width: 12),
-                                        // Scan barcode (green)
                                         !isKeyboard
                                             ? Expanded(
                                               child: InkWell(
                                                 onTap: () async {
-                                                  // if (editquantity == 0) {
-                                                  //   showSnackBar(
-                                                  //     context: context,
-                                                  //     snackBar: showErrorDialogue(
-                                                  //       errorMessage:
-                                                  //           'Please Confirm How Many Qty Picking...!',
-                                                  //     ),
-                                                  //   );
-                                                  //   return;
-                                                  // }
                                                   var status =
                                                       await Permission
                                                           .camera

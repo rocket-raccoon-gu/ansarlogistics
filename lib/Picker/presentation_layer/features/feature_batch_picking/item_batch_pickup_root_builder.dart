@@ -21,7 +21,7 @@ class ItemBatchPickupRootBuilder {
           RepositoryProvider.value(value: serviceLocator.navigationService),
           RepositoryProvider<CubitsLocator>.value(value: serviceLocator),
         ],
-        child: ItemBatchPickup(),
+        child: ItemBatchPickup(data: data),
       ),
     );
   }

@@ -1511,3 +1511,142 @@ class ConfirmBottomSheet extends StatelessWidget {
     );
   }
 }
+
+Widget buildPriority1BottomSheet(
+  BuildContext context,
+  ErPdata erPdata,
+  Function()? onPressed,
+) {
+  return Container(
+    padding: EdgeInsets.all(16),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Product Details',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16),
+        _buildDetailRow('Name:', erPdata.erpProductName ?? 'N/A'),
+        _buildDetailRow('SKU:', erPdata.erpSku ?? 'N/A'),
+        _buildDetailRow('Price:', erPdata.erpPrice.toString() ?? '0'),
+        _buildDetailRow('Regular Price:', erPdata.erpPrice.toString() ?? '0'),
+        SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[300],
+                  foregroundColor: Colors.black87,
+                ),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: onPressed,
+                child: Text('Confirm'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget buildPriority2BottomSheet(
+  BuildContext context,
+  ProductDBdata productDBdata,
+  Function()? onPressed,
+) {
+  return Container(
+    padding: EdgeInsets.all(16),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Product Database Details',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16),
+        _buildDetailRow('Name:', productDBdata.skuName!),
+        _buildDetailRow('SKU:', productDBdata.sku!),
+        _buildDetailRow(
+          'Price:',
+          double.parse(productDBdata.regularPrice).toStringAsFixed(2),
+        ),
+        // if (productDBdata. != null)
+        //   _buildDetailRow('Quantity:', productDBdata.quantity!.toString()),
+        SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[300],
+                  foregroundColor: Colors.black87,
+                ),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: onPressed,
+                child: Text(
+                  'Confirm',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildDetailRow(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4.0),
+    child: Row(
+      children: [
+        Text(
+          label,
+          style: customTextStyle(
+            fontStyle: FontStyle.BodyM_Bold,
+            color: FontColor.FontPrimary,
+          ),
+        ),
+        SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: customTextStyle(
+              fontStyle: FontStyle.BodyM_Bold,
+              color: FontColor.FontPrimary,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
