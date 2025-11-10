@@ -16,7 +16,8 @@ import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
   final ServiceLocator serviceLocator;
   final Map<String, dynamic> data;
-  ItemBatchPickupCubit(this.serviceLocator, this.data)
+  final BuildContext context1;
+  ItemBatchPickupCubit(this.serviceLocator, this.data, this.context1)
     : super(ItemBatchPickupLoadingState()) {
     updatedata();
   }
@@ -129,7 +130,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
 
                           // Get the PickerOrdersCubit instance
                           final pickerOrdersCubit =
-                              context.read<PickerOrdersCubit>();
+                              context1.read<PickerOrdersCubit>();
                           pickerOrdersCubit.loadOrdersNew();
 
                           Navigator.pop(context);

@@ -736,6 +736,12 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
               //   }
               // });
               orderitems = state.orders;
+
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {});
+                }
+              });
             }
             // if (state is PickerOrdersLoadingState) {
             //   orderitems = state.oldpost;
