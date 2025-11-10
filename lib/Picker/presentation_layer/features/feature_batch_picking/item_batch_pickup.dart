@@ -97,6 +97,7 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
           groupedProduct.sku!,
           "pick",
           context,
+          groupedProduct.itemIds,
         );
       }
     } catch (e) {

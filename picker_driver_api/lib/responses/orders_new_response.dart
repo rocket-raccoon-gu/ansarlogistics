@@ -277,7 +277,7 @@ class GroupedProduct {
   final String? sku;
   final num? price;
   final int? totalQuantity;
-  final List<String> itemIds;
+  final List<int> itemIds;
   final List<ProductOrders> orders;
   final List<String> orderReferences; // order numbers/refs for "View Orders"
   final String? imageUrl;
@@ -307,7 +307,7 @@ class GroupedProduct {
     totalQuantity: json['totalQuantity'] ?? 0,
     itemIds:
         (json['itemIds'] as List<dynamic>? ?? const [])
-            .map((e) => e.toString())
+            .map((e) => e as int)
             .toList(),
     orders:
         (json['orders'] as List<dynamic>? ?? const [])

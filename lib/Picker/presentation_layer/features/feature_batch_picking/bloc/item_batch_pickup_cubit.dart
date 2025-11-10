@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/bloc/item_batch_pickup_state.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
+import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
@@ -33,6 +35,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     String productSku,
     String action,
     BuildContext context,
+    List<int> itemIds,
   ) async {
     // print("🔍 checkitemdb() called");
     // print("📦 Qty: $qty");
@@ -91,22 +94,65 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
               context: context,
               isScrollControlled: true,
               builder:
-                  (context) =>
-                      buildPriority2BottomSheet(context, productDBdata, () {
-                        if (scannedSku == productSku ||
-                            productDBdata.barcodes.contains(scannedSku)) {
-                          //
-                          // picking logic here
+                  (context) => buildPriority2BottomSheet(
+                    context,
+                    productDBdata,
+                    () async {
+                      if (scannedSku == productSku ||
+                          productDBdata.barcodes.contains(scannedSku)) {
+                        //
+                        // picking logic here
+
+                        final token = await PreferenceUtils.getDataFromShared(
+                          "usertoken",
+                        );
+
+                        final response = await serviceLocator.tradingApi
+                            .updateBatchPickup(
+                              itemids: itemIds,
+                              userid: UserController().profile.id.toString(),
+                              token1: token!,
+                            );
+
+                        if (response.statusCode == 200) {
+                          Navigator.pop(context);
+                          showSnackBar(
+                            context: context,
+                            snackBar: showSuccessDialogue(
+                              message: "Picked Successfully!",
+                            ),
+                          );
+
+                          // context.gNavigationService.openPickerWorkspacePage(
+                          //   context,
+                          // );
+
+                          // Get the PickerOrdersCubit instance
+                          final pickerOrdersCubit =
+                              context.read<PickerOrdersCubit>();
+                          pickerOrdersCubit.loadOrdersNew();
+
+                          Navigator.pop(context);
                         } else {
                           Navigator.pop(context);
                           showSnackBar(
                             context: context,
                             snackBar: showErrorDialogue(
-                              errorMessage: "Barcode Not Matching!",
+                              errorMessage: "Picking Failed!",
                             ),
                           );
                         }
-                      }),
+                      } else {
+                        Navigator.pop(context);
+                        showSnackBar(
+                          context: context,
+                          snackBar: showErrorDialogue(
+                            errorMessage: "Barcode Not Matching!",
+                          ),
+                        );
+                      }
+                    },
+                  ),
             ).whenComplete(() {
               _isDialogShowing = false;
             });

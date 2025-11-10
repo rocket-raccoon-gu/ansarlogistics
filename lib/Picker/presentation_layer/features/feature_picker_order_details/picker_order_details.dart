@@ -6,6 +6,7 @@ import 'package:ansarlogistics/components/custom_app_components/app_bar/order_in
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:ansarlogistics/utils/notifier.dart';
 import 'package:flutter/material.dart';
@@ -649,13 +650,16 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
 
     try {
       if (mounted) setState(() => _isSubmitting = true);
+
+      final token = await PreferenceUtils.getDataFromShared("usertoken");
+
       final resp = await widget.serviceLocator.tradingApi
           .updateMainOrderStatNew(
             preparationId: preparationId,
             orderStatus: status,
             comment: comment,
             orderNumber: "",
-            token: UserController().app_token,
+            token: token!,
           );
 
       if (resp.statusCode == 200) {

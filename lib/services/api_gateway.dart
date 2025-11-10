@@ -763,6 +763,26 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
+  Future updateBatchPickup({
+    required List<int> itemids,
+    required String userid,
+    required String token1,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .updateBatchPickup(itemids: itemids, userid: userid, token1: token1)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("Update Batch Pick API Error");
+
+      return "Retry";
+    }
+  }
+
   Future getCompanyList() async {
     try {
       final response = await pickerDriverApi.getCompanyList().catchError((
