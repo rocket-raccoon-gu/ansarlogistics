@@ -124,16 +124,14 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                             ),
                           );
 
-                          // context.gNavigationService.openPickerWorkspacePage(
-                          //   context,
-                          // );
+                          context.gNavigationService.openPickerWorkspacePage(
+                            context,
+                          );
 
                           // Get the PickerOrdersCubit instance
-                          final pickerOrdersCubit =
-                              context1.read<PickerOrdersCubit>();
-                          pickerOrdersCubit.loadOrdersNew();
-
-                          Navigator.pop(context);
+                          // final pickerOrdersCubit =
+                          //     context1.read<PickerOrdersCubit>();
+                          // pickerOrdersCubit.loadOrdersNew();
                         } else {
                           Navigator.pop(context);
                           showSnackBar(

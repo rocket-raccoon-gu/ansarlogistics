@@ -1247,6 +1247,38 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future<http.Response> updateOnlineStatus({
+    required String userid,
+    required String token1,
+    required String status,
+  }) async {
+    final url = _endpointWithApplicationPath('picker/pickerstatus');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token1',
+    };
+
+    final Map<String, dynamic> body = {
+      "online_status": status,
+      "user_id": userid,
+    };
+
+    serviceSend("Update Online Status..!");
+
+    log(body.toString());
+
+    log(headers.toString());
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, body: jsonEncode(body), headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
   Future<http.Response> updateBarcodeLog({
     required orderid,
     required String sku,

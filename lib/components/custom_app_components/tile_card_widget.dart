@@ -79,7 +79,7 @@ class _TileCardWidgetState extends State<TileCardWidget> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(4.0),
                                     color: customColors().fontTertiary
-                                        .withOpacity(0.7),
+                                        .withValues(alpha: 0.7),
                                   ),
                                   child: Center(
                                     child: Text(

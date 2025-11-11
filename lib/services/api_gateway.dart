@@ -366,10 +366,18 @@ class PDApiGateway implements AuthenticationService {
   }
 
   @override
-  Future updateuserstat({required int user_id, required int status}) async {
+  Future updateuserstat({
+    required int user_id,
+    required int status,
+    required String token,
+  }) async {
     try {
       final response = await pickerDriverApi
-          .updateUserStat(userid: user_id, status: status)
+          .updateOnlineStatus(
+            userid: user_id.toString(),
+            status: status.toString(),
+            token1: token,
+          )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
             throw e;

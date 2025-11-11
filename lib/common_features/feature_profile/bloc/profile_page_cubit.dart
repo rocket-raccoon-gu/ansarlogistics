@@ -4,6 +4,7 @@ import 'package:ansarlogistics/components/custom_app_components/textfields/trans
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
@@ -55,8 +56,13 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
 
   Future<bool> updateuserstat(int stat) async {
     try {
+      final String? token = await PreferenceUtils.getDataFromShared(
+        'usertoken',
+      );
+
       final response = await serviceLocator.tradingApi.updateuserstat(
         user_id: int.parse(UserController().profile.id.toString()),
+        token: token!,
         status: stat,
       );
 
