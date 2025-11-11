@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/bloc/item_batch_pickup_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
@@ -68,20 +69,60 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
               context: context,
               isScrollControlled: true,
               builder:
-                  (context) => buildPriority1BottomSheet(context, erPdata, () {
-                    if (scannedSku == erPdata.erpSku ||
-                        scannedSku == productSku) {
-                      //
-                      // picking logic here
-                    } else {
-                      showSnackBar(
-                        context: context,
-                        snackBar: showErrorDialogue(
-                          errorMessage: "Barcode Not Matching!",
-                        ),
-                      );
-                    }
-                  }),
+                  (context) =>
+                      buildPriority1BottomSheet(context, erPdata, () async {
+                        if (scannedSku == erPdata.erpSku ||
+                            scannedSku == productSku) {
+                          //
+                          // picking logic here
+
+                          final token = await PreferenceUtils.getDataFromShared(
+                            "usertoken",
+                          );
+
+                          final response = await serviceLocator.tradingApi
+                              .updateBatchPickup(
+                                itemids: itemIds,
+                                userid: UserController().profile.id.toString(),
+                                token1: token!,
+                                status: "end_picking",
+                              );
+
+                          if (response.statusCode == 200) {
+                            Navigator.pop(context);
+                            showSnackBar(
+                              context: context,
+                              snackBar: showSuccessDialogue(
+                                message: "Picked Successfully!",
+                              ),
+                            );
+
+                            context.gNavigationService.openPickerWorkspacePage(
+                              context,
+                            );
+
+                            // Get the PickerOrdersCubit instance
+                            // final pickerOrdersCubit =
+                            //     context1.read<PickerOrdersCubit>();
+                            // pickerOrdersCubit.loadOrdersNew();
+                          } else {
+                            Navigator.pop(context);
+                            showSnackBar(
+                              context: context,
+                              snackBar: showErrorDialogue(
+                                errorMessage: "Picking Failed!",
+                              ),
+                            );
+                          }
+                        } else {
+                          showSnackBar(
+                            context: context,
+                            snackBar: showErrorDialogue(
+                              errorMessage: "Barcode Not Matching!",
+                            ),
+                          );
+                        }
+                      }),
             ).whenComplete(() {
               _isDialogShowing = false;
             });
@@ -113,6 +154,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                               itemids: itemIds,
                               userid: UserController().profile.id.toString(),
                               token1: token!,
+                              status: "end_picking",
                             );
 
                         if (response.statusCode == 200) {
@@ -184,5 +226,109 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
         ),
       );
     }
+  }
+
+  updateitemstatus(String status, List<int> itemIds) async {
+    final token = await PreferenceUtils.getDataFromShared("usertoken");
+    if (token == null) return;
+
+    final response = await serviceLocator.tradingApi.updateBatchPickup(
+      itemids: itemIds,
+      userid: UserController().profile.id.toString(),
+      token1: token,
+      status: status,
+    );
+
+    if (response.statusCode == 200) {
+      if (context1.mounted) {
+        showSnackBar(
+          context: context1,
+          snackBar: showSuccessDialogue(message: "Item Picked Successfully!"),
+        );
+      }
+    } else {
+      if (context1.mounted) {
+        showSnackBar(
+          context: context1,
+          snackBar: showErrorDialogue(
+            errorMessage: "Item Picking Failed! Please Try Again..!",
+          ),
+        );
+      }
+    }
+
+    // Navigate back to workspace
+    if (context1.mounted) {
+      context1.gNavigationService.openPickerWorkspacePage(context1);
+    }
+  }
+
+  void showItemNotAvailableConfirmation(
+    BuildContext context,
+    List<int> itemIds,
+    String itemName,
+    String itemStatus,
+  ) {
+    if (_isDialogShowing) return;
+
+    _isDialogShowing = true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Confirm Item Not Available',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Are you sure you want to mark "$itemName" as not available?',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _isDialogShowing = false;
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await updateitemstatus('item_not_available', itemIds);
+                          _isDialogShowing = false;
+                        },
+                        child: const Text('Confirm'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+    ).whenComplete(() {
+      _isDialogShowing = false;
+    });
   }
 }

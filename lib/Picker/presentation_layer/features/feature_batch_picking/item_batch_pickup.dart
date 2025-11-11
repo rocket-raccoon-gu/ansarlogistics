@@ -691,18 +691,24 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                                       Colors.transparent,
                                                   asset: Icons.close,
                                                   onTap: () {
-                                                    // context
-                                                    //     .read<
-                                                    //       OrderItemDetailsCubit
-                                                    //     >()
-                                                    //     .updateitemstatus(
-                                                    //       'item_not_available',
-                                                    //       '${item.qtyOrdered ?? 0}',
-                                                    //       '',
-                                                    //       item.price ?? '0',
-                                                    //       widget
-                                                    //           .data['preparationLabel'],
-                                                    //     );
+                                                    final item =
+                                                        widget
+                                                            .data['items_data'];
+
+                                                    GroupedProduct
+                                                    groupedProduct = item;
+
+                                                    context
+                                                        .read<
+                                                          ItemBatchPickupCubit
+                                                        >()
+                                                        .showItemNotAvailableConfirmation(
+                                                          context,
+                                                          groupedProduct
+                                                              .itemIds,
+                                                          groupedProduct.name!,
+                                                          'item_not_available',
+                                                        );
                                                   },
                                                 ),
                                               ),

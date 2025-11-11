@@ -775,10 +775,16 @@ class PDApiGateway implements AuthenticationService {
     required List<int> itemids,
     required String userid,
     required String token1,
+    required String status,
   }) async {
     try {
       final response = await pickerDriverApi
-          .updateBatchPickup(itemids: itemids, userid: userid, token1: token1)
+          .updateBatchPickup(
+            itemids: itemids,
+            userid: userid,
+            token1: token1,
+            status: status,
+          )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
           });

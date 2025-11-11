@@ -1222,6 +1222,7 @@ extension PDGeneralApi on PickerDriverApi {
     required List<int> itemids,
     required String userid,
     required String token1,
+    required String status,
   }) async {
     final url = _endpointWithApplicationPath('picker/orders/item/statusbulk');
 
@@ -1230,7 +1231,11 @@ extension PDGeneralApi on PickerDriverApi {
       'Authorization': 'Bearer $token1',
     };
 
-    final Map<String, dynamic> body = {"itemIds": itemids, "picker_id": userid};
+    final Map<String, dynamic> body = {
+      "itemIds": itemids,
+      "picker_id": userid,
+      "itemstatus": status,
+    };
 
     serviceSend("Update Barcode Log..!");
 
