@@ -776,6 +776,8 @@ class PDApiGateway implements AuthenticationService {
     required String userid,
     required String token1,
     required String status,
+    required List<String> orderIds,
+    required String itemSku,
   }) async {
     try {
       final response = await pickerDriverApi
@@ -784,6 +786,8 @@ class PDApiGateway implements AuthenticationService {
             userid: userid,
             token1: token1,
             status: status,
+            orderIds: orderIds,
+            itemSku: itemSku,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());

@@ -23,161 +23,94 @@ class PickerOrderListItem extends StatefulWidget {
 class _PickerOrderListItemState extends State<PickerOrderListItem> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-      child: InkWell(
-        onTap: () {
-          if (widget.orderResponseItem.status != "assigned_picker") {
-            context.gNavigationService.openPickerOrderDetailsPage(
-              context,
-              arg: {'orderitem': widget.orderResponseItem},
-            );
-          }
-        },
-        child: Dismissible(
-          key: UniqueKey(),
-          direction:
-              widget.orderResponseItem.status == "assigned_picker"
-                  ? DismissDirection.endToStart
-                  : DismissDirection.none,
-          background: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: ColoredBox(
-              color: customColors().pacificBlue,
-              child: Container(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 15.0),
-                        child: Text(
-                          "Start Pick",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.White,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          confirmDismiss: (direction) async {
-            if (widget.orderResponseItem.status == "assigned_picker") {
-              log(UserController().app_token);
-              final responce = await context.gTradingApiGateway
-                  .updateMainOrderStatNew(
-                    preparationId: widget.orderResponseItem.id!,
-                    orderStatus: "start_picking",
-                    comment:
-                        "${UserController().profile.name} (${UserController().profile.empId}) started to Pick the order",
-                    orderNumber: '',
-                    token: UserController().app_token,
-                  );
-
-              if (responce.statusCode == 200) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Picking started')),
-                );
-                setState(() {
-                  widget.orderResponseItem.status = "start_picking";
-                });
-                return false; // dismiss the tile
-              }
-            }
-            return false;
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: customColors().backgroundSecondary,
-              borderRadius: BorderRadius.circular(12.0),
-              border: Border.all(color: customColors().backgroundTertiary),
-            ),
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return InkWell(
+      onTap: () {
+        if (widget.orderResponseItem.status != "assigned_picker") {
+          context.gNavigationService.openPickerOrderDetailsPage(
+            context,
+            arg: {'orderitem': widget.orderResponseItem},
+          );
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: customColors().backgroundSecondary,
+          borderRadius: BorderRadius.circular(12.0),
+          border: Border.all(color: customColors().backgroundTertiary),
+        ),
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //     // Top: ID and Status Chip
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Top: ID and Status Chip
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.badge_outlined,
-                          size: 18,
-                          color: customColors().fontPrimary,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '#${widget.orderResponseItem.subgroupIdentifier ?? widget.orderResponseItem.id ?? '-'}',
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyM_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    _StatusChip(
-                      status: widget.orderResponseItem.status,
-                      statusText: widget.orderResponseItem.statusText,
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-                // Delivery Date
                 Row(
                   children: [
                     Icon(
-                      Icons.event_available_outlined,
+                      Icons.badge_outlined,
                       size: 18,
                       color: customColors().fontPrimary,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Text(
-                      'Delivery Date ${widget.orderResponseItem.deliveryDate ?? '-'}',
+                      '#${widget.orderResponseItem.subgroupIdentifier ?? widget.orderResponseItem.id ?? '-'}',
                       style: customTextStyle(
-                        fontStyle: FontStyle.Inter_Medium,
+                        fontStyle: FontStyle.BodyM_Bold,
                         color: FontColor.FontPrimary,
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 6),
-                // Time Range
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 18,
-                      color: customColors().fontPrimary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Time Range ${widget.orderResponseItem.timeRange ?? '-'}',
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyS_Regular,
-                        color: FontColor.FontPrimary,
-                      ),
-                    ),
-                  ],
+                _StatusChip(
+                  status: widget.orderResponseItem.status,
+                  statusText: widget.orderResponseItem.statusText,
                 ),
-
-                const SizedBox(height: 10),
-                // Bottom Banner
-                _BottomBanner(order: widget.orderResponseItem),
               ],
             ),
-          ),
+            const SizedBox(height: 8),
+            // Delivery Date
+            Row(
+              children: [
+                Icon(
+                  Icons.event_available_outlined,
+                  size: 18,
+                  color: customColors().fontPrimary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Delivery Date ${widget.orderResponseItem.deliveryDate ?? '-'}',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.Inter_Medium,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            // Time Range
+            Row(
+              children: [
+                Icon(
+                  Icons.access_time,
+                  size: 18,
+                  color: customColors().fontPrimary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Time Range ${widget.orderResponseItem.timeRange ?? '-'}',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyS_Regular,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // Bottom Banner
+            _BottomBanner(order: widget.orderResponseItem),
+          ],
         ),
       ),
     );

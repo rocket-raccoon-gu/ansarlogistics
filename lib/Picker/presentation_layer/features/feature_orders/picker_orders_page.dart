@@ -299,13 +299,16 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                it.name ?? '-',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyM_Bold,
-                                  color: FontColor.FontPrimary,
+                              SizedBox(
+                                width: 200,
+                                child: Text(
+                                  it.name ?? '-',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyM_Bold,
+                                    color: FontColor.FontPrimary,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -865,9 +868,92 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                   ),
                                   itemBuilder: (context, index) {
                                     if (index < orderitems!.length) {
-                                      return PickerOrderListItem(
-                                        orderResponseItem: orderitems![index],
-                                        index: index,
+                                      // return Dismissible(
+                                      //   key: ValueKey(orderitems![index].id),
+                                      //   direction: DismissDirection.endToStart,
+                                      //   onDismissed: (direction) {
+                                      //     // Handle dismiss logic here
+                                      //   },
+                                      //   child: Container(
+                                      //     height: 50,
+                                      //     color: Colors.red,
+                                      //   ),
+                                      // );
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0,
+                                        ),
+                                        child: Dismissible(
+                                          key: ValueKey(orderitems![index].id),
+                                          direction:
+                                              orderitems![index].status ==
+                                                      "assigned_picker"
+                                                  ? DismissDirection.endToStart
+                                                  : DismissDirection.none,
+                                          confirmDismiss: (direction) async {
+                                            final token =
+                                                await PreferenceUtils.getDataFromShared(
+                                                  'usertoken',
+                                                );
+
+                                            // Handle dismiss logic here
+                                            if (orderitems![index].status ==
+                                                "assigned_picker") {
+                                              try {
+                                                log(token!);
+                                                final response = await context
+                                                    .gTradingApiGateway
+                                                    .updateMainOrderStatNew(
+                                                      preparationId:
+                                                          orderitems![index]
+                                                              .id!,
+                                                      orderStatus:
+                                                          "start_picking",
+                                                      comment:
+                                                          "${UserController().profile.name} (${UserController().profile.empId}) started to Pick the order",
+                                                      orderNumber: '',
+                                                      token: token!,
+                                                    );
+
+                                                if (response.statusCode ==
+                                                    200) {
+                                                  if (mounted) {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          'Picking started',
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  // Return true to allow the dismiss to complete
+                                                  return true;
+                                                }
+                                              } catch (e) {
+                                                if (mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        e.toString(),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                                return false;
+                                              }
+                                            }
+                                          },
+                                          child: PickerOrderListItem(
+                                            orderResponseItem:
+                                                orderitems![index],
+                                            index: index,
+                                          ),
+                                        ),
                                       );
                                     } else {
                                       Timer(Duration(milliseconds: 30), () {

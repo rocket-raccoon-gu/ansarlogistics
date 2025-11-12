@@ -1223,6 +1223,8 @@ extension PDGeneralApi on PickerDriverApi {
     required String userid,
     required String token1,
     required String status,
+    required List<String> orderIds,
+    required String itemSku,
   }) async {
     final url = _endpointWithApplicationPath('picker/orders/item/statusbulk');
 
@@ -1235,6 +1237,8 @@ extension PDGeneralApi on PickerDriverApi {
       "itemIds": itemids,
       "picker_id": userid,
       "itemstatus": status,
+      "order_id": orderIds,
+      "sku": itemSku,
     };
 
     serviceSend("Update Barcode Log..!");

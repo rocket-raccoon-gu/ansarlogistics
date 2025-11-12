@@ -698,6 +698,14 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                                     GroupedProduct
                                                     groupedProduct = item;
 
+                                                    List<String> orderIds =
+                                                        groupedProduct.orders
+                                                            .map(
+                                                              (order) =>
+                                                                  order.orderId,
+                                                            )
+                                                            .toList();
+
                                                     context
                                                         .read<
                                                           ItemBatchPickupCubit
@@ -708,6 +716,8 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                                               .itemIds,
                                                           groupedProduct.name!,
                                                           'item_not_available',
+                                                          groupedProduct.sku!,
+                                                          orderIds,
                                                         );
                                                   },
                                                 ),

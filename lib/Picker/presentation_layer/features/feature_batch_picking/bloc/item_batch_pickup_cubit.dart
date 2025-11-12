@@ -86,6 +86,8 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                                 userid: UserController().profile.id.toString(),
                                 token1: token!,
                                 status: "end_picking",
+                                orderIds: [],
+                                itemSku: "",
                               );
 
                           if (response.statusCode == 200) {
@@ -155,6 +157,8 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                               userid: UserController().profile.id.toString(),
                               token1: token!,
                               status: "end_picking",
+                              orderIds: [],
+                              itemSku: "",
                             );
 
                         if (response.statusCode == 200) {
@@ -228,7 +232,12 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     }
   }
 
-  updateitemstatus(String status, List<int> itemIds) async {
+  updateitemstatus(
+    String status,
+    List<int> itemIds,
+    List<String> orderIds,
+    String itemSku,
+  ) async {
     final token = await PreferenceUtils.getDataFromShared("usertoken");
     if (token == null) return;
 
@@ -237,6 +246,8 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
       userid: UserController().profile.id.toString(),
       token1: token,
       status: status,
+      orderIds: orderIds,
+      itemSku: itemSku,
     );
 
     if (response.statusCode == 200) {
@@ -268,6 +279,8 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     List<int> itemIds,
     String itemName,
     String itemStatus,
+    String itemSku,
+    List<String> orderIds,
   ) {
     if (_isDialogShowing) return;
 
@@ -315,7 +328,12 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                         ),
                         onPressed: () async {
                           Navigator.pop(context);
-                          await updateitemstatus('item_not_available', itemIds);
+                          await updateitemstatus(
+                            'item_not_available',
+                            itemIds,
+                            orderIds,
+                            itemSku,
+                          );
                           _isDialogShowing = false;
                         },
                         child: const Text('Confirm'),
