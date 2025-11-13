@@ -890,16 +890,15 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                                       "assigned_picker"
                                                   ? DismissDirection.endToStart
                                                   : DismissDirection.none,
-                                          confirmDismiss: (direction) async {
-                                            final token =
-                                                await PreferenceUtils.getDataFromShared(
-                                                  'usertoken',
-                                                );
 
-                                            // Handle dismiss logic here
+                                          confirmDismiss: (direction) async {
                                             if (orderitems![index].status ==
                                                 "assigned_picker") {
                                               try {
+                                                final token =
+                                                    await PreferenceUtils.getDataFromShared(
+                                                      'usertoken',
+                                                    );
                                                 log(token!);
                                                 final response = await context
                                                     .gTradingApiGateway
@@ -912,25 +911,25 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                                       comment:
                                                           "${UserController().profile.name} (${UserController().profile.empId}) started to Pick the order",
                                                       orderNumber: '',
-                                                      token: token!,
+                                                      token: token,
                                                     );
 
                                                 if (response.statusCode ==
-                                                    200) {
-                                                  if (mounted) {
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          'Picking started',
-                                                        ),
+                                                        200 &&
+                                                    mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Picking started',
                                                       ),
-                                                    );
-                                                  }
-
-                                                  // Return true to allow the dismiss to complete
-                                                  return true;
+                                                    ),
+                                                  );
+                                                  setState(() {
+                                                    orderitems![index].status =
+                                                        "start_picking";
+                                                  });
                                                 }
                                               } catch (e) {
                                                 if (mounted) {
@@ -939,15 +938,16 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                                   ).showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                        e.toString(),
+                                                        'Error: ${e.toString()}',
                                                       ),
                                                     ),
                                                   );
                                                 }
-                                                return false;
                                               }
                                             }
+                                            return false; // Always return false to prevent dismiss
                                           },
+
                                           child: PickerOrderListItem(
                                             orderResponseItem:
                                                 orderitems![index],
