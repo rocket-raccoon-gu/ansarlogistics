@@ -52,9 +52,23 @@ class PriceWeightCalculator {
     double selling = double.parse(sellingPrice);
     double scaled = double.parse(scaledPrice);
 
+    log("selling: $selling");
+
+    log("scaled: $scaled");
+
+    log("sellingweight: $sellingweight");
+
+    log("sellinguom: $sellinguom");
+
+    if (sellingweight.isEmpty || sellinguom.isEmpty) {
+      return "";
+    }
+
     double pricepergram =
         selling / convertWeightToGrams(sellingweight, sellinguom);
     double scaledgram = scaled / pricepergram;
+
+    log("scaledgram: $scaledgram");
 
     return scaledgram.toStringAsFixed(2);
   }
