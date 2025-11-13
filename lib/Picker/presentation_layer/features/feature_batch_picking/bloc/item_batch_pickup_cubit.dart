@@ -38,6 +38,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     String action,
     BuildContext context,
     List<int> itemIds,
+    String preparationId,
   ) async {
     // print("🔍 checkitemdb() called");
     // print("📦 Qty: $qty");
@@ -88,6 +89,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                                 status: "end_picking",
                                 orderIds: [],
                                 itemSku: "",
+                                preparationId: "",
                               );
 
                           if (response.statusCode == 200) {
@@ -159,6 +161,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                               status: "end_picking",
                               orderIds: [],
                               itemSku: "",
+                              preparationId: "",
                             );
 
                         if (response.statusCode == 200) {
@@ -237,6 +240,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     List<int> itemIds,
     List<String> orderIds,
     String itemSku,
+    String preparationId,
   ) async {
     final token = await PreferenceUtils.getDataFromShared("usertoken");
     if (token == null) return;
@@ -248,6 +252,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
       status: status,
       orderIds: orderIds,
       itemSku: itemSku,
+      preparationId: preparationId,
     );
 
     if (response.statusCode == 200) {
@@ -281,6 +286,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     String itemStatus,
     String itemSku,
     List<String> orderIds,
+    String preparationId,
   ) {
     if (_isDialogShowing) return;
 
@@ -333,6 +339,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                             itemIds,
                             orderIds,
                             itemSku,
+                            preparationId,
                           );
                           _isDialogShowing = false;
                         },

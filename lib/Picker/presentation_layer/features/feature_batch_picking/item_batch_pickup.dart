@@ -98,6 +98,7 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
           "pick",
           context,
           groupedProduct.itemIds,
+          "",
         );
       }
     } catch (e) {
@@ -718,6 +719,7 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                                           'item_not_available',
                                                           groupedProduct.sku!,
                                                           orderIds,
+                                                          "",
                                                         );
                                                   },
                                                 ),
