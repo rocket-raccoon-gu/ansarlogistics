@@ -2,7 +2,7 @@
 //     "https://media-qatar.ahmarket.com/media/catalog/product/cache/2b71e5a2b5266e17ec3596451a32baea/";
 
 const mainimageurl =
-    "https://www.ansargallery.com/media/catalog/product/cache/d3078668c17a3fcf95f19e6d90a1909e/";
+    "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3";
 
 const noimageurl =
     "https://www.ansargallery.com/static/frontend/Ahmarket/ahm/en_US/images/no_image.jpg";

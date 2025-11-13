@@ -22,7 +22,7 @@ class ListImageWidget extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           Map<String, dynamic> data = snapshot.data!;
-          // log('${data['imagepath']}${imageurl}');
+          log('${data['imagepath']}${imageurl}');
           return CachedNetworkImage(
             imageUrl: '${data['imagepath']}${imageurl}',
             imageBuilder: (context, imageProvider) {
