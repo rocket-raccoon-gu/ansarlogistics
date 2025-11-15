@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_cubit.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/ui/home_section.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
@@ -156,14 +157,7 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
                   },
                   child: Container(
                     color: customColors().backgroundPrimary,
-                    child: Stack(
-                      children: [
-                        // getSection(
-                        //   UserController.userController.profile.branchCode,
-                        //   state,
-                        // ),
-                      ],
-                    ),
+                    child: Stack(children: [HomeSection(state: state)]),
                   ),
                 ),
               ),

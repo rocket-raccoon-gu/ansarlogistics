@@ -918,7 +918,9 @@ extension PDGeneralApi on PickerDriverApi {
     //   url = _endpointWithApplicationPath('updateproductstatus.php');
     // }
 
-    final url = _endpointWithApplicationPath('updateproductstatus.php');
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/updateproductstatus.php',
+    );
 
     // print(url);
 
@@ -1146,7 +1148,9 @@ extension PDGeneralApi on PickerDriverApi {
     required String userid,
     required String categoryIds,
   }) {
-    final url = _endpointWithApplicationPath('/check_status.php');
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/check_status.php',
+    );
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
@@ -1156,6 +1160,8 @@ extension PDGeneralApi on PickerDriverApi {
       "branchcode": branchcode,
       "user_id": userid,
     };
+
+    log(url.toString());
 
     log(body.toString());
 
@@ -1406,7 +1412,7 @@ extension on PickerDriverApi {
     // print(
     //   '${root}get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}',
     // );
-    return '${root}get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}';
+    return 'https://pickerdriver.testuatah.com/v1/api/qatar/get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}';
     // switch (userid) {
     //   case "ahqa_fish":
     //   case "fish_alkhor":
