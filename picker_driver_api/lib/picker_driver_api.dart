@@ -1114,6 +1114,10 @@ extension PDGeneralApi on PickerDriverApi {
       "user_id": userid,
     };
 
+    log(url.toString());
+
+    log(body.toString());
+
     serviceSend("Check Barcode Status Availablity..!");
 
     return _handleRequest(
