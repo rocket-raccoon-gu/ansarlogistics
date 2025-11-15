@@ -12,6 +12,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_order_inner/picker_order_details_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/picker_tab_dashboard_root_builder.dart';
 import 'package:ansarlogistics/Sales_staff/features/sales_staff_dashboard_root_builder.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/home_section_incharge_route_builder.dart';
 // import 'package:ansarlogistics/Sales_staff/features/sales_staff_dashboard_root_builder.dart';
 // import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/home_section_incharge_route_builder.dart';
 import 'package:ansarlogistics/cashier/feature_cashier/cashier_order_page_route_builder.dart';
@@ -134,13 +135,14 @@ class AppRoutesFactory extends RoutesFactory {
   //   // TODO: implement createViewOrderRoutePageRoute
   //   return CustomRoute(builder: OrderRoutesRouteBuilder(_serviceLocator, data));
   // }
-  // @override
-  // Route createHomeSectionPageRoute(Map<String, dynamic> dara) {
-  //   // TODO: implement createHomeSectionPageRoute
-  //   return CustomRoute(
-  //     builder: HomeSectionInchargeRootBuilder(_serviceLocator),
-  //   );
-  // }
+  @override
+  Route createHomeSectionPageRoute(Map<String, dynamic> dara) {
+    // TODO: implement createHomeSectionPageRoute
+    return CustomRoute(
+      builder: HomeSectionInchargeRootBuilder(_serviceLocator),
+    );
+  }
+
   @override
   Route createSignupPageRoute(Map<String, dynamic> data) {
     // TODO: implement createSignupPageRoute
@@ -227,6 +229,14 @@ class AppRoutesFactory extends RoutesFactory {
     // TODO: implement createItemBatchPickupRoute
     return CustomRoute(
       builder: ItemBatchPickupRootBuilder(_serviceLocator, data),
+    );
+  }
+
+  @override
+  Route createHomeSectionInchargePageRoute() {
+    // TODO: implement createHomeSectionInchargePageRoute
+    return CustomRoute(
+      builder: HomeSectionInchargeRootBuilder(_serviceLocator),
     );
   }
 }

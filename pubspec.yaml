@@ -96,7 +96,7 @@ dependencies:
   flutter_polyline_points: any
   equatable: ^2.0.7
   http: any
-  flutter_scankit: any
+  flutter_scankit: ^2.0.6  # or the latest stable version
   
   picker_driver_api:
     path: ./picker_driver_api/
