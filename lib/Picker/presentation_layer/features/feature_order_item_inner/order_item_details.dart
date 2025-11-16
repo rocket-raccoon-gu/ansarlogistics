@@ -873,6 +873,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                           item.price ?? '0',
                                                           widget
                                                               .data['preparationLabel'],
+                                                          item.sku ?? '',
                                                         );
                                                   },
                                                 ),
@@ -905,6 +906,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                           item.price ?? '0',
                                                           widget
                                                               .data['preparationLabel'],
+                                                          item.sku ?? '',
                                                         );
                                                   },
                                                 ),
@@ -938,6 +940,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                           item.price ?? '0',
                                                           widget
                                                               .data['preparationLabel'],
+                                                          item.sku ?? '',
                                                         );
                                                   },
                                                 ),

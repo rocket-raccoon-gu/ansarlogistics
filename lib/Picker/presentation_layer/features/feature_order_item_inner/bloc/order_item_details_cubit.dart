@@ -302,6 +302,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     String reason,
     String price,
     String preparationLabel1,
+    String scannedSku,
   ) async {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
@@ -343,55 +344,172 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
       // print("📡 API Response Status Code: ${response.statusCode}");
 
+      // if (response.statusCode == 200) {
+      //   // Mirror the success handling like end-pick: notify dashboard and navigate back
+      //   showSnackBar(
+      //     context: context,
+      //     snackBar: showSuccessDialogue(message: "Status Updated"),
+      //   );
+
+      //   // Fire item status updated event so the dashboard can regroup and move item to the right tab
+      //   try {
+      //     final String? itemId = orderItemNew?.id ?? orderItem?.itemId;
+      //     if (itemId != null && itemId.isNotEmpty) {
+      //       if (item_status == "end_picking" &&
+      //           data.containsKey('from') &&
+      //           data['from'] == "incomplete_orders") {
+      //         context.gNavigationService.openPickerWorkspacePage(context);
+      //       } else {
+      //         eventBus.fire(
+      //           ItemStatusUpdatedEvent(itemId: itemId, newStatus: item_status),
+      //         );
+      //       }
+      //     }
+      //   } catch (_) {}
+
+      //   // Navigate back to the dashboard screen (pop current)
+      //   Future.microtask(() {
+      //     if (Navigator.of(context).canPop()) {
+      //       Navigator.of(context).pop();
+      //     }
+      //   });
+      // } else {
+      //   loading = false;
+      //   // print("❌ API status update failed: ${response.statusCode}");
+
+      //   showSnackBar(
+      //     context: context,
+      //     snackBar: showErrorDialogue(
+      //       errorMessage: "status update failed try again..three.",
+      //     ),
+      //   );
+
+      //   if (!isClosed) {
+      //     emit(
+      //       OrderItemDetailErrorState(
+      //         loading: loading,
+      //         orderItem: orderItemNew!,
+      //       ),
+      //     );
+      //   }
+      // }
+
       if (response.statusCode == 200) {
-        // Mirror the success handling like end-pick: notify dashboard and navigate back
-        showSnackBar(
-          context: context,
-          snackBar: showSuccessDialogue(message: "Status Updated"),
-        );
+        Map<String, dynamic> data = jsonDecode(response.body);
+        // print("✅ API Response Data: $data");
 
-        // Fire item status updated event so the dashboard can regroup and move item to the right tab
-        try {
-          final String? itemId = orderItemNew?.id ?? orderItem?.itemId;
-          if (itemId != null && itemId.isNotEmpty) {
-            if (item_status == "end_picking" &&
-                data.containsKey('from') &&
-                data['from'] == "incomplete_orders") {
-              context.gNavigationService.openPickerWorkspacePage(context);
-            } else {
-              eventBus.fire(
-                ItemStatusUpdatedEvent(itemId: itemId, newStatus: item_status),
-              );
+        if (data['message'] != "Product not found in website or ERP system") {
+          if (data['match'] == "0") {
+            // print(
+            //   "🔍 Item match not found in current order. Checking priority...",
+            // );
+
+            if (data['priority'] == 1) {
+              // print("🏷️ Priority 1 item detected");
+              ErPdata erPdata = ErPdata.fromJson(data);
+
+              if (!povisvible) {
+                povisvible = true;
+
+                showPickConfirmDialogue(
+                  context,
+                  erPdata.message,
+                  () {},
+                  erPdata.erpSku,
+                  orderItem!.isproduce == "1"
+                      ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                      : double.parse(orderItem!.price).toStringAsFixed(2),
+                  qty,
+                  erPdata.erpProductName,
+                  () {},
+                );
+              }
+            } else if (data['priority'] == 2) {
+              // print("🏷️ Priority 2 item detected");
+
+              ProductDBdata productDBdata = ProductDBdata.fromJson(data);
+
+              if (!povisvible) {
+                povisvible = true;
+
+                if (productDBdata.barcodes.contains(scannedSku.trim())) {
+                  showPickConfirmBottomSheet(
+                    name: productDBdata.skuName,
+                    sku: productDBdata.sku,
+                    oldPrice: productDBdata.regularPrice,
+                    newPrice:
+                        orderItem!.isproduce == "1"
+                            ?
+                            // !isSameDayOrder
+                            //     ? PriceWeightCalculator.getPrice(
+                            //       orderItem.price,
+                            //       orderItem.itemWeight,
+                            //       orderItem.weightUnit,
+                            //       PriceWeightCalculator.getActualWeight(
+                            //         productDBdata.specialPrice ??
+                            //             productDBdata.regularPrice,
+                            //         getPriceFromBarcode(
+                            //           getLastSixDigits(scannedSku),
+                            //         ),
+                            //         orderItem.itemWeight,
+                            //         orderItem.weightUnit,
+                            //       ),
+                            //     )
+                            //     :
+                            getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : double.parse(orderItem!.price).toStringAsFixed(2),
+                    regularPrice: productDBdata.regularPrice,
+                    imageUrl: "",
+                    barcodeType: "",
+                    onConfirm: () {
+                      // updateitemstatuspick(
+                      //   qty,
+                      //   scannedSku,
+                      //   orderItem!.isproduce == "1"
+                      //       ?
+                      //       // !isSameDayOrder
+                      //       //     ? PriceWeightCalculator.getPrice(
+                      //       //       orderItem.price,
+                      //       //       orderItem.itemWeight,
+                      //       //       orderItem.weightUnit,
+                      //       //       PriceWeightCalculator.getActualWeight(
+                      //       //         productDBdata.specialPrice ??
+                      //       //             productDBdata.regularPrice,
+                      //       //         getPriceFromBarcode(
+                      //       //           getLastSixDigits(scannedSku),
+                      //       //         ),
+                      //       //         orderItem.itemWeight,
+                      //       //         orderItem.weightUnit,
+                      //       //       ),
+                      //       //     )
+                      //       //     :
+                      //       getPriceFromBarcode(getLastSixDigits(scannedSku))
+                      //       : double.parse(orderItem!.price).toStringAsFixed(2),
+                      //   isSameDayOrder: isSameDayOrder,
+                      // );
+                    },
+                    onClose: () {
+                      povisvible = false;
+                    },
+                    isproduce: orderItem!.isproduce == "1",
+                    // weight: PriceWeightCalculator.getActualWeight(
+                    //   productDBdata.specialPrice ?? productDBdata.regularPrice,
+                    //   getPriceFromBarcode(scannedSku),
+                    //   orderItem.itemWeight,
+                    //   orderItem.weightUnit,
+                    // ),
+                    // context: context,
+                  );
+                }
+              }
             }
+          } else {
+            // print(
+            //   "🔍 Item match found in current order. Checking priority...",
+            // );
           }
-        } catch (_) {}
-
-        // Navigate back to the dashboard screen (pop current)
-        Future.microtask(() {
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
-        });
-      } else {
-        loading = false;
-        // print("❌ API status update failed: ${response.statusCode}");
-
-        showSnackBar(
-          context: context,
-          snackBar: showErrorDialogue(
-            errorMessage: "status update failed try again..three.",
-          ),
-        );
-
-        if (!isClosed) {
-          emit(
-            OrderItemDetailErrorState(
-              loading: loading,
-              orderItem: orderItemNew!,
-            ),
-          );
-        }
-      }
+        } else {}
+      } else {}
     } catch (e) {
       loading = false;
 
