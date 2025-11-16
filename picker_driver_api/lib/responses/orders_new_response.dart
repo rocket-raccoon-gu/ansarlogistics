@@ -81,7 +81,7 @@ class OrderNew {
     id: json['id']?.toString(),
     status: json['status']?.toString(),
     statusText: json['statusText']?.toString(),
-    deliveryNote: json['delivery_note']?.toString(),
+    deliveryNote: json['deliveryNote']?.toString(),
     deliveryDate: json['deliveryDate']?.toString(),
     timeRange: json['timeRange']?.toString(),
     items:

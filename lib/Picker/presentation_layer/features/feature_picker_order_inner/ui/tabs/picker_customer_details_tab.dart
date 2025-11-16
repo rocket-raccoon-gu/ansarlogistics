@@ -186,7 +186,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
               ),
             ),
 
-            if (enableholdrequest)
+            if (enableholdrequest || enablecancelrequest)
               CustomTextFormField(
                 context: context,
                 maxLines: 3,
@@ -347,6 +347,93 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
               ),
             ],
           )
+        else if (enablecancelrequest)
+          Row(
+            children: [
+              Expanded(
+                child: BasketButton(
+                  textStyle: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.White,
+                  ),
+                  text: 'Cancel Request',
+                  bgcolor: customColors().carnationRed,
+                  loading: sendcancelreq,
+                  onpress: () async {
+                    if (UserController().cancelreason !=
+                        "Please Select Reason") {
+                      setState(() {
+                        sendcancelreq = true;
+                      });
+
+                      showSnackBar(
+                        context: context,
+                        snackBar: showSuccessDialogue(
+                          message: "status updating....!",
+                        ),
+                      );
+
+                      final token = await PreferenceUtils.getDataFromShared(
+                        'usertoken',
+                      );
+
+                      final resp = await context.gTradingApiGateway
+                          .updateMainOrderStatNew(
+                            preparationId: widget.preparationId,
+                            orderStatus: "cancel_request",
+                            comment:
+                                "${UserController().profile.name.toString()} (${UserController().profile.empId}) was cancelled the order for ${UserController().cancelreason.toString()}",
+                            orderNumber: widget.suborderId,
+                            token: token!,
+                          );
+
+                      if (resp.statusCode == 200) {
+                        toastification.show(
+                          backgroundColor: customColors().secretGarden,
+                          context: context,
+                          autoCloseDuration: const Duration(seconds: 5),
+                          title: TranslatedText(
+                            text: "Order is Cancel Requested",
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.White,
+                            ),
+                          ),
+                        );
+
+                        UserController().cancelreason = "Please Select Reason";
+
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
+
+                        context.gNavigationService.openPickerWorkspacePage(
+                          context,
+                        );
+                      } else {
+                        setState(() {
+                          sendcancelreq = false;
+                        });
+
+                        toastification.show(
+                          backgroundColor: customColors().carnationRed,
+                          context: context,
+                          autoCloseDuration: const Duration(seconds: 5),
+                          title: TranslatedText(
+                            text: "Send Request Failed Please Try Again...!",
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.White,
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ),
+            ],
+          )
         else
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -381,6 +468,16 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                 onTapbtn: () {
                   setState(() {
                     enableholdrequest = true;
+                  });
+                },
+              ),
+
+              SheetButton(
+                imagepath: 'assets/hold_req.png',
+                sheettext: 'Cancel \nRequest',
+                onTapbtn: () {
+                  setState(() {
+                    enablecancelrequest = true;
                   });
                 },
               ),

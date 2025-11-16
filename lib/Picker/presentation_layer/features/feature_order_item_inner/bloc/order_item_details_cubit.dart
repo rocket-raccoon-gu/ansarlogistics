@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
+import 'package:ansarlogistics/Section_In/features/components/section_list_item.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/notifier.dart';
@@ -453,13 +455,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       final usedBarcode =
           convertbarcode != '' ? convertbarcode : scannedSku.trim();
       // print("➡️ Using barcode for API call: [$usedBarcode]");
-      String? token = UserController.userController.app_token;
+      final token = await PreferenceUtils.getDataFromShared("usertoken");
 
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
         endpoint: usedBarcode,
         productSku: productSku,
         action: action,
-        token1: token,
+        token1: token!,
       );
 
       // print("📡 API Response Status: ${response.statusCode}");
@@ -505,57 +507,58 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                   }
                 }
 
-                // _showPickConfirmBottomSheet(
-                //   name: erPdata.erpProductName ?? '-',
-                //   sku: erPdata.erpSku ?? '-',
-                //   oldPrice: orderItem.price?.toString(),
-                //   newPrice:
-                //       orderItem.isProduce == true
-                //           ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                //           : (erPdata.erpPrice ?? ''),
-                //   weight:
-                //       orderItem.isProduce == true
-                //           ? getWeightFromBarcode(
-                //             getLastSixDigits(scannedSku),
-                //             orderItem.price?.toString() ?? '0',
-                //           )
-                //           : (erPdata.erpPrice ?? ''),
-                //   isproduce: orderItem.isProduce ?? false,
-                //   regularPrice: erPdata.erpPrice,
-                //   barcodeType: 'EAN-13',
-                //   onConfirm: () {
-                //     final calculatedPrice =
-                //         orderItem.isProduce == true
-                //             ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-                //             : erPdata.erpPrice;
+                showPickConfirmBottomSheet(
+                  name: erPdata.erpProductName ?? '-',
+                  sku: erPdata.erpSku ?? '-',
+                  imageUrl: orderItem.imageUrl,
+                  oldPrice: orderItem.price?.toString(),
+                  newPrice:
+                      orderItem.isProduce == true
+                          ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                          : (erPdata.erpPrice ?? ''),
+                  weight:
+                      orderItem.isProduce == true
+                          ? getWeightFromBarcode(
+                            getLastSixDigits(scannedSku),
+                            orderItem.price?.toString() ?? '0',
+                          )
+                          : (erPdata.erpPrice ?? ''),
+                  isproduce: orderItem.isProduce ?? false,
+                  regularPrice: erPdata.erpPrice,
+                  barcodeType: 'EAN-13',
+                  onConfirm: () {
+                    final calculatedPrice =
+                        orderItem.isProduce == true
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : erPdata.erpPrice;
 
-                //     if (orderItem.price == erPdata.erpPrice) {
-                //       updateitemstatuspick(
-                //         orderItem.isProduce == true
-                //             ? getWeightFromBarcode(
-                //               getLastSixDigits(scannedSku),
-                //               orderItem.price?.toString() ?? '0',
-                //             )
-                //             : qty,
-                //         scannedSku,
-                //         calculatedPrice,
-                //         preparationLabel11,
-                //       );
-                //     } else {
-                //       showSnackBar(
-                //         context: context,
-                //         snackBar: showErrorDialogue(
-                //           errorMessage:
-                //               "price not same please replace the item",
-                //         ),
-                //       );
-                //     }
-                //   },
-                //   onClose: () {
-                //     // context.gNavigationService.back(context);
-                //     povisvible = false;
-                //   },
-                // );
+                    if (orderItem.price == erPdata.erpPrice) {
+                      updateitemstatuspick(
+                        orderItem.isProduce == true
+                            ? getWeightFromBarcode(
+                              getLastSixDigits(scannedSku),
+                              orderItem.price?.toString() ?? '0',
+                            )
+                            : qty,
+                        scannedSku,
+                        calculatedPrice,
+                        preparationLabel11,
+                      );
+                    } else {
+                      showSnackBar(
+                        context: context,
+                        snackBar: showErrorDialogue(
+                          errorMessage:
+                              "price not same please replace the item",
+                        ),
+                      );
+                    }
+                  },
+                  onClose: () {
+                    // context.gNavigationService.back(context);
+                    povisvible = false;
+                  },
+                );
               }
             } else if (data['priority'] == 2) {
               // print("🏷️ Priority 2 item detected");
@@ -587,53 +590,65 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 }
               }
 
-              // _showPickConfirmBottomSheet(
-              //   name: productDBdata.skuName ?? '-',
-              //   sku: productDBdata.sku ?? '-',
-              //   oldPrice: orderItem.price?.toString(),
-              //   newPrice:
-              //       orderItem.isProduce == true
-              //           ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-              //           : double.parse(
-              //             productDBdata.specialPrice != ""
-              //                 ? productDBdata.specialPrice
-              //                 : productDBdata.regularPrice,
-              //           ).toStringAsFixed(2),
-              //   weight:
-              //       orderItem.isProduce == true
-              //           ? getWeightFromBarcode(
-              //             getLastSixDigits(scannedSku),
-              //             orderItem.price?.toString() ?? '0',
-              //           )
-              //           : (productDBdata.specialPrice ??
-              //               productDBdata.regularPrice),
-              //   isproduce: orderItem.isProduce ?? false,
-              //   regularPrice: productDBdata.regularPrice,
-              //   barcodeType: 'EAN-13',
-              //   onConfirm: () {
-              //     final calculatedPrice =
-              //         orderItem.isProduce == true
-              //             ? getPriceFromBarcode(getLastSixDigits(scannedSku))
-              //             : productDBdata.specialPrice != ""
-              //             ? productDBdata.specialPrice
-              //             : productDBdata.regularPrice;
-              //     updateitemstatuspick(
-              //       orderItem.isProduce == true
-              //           ? getWeightFromBarcode(
-              //             getLastSixDigits(scannedSku),
-              //             orderItem.price?.toString() ?? '0',
-              //           )
-              //           : qty,
-              //       scannedSku,
-              //       calculatedPrice,
-              //       preparationLabel11,
-              //     );
-              //   },
-              //   onClose: () {
-              //     // context.gNavigationService.back(context);
-              //     povisvible = false;
-              //   },
-              // );
+              if (productDBdata.sku == orderItem.sku ||
+                  productDBdata.barcodes.contains(scannedSku)) {
+                showPickConfirmBottomSheet(
+                  name: productDBdata.skuName ?? '-',
+                  sku: productDBdata.sku ?? '-',
+                  oldPrice: orderItem.price?.toString(),
+                  imageUrl: orderItem.productImage?.split(',').first,
+                  newPrice:
+                      orderItem.isProduce == true
+                          ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                          : double.parse(
+                            productDBdata.specialPrice != ""
+                                ? productDBdata.specialPrice
+                                : productDBdata.regularPrice,
+                          ).toStringAsFixed(2),
+                  weight:
+                      orderItem.isProduce == true
+                          ? getWeightFromBarcode(
+                            getLastSixDigits(scannedSku),
+                            orderItem.price?.toString() ?? '0',
+                          )
+                          : (productDBdata.specialPrice ??
+                              productDBdata.regularPrice),
+                  isproduce: orderItem.isProduce ?? false,
+                  regularPrice: productDBdata.regularPrice,
+                  barcodeType: 'EAN-13',
+                  onConfirm: () {
+                    final calculatedPrice =
+                        orderItem.isProduce == true
+                            ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                            : productDBdata.specialPrice != ""
+                            ? productDBdata.specialPrice
+                            : productDBdata.regularPrice;
+                    updateitemstatuspick(
+                      orderItem.isProduce == true
+                          ? getWeightFromBarcode(
+                            getLastSixDigits(scannedSku),
+                            orderItem.price?.toString() ?? '0',
+                          )
+                          : qty,
+                      scannedSku,
+                      calculatedPrice,
+                      preparationLabel11,
+                    );
+                  },
+                  onClose: () {
+                    // context.gNavigationService.back(context);
+                    povisvible = false;
+                  },
+                );
+              } else {
+                showSnackBar(
+                  context: context,
+                  snackBar: showErrorDialogue(
+                    errorMessage: "Barcode not Matching....!",
+                  ),
+                );
+              }
+
               // // }
             } else if (data.containsKey('suggestion')) {
               // print("💡 Suggestion found in response: ${data['message']}");
@@ -704,6 +719,8 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     if (_isDialogShowing) return;
     _isDialogShowing = true;
 
+    log(getImageUrlEdited('$mainimageurl$imageUrl'));
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,
@@ -744,7 +761,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         imageUrl == null || imageUrl.isEmpty
                             ? const Icon(Icons.image, color: Colors.grey)
                             : Image.network(
-                              imageUrl,
+                              '$mainimageurl$imageUrl',
                               fit: BoxFit.cover,
                               errorBuilder:
                                   (_, __, ___) => const Icon(

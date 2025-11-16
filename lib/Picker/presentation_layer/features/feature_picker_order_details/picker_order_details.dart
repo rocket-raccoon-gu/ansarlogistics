@@ -103,13 +103,13 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
                     },
                     orderResponseItem: widget.orderDetails,
                     onTapinfo: () {
-                      // showTopModel(
-                      //   context,
-                      //   widget.serviceLocator,
-                      //   widget.orderDetails.id.toString(),
-                      //   widget.orderDetails,
-                      //   "",
-                      // );
+                      showTopModel(
+                        context,
+                        widget.serviceLocator,
+                        widget.orderDetails.id.toString(),
+                        widget.orderDetails,
+                        "",
+                      );
                     },
                     onTaptranslate: () {
                       // setState(() {
@@ -211,32 +211,32 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
                       )
                       : const SizedBox(),
                   const SizedBox(height: 8),
-                  // Cancel Request for full order (danger subtle)
-                  widget.orderDetails.status != 'cancel_request'
-                      ? SizedBox(
-                        height: 44,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: customColors().danger),
-                            backgroundColor: customColors().danger.withOpacity(
-                              0.06,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          onPressed: _isSubmitting ? null : _onCancelRequest,
-                          icon: const Icon(Icons.cancel, color: Colors.red),
-                          label: Text(
-                            'Cancel Request for full order',
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyM_Bold,
-                              color: FontColor.FontPrimary,
-                            ),
-                          ),
-                        ),
-                      )
-                      : const SizedBox(),
+                  // // Cancel Request for full order (danger subtle)
+                  // widget.orderDetails.status != 'cancel_request'
+                  //     ? SizedBox(
+                  //       height: 44,
+                  //       child: OutlinedButton.icon(
+                  //         style: OutlinedButton.styleFrom(
+                  //           side: BorderSide(color: customColors().danger),
+                  //           backgroundColor: customColors().danger.withOpacity(
+                  //             0.06,
+                  //           ),
+                  //           shape: RoundedRectangleBorder(
+                  //             borderRadius: BorderRadius.circular(10),
+                  //           ),
+                  //         ),
+                  //         onPressed: _isSubmitting ? null : _onCancelRequest,
+                  //         icon: const Icon(Icons.cancel, color: Colors.red),
+                  //         label: Text(
+                  //           'Cancel Request for full order',
+                  //           style: customTextStyle(
+                  //             fontStyle: FontStyle.BodyM_Bold,
+                  //             color: FontColor.FontPrimary,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     )
+                  //     : const SizedBox(),
                 ],
               ),
             ),
@@ -476,16 +476,18 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
 
     return InkWell(
       onTap: () {
-        context.gNavigationService.openPickerDashboardPage(
-          context,
-          arg: {
-            "suborder_id": t.meta.code,
-            "order_id": widget.orderDetails.id,
-            "order_items": _items,
-            "preparation_label": widget.orderDetails.subgroupIdentifier,
-            "order": widget.orderDetails,
-          },
-        );
+        if (t.meta.statusLabel != 'Cancel Request') {
+          context.gNavigationService.openPickerDashboardPage(
+            context,
+            arg: {
+              "suborder_id": t.meta.code,
+              "order_id": widget.orderDetails.id,
+              "order_items": _items,
+              "preparation_label": widget.orderDetails.subgroupIdentifier,
+              "order": widget.orderDetails,
+            },
+          );
+        }
       },
       child: Container(
         decoration: BoxDecoration(
