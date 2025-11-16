@@ -8,6 +8,7 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
@@ -265,6 +266,10 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                         ),
                       );
 
+                      final token = await PreferenceUtils.getDataFromShared(
+                        'usertoken',
+                      );
+
                       final resp = await context.gTradingApiGateway
                           .updateMainOrderStatNew(
                             preparationId: widget.preparationId,
@@ -272,7 +277,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                             comment:
                                 "${UserController().profile.name.toString()} (${UserController().profile.empId}) was holded the order for ${UserController().cancelreason.toString()}",
                             orderNumber: widget.suborderId,
-                            token: UserController().app_token,
+                            token: token!,
                           );
 
                       if (resp.statusCode == 200) {
@@ -351,7 +356,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                   SheetButton(
                     imagepath: 'assets/contact_btn.png',
                     sheettext:
-                        isRecording ? 'Recording...' : 'Contact \n Customer',
+                        isRecording ? 'Recording...' : 'Contact \nCustomer',
                     onTapbtn: () async {
                       // await handleCall();
                     },
@@ -372,7 +377,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
 
               SheetButton(
                 imagepath: 'assets/hold_req.png',
-                sheettext: 'Hold \n Order',
+                sheettext: 'Hold \nOrder',
                 onTapbtn: () {
                   setState(() {
                     enableholdrequest = true;

@@ -181,11 +181,11 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
-      // print('👉 isProduce: $isProduce');
+      String newProducrPrice = "";
 
-      String newProducrPrice = getPriceFromBarcode(
-        getLastSixDigits(producebarcode),
-      );
+      if (isProduce == "1") {
+        newProducrPrice = getPriceFromBarcode(getLastSixDigits(producebarcode));
+      }
 
       // ✅ Convert both quantities to int (remove decimals completely)
       int editedQty = int.tryParse(editqty.toString().split('.').first) ?? 1;
@@ -200,7 +200,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
         'order_number': itemdata!.subgroupIdentifier,
         'scanned_sku': scannedsku1,
         'status': "replaced",
-        'price': price,
+        'price': isProduce == "1" ? newProducrPrice : price,
         'qty': newProductQty,
         'preparation_id': data['preparationId'],
         'is_produce': isProduce == "1" ? 1 : 0,
@@ -346,13 +346,15 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
   getProductData(String sku, String productSku, String action) async {
     // print('📦 [DEBUG] Entered getProductData() with SKU: $sku');
 
+    final token = await PreferenceUtils.getDataFromShared("usertoken");
+
     try {
       final productresponse = await serviceLocator.tradingApi
           .checkBarcodeDBService(
             endpoint: sku,
             productSku: productSku,
             action: action,
-            token1: UserController.userController.app_token,
+            token1: token!,
           );
 
       // print('📡 [DEBUG] HTTP Status: ${productresponse.statusCode}');

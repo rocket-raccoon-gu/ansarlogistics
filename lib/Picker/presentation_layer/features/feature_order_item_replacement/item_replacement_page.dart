@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_state.dart';
@@ -22,7 +23,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_scankit/flutter_scankit.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
@@ -44,7 +45,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
   late GlobalKey<FormState> idFormKey = GlobalKey<FormState>();
 
-  MobileScannerController cameraController = MobileScannerController();
+  final _scankit = ScanKit();
 
   int selectedindex = -1;
 
@@ -58,10 +59,51 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
   bool istextbarcode = false;
 
+  late final ScanKit scanKit;
+
+  String result = '';
+
   Future<void> requestCameraPermission() async {
     var status = await Permission.camera.request();
     if (status.isDenied || status.isPermanentlyDenied) {
       openAppSettings();
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    scanKit = ScanKit(
+      photoMode: true,
+      viewType:
+          ScanTypes.qRCode.bit |
+          ScanTypes.code128.bit |
+          ScanTypes.ean13.bit |
+          ScanTypes.code39.bit |
+          ScanTypes.code93.bit |
+          ScanTypes.aztec.bit |
+          ScanTypes.dataMatrix.bit |
+          ScanTypes.pdf417.bit |
+          ScanTypes.upcCodeA.bit |
+          ScanTypes.upcCodeE.bit |
+          ScanTypes.ean8.bit |
+          ScanTypes.all.bit,
+    );
+    scanKit.onResult.listen((val) {
+      setState(() => result = val.originalValue);
+      scanBarcodeNormal(result);
+    });
+  }
+
+  Future<void> _startScan() async {
+    try {
+      await scanKit.startScan(
+        scanTypes:
+            ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
+      );
+    } on PlatformException catch (e) {
+      debugPrint('Error: ${e.message}');
     }
   }
 
@@ -74,6 +116,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
       // print("${cubit.orderItem?.productSku} cubit");
 
       String action = "replace";
+
+      log("${barcodeScanRes} barcodeScanRes");
 
       // update barcode log
       // await BlocProvider.of<ItemReplacementPageCubit>(
@@ -131,76 +175,235 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
       backgroundColor: Colors.white,
       body: Builder(
         builder: (context) {
-          if (isScanner) {
-            return MobileScanner(
-              controller: MobileScannerController(facing: CameraFacing.back),
-              onDetect: (capture) {
-                final List<Barcode> barcodes = capture.barcodes;
-
-                if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
-                  final scannedCode = barcodes.first.rawValue!;
-
-                  if (scannedCode != barcodeController.text) {
-                    barcodeController.text = scannedCode;
-
-                    for (final barcode in barcodes) {
-                      scanBarcodeNormal(barcode.rawValue!);
-                    }
-                  }
-                }
-              },
-            );
-          } else {
-            return Column(
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15.0,
-                    horizontal: 10.0,
+          return Column(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15.0,
+                  horizontal: 10.0,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    bottom: BorderSide(
+                      width: 2.0,
+                      color: customColors().backgroundTertiary,
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(
-                        width: 2.0,
-                        color: customColors().backgroundTertiary,
+                  boxShadow: [
+                    BoxShadow(
+                      color: customColors().backgroundTertiary.withOpacity(1.0),
+                      spreadRadius: 3,
+                      blurRadius: 5,
+                      // offset: Offset(0, 3), // changes the position of the shadow
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        context.gNavigationService.back(context);
+                      },
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 23,
+                        color: HexColor("#A3A3A3"),
                       ),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: customColors().backgroundTertiary.withOpacity(
-                          1.0,
-                        ),
-                        spreadRadius: 3,
-                        blurRadius: 5,
-                        // offset: Offset(0, 3), // changes the position of the shadow
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Replace Item",
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      InkWell(
-                        onTap: () {
-                          context.gNavigationService.back(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_back,
-                          size: 23,
-                          color: HexColor("#A3A3A3"),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8.0,
+                          horizontal: 8.0,
                         ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "Replace Item",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.FontPrimary,
-                              ),
+                            _orderedItemCard(context),
+                            const SizedBox(height: 12),
+                            BlocBuilder<
+                              ItemReplacementPageCubit,
+                              ItemReplacementPageState
+                            >(
+                              builder: (context, state) {
+                                final bool hideScan =
+                                    state is ItemReplacementLoaded &&
+                                    (state.productDBdata != null ||
+                                        state.erPdata != null);
+                                return hideScan
+                                    ? const SizedBox.shrink()
+                                    : _scanOrEnterSection(context);
+                              },
+                            ),
+                            BlocConsumer<
+                              ItemReplacementPageCubit,
+                              ItemReplacementPageState
+                            >(
+                              listener: (context, state) {
+                                if (state is ItemReplacementInitail) {
+                                  setState(() {
+                                    loading = false;
+                                  });
+                                }
+                              },
+                              builder: (context, state) {
+                                if (state is ItemReplacementManualState) {
+                                  String productSku = widget.itemdata.sku!;
+
+                                  // final cubit = BlocProvider.of<OrderItemDetailsCubit>(context);
+                                  // print("${cubit.orderItem?.productSku} cubit");
+
+                                  String action = "replace";
+
+                                  // update barcode log
+                                  // BlocProvider.of<ItemReplacementPageCubit>(
+                                  //   context,
+                                  // ).updateBarcodeLog('', barcodeScanRes);
+
+                                  // get scanned barcode data
+                                  BlocProvider.of<ItemReplacementPageCubit>(
+                                    context,
+                                  ).getScannedProductData(
+                                    barcodeController.text,
+                                    producebarcode,
+                                    productSku,
+                                    action,
+                                  );
+
+                                  if (mounted) {
+                                    setState(() {
+                                      isScanner = false;
+                                      istextbarcode = false;
+                                    });
+                                    // }
+                                  }
+                                }
+
+                                if (state is ItemReplacementLoaded) {
+                                  // Compute ordered and replacement pricing for comparison
+                                  final double orderedPrice = _safeToDouble(
+                                    '${widget.itemdata.price ?? '0'}',
+                                  );
+                                  double? replacementPrice;
+                                  String? repName;
+                                  String? repSku;
+                                  String? repImageUrl;
+
+                                  Widget? productBlock;
+                                  if (state.productDBdata != null) {
+                                    final p = state.productDBdata!;
+                                    replacementPrice = _safeToDouble(
+                                      (p.specialPrice != null &&
+                                              p.specialPrice
+                                                  .toString()
+                                                  .isNotEmpty)
+                                          ? p.specialPrice.toString()
+                                          : p.regularPrice.toString(),
+                                    );
+                                    repName = p.skuName;
+                                    repSku = p.sku;
+                                    if ((p.images ?? '').isNotEmpty) {
+                                      final imgPath = getFirstImage(p.images);
+                                      repImageUrl = resolveImageUrl(imgPath);
+                                    }
+                                    productBlock = const SizedBox.shrink();
+                                  } else if (state.erPdata != null) {
+                                    final e = state.erPdata!;
+                                    replacementPrice = _safeToDouble(
+                                      e.erpPrice,
+                                    );
+                                    repName = e.erpProductName;
+                                    repSku = e.erpSku;
+                                    repImageUrl = noimageurl;
+                                    productBlock = ErpDataContainer(
+                                      erPdata: state.erPdata,
+                                      counterCallback: (p0) {
+                                        setState(() => editquantity = p0);
+                                      },
+                                    );
+                                  }
+
+                                  if (replacementPrice != null &&
+                                      productBlock != null) {
+                                    final diff =
+                                        replacementPrice - orderedPrice;
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        // Replacement product detail with quantity (existing blocks)
+                                        productBlock,
+                                        const SizedBox(height: 12),
+                                        // Price comparison card
+                                        _priceComparisonCard(
+                                          orderedPrice: orderedPrice,
+                                          replacementPrice: replacementPrice,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // Compact replacement item card
+                                        if (repName != null && repSku != null)
+                                          _replacementCompactCard(
+                                            name: repName!,
+                                            sku: repSku!,
+                                            price: replacementPrice,
+                                            imageUrl: repImageUrl,
+                                          ),
+                                        const SizedBox(height: 12),
+                                        _quantitySelector(),
+                                        const SizedBox(height: 16),
+                                        // Reason selector
+                                        _reasonSelector(
+                                          selected: cancelreason,
+                                          onChanged: (val) {
+                                            setState(() => cancelreason = val);
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // Bill adjustment summary
+                                        _billAdjustmentCard(
+                                          orderedPrice: orderedPrice,
+                                          replacementPrice: replacementPrice,
+                                          difference: diff,
+                                        ),
+                                      ],
+                                    );
+                                  }
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 250.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [Text("No Data Found...!")],
+                                    ),
+                                  );
+                                } else {
+                                  return Column(children: []);
+                                }
+                              },
                             ),
                           ],
                         ),
@@ -208,195 +411,9 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 8.0,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _orderedItemCard(context),
-                              const SizedBox(height: 12),
-                              BlocBuilder<
-                                ItemReplacementPageCubit,
-                                ItemReplacementPageState
-                              >(
-                                builder: (context, state) {
-                                  final bool hideScan =
-                                      state is ItemReplacementLoaded &&
-                                      (state.productDBdata != null ||
-                                          state.erPdata != null);
-                                  return hideScan
-                                      ? const SizedBox.shrink()
-                                      : _scanOrEnterSection(context);
-                                },
-                              ),
-                              BlocConsumer<
-                                ItemReplacementPageCubit,
-                                ItemReplacementPageState
-                              >(
-                                listener: (context, state) {
-                                  if (state is ItemReplacementInitail) {
-                                    setState(() {
-                                      loading = false;
-                                    });
-                                  }
-                                },
-                                builder: (context, state) {
-                                  if (state is ItemReplacementManualState) {
-                                    String productSku = widget.itemdata.sku!;
-
-                                    // final cubit = BlocProvider.of<OrderItemDetailsCubit>(context);
-                                    // print("${cubit.orderItem?.productSku} cubit");
-
-                                    String action = "replace";
-
-                                    // update barcode log
-                                    // BlocProvider.of<ItemReplacementPageCubit>(
-                                    //   context,
-                                    // ).updateBarcodeLog('', barcodeScanRes);
-
-                                    // get scanned barcode data
-                                    BlocProvider.of<ItemReplacementPageCubit>(
-                                      context,
-                                    ).getScannedProductData(
-                                      barcodeController.text,
-                                      producebarcode,
-                                      productSku,
-                                      action,
-                                    );
-
-                                    if (mounted) {
-                                      setState(() {
-                                        isScanner = false;
-                                        istextbarcode = false;
-                                      });
-                                      // }
-                                    }
-                                  }
-
-                                  if (state is ItemReplacementLoaded) {
-                                    // Compute ordered and replacement pricing for comparison
-                                    final double orderedPrice = _safeToDouble(
-                                      '${widget.itemdata.price ?? '0'}',
-                                    );
-                                    double? replacementPrice;
-                                    String? repName;
-                                    String? repSku;
-                                    String? repImageUrl;
-
-                                    Widget? productBlock;
-                                    if (state.productDBdata != null) {
-                                      final p = state.productDBdata!;
-                                      replacementPrice = _safeToDouble(
-                                        (p.specialPrice != null &&
-                                                p.specialPrice
-                                                    .toString()
-                                                    .isNotEmpty)
-                                            ? p.specialPrice.toString()
-                                            : p.regularPrice.toString(),
-                                      );
-                                      repName = p.skuName;
-                                      repSku = p.sku;
-                                      if ((p.images ?? '').isNotEmpty) {
-                                        final imgPath = getFirstImage(p.images);
-                                        repImageUrl = resolveImageUrl(imgPath);
-                                      }
-                                      productBlock = const SizedBox.shrink();
-                                    } else if (state.erPdata != null) {
-                                      final e = state.erPdata!;
-                                      replacementPrice = _safeToDouble(
-                                        e.erpPrice,
-                                      );
-                                      repName = e.erpProductName;
-                                      repSku = e.erpSku;
-                                      repImageUrl = noimageurl;
-                                      productBlock = ErpDataContainer(
-                                        erPdata: state.erPdata,
-                                        counterCallback: (p0) {
-                                          setState(() => editquantity = p0);
-                                        },
-                                      );
-                                    }
-
-                                    if (replacementPrice != null &&
-                                        productBlock != null) {
-                                      final diff =
-                                          replacementPrice - orderedPrice;
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          // Replacement product detail with quantity (existing blocks)
-                                          productBlock,
-                                          const SizedBox(height: 12),
-                                          // Price comparison card
-                                          _priceComparisonCard(
-                                            orderedPrice: orderedPrice,
-                                            replacementPrice: replacementPrice,
-                                          ),
-                                          const SizedBox(height: 12),
-                                          // Compact replacement item card
-                                          if (repName != null && repSku != null)
-                                            _replacementCompactCard(
-                                              name: repName!,
-                                              sku: repSku!,
-                                              price: replacementPrice,
-                                              imageUrl: repImageUrl,
-                                            ),
-                                          const SizedBox(height: 12),
-                                          _quantitySelector(),
-                                          const SizedBox(height: 16),
-                                          // Reason selector
-                                          _reasonSelector(
-                                            selected: cancelreason,
-                                            onChanged: (val) {
-                                              setState(
-                                                () => cancelreason = val,
-                                              );
-                                            },
-                                          ),
-                                          const SizedBox(height: 12),
-                                          // Bill adjustment summary
-                                          _billAdjustmentCard(
-                                            orderedPrice: orderedPrice,
-                                            replacementPrice: replacementPrice,
-                                            difference: diff,
-                                          ),
-                                        ],
-                                      );
-                                    }
-
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 250.0,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [Text("No Data Found...!")],
-                                      ),
-                                    );
-                                  } else {
-                                    return Column(children: []);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }
+              ),
+            ],
+          );
         },
       ),
       bottomNavigationBar: SizedBox(
@@ -680,7 +697,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
               if (!status.isGranted) {
                 await requestCameraPermission();
               }
-              setState(() => isScanner = true);
+              // setState(() => isScanner = true);
+              _startScan();
             },
             icon: const Icon(Icons.qr_code_scanner),
             label: const Text('Scan Barcode'),
