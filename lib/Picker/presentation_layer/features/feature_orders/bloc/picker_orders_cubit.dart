@@ -81,6 +81,30 @@ class PickerOrdersCubit extends Cubit<PickerOrdersState> {
 
   bool searchvisible = false;
 
+  void filterOrdersByStatus(String status) {
+    if (status == 'all') {
+      emit(
+        PickerOrdersNewLoadedState(
+          orders: ordersNew,
+          categories: categoriesNew,
+        ),
+      );
+      return;
+    }
+
+    final filteredOrders =
+        ordersNew.where((order) {
+          return order.status?.toLowerCase() == status.toLowerCase();
+        }).toList();
+
+    emit(
+      PickerOrdersNewLoadedState(
+        orders: filteredOrders,
+        categories: categoriesNew,
+      ),
+    );
+  }
+
   // New API data holders (optional, for local caching)
 
   // void loadPosts(int count, String status) async {

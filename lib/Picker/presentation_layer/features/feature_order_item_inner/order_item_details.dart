@@ -774,6 +774,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                 ),
                                                 child: TextFormField(
                                                   autofocus: true,
+                                                  controller: barcodeController,
                                                   onFieldSubmitted: (v) {
                                                     setState(() {
                                                       isKeyboard = false;
@@ -789,6 +790,50 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                     ),
                                   )
                                   : Container(),
+
+                              isKeyboard
+                                  ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 18.0,
+                                      vertical: 6.0,
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        scanBarcodeNormal(
+                                          barcodeController.text.trim(),
+                                        );
+                                        // setState(() {
+                                        //   isKeyboard = false;
+                                        // });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10.0,
+                                          vertical: 12.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: customColors().accent,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            'Submit',
+                                            style: customTextStyle(
+                                              fontStyle: FontStyle.BodyM_Bold,
+                                              color: FontColor.FontPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  : Container(),
+
                               const SizedBox(height: 16),
 
                               // Actions row

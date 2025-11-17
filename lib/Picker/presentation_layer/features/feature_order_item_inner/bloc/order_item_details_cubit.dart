@@ -209,7 +209,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
       final response = await serviceLocator.tradingApi.updateItemStatusService(
         body: body,
-        token: UserController().app_token,
+        token: token!,
       );
 
       // print("📡 API Response Status Code: ${response.statusCode}");
@@ -623,6 +623,18 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     povisvible = false;
                     return;
                   }
+                }
+
+                if (erPdata.erpSku != orderItem.sku ||
+                    !erPdata.mergeBarcode.split(',').contains(orderItem.sku)) {
+                  showSnackBar(
+                    context: context,
+                    snackBar: showErrorDialogue(
+                      errorMessage: 'Product not same barcode',
+                    ),
+                  );
+                  povisvible = false;
+                  return;
                 }
 
                 showPickConfirmBottomSheet(

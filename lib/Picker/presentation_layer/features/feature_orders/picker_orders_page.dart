@@ -430,12 +430,12 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
   }
 
   int _countForStatus(List<OrderNew> orders, String status) {
-    final list = orders;
-    // if (UserController().selectedindex == 0) return list.length;
-    if (status == 'all' || status == 'All') {
-      return list.length;
+    if (status == 'all') {
+      return orders.length;
     }
-    return list.where((o) => (o.status == status)).length;
+    return orders
+        .where((order) => order.status?.toLowerCase() == status.toLowerCase())
+        .length;
   }
 
   Color _badgeColorForStatus(String status) {
@@ -474,6 +474,9 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
           return GestureDetector(
             onTap: () {
               UserController().selectedindex = index;
+              log(UserController().selectedindex.toString());
+              final status = item['status'] as String;
+              context.read<PickerOrdersCubit>().filterOrdersByStatus(status);
               setState(() {});
             },
             child: Container(

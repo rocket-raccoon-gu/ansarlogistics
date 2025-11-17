@@ -1233,7 +1233,6 @@ extension PDGeneralApi on PickerDriverApi {
     required String status,
     required List<String> orderIds,
     required String itemSku,
-    required String preparationId,
   }) async {
     final url = _endpointWithApplicationPath('picker/orders/item/statusbulk');
 

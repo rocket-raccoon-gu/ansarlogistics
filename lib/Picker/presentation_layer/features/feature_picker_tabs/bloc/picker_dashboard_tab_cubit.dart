@@ -4,6 +4,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -181,12 +182,14 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
     try {
       emit(PickerDashboardTabLoading());
 
+      final token = await PreferenceUtils.getDataFromShared('usertoken');
+
       final response = await serviceLocator.tradingApi.updateMainOrderStatNew(
         preparationId: preparationLabel,
         orderStatus: status,
         comment: comment,
         orderNumber: suborderId,
-        token: UserController().app_token,
+        token: token!,
       );
 
       if (response.statusCode == 200) {

@@ -607,6 +607,7 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                                 ),
                                                 child: TextFormField(
                                                   autofocus: true,
+                                                  controller: barcodeController,
                                                   onFieldSubmitted: (v) {
                                                     setState(() {
                                                       isKeyboard = false;
@@ -620,6 +621,49 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                             ),
                                       ],
                                     ),
+                                  )
+                                  : Container(),
+
+                              isKeyboard
+                                  ? Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10.0,
+                                            vertical: 3.0,
+                                          ),
+                                          child: InkWell(
+                                            onTap: () {
+                                              scanBarcodeNormal(
+                                                barcodeController.text,
+                                              );
+                                              setState(() {
+                                                isKeyboard = false;
+                                              });
+                                            },
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 5.0,
+                                                    vertical: 10.0,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Colors.grey,
+                                                ),
+                                                color: customColors().accent,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: Center(
+                                                child: Text("Submit"),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   )
                                   : Container(),
 
@@ -672,6 +716,32 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                                     //       widget
                                                     //           .data['preparationLabel'],
                                                     // );
+                                                    final item =
+                                                        widget
+                                                            .data['items_data'];
+                                                    GroupedProduct
+                                                    groupedProduct = item;
+
+                                                    List<String> orderIds =
+                                                        groupedProduct.orders
+                                                            .map(
+                                                              (order) =>
+                                                                  order.orderId,
+                                                            )
+                                                            .toList();
+
+                                                    context
+                                                        .read<
+                                                          ItemBatchPickupCubit
+                                                        >()
+                                                        .showItemHoldConfirmation(
+                                                          context,
+                                                          groupedProduct
+                                                              .itemIds,
+                                                          groupedProduct.name!,
+                                                          groupedProduct.sku!,
+                                                          orderIds,
+                                                        );
                                                   },
                                                 ),
                                               ),
@@ -719,7 +789,6 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                                           'item_not_available',
                                                           groupedProduct.sku!,
                                                           orderIds,
-                                                          "",
                                                         );
                                                   },
                                                 ),
