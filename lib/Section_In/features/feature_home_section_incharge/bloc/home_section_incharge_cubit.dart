@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
 import 'package:ansarlogistics/constants/methods.dart';
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
@@ -13,6 +14,7 @@ import 'package:picker_driver_api/responses/check_section_status_list.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
 import 'package:picker_driver_api/requests/update_section_request.dart';
 import 'package:picker_driver_api/responses/branch_section_data_response.dart';
+import 'package:picker_driver_api/responses/stock_update.dart';
 
 class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
   BuildContext context;
@@ -48,6 +50,12 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
   List<Map<String, dynamic>> updateHistory = [];
 
   List<StatusHistory> statusHistories = [];
+
+  List<StockUpdate> stockUpdates = [];
+
+  // Getter to convert StockUpdate objects to maps for UI compatibility
+  List<Map<String, dynamic>> get stockUpdatesAsMaps =>
+      stockUpdates.map((update) => update.toMap()).toList();
 
   // loadProducts() async {
   //   try {
@@ -299,7 +307,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       final response = await serviceLocator.tradingApi.getSectionDataRequest(
         UserController.userController.userName,
         catid,
-        UserController().profile.categoryIds,
+        catid == 0 ? UserController().profile.categoryIds : catid.toString(),
         UserController().profile.branchCode,
       );
 
@@ -342,6 +350,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     String sku,
     String status,
     String productname,
+    String imageUrl,
   ) async {
     try {
       // print("👤 User: ${UserController.userController.userName}");
@@ -372,6 +381,13 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
       if (response.statusCode == 200) {
         // print("✅ Stock update succeeded for SKU: $sku");
+
+        updateItemStatus(
+          sku,
+          productname,
+          imageUrl,
+          status == "1" ? true : false,
+        );
 
         showSnackBar(
           context: context,
@@ -561,5 +577,56 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     } catch (e) {
       log("console error ${e.toString()}");
     }
+  }
+
+  void updateItemStatus(
+    String sku,
+    String name,
+    String imageUrl,
+    bool isEnabled,
+  ) {
+    // Check if this item already has an update
+    final existingIndex = stockUpdates.indexWhere((item) => item.sku == sku);
+
+    if (existingIndex >= 0) {
+      // Update existing entry
+      stockUpdates[existingIndex] = StockUpdate(
+        sku: sku,
+        name: name,
+        imageUrl: "${mainimageurl}${imageUrl}",
+        isEnabled: isEnabled,
+        updatedAt: DateTime.now(),
+      );
+    } else {
+      // Add new entry
+      stockUpdates.add(
+        StockUpdate(
+          sku: sku,
+          name: name,
+          imageUrl: imageUrl,
+          isEnabled: isEnabled,
+          updatedAt: DateTime.now(),
+        ),
+      );
+    }
+
+    // Also update updateHistory for UI compatibility
+    final historyIndex = updateHistory.indexWhere((item) => item['sku'] == sku);
+    final newUpdateEntry = {
+      'sku': sku,
+      'name': name,
+      'imageUrl': imageUrl,
+      'isEnabled': isEnabled,
+      'updatedAt': DateTime.now().toIso8601String(),
+      'branch': UserController().profile.branchCode,
+    };
+
+    if (historyIndex >= 0) {
+      updateHistory[historyIndex] = newUpdateEntry;
+    } else {
+      updateHistory.add(newUpdateEntry);
+    }
+
+    emit(state); // Trigger a rebuild
   }
 }

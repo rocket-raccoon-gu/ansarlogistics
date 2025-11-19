@@ -1530,3 +1530,27 @@ String _formatPrice(String value) {
   }
   return value;
 }
+
+List<Map<String, dynamic>> producecats = [
+  {"id": 0, "name": "All"},
+  {"id": 10, "name": "Vegetables"},
+  {"id": 9, "name": "Fruits"},
+  {"id": 744, "name": "Cut Fruits & Salads"},
+  {"id": 1217, "name": "Other Vegetables"},
+];
+
+List<Map<String, dynamic>> fishcats = [
+  {"id": 0, "name": "All"},
+  {"id": 761, "name": "Fish & Sea Food"},
+  {"id": 764, "name": "Prawns & Shellfish"},
+  {"id": 763, "name": "Fish Fillet & Steak"},
+];
+
+List<Map<String, dynamic>> butchcats = [
+  {"id": 0, "name": "All"},
+  {"id": 18, "name": "Fresh Chicken"},
+  {"id": 19, "name": "Beef"},
+  {"id": 20, "name": "Mutton"},
+  {"id": 22, "name": "Lamb"},
+  {"id": 21, "name": "Camel"},
+];

@@ -141,7 +141,7 @@ class _ArBranchSectionState extends State<ArBranchSection> {
                             onSectionChanged: (p0, p1, p2) {
                               context
                                   .read<HomeSectionInchargeCubit>()
-                                  .addToStockStatusList(p0, p1, p2);
+                                  .addToStockStatusList(p0, p1, p2, "");
                             },
                           );
                         },
