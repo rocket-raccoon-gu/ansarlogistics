@@ -235,6 +235,9 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
       // Always call checklist API first to get status history
       // print("📋 Calling getSectionDataCheckList...");
+
+      log("${UserController().profile.categoryIds}");
+
       final checklistResponse = await serviceLocator.tradingApi
           .getSectionDataCheckList(
             UserController().profile.empId,
@@ -628,5 +631,58 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     }
 
     emit(state); // Trigger a rebuild
+  }
+
+  Future<void> addNewTempItem({
+    required String sku,
+    required String name,
+  }) async {
+    // 1) Save to shared preferences
+    final rawList = await PreferenceUtils.getstoremap('new_section_items');
+    final List<Map<String, dynamic>> tempItems =
+        rawList.cast<Map<String, dynamic>>();
+
+    tempItems.add({
+      'sku': sku,
+      'productName': name,
+      'status': 3, // NEW
+    });
+
+    await PreferenceUtils.storeListmap('new_section_items', tempItems);
+
+    // 2) Append to section list for immediate UI
+    final newItem = Sectionitem(
+      sku: sku,
+      productName: name,
+      // Fill these with safe defaults from your Sectionitem model:
+      imageUrl: '',
+      stockQty: '0',
+      isInStock: 1,
+      // add any other required fields here
+    );
+
+    sectionitems.add(newItem);
+    UserController().sectionitems = sectionitems;
+
+    // 3) Append to statusHistories so PDF sees it as NEW (status 3)
+    statusHistories.add(
+      StatusHistory(
+        id: 0,
+        categoryId: 0,
+        productName: name,
+        sku: sku,
+        status: 3,
+        userId: UserController().profile.empId,
+        branchCode: UserController().profile.branchCode,
+        updatedAt: DateTime.now(),
+      ),
+    );
+
+    emit(
+      HomeSectionInchargeInitial(
+        sectionitems: sectionitems,
+        branchdata: branchdata,
+      ),
+    );
   }
 }

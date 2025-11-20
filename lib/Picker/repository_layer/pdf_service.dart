@@ -6,6 +6,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:picker_driver_api/responses/stock_update.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
+import 'package:picker_driver_api/responses/check_section_status_list.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
@@ -45,6 +46,7 @@ class PdfService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
+        maxPages: 500,
         build:
             (context) => [
               pw.Header(
@@ -106,32 +108,31 @@ class PdfService {
       print('Full image URL: $fullImageUrl');
 
       final response = await http.get(Uri.parse(fullImageUrl));
-      print('Image response status: ${response.statusCode}');
+      // print('Image response status: ${response.statusCode}');
 
       if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
-        print('Image bytes length: ${response.bodyBytes.length}');
+        // print('Image bytes length: ${response.bodyBytes.length}');
 
-        // Try to decode as JPEG first, then PNG
-        Uint8List processedBytes;
-
-        // Try to decode and resize
+        // Try to decode and resize using the image package
         final image = img.decodeImage(response.bodyBytes);
         if (image != null) {
           print(
             'Image decoded successfully, original size: ${image.width}x${image.height}',
           );
           final resized = img.copyResize(image, width: 100);
-          processedBytes = Uint8List.fromList(
+          final processedBytes = Uint8List.fromList(
             img.encodeJpg(resized, quality: 70),
           );
-          print('Image resized and encoded');
+          // print('Image resized and encoded');
+          return processedBytes;
         } else {
-          // If decoding fails, use original bytes
-          print('Failed to decode image, using original bytes');
-          processedBytes = response.bodyBytes;
+          // If decoding fails, treat this as "no image" and let the caller
+          // render the placeholder instead of crashing the PDF engine.
+          print(
+            'Failed to decode image, returning null so placeholder is used',
+          );
+          return null;
         }
-
-        return processedBytes;
       } else {
         print('Failed to load image: status ${response.statusCode}');
       }
@@ -148,16 +149,18 @@ class PdfService {
     );
   }
 
-  // Generate comprehensive PDF for both stock updates and section items
+  // Generate comprehensive PDF for stock updates, section items, and NEW status items
   static Future<File> generateComprehensivePdf(
     List<StockUpdate> stockUpdates,
     List<Sectionitem> sectionItems,
+    List<StatusHistory> statusHistories,
   ) async {
     final pdf = pw.Document();
 
     log('=== Generating comprehensive PDF ===');
     log('Stock updates: ${stockUpdates.length}');
     log('Section items: ${sectionItems.length}');
+    log('Status history records: ${statusHistories.length}');
 
     // Add stock updates section if there are any
     if (stockUpdates.isNotEmpty) {
@@ -191,6 +194,7 @@ class PdfService {
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
+          maxPages: 500,
           build:
               (context) => [
                 pw.Header(
@@ -238,6 +242,64 @@ class PdfService {
       );
     }
 
+    // Add NEW status items section based on status history (status == 3)
+    final newStatusItems = statusHistories.where((s) => s.status == 3).toList();
+
+    if (newStatusItems.isNotEmpty) {
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          maxPages: 500,
+          build:
+              (context) => [
+                pw.Header(
+                  level: 0,
+                  child: pw.Text(
+                    'New Items',
+                    style: pw.TextStyle(
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Generated on: ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}',
+                  style: pw.TextStyle(fontSize: 10),
+                ),
+                pw.SizedBox(height: 10),
+                pw.Container(
+                  padding: pw.EdgeInsets.all(8),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.orange100,
+                    borderRadius: pw.BorderRadius.circular(4),
+                  ),
+                  child: pw.Text(
+                    'Total New Items: ${newStatusItems.length}',
+                    style: pw.TextStyle(
+                      fontSize: 12,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.orange800,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Table.fromTextArray(
+                  headers: ['SKU', 'Product Name', 'Status'],
+                  data:
+                      newStatusItems
+                          .map((item) => [item.sku, item.productName, 'NEW'])
+                          .toList(),
+                  cellAlignment: pw.Alignment.center,
+                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
+                  cellPadding: pw.EdgeInsets.all(5),
+                ),
+              ],
+        ),
+      );
+    }
+
     // Add section items section if there are any
     if (sectionItems.isNotEmpty) {
       log('=== Processing ${sectionItems.length} section items for PDF ===');
@@ -270,6 +332,7 @@ class PdfService {
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
+          maxPages: 500,
           build:
               (context) => [
                 pw.Header(
@@ -525,6 +588,7 @@ class PdfService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
+        maxPages: 500,
         build:
             (context) => [
               pw.Header(

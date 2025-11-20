@@ -29,6 +29,9 @@ class _HomeSectionState extends State<HomeSection> {
 
   int _selectedCategoryIndex = 0;
 
+  final _barcodeController = TextEditingController();
+  final _nameController = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -279,131 +282,234 @@ class _HomeSectionState extends State<HomeSection> {
         // Item counts display
         if (context.read<HomeSectionInchargeCubit>().stockUpdates.isNotEmpty ||
             UserController().sectionitems.isNotEmpty)
+          // Positioned(
+          //   bottom: 95.0,
+          //   left: 15.0,
+          //   right: 15.0,
+          //   child: Container(
+          //     padding: EdgeInsets.all(12),
+          //     decoration: BoxDecoration(
+          //       color: customColors().backgroundPrimary,
+          //       borderRadius: BorderRadius.circular(12),
+          //       boxShadow: [
+          //         BoxShadow(
+          //           color: Colors.black.withOpacity(0.1),
+          //           blurRadius: 8,
+          //           offset: Offset(0, 2),
+          //         ),
+          //       ],
+          //       border: Border.all(
+          //         color: customColors().fontTertiary.withOpacity(0.3),
+          //       ),
+          //     ),
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //       children: [
+          //         if (context
+          //             .read<HomeSectionInchargeCubit>()
+          //             .stockUpdates
+          //             .isNotEmpty)
+          //           Expanded(
+          //             child: Column(
+          //               children: [
+          //                 Text(
+          //                   '${context.read<HomeSectionInchargeCubit>().stockUpdates.length}',
+          //                   style: TextStyle(
+          //                     fontSize: 20,
+          //                     fontWeight: FontWeight.bold,
+          //                     color: customColors().red1,
+          //                   ),
+          //                 ),
+          //                 SizedBox(height: 4),
+          //                 Text(
+          //                   'Stock Updates',
+          //                   style: TextStyle(
+          //                     fontSize: 12,
+          //                     color: customColors().fontSecondary,
+          //                   ),
+          //                 ),
+          //               ],
+          //             ),
+          //           ),
+          //         // if (context
+          //         //         .read<HomeSectionInchargeCubit>()
+          //         //         .stockUpdates
+          //         //         .isNotEmpty &&
+          //         //     UserController().sectionitems.isNotEmpty)
+          //         // Container(
+          //         //   width: 1,
+          //         //   height: 40,
+          //         //   color: customColors().fontTertiary.withOpacity(0.3),
+          //         // ),
+          //         // if (UserController().sectionitems.isNotEmpty)
+          //         //   Expanded(
+          //         //     child: Column(
+          //         //       children: [
+          //         //         Text(
+          //         //           '${UserController().sectionitems.length}',
+          //         //           style: TextStyle(
+          //         //             fontSize: 20,
+          //         //             fontWeight: FontWeight.bold,
+          //         //             color: customColors().primary,
+          //         //           ),
+          //         //         ),
+          //         //         SizedBox(height: 4),
+          //         //         Text(
+          //         //           'Section Items',
+          //         //           style: TextStyle(
+          //         //             fontSize: 12,
+          //         //             color: customColors().fontSecondary,
+          //         //           ),
+          //         //         ),
+          //         //       ],
+          //         //     ),
+          //         //   ),
+          //         // if (context
+          //         //         .read<HomeSectionInchargeCubit>()
+          //         //         .stockUpdates
+          //         //         .isNotEmpty &&
+          //         //     UserController().sectionitems.isNotEmpty)
+          //         //   Container(
+          //         //     width: 1,
+          //         //     height: 40,
+          //         //     color: customColors().fontTertiary.withOpacity(0.3),
+          //         //   ),
+          //         // if (context
+          //         //         .read<HomeSectionInchargeCubit>()
+          //         //         .stockUpdates
+          //         //         .isNotEmpty &&
+          //         //     UserController().sectionitems.isNotEmpty)
+          //         //   Expanded(
+          //         //     child: Column(
+          //         //       children: [
+          //         //         Text(
+          //         //           '${context.read<HomeSectionInchargeCubit>().stockUpdates.length + UserController().sectionitems.length}',
+          //         //           style: TextStyle(
+          //         //             fontSize: 20,
+          //         //             fontWeight: FontWeight.bold,
+          //         //             color: customColors().accent,
+          //         //           ),
+          //         //         ),
+          //         //         SizedBox(height: 4),
+          //         //         Text(
+          //         //           'Total Items',
+          //         //           style: TextStyle(
+          //         //             fontSize: 12,
+          //         //             color: customColors().fontSecondary,
+          //         //           ),
+          //         //         ),
+          //         //       ],
+          //         //     ),
+          //         //   ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+          // Single comprehensive report button - show if there's any data to report
+          // Existing PDF button stays as is...
+          // New: Add Item button - opens bottom sheet
           Positioned(
-            bottom: 95.0,
+            bottom: 25.0,
             left: 15.0,
-            right: 15.0,
-            child: Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: customColors().backgroundPrimary,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
+            child: InkWell(
+              onTap: () {
+                _barcodeController.clear();
+                _nameController.clear();
+
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
                   ),
-                ],
-                border: Border.all(
-                  color: customColors().fontTertiary.withOpacity(0.3),
+                  builder: (ctx) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+                        top: 16,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Add New Item',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.HeaderXS_Bold,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          TextField(
+                            controller: _barcodeController,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              labelText: 'Barcode / SKU',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          TextField(
+                            controller: _nameController,
+                            decoration: InputDecoration(
+                              labelText: 'Product Name',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final sku = _barcodeController.text.trim();
+                                final name = _nameController.text.trim();
+
+                                if (sku.isEmpty || name.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Please enter barcode and name',
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                await context
+                                    .read<HomeSectionInchargeCubit>()
+                                    .addNewTempItem(sku: sku, name: name);
+
+                                Navigator.pop(ctx);
+                              },
+                              child: Text('Submit'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+              child: Container(
+                height: 60.0,
+                width: 60.0,
+                decoration: BoxDecoration(
+                  color: customColors().accent,
+                  shape: BoxShape.circle,
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  if (context
-                      .read<HomeSectionInchargeCubit>()
-                      .stockUpdates
-                      .isNotEmpty)
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            '${context.read<HomeSectionInchargeCubit>().stockUpdates.length}',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: customColors().red1,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Stock Updates',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: customColors().fontSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (context
-                          .read<HomeSectionInchargeCubit>()
-                          .stockUpdates
-                          .isNotEmpty &&
-                      UserController().sectionitems.isNotEmpty)
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: customColors().fontTertiary.withOpacity(0.3),
-                    ),
-                  if (UserController().sectionitems.isNotEmpty)
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            '${UserController().sectionitems.length}',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: customColors().primary,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Section Items',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: customColors().fontSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (context
-                          .read<HomeSectionInchargeCubit>()
-                          .stockUpdates
-                          .isNotEmpty &&
-                      UserController().sectionitems.isNotEmpty)
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: customColors().fontTertiary.withOpacity(0.3),
-                    ),
-                  if (context
-                          .read<HomeSectionInchargeCubit>()
-                          .stockUpdates
-                          .isNotEmpty &&
-                      UserController().sectionitems.isNotEmpty)
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            '${context.read<HomeSectionInchargeCubit>().stockUpdates.length + UserController().sectionitems.length}',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: customColors().accent,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Total Items',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: customColors().fontSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
+                child: Center(
+                  child: Icon(
+                    Icons.add,
+                    color: customColors().backgroundPrimary,
+                  ),
+                ),
               ),
             ),
           ),
 
-        // Single comprehensive report button - show if there's any data to report
         if (context.read<HomeSectionInchargeCubit>().stockUpdates.isNotEmpty ||
             UserController().sectionitems.isNotEmpty)
           Positioned(
@@ -411,7 +517,7 @@ class _HomeSectionState extends State<HomeSection> {
             right: 15.0,
             child: InkWell(
               onTap: () async {
-                final loading = showDialog(
+                showDialog(
                   context: context,
                   barrierDismissible: false,
                   builder:
@@ -420,7 +526,7 @@ class _HomeSectionState extends State<HomeSection> {
                           children: [
                             CircularProgressIndicator(),
                             SizedBox(width: 16),
-                            Text('Generating comprehensive report...'),
+                            Text('Generating report...'),
                           ],
                         ),
                       ),
@@ -430,6 +536,7 @@ class _HomeSectionState extends State<HomeSection> {
                   final file = await PdfService.generateComprehensivePdf(
                     context.read<HomeSectionInchargeCubit>().stockUpdates,
                     UserController().sectionitems,
+                    context.read<HomeSectionInchargeCubit>().statusHistories,
                   );
                   Navigator.pop(context);
                   await PdfService.shareComprehensivePdf(file);
@@ -460,8 +567,6 @@ class _HomeSectionState extends State<HomeSection> {
     );
   }
 }
-        //   child:
-        //       (context.read<HomeSectionInchargeCubit>().stockUpdates.isNotEmpty)
         //           ? Padding(
         //             padding: const EdgeInsets.symmetric(
         //               horizontal: 20.0,
