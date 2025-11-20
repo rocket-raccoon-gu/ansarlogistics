@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:ansarlogistics/navigations/navigation.dart';
@@ -123,6 +124,8 @@ class LoginCubit extends Cubit<LoginState> {
         final String serverkey = await getAccessToken();
 
         await PreferenceUtils.storeDataToShared("devicetoken", value);
+
+        log("ServerKey = $serverkey");
 
         String? selectedRegion = await PreferenceUtils.getDataFromShared(
           "selected_region",
