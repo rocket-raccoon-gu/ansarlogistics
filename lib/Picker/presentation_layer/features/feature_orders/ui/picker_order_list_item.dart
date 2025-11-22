@@ -25,10 +25,40 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        // if (widget.orderResponseItem.status != "assigned_picker") {
+        //   // context.gNavigationService.openPickerOrderDetailsPage(
+        //   //   context,
+        //   //   arg: {'orderitem': widget.orderResponseItem},
+        //   // );
+
+        //   context.gNavigationService.openPickerDashboardPage(
+        //     context,
+        //     arg: {
+        //       "suborder_id": widget.orderResponseItem.subgroupIdentifier,
+        //       "order_id": widget.orderResponseItem.id,
+        //       "order_items": widget.orderResponseItem.items,
+        //       "preparation_label": widget.orderResponseItem.subgroupIdentifier,
+        //       "order": widget.orderResponseItem,
+        //     },
+        //   );
+        // }
+
         if (widget.orderResponseItem.status != "assigned_picker") {
-          context.gNavigationService.openPickerOrderDetailsPage(
+          final suborderStatuses =
+              widget.orderResponseItem.suborderStatuses ?? {};
+          final String suborderType =
+              suborderStatuses.keys.isNotEmpty
+                  ? suborderStatuses.keys.first
+                  : '';
+
+          context.gNavigationService.openPickerDashboardPage(
             context,
-            arg: {'orderitem': widget.orderResponseItem},
+            arg: {
+              "suborder_id": suborderType, // e.g. 'nol' or 'exp'
+              "order_id": widget.orderResponseItem.id,
+              "preparation_label": widget.orderResponseItem.subgroupIdentifier,
+              "order": widget.orderResponseItem, // let root builder use this
+            },
           );
         }
       },

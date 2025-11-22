@@ -35,42 +35,6 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
   int _currentIndex = 0;
   StreamSubscription? _statusSub;
 
-  String _formatSuborderTitle(
-    String suborderId,
-    String? preparationLabel,
-    String? orderId,
-  ) {
-    final code = suborderId.toUpperCase();
-    final label = preparationLabel?.toUpperCase() ?? '';
-
-    if (label.isNotEmpty) {
-      // Remove optional PR prefix and separators
-      var l = label.startsWith('PR') ? label.substring(2) : label;
-      l = l.replaceAll(RegExp(r'[^A-Z0-9]'), '');
-
-      // Exact CODE + digits
-      final m1 = RegExp('^' + RegExp.escape(code) + r'(\d+)$').firstMatch(l);
-      if (m1 != null) {
-        return '$code-${m1.group(1)}';
-      }
-
-      // Anywhere CODE followed by digits
-      final m2 = RegExp(RegExp.escape(code) + r'(\d+)').firstMatch(l);
-      if (m2 != null) {
-        return '$code-${m2.group(1)}';
-      }
-    }
-
-    // Fallback to orderId digits if available
-    final digits = orderId?.replaceAll(RegExp(r'\D'), '');
-    if (digits != null && digits.isNotEmpty) {
-      return '$code-$digits';
-    }
-
-    // Last resort: just the code
-    return code;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -130,11 +94,11 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
 
         final s = state as PickerDashboardTabLoadedState;
 
-        final titleText = _formatSuborderTitle(
-          s.suborderId,
-          s.preparationLabel,
-          s.orderId,
-        );
+        // final titleText = _formatSuborderTitle(
+        //   s.suborderId,
+        //   s.preparationLabel,
+        //   s.orderId,
+        // );
         Widget body;
         switch (_currentIndex) {
           case 0:
@@ -155,7 +119,7 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                 if (s.orderId!.startsWith('PREN')) {
                   // Navigate back to order details to finalize
                   context.read<PickerDashboardTabCubit>().updateOrderStatus(
-                    suborderId: titleText,
+                    suborderId: widget.orderResponseItem.subgroupIdentifier!,
                     preparationLabel: s.orderId!,
                     comment:
                         'Order End Picked By ${UserController().profile.name} (${UserController().profile.empId})',
@@ -220,14 +184,14 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                   context.gNavigationService.back(context);
                 },
                 orderResponseItem: widget.orderResponseItem,
-                title: titleText,
+                title: widget.orderResponseItem.id.toString(),
                 onTapinfo: () {
                   showTopModel(
                     context,
                     widget.serviceLocator,
                     widget.orderResponseItem.id.toString(),
                     widget.orderResponseItem,
-                    titleText,
+                    widget.orderResponseItem.id.toString(),
                   );
                 },
                 onTaptranslate: () {
@@ -248,7 +212,7 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                         arg: {
                           "order_id": widget.orderResponseItem,
                           "preparationNumber": widget.orderResponseItem.id,
-                          "orderNumber": titleText,
+                          "orderNumber": widget.orderResponseItem.id!,
                         },
                       );
                     },

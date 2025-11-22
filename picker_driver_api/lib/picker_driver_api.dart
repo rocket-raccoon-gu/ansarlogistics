@@ -114,7 +114,11 @@ class PickerDriverApi {
   // New orders (non-paginated) endpoint for picker with categories + orders
   Future<http.Response> OrdersNewService({required String token}) async {
     // Direct API host for new picker endpoint
-    final Uri url = _endpointWithApplicationPath("picker/ordersnew");
+    // final Uri url = _endpointWithApplicationPath("picker/ordersnew");
+
+    final url = Uri.parse(
+      _endpointWithApplicationPathString('picker/ordersnewsuborders'),
+    );
 
     log(url.toString());
     final Map<String, String> headers = {

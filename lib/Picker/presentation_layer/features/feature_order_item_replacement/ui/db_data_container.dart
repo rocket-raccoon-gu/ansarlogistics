@@ -43,10 +43,13 @@ class _DbDataContainerState extends State<DbDataContainer> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Name + price row
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Name
                       Expanded(
                         child: Text(
                           widget.productDBdata!.skuName,
@@ -54,64 +57,62 @@ class _DbDataContainerState extends State<DbDataContainer> {
                             fontStyle: FontStyle.HeaderXS_Bold,
                             color: FontColor.FontPrimary,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              widget.productDBdata!.specialPrice != ""
-                                  ? widget.productDBdata!.specialPrice
-                                      .toString()
-                                  : double.parse(
-                                    widget.productDBdata!.regularPrice,
-                                  ).toStringAsFixed(2).toString(),
-                              style: customTextStyle(
-                                fontStyle: FontStyle.HeaderXS_Bold,
-                                color: FontColor.FontPrimary,
-                              ),
-                            ),
-                            Text(
-                              "  QAR",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      const SizedBox(width: 12),
+                      // Price block
+                      _buildPriceBlock(widget.productDBdata!),
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              // "SKU: ${state.prwork!.sku}",
-                              "SKU: ${widget.productDBdata!.sku}",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.HeaderXS_Bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+
+                  const SizedBox(height: 8),
+
+                  // SKU row
+                  Text(
+                    "SKU: ${widget.productDBdata!.sku}",
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyS_Regular,
+                      color: FontColor.FontSecondary,
                     ),
                   ),
+
+                  const SizedBox(height: 8),
+
+                  // Optional: small divider
+                  Divider(
+                    color: customColors().backgroundTertiary.withOpacity(0.5),
+                  ),
+
+                  // Quantity selector for non‑produce items
                   if (widget.productDBdata?.isProduce == "0")
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         vertical: 12.0,
-                        horizontal: 14.0,
+                        horizontal: 4.0,
                       ),
-                      child: CounterDropdown(
-                        initNumber: 0,
-                        counterCallback: widget.counterCallback,
-                        maxNumber: 100,
-                        minNumber: 0,
+                      child: Row(
+                        children: [
+                          Text(
+                            'Quantity',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyM_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          SizedBox(
+                            width:
+                                140, // adjust as you like (120–160 works well)
+                            child: CounterDropdown(
+                              initNumber: 0,
+                              counterCallback: widget.counterCallback,
+                              maxNumber: 500, // see next section
+                              minNumber: 0,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                 ],
@@ -121,5 +122,61 @@ class _DbDataContainerState extends State<DbDataContainer> {
         ),
       ],
     );
+  }
+
+  Widget _buildPriceBlock(ProductDBdata data) {
+    final hasSpecial =
+        (data.specialPrice != null && data.specialPrice.toString().isNotEmpty);
+
+    final double regular = double.tryParse(data.regularPrice.toString()) ?? 0.0;
+    final double? special =
+        hasSpecial ? double.tryParse(data.specialPrice.toString()) : null;
+
+    if (hasSpecial && special != null && special > 0) {
+      // Regular + special price
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // Regular price, strikethrough
+          Text(
+            'QAR ${regular.toStringAsFixed(2)}',
+            style: customTextStyle(
+              fontStyle: FontStyle.BodyS_Regular,
+              color: FontColor.FontSecondary,
+            ).copyWith(decoration: TextDecoration.lineThrough),
+          ),
+          const SizedBox(height: 2),
+          // Special price highlighted
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: customColors().adBackground,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              'QAR ${special.toStringAsFixed(2)}',
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyM_Bold,
+                color: FontColor.Danger, // or FontColor.Info if you prefer
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      // Only regular price
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            'QAR ${regular.toStringAsFixed(2)}',
+            style: customTextStyle(
+              fontStyle: FontStyle.HeaderXS_Bold,
+              color: FontColor.FontPrimary,
+            ),
+          ),
+        ],
+      );
+    }
   }
 }

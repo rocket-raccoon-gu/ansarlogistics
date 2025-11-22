@@ -417,7 +417,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
         },
       ),
       bottomNavigationBar: SizedBox(
-        height: 96,
+        height: 120,
         child: BlocBuilder<ItemReplacementPageCubit, ItemReplacementPageState>(
           builder: (context, state) {
             final isLoaded =
@@ -570,6 +570,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 30),
               ],
             );
           },

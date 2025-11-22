@@ -13,8 +13,7 @@ class PickerTabDashboardRootBuilder {
   Widget call(BuildContext context) {
     final suborderId = (_data['suborder_id'] ?? '').toString();
 
-    // Expect either a flattened list of OrderItemNew in 'order_items'
-    // or an 'order' (OrderNew) object to take items from.
+    // We prefer 'order'
     final dynamic itemsArg = _data['order'];
     final List<OrderItemNew> items =
         (itemsArg is OrderNew)

@@ -905,21 +905,166 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   borderColor:
                                                       customColors().dodgerBlue,
                                                   asset: Icons.pause,
+                                                  // onTap: () {
+                                                  //   // Placeholder for hold logic
+                                                  //   context
+                                                  //       .read<
+                                                  //         OrderItemDetailsCubit
+                                                  //       >()
+                                                  //       .updateitemstatus(
+                                                  //         'holded',
+                                                  //         '${item.qtyOrdered ?? 0}',
+                                                  //         '',
+                                                  //         item.price ?? '0',
+                                                  //         widget
+                                                  //             .data['preparationLabel'],
+                                                  //         item.sku ?? '',
+                                                  //       );
+                                                  // },
                                                   onTap: () {
-                                                    // Placeholder for hold logic
-                                                    context
-                                                        .read<
-                                                          OrderItemDetailsCubit
-                                                        >()
-                                                        .updateitemstatus(
-                                                          'holded',
-                                                          '${item.qtyOrdered ?? 0}',
-                                                          '',
-                                                          item.price ?? '0',
-                                                          widget
-                                                              .data['preparationLabel'],
-                                                          item.sku ?? '',
+                                                    final reasonController =
+                                                        TextEditingController();
+
+                                                    showModalBottomSheet(
+                                                      context: context,
+                                                      isScrollControlled: true,
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.vertical(
+                                                              top:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      builder: (ctx) {
+                                                        return Padding(
+                                                          padding: EdgeInsets.only(
+                                                            bottom:
+                                                                MediaQuery.of(
+                                                                      ctx,
+                                                                    )
+                                                                    .viewInsets
+                                                                    .bottom,
+                                                            left: 16,
+                                                            right: 16,
+                                                            top: 16,
+                                                          ),
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                'Hold item?',
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .BodyL_Bold,
+                                                                  color:
+                                                                      FontColor
+                                                                          .FontPrimary,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 12,
+                                                              ),
+                                                              TextField(
+                                                                controller:
+                                                                    reasonController,
+                                                                maxLines: 3,
+                                                                decoration:
+                                                                    const InputDecoration(
+                                                                      labelText:
+                                                                          'Reason',
+                                                                      border:
+                                                                          OutlineInputBorder(),
+                                                                    ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 12,
+                                                              ),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .end,
+                                                                children: [
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () =>
+                                                                            Navigator.of(
+                                                                              ctx,
+                                                                            ).pop(),
+                                                                    child: const Text(
+                                                                      'Cancel',
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 8,
+                                                                  ),
+                                                                  ElevatedButton(
+                                                                    style: ElevatedButton.styleFrom(
+                                                                      backgroundColor:
+                                                                          customColors()
+                                                                              .primary,
+                                                                    ),
+                                                                    onPressed: () {
+                                                                      final reason =
+                                                                          reasonController
+                                                                              .text
+                                                                              .trim();
+                                                                      if (reason
+                                                                          .isEmpty) {
+                                                                        showSnackBar(
+                                                                          context:
+                                                                              context,
+                                                                          snackBar: showErrorDialogue(
+                                                                            errorMessage:
+                                                                                'Please enter a reason',
+                                                                          ),
+                                                                        );
+                                                                        return;
+                                                                      }
+
+                                                                      Navigator.of(
+                                                                        ctx,
+                                                                      ).pop(); // close bottom sheet
+
+                                                                      context
+                                                                          .read<
+                                                                            OrderItemDetailsCubit
+                                                                          >()
+                                                                          .updateitemstatus(
+                                                                            'holded',
+                                                                            '${item.qtyOrdered ?? 0}',
+                                                                            reason, // <‑ pass reason
+                                                                            item.price ??
+                                                                                '0',
+                                                                            widget.data['preparationLabel'],
+                                                                            '', // scannedSku (if unused)
+                                                                          );
+                                                                    },
+                                                                    child: const Text(
+                                                                      'Submit',
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Colors.white,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 50,
+                                                              ),
+                                                            ],
+                                                          ),
                                                         );
+                                                      },
+                                                    );
                                                   },
                                                 ),
                                               ),
@@ -939,20 +1084,138 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   borderColor:
                                                       Colors.transparent,
                                                   asset: Icons.close,
+                                                  // onTap: () {
+                                                  //   context
+                                                  //       .read<
+                                                  //         OrderItemDetailsCubit
+                                                  //       >()
+                                                  //       .updateitemstatus(
+                                                  //         'item_not_available',
+                                                  //         '${item.qtyOrdered ?? 0}',
+                                                  //         '',
+                                                  //         item.price ?? '0',
+                                                  //         widget
+                                                  //             .data['preparationLabel'],
+                                                  //         item.sku ?? '',
+                                                  //       );
+                                                  // },
                                                   onTap: () {
-                                                    context
-                                                        .read<
-                                                          OrderItemDetailsCubit
-                                                        >()
-                                                        .updateitemstatus(
-                                                          'item_not_available',
-                                                          '${item.qtyOrdered ?? 0}',
-                                                          '',
-                                                          item.price ?? '0',
-                                                          widget
-                                                              .data['preparationLabel'],
-                                                          item.sku ?? '',
+                                                    showModalBottomSheet(
+                                                      context: context,
+                                                      isScrollControlled: true,
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.vertical(
+                                                              top:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      builder: (ctx) {
+                                                        return Padding(
+                                                          padding:
+                                                              const EdgeInsets.fromLTRB(
+                                                                16,
+                                                                16,
+                                                                16,
+                                                                24,
+                                                              ),
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                'Mark item as not available?',
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .BodyL_Bold,
+                                                                  color:
+                                                                      FontColor
+                                                                          .FontPrimary,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 8,
+                                                              ),
+                                                              Text(
+                                                                'This will move the item to the Not Available list.',
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .BodyS_Regular,
+                                                                  color:
+                                                                      FontColor
+                                                                          .FontSecondary,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 16,
+                                                              ),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .end,
+                                                                children: [
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () =>
+                                                                            Navigator.of(
+                                                                              ctx,
+                                                                            ).pop(),
+                                                                    child: const Text(
+                                                                      'Cancel',
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 8,
+                                                                  ),
+                                                                  ElevatedButton(
+                                                                    style: ElevatedButton.styleFrom(
+                                                                      backgroundColor:
+                                                                          customColors()
+                                                                              .primary,
+                                                                    ),
+                                                                    onPressed: () {
+                                                                      Navigator.of(
+                                                                        ctx,
+                                                                      ).pop(); // close sheet
+
+                                                                      context
+                                                                          .read<
+                                                                            OrderItemDetailsCubit
+                                                                          >()
+                                                                          .updateitemstatus(
+                                                                            'item_not_available',
+                                                                            '${item.qtyOrdered ?? 0}',
+                                                                            '', // reason (empty or add later)
+                                                                            item.price ??
+                                                                                '0',
+                                                                            widget.data['preparationLabel'],
+                                                                            item.sku ??
+                                                                                '',
+                                                                          );
+                                                                    },
+                                                                    child: const Text(
+                                                                      'Confirm',
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Colors.white,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
                                                         );
+                                                      },
+                                                    );
                                                   },
                                                 ),
                                               ),

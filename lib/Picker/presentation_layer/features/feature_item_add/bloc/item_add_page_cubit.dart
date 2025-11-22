@@ -112,12 +112,14 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         produceprice = double.parse(getPriceFromBarcode(sku));
       }
 
+      final token = await PreferenceUtils.getDataFromShared("usertoken");
+
       final productresponse = await serviceLocator.tradingApi
           .checkBarcodeDBService(
             endpoint: sku,
             productSku: productSku,
             action: action,
-            token1: UserController.userController.app_token,
+            token1: token!,
           );
 
       if (productresponse.statusCode == 200) {

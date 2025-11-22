@@ -913,7 +913,9 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                                           "start_picking",
                                                       comment:
                                                           "${UserController().profile.name} (${UserController().profile.empId}) started to Pick the order",
-                                                      orderNumber: '',
+                                                      orderNumber:
+                                                          orderitems![index]
+                                                              .id!,
                                                       token: token,
                                                     );
 
