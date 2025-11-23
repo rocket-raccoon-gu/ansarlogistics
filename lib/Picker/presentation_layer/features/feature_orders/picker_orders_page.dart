@@ -846,7 +846,8 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                 fit: FlexFit.loose,
                 child: Column(
                   children: [
-                    _statusChips(orderitems!),
+                    // _statusChips(orderitems!),
+                    _statusChips(context.read<PickerOrdersCubit>().ordersNew),
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: () async {

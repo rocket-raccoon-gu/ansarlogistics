@@ -88,6 +88,9 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
 
       GroupedProduct groupedProduct = item;
 
+      final List<String> orderIds =
+          groupedProduct.orders.map((o) => o.orderId).toList();
+
       log(groupedProduct.sku.toString());
 
       if (barcodeScanRes != null) {
@@ -99,6 +102,7 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
           context,
           groupedProduct.itemIds,
           "",
+          orderIds,
         );
       }
     } catch (e) {

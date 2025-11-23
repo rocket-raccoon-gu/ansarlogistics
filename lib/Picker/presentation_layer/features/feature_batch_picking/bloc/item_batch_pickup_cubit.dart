@@ -39,6 +39,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     BuildContext context,
     List<int> itemIds,
     String preparationId,
+    List<String> orderIds,
   ) async {
     // print("🔍 checkitemdb() called");
     // print("📦 Qty: $qty");
@@ -87,8 +88,9 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                                 userid: UserController().profile.id.toString(),
                                 token1: token!,
                                 status: "end_picking",
-                                orderIds: [],
-                                itemSku: "",
+                                orderIds: orderIds,
+                                itemSku: productSku,
+                                reason: "",
                               );
 
                           if (response.statusCode == 200) {
@@ -158,8 +160,9 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                               userid: UserController().profile.id.toString(),
                               token1: token!,
                               status: "end_picking",
-                              orderIds: [],
-                              itemSku: "",
+                              orderIds: orderIds,
+                              itemSku: productDBdata.sku,
+                              reason: "",
                             );
 
                         if (response.statusCode == 200) {
@@ -238,6 +241,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     List<int> itemIds,
     List<String> orderIds,
     String itemSku,
+    String reason,
   ) async {
     final token = await PreferenceUtils.getDataFromShared("usertoken");
     if (token == null) return;
@@ -249,6 +253,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
       status: status,
       orderIds: orderIds,
       itemSku: itemSku,
+      reason: reason,
     );
 
     if (response.statusCode == 200) {
@@ -334,6 +339,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                             itemIds,
                             orderIds,
                             itemSku,
+                            "",
                           );
                           _isDialogShowing = false;
                         },
@@ -359,68 +365,89 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     List<String> orderIds,
   ) {
     if (_isDialogShowing) return;
-
     _isDialogShowing = true;
+
+    final TextEditingController reasonController = TextEditingController();
+    String? errorText;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Confirm Item Hold',
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Bold,
-                    color: FontColor.FontPrimary,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // title
+                  // existing text "Are you sure..."
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: reasonController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: 'Reason for hold',
+                      hintText: 'Enter reason...',
+                      errorText: errorText,
+                      border: const OutlineInputBorder(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Are you sure you want to put "$itemName" on hold?',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _isDialogShowing = false;
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Cancel button as it is
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _isDialogShowing = false;
+                          },
+                          child: const Text('Cancel'),
                         ),
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          await updateitemstatus(
-                            'holded',
-                            itemIds,
-                            orderIds,
-                            itemSku,
-                          );
-                          _isDialogShowing = false;
-                        },
-                        child: const Text('Put on Hold'),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                          ),
+                          onPressed: () async {
+                            final reason = reasonController.text.trim();
+                            if (reason.isEmpty) {
+                              setState(() {
+                                errorText = 'Please enter a reason';
+                              });
+                              return;
+                            }
+                            Navigator.pop(context);
+                            await updateitemstatus(
+                              'holded',
+                              itemIds,
+                              orderIds,
+                              itemSku,
+                              reason, // <‑ pass reason here
+                            );
+                            _isDialogShowing = false;
+                          },
+                          child: const Text('Put on Hold'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     ).whenComplete(() {
       _isDialogShowing = false;
     });

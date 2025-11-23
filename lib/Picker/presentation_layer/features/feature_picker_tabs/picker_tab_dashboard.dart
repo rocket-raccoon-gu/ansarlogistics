@@ -119,7 +119,7 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                 if (s.orderId!.startsWith('PREN')) {
                   // Navigate back to order details to finalize
                   context.read<PickerDashboardTabCubit>().updateOrderStatus(
-                    suborderId: widget.orderResponseItem.subgroupIdentifier!,
+                    suborderId: widget.orderResponseItem.id!,
                     preparationLabel: s.orderId!,
                     comment:
                         'Order End Picked By ${UserController().profile.name} (${UserController().profile.empId})',
@@ -129,7 +129,7 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                 } else {
                   // Navigate back to order details to finalize
                   context.read<PickerDashboardTabCubit>().updateOrderStatus(
-                    suborderId: "",
+                    suborderId: widget.orderResponseItem.id!,
                     preparationLabel: s.orderId!,
                     comment:
                         'Order End Picked By ${UserController().profile.name} (${UserController().profile.empId})',
@@ -139,6 +139,7 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                 }
               },
               preparationLabel: s.orderId!,
+              orderResponseItem: widget.orderResponseItem,
             );
             break;
           case 2:

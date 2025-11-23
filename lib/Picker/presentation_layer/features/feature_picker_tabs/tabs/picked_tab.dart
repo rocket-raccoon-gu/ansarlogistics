@@ -12,12 +12,14 @@ class PickedTab extends StatelessWidget {
   final bool showFinishButton;
   final VoidCallback? onFinishPick;
   final String preparationLabel;
+  final OrderNew orderResponseItem;
   const PickedTab({
     super.key,
     required this.groups,
     this.showFinishButton = false,
     this.onFinishPick,
     required this.preparationLabel,
+    required this.orderResponseItem,
   });
 
   @override
@@ -45,11 +47,13 @@ class PickedTab extends StatelessWidget {
       },
     );
 
-    if (!showFinishButton) return list;
+    if (!showFinishButton || orderResponseItem.status == 'end_picking')
+      return list;
 
     return Column(
       children: [
         Expanded(child: list),
+
         SafeArea(
           top: false,
           child: Container(
