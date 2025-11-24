@@ -784,15 +784,11 @@ extension PDGeneralApi on PickerDriverApi {
 
     if (startDate != "" && endDate == "") {
       url = Uri.parse(
-        _endpointWithApplicationPathString(
-          'getStatusHistoriesV1.php?startdate=$startDate',
-        ),
+        'https://pickerdriver-api.testuatah.com/api/picker/report?start_date=$startDate',
       );
     } else {
       url = Uri.parse(
-        _endpointWithApplicationPathString(
-          'getStatusHistoriesV1.php?startdate=$startDate&enddate=$endDate',
-        ),
+        'https://pickerdriver-api.testuatah.com/api/picker/report?start_date=$startDate&end_date=$endDate',
       );
     }
 

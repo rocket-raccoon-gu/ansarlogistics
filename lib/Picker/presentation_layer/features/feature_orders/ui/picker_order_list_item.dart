@@ -183,6 +183,11 @@ class _StatusChip extends StatelessWidget {
         bg = colors.danger;
         label = 'Material Request';
         break;
+      case 'customer_not_answer':
+      case 'Customer Not Answer':
+        bg = colors.danger;
+        label = 'Customer Not Answer';
+        break;
       default:
         bg = colors.fontPrimary;
         label = status ?? '';

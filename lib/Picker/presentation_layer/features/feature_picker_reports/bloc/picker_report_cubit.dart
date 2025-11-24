@@ -37,7 +37,7 @@ class PickerReportCubit extends Cubit<PickerReportState> {
     });
   }
 
-  List<StatusHistory> statuslist = [];
+  List<Datum> statuslist = [];
 
   updatedata(String startdate1, String enddate1) async {
     startdate = startdate1;
@@ -63,7 +63,7 @@ class PickerReportCubit extends Cubit<PickerReportState> {
         OrderReportsResponse orderReportsResponse =
             OrderReportsResponse.fromJson(jsonresponce);
 
-        statuslist = orderReportsResponse.statusHistories;
+        statuslist = orderReportsResponse.data;
       } else {
         // ignore: use_build_context_synchronously
         toastification.show(

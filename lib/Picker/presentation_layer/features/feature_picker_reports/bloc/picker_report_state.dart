@@ -3,7 +3,7 @@ import 'package:picker_driver_api/responses/order_report_response.dart';
 abstract class PickerReportState {}
 
 class PickerReportInitialState extends PickerReportState {
-  List<StatusHistory> statuslist;
+  List<Datum> statuslist;
 
   PickerReportInitialState(this.statuslist);
 }

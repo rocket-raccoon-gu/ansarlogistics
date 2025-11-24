@@ -19,6 +19,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_scankit/flutter_scankit.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 import 'package:camera/camera.dart';
@@ -53,9 +54,39 @@ class _ItemAddPageState extends State<ItemAddPage> {
   bool isProcessing = false;
   String scannedBarcode = "";
 
-  MobileScannerController cameraController = MobileScannerController();
+  late final ScanKit scanKit;
+
+  String result = '';
+
+  // MobileScannerController cameraController = MobileScannerController();
 
   bool producebarcode = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    scanKit = ScanKit(
+      photoMode: true,
+      viewType:
+          ScanTypes.qRCode.bit |
+          ScanTypes.code128.bit |
+          ScanTypes.ean13.bit |
+          ScanTypes.code39.bit |
+          ScanTypes.code93.bit |
+          ScanTypes.aztec.bit |
+          ScanTypes.dataMatrix.bit |
+          ScanTypes.pdf417.bit |
+          ScanTypes.upcCodeA.bit |
+          ScanTypes.upcCodeE.bit |
+          ScanTypes.ean8.bit |
+          ScanTypes.all.bit,
+    );
+    scanKit.onResult.listen((val) {
+      setState(() => result = val.originalValue);
+      scanBarcodeNormal(result);
+    });
+  }
 
   Future<void> scanBarcodeNormal(String barcodeScanRes) async {
     log(barcodeScanRes);
@@ -77,6 +108,17 @@ class _ItemAddPageState extends State<ItemAddPage> {
       isScanner = false;
       scannedBarcode = barcodeScanRes;
     });
+  }
+
+  Future<void> _startScan() async {
+    try {
+      await scanKit.startScan(
+        scanTypes:
+            ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
+      );
+    } on PlatformException catch (e) {
+      debugPrint('Error: ${e.message}');
+    }
   }
 
   @override
@@ -258,38 +300,39 @@ class _ItemAddPageState extends State<ItemAddPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [Text("No Data Found...!")],
                   ),
-                )
-              else if (state is MobileScannerState1)
-                Expanded(
-                  child: MobileScanner(
-                    controller: cameraController,
-                    onDetect: (capture) async {
-                      final List<Barcode> barcodes = capture.barcodes;
-                      if (barcodes.isNotEmpty &&
-                          barcodes.first.rawValue != null) {
-                        final scannedCode = barcodes.first.rawValue!;
-
-                        if (scannedCode != barcodeController.text) {
-                          barcodeController.text = scannedCode;
-
-                          await BlocProvider.of<ItemAddPageCubit>(
-                            context,
-                          ).getScannedProductData(
-                            scannedCode,
-                            producebarcode,
-                            scannedCode,
-                            "additional",
-                          );
-
-                          // Optionally switch back to form
-                          BlocProvider.of<ItemAddPageCubit>(
-                            context,
-                          ).updateFormState();
-                        }
-                      }
-                    },
-                  ),
                 ),
+
+              // else if (state is MobileScannerState1)
+              //   Expanded(
+              //     child: MobileScanner(
+              //       controller: cameraController,
+              //       onDetect: (capture) async {
+              //         final List<Barcode> barcodes = capture.barcodes;
+              //         if (barcodes.isNotEmpty &&
+              //             barcodes.first.rawValue != null) {
+              //           final scannedCode = barcodes.first.rawValue!;
+
+              //           if (scannedCode != barcodeController.text) {
+              //             barcodeController.text = scannedCode;
+
+              //             await BlocProvider.of<ItemAddPageCubit>(
+              //               context,
+              //             ).getScannedProductData(
+              //               scannedCode,
+              //               producebarcode,
+              //               scannedCode,
+              //               "additional",
+              //             );
+
+              //             // Optionally switch back to form
+              //             BlocProvider.of<ItemAddPageCubit>(
+              //               context,
+              //             ).updateFormState();
+              //           }
+              //         }
+              //       },
+              //     ),
+              //   ),
             ],
           ),
           bottomNavigationBar: SizedBox(
@@ -417,9 +460,10 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                           await requestCameraPermission();
                                         }
 
-                                        BlocProvider.of<ItemAddPageCubit>(
-                                          context,
-                                        ).updateScannerState();
+                                        // BlocProvider.of<ItemAddPageCubit>(
+                                        //   context,
+                                        // ).updateScannerState();
+                                        _startScan();
                                       },
                                       child: BasketButtonwithIcon(
                                         bgcolor: customColors().dodgerBlue,

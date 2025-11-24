@@ -3,7 +3,7 @@ import 'package:picker_driver_api/responses/order_report_response.dart';
 abstract class DriverReportState {}
 
 class DriverReportInitialState extends DriverReportState {
-  List<StatusHistory> statuslist;
+  List<Datum> statuslist;
 
   DriverReportInitialState(this.statuslist);
 }

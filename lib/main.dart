@@ -56,26 +56,27 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
-      // First check if update is required
-
-      // Continue with your existing initialization
+      // Initialize Firebase
       if (Firebase.apps.isEmpty) {
         await initializeFirebase();
       }
+
+      // Initialize notifications
+      await NotificationService.initialize();
 
       // Initialize notifications plugin
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
 
-      await flutterLocalNotificationsPlugin.initialize(
-        InitializationSettings(android: initializationSettingsAndroid),
-      );
+      // await flutterLocalNotificationsPlugin.initialize(
+      //   InitializationSettings(android: initializationSettingsAndroid),
+      // );
 
-      // Create notification channel
-      await createNotificationChannel();
+      // // Create notification channel
+      // await createNotificationChannel();
 
-      // Initialize Firebase messaging
-      await initializeFirebasenotification();
+      // // Initialize Firebase messaging
+      // await initializeFirebasenotification();
 
       final needsUpdate = await UpdateChecker.isUpdateRequired();
       if (needsUpdate) {

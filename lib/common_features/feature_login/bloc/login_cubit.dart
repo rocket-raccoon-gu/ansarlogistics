@@ -16,6 +16,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picker_driver_api/responses/login_response.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
+
+import '../../../firebase_configs/fcm_service.dart';
 part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
@@ -118,7 +120,7 @@ class LoginCubit extends Cubit<LoginState> {
 
         final info = await PackageInfo.fromPlatform();
 
-        // final String serverkey = await getAccessToken();
+        final String serverkey = await getAccessToken();
 
         await PreferenceUtils.storeDataToShared("devicetoken", value);
 
@@ -133,8 +135,8 @@ class LoginCubit extends Cubit<LoginState> {
               userId: userId,
               password: password,
               token: value,
-              bearertoken: "",
-              appversion: "2.0.24",
+              bearertoken: serverkey,
+              appversion: info.version,
             );
         DateTime responseTime = DateTime.now();
 
@@ -218,9 +220,9 @@ Future<String> getAccessToken() async {
     final serviceAccountJson = {
       "type": "service_account",
       "project_id": "ah-market-5ab28",
-      "private_key_id": "5869f4f5f5b435acec0b66b5812888c000d0aef9",
+      "private_key_id": "9850d082026a221a64499bce1a7c3c753f51806a",
       "private_key":
-          "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDggC67Xcdnvaiq\nC+NhKu/BEvnOv8RUodobf+Gtt2qnnhVv3TM1aqfXQX2qaYHG75fggeqXHieNTKyp\n1pIONnCmWYhk8zGT/a8byD0bZt4E+FBGln4gcXYdWzYdyO+qUPsZFYRDAW9/yd5p\n03qpAo1nO4/HKtEbgpwh1CyEj1ZWVavMxSBNrzpQLZttjLp0OPAeCrv3UciK5xid\nOvKqPaUorYxGKgJjaaXh0ly1rRfWuQwzuH1XoyIp+S8m1/nEbPR5W85/Qv2KvI9m\nTiXq8M7PJ1jne41ypwHYoKwqgGy8nfK7FIocQCiH1SwVCfVX1bYYOW/F9TndKPV+\n2wNaVRTlAgMBAAECggEABIn67HjMUDNR2f6UwJFJj7uYqb7Gd88nNaV7prf0qsJo\nbwxQ1Hx4u8JgwIWb7kkRMAAYb7uF4Wi5fNMnGL9lPnTpdTufYBjK6nK0OLlbrEv6\nz86LoaI4fZiG1BxoPYKNtkCoJs/zJ1byxGyffxPtvXaepPToezOEN9NOQ0H/7h/2\n9wnHW6g0t/vAay8q2ne+zYmuKB3LuTl5MPuD083Pk5KXwqYrxHKrW0G7nxdJvxzA\ngdAH1KXWqN3SXXVH2XRmZfFqUlYhCMqTTRnRscqXoMN6J2DYvUz/1hbYH2jynLVV\nNg9BVCQPtcc9U3ENOEzSb7zxCrz246/YB7FhSFEm6QKBgQDvy4pnHj6rtgBD4mKn\nLh+mCellYl9HKeCuW7XHyp1/fgv+ueYPqALUXkR+92j0X8PawCwtb1qxFvWtjXz/\ncfpj/sQpAOERbeAjU6dNPxi5RbYqQyOhQgAbfwWoCrH6Y2hp2vesFypykCW3aP7Z\nM/eQ6nfFowkE4xfIUCuRgDGUPQKBgQDvrAyPqMIlnYsOn0LvmFCd/bVM7vKFw3cK\nale2QzqrhedaGHX2WjER7vwo8l9UIuwFRX1aSP1Nb+f/BcFQzbs+Z7VXck2Xj4o3\np0NhOuyLbpSaPDwiSSuMUkGuYgwkmIVnptBmw92ikV+vOAAwvOdMHjvy8GDbFnpc\nYPS9eTSFyQKBgQCxJK3jq4Ykl1juzSiP1BTxNdVDXj6AdcFTTNCm/VkIO/dkf7Qi\n0Lz2YYU8Pk08ahpnWRvJnL9kn09ynFlA49RTVntWxx19IKw5rKyk9f2vsH34Do0d\nrYIizd1B3FTKYfFacbYRXTOwWihiq5/ImQlD9tHwIJajE5gYFJF69TarCQKBgG0e\negGWJf6WQc+Adys6v8mOz1Kdn9GC8tnNHO4gob+iEXkVle95lMnDcw75eqmF1Mt5\nnd7TSHBPOOKQoDk30b5R3WBY7DbK5XT9NFI6T6QTzpiCQCakBa23bawFe93Vizdr\n3YpMNsZjRZsy9fM6rlwbj9PF2XMmQsN4aTUyz9TxAoGBAOxe2pEjjvgR4Ll58lsP\nVq9K+u9HKAVDM32feUm+KIDILy5bPTb+6HjEcsEHF567GuCga3wciX9wk7Cxh8ko\nFkTJuUdDORqVDOkYgw2hl+bcOSKQsuem2ve13vmdq2mKhF4x8DGM4lckegvxUWyM\nziqB8bQJYo8UedjNiX99gR6W\n-----END PRIVATE KEY-----\n",
+          "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCwU9yhJPQ2Fusr\noSRKYwRM2fKgUW9piJAcH1s7gzMtdwewv4f6aCJVYCG+w5Fe04IYogEN0rcmml5o\nZvx/mJtjyySIsNZaFHr3hw6ZSkfRWPOH++nD4J52Dd5bd4gXM5Cnd5obIS5g9O98\nLN/qX13QbwUJOwNTiB7WcesiS10AC0Ij+v2clgXzwcjoa6qmlN/BS4ebAwhIVl9p\n2B2HzumQvhvaNPcbkD37FM35/0WqydF1HWFFANKlhTT9hG4fNkwjk7rr1+d9oSXv\nT7sXJSln15vQMUaRmWEbTSJTa8plljQP6FoD/CcnlbIAJwHDTlaRlnL5g+PtNHP+\neQQ+N17hAgMBAAECggEABMR4Xd8x3v+wDdglEwGkm/8qvdjZ0vAF78wNaM66Mg0K\noeXPKMR1mi/tAFC0GWI4CCUNiNNvz4fDYfNX5CDK4cVm3a8Z/+nswwzNe/RL0bju\nmQ3aUxPGNmGssjXUBzGQxDsPU/4J4vCjGYJymZkIwFzCFXmZSaIaba37P4GrYuz/\nggahxBQr0YiI15Ih7TuDYpRMkOT6hFULBx5QkNZd7+fIzsPpOoCevL+JLafDkGgL\nqcRmlOWkttIXtrowMZYELeWanXnIdfdhAUAt//wP58FaFtkBpydmoJaC5ZQofoGA\nufc17Q+/11Qe+/nsVkZNaS4Vkx9nNtUW6+Yeg8d5OQKBgQDabqRzj9/g0LjYfo6h\nk0Hb/XwYaj68TNA9BT3540HhXswW9KkG0We1bT1zCGL6bPR0STraX3ohWZo5Atnm\nGYX9vBaXnVi02wlmpWiM6VdDMqW3C2/5kNMZ/rJZVFbjgTVTMvZ4RZQqm6LMGsjF\nkscjdCGzkRYsUU8g/P5v3QfF6QKBgQDOp2TurkPxKEHWWd3g6dhbt6wKo7TkpT80\n0e5AAn36rXlOJ8MLPYhmEXJa7ymu4ptm9mJxhQ1LkA2CIuE/9PKZXLPlvl6nA6El\n7Ip1clFQMvRbzCbJcwVPxpTBb0fwQMylS+7n2b8WcC3rDYbiEGYc1rN9il7xwWD2\nYFA7PhMeOQKBgQCBoPnNbwvQ0m1wZaLltot2L7eukZbLjtZh8DN4kequAeEimm2Z\nEzr1y2+VTdvXfEOSo0bfA5xqIE/LF6sSyADhtPa/YWycYATzOqSSQ4Q659q6h3ob\nZFwzaBiVtNyfxTVNO8hTVg95PcXeVOLjhZjSrH+3nhnHkTVhgWLKJiUPyQKBgQDG\n60KwrXYg8EtPdXmqQe5NeuNT6nj5jkblJR5c5wk0/z7BCG0qqLRe63RUK9rHyMEl\nvwzLkPNXRPZ7ye9gjPvou98+ypx5z3iS9Lnii4PR2vp0UnMTfnAidlhCSkfI79cN\nVaZF7seNZbYNiBvKB1cDc3ea5FK4Cxi2j8cq/3mPoQKBgQCdnKJo6yn7baUoLGvg\n0plX8hqgnsKxdn29h7muscB1DQDwPlczBRY90VkfHsliSFNCv3JOIioYv6FB+lc5\nixvhbVdx1n9b2niyYeUsUnr686bltkInQvQQ2wPr9k7KVb4tdy8Ifsp6VhCGdiyX\ncwNxCyd1qIksvErXGMY0XWUVVg==\n-----END PRIVATE KEY-----\n",
       "client_email":
           "firebase-adminsdk-a6zp5@ah-market-5ab28.iam.gserviceaccount.com",
       "client_id": "107685861698938940303",
@@ -229,7 +231,7 @@ Future<String> getAccessToken() async {
       "auth_provider_x509_cert_url":
           "https://www.googleapis.com/oauth2/v1/certs",
       "client_x509_cert_url":
-          "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-a5zp5%40ah-market-5ab28.iam.gserviceaccount.com",
+          "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-a6zp5%40ah-market-5ab28.iam.gserviceaccount.com",
       "universe_domain": "googleapis.com",
     };
 

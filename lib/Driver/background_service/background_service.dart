@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'dart:isolate';
 import 'package:ansarlogistics/Driver/background_service/location_handler.dart';
 import 'package:ansarlogistics/common_features/feature_login/bloc/login_cubit.dart';
+import 'package:ansarlogistics/firebase_configs/fcm_service.dart';
 import 'package:ansarlogistics/main.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -215,7 +216,7 @@ void fetchcurrentaddress() async {
 
                 // log(fval);
 
-                final String serverkey = await getAccessToken();
+                final String serverkey = await FCMService.getAccessToken();
 
                 log("token = " + serverkey.toString());
 

@@ -390,11 +390,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      height: 150,
-                      width: 250,
-                      child: Image.asset("assets/ansar-logistics.png"),
-                    ),
+                    Image.asset("assets/ansar-logistics.png", height: 50.0),
                     const SizedBox(height: 12.0),
                     const SizedBox(
                       width: 100,

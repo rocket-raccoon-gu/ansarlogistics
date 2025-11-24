@@ -38,7 +38,7 @@ class DriverReportCubit extends Cubit<DriverReportState> {
     });
   }
 
-  List<StatusHistory> statuslist = [];
+  List<Datum> statuslist = [];
 
   updatedata(String startdate1, String enddate1) async {
     startdate = startdate1;
@@ -63,7 +63,7 @@ class DriverReportCubit extends Cubit<DriverReportState> {
         OrderReportsResponse orderReportsResponse =
             OrderReportsResponse.fromJson(jsonresponce);
 
-        statuslist = orderReportsResponse.statusHistories;
+        statuslist = orderReportsResponse.data;
       } else {
         // ignore: use_build_context_synchronously
         toastification.show(

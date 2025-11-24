@@ -28,7 +28,8 @@ class _DbDataContainerState extends State<DbDataContainer> {
           height: 275.0,
           width: 275.0,
           child:
-              widget.productDBdata!.images != null
+              widget.productDBdata!.images != null &&
+                      widget.productDBdata!.images != ""
                   ? Image.network(
                     '${mainimageurl}${getFirstImage(widget.productDBdata!.images)}',
                     fit: BoxFit.fill,
