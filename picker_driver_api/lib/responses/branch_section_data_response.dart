@@ -33,8 +33,8 @@ class Branchdatum {
   String productName;
   String sku;
   int status;
-  UserId userId;
-  BranchCode branchCode;
+  String userId;
+  String branchCode;
   DateTime updatedAt;
   DateTime latestUpdate;
   String imageUrl;
@@ -53,15 +53,19 @@ class Branchdatum {
   });
 
   factory Branchdatum.fromJson(Map<String, dynamic> json) => Branchdatum(
-    id: json["id"],
-    categoryId: json["category_id"],
-    productName: json["product_name"],
-    sku: json["sku"],
-    status: json["status"],
-    userId: userIdValues.map[json["user_id"]]!,
-    branchCode: branchCodeValues.map[json["branch_code"]]!,
-    updatedAt: DateTime.parse(json["updated_at"]),
-    latestUpdate: DateTime.parse(json["latest_update"]),
+    id: json["id"] ?? 0,
+    categoryId: json["category_id"] ?? 0,
+    productName: json["product_name"] ?? "",
+    sku: json["sku"] ?? "",
+    status: json["status"] ?? 0,
+    userId: json["user_id"] ?? "",
+    branchCode: json["branch_code"] ?? "",
+    updatedAt: DateTime.parse(
+      json["updated_at"] ?? DateTime.now().toIso8601String(),
+    ),
+    latestUpdate: DateTime.parse(
+      json["latest_update"] ?? DateTime.now().toIso8601String(),
+    ),
     imageUrl: json["image_url"] ?? "",
   );
 
@@ -71,8 +75,8 @@ class Branchdatum {
     "product_name": productName,
     "sku": sku,
     "status": status,
-    "user_id": userIdValues.reverse[userId],
-    "branch_code": branchCodeValues.reverse[branchCode],
+    "user_id": userId,
+    "branch_code": branchCode,
     "updated_at": updatedAt.toIso8601String(),
     "latest_update": latestUpdate.toIso8601String(),
     "image_url": imageUrl,

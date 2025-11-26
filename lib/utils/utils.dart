@@ -917,20 +917,20 @@ Widget getSection(String branchCode, HomeSectionInchargeState state) {
   switch (branchCode) {
     case 'Q013':
       return HomeSection(state: state);
-    // case 'Q009':
-    //   return OtherBranchSection(state: state);
-    // case 'Q015':
-    //   // if (UserController.userController.profile.empId == "veg_rawdah") {
-    //   //   return ArBranchSection(state: state);
-    //   // } else {
-    //   return OtherBranchSection(state: state);
-    // // }
-    // case 'Q008':
-    //   // if (UserController.userController.profile.empId == "veg_rayyan") {
-    //   //   return ArBranchSection(state: state);
-    //   // } else {
-    //   return OtherBranchSection(state: state);
-    // // }
+    case 'Q009':
+      return OtherBranchSection(state: state);
+    case 'Q015':
+      if (UserController.userController.profile.empId == "veg_rawdah") {
+        return ArBranchSection(state: state);
+      } else {
+        return OtherBranchSection(state: state);
+      }
+    case 'Q008':
+      if (UserController.userController.profile.empId == "veg_rayyan") {
+        return ArBranchSection(state: state);
+      } else {
+        return OtherBranchSection(state: state);
+      }
 
     default:
       return OtherBranchSection(state: state);

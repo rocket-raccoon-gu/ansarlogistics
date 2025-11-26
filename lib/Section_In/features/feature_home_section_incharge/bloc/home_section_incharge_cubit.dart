@@ -268,8 +268,10 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       if (dataMap["data"].isNotEmpty) {
         // print("📦 Section data received, parsing...");
 
-        if (UserController().profile.branchCode == "Q015" ||
-            UserController().profile.branchCode == "Q008") {
+        if ((UserController().profile.branchCode == "Q015" ||
+                UserController().profile.branchCode == "Q008") &&
+            (UserController().profile.empId == "veg_rayyan" ||
+                UserController().profile.empId == "veg_rawdah")) {
           BranchSectionDataResponse branchSectionDataResponse =
               BranchSectionDataResponse.fromJson(dataMap);
           branchdata = branchSectionDataResponse.data;
@@ -595,17 +597,97 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     }
   }
 
+  // void updateItemStatus(
+  //   String sku,
+  //   String name,
+  //   String imageUrl,
+  //   bool isEnabled,
+  // ) {
+  //   // Check if this item already has an update
+  //   final existingIndex = stockUpdates.indexWhere((item) => item.sku == sku);
+
+  //   if (existingIndex >= 0) {
+  //     // Update existing entry
+  //     stockUpdates[existingIndex] = StockUpdate(
+  //       sku: sku,
+  //       name: name,
+  //       imageUrl: "${mainimageurl}${imageUrl}",
+  //       isEnabled: isEnabled,
+  //       updatedAt: DateTime.now(),
+  //     );
+  //   } else {
+  //     // Add new entry
+  //     stockUpdates.add(
+  //       StockUpdate(
+  //         sku: sku,
+  //         name: name,
+  //         imageUrl: imageUrl,
+  //         isEnabled: isEnabled,
+  //         updatedAt: DateTime.now(),
+  //       ),
+  //     );
+  //   }
+
+  //   // Also update updateHistory for UI compatibility
+  //   final historyIndex = updateHistory.indexWhere((item) => item['sku'] == sku);
+  //   final newUpdateEntry = {
+  //     'sku': sku,
+  //     'name': name,
+  //     'imageUrl': imageUrl,
+  //     'isEnabled': isEnabled,
+  //     'updatedAt': DateTime.now().toIso8601String(),
+  //     'branch': UserController().profile.branchCode,
+  //   };
+
+  //   if (historyIndex >= 0) {
+  //     updateHistory[historyIndex] = newUpdateEntry;
+  //   } else {
+  //     updateHistory.add(newUpdateEntry);
+  //   }
+
+  //   emit(state); // Trigger a rebuild
+  // }
+
   void updateItemStatus(
     String sku,
     String name,
     String imageUrl,
     bool isEnabled,
   ) {
-    // Check if this item already has an update
-    final existingIndex = stockUpdates.indexWhere((item) => item.sku == sku);
+    // 1) Update in-memory sectionitems list
+    final index = sectionitems.indexWhere((item) => item.sku == sku);
+    if (index != -1) {
+      final item = sectionitems[index];
+      sectionitems[index] = Sectionitem(
+        sku: item.sku,
+        productName: item.productName,
+        imageUrl: item.imageUrl,
+        stockQty: item.stockQty,
+        isInStock: isEnabled ? 1 : 0,
+        // copy over any other required fields here
+      );
+    }
 
+    // 1b) If you use searchresult for the current view, update that too
+    final searchIndex = searchresult.indexWhere((item) => item.sku == sku);
+    if (searchIndex != -1) {
+      final item = searchresult[searchIndex];
+      searchresult[searchIndex] = Sectionitem(
+        sku: item.sku,
+        productName: item.productName,
+        imageUrl: item.imageUrl,
+        stockQty: item.stockQty,
+        isInStock: isEnabled ? 1 : 0,
+        // copy the rest
+      );
+    }
+
+    // Keep UserController in sync if UI reads from it
+    UserController().sectionitems = sectionitems;
+
+    // 2) Your existing stockUpdates / updateHistory logic (keep as is)
+    final existingIndex = stockUpdates.indexWhere((item) => item.sku == sku);
     if (existingIndex >= 0) {
-      // Update existing entry
       stockUpdates[existingIndex] = StockUpdate(
         sku: sku,
         name: name,
@@ -614,19 +696,17 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
         updatedAt: DateTime.now(),
       );
     } else {
-      // Add new entry
       stockUpdates.add(
         StockUpdate(
           sku: sku,
           name: name,
-          imageUrl: imageUrl,
+          imageUrl: "${mainimageurl}${imageUrl}",
           isEnabled: isEnabled,
           updatedAt: DateTime.now(),
         ),
       );
     }
 
-    // Also update updateHistory for UI compatibility
     final historyIndex = updateHistory.indexWhere((item) => item['sku'] == sku);
     final newUpdateEntry = {
       'sku': sku,
@@ -643,7 +723,13 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       updateHistory.add(newUpdateEntry);
     }
 
-    emit(state); // Trigger a rebuild
+    // 3) Emit a fresh state so BlocBuilder rebuilds with updated list
+    emit(
+      HomeSectionInchargeInitial(
+        sectionitems: sectionitems,
+        branchdata: branchdata,
+      ),
+    );
   }
 
   Future<void> addNewTempItem({

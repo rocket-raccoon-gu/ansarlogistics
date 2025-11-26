@@ -1357,13 +1357,14 @@ extension on PickerDriverApi {
       //     return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1214,1215,1216,1207,1219,1226,1220,1230,1228,1231,1299';
       case "veg_rawdah":
       case "vegtable section rawdah":
-        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
+        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=16&branch_code=Q015';
       case "veg_rayyan":
+      case "vegtable section al rayyan":
         log('${mainbaseUrl}');
         log(
-          '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008',
+          '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=16&branch_code=Q008',
         );
-        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008';
+        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=16&branch_code=Q008';
       //   case "ah_grabgo":
       //     return '${mainbaseUrl}${applicationPath}get_section_data.php?category_ids=101';
       default:

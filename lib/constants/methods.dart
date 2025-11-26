@@ -1919,7 +1919,7 @@ String getDelivery(String dtcode) {
 }
 
 int getUserCategory(String user) {
-  switch (user) {
+  switch (user.toLowerCase()) {
     case "ahqa_veg":
       return 14;
     case "ahqa_butch":
@@ -1938,6 +1938,16 @@ int getUserCategory(String user) {
       return 36762;
     case "ah_grabgo":
       return 101;
+    case "veg_rawdah":
+      return 16;
+    case "fish_rawdah":
+      return 36741;
+    case "rawdah_butch":
+      return 23;
+    case "rawdah_deli":
+      return 36762;
+    case "veg_rayyan":
+      return 16;
     default:
       return 14;
   }

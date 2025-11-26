@@ -147,7 +147,7 @@ class _ArBranchSectionProductListItemState
                                 children: [
                                   widget.branchdatum.status == 1
                                       ? Text(
-                                        'Enabled barwa',
+                                        'Enabled',
                                         style: customTextStyle(
                                           fontStyle: FontStyle.HeaderXS_Bold,
                                           color: FontColor.Success,

@@ -93,7 +93,11 @@ class _ArBranchSectionState extends State<ArBranchSection> {
                                 BlocProvider.of<HomeSectionInchargeCubit>(
                                   context,
                                 ).searchbranchlist[index],
-                            onSectionChanged: (p0, p1, p2) {},
+                            onSectionChanged: (p0, p1, p2) {
+                              context
+                                  .read<HomeSectionInchargeCubit>()
+                                  .addToStockStatusList(p0, p1, p2, "");
+                            },
                           );
                         },
                       ),
