@@ -267,11 +267,21 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       final dataMap = jsonDecode(response);
       if (dataMap["data"].isNotEmpty) {
         // print("📦 Section data received, parsing...");
-        SectionItemResponse sectionItemResponse = SectionItemResponse.fromJson(
-          dataMap,
-        );
-        sectionitems = sectionItemResponse.data;
-        UserController().sectionitems = sectionitems;
+
+        if (UserController().profile.branchCode == "Q015" ||
+            UserController().profile.branchCode == "Q008") {
+          BranchSectionDataResponse branchSectionDataResponse =
+              BranchSectionDataResponse.fromJson(dataMap);
+          branchdata = branchSectionDataResponse.data;
+
+          UserController().branchdata = branchdata;
+        } else {
+          SectionItemResponse sectionItemResponse =
+              SectionItemResponse.fromJson(dataMap);
+          sectionitems = sectionItemResponse.data;
+          UserController().sectionitems = sectionitems;
+        }
+
         // print("✅ Section items loaded: ${sectionitems.length}");
       } else {
         // print("⚠️ No section items found in response");
@@ -280,7 +290,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       emit(
         HomeSectionInchargeInitial(
           sectionitems: sectionitems,
-          branchdata: [], // No branch-specific logic anymore
+          branchdata: branchdata, // No branch-specific logic anymore
         ),
       );
       // print(
@@ -297,7 +307,10 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       );
 
       emit(
-        HomeSectionInchargeInitial(sectionitems: sectionitems, branchdata: []),
+        HomeSectionInchargeInitial(
+          sectionitems: sectionitems,
+          branchdata: branchdata,
+        ),
       );
     }
   }

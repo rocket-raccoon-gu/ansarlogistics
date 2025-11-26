@@ -14,15 +14,9 @@ class SectionItemResponse {
   bool success;
   List<Sectionitem> data;
 
-  SectionItemResponse({
-    required this.success,
-    required this.data,
-  });
+  SectionItemResponse({required this.success, required this.data});
 
-  SectionItemResponse copyWith({
-    bool? success,
-    List<Sectionitem>? data,
-  }) =>
+  SectionItemResponse copyWith({bool? success, List<Sectionitem>? data}) =>
       SectionItemResponse(
         success: success ?? this.success,
         data: data ?? this.data,
@@ -32,13 +26,14 @@ class SectionItemResponse {
       SectionItemResponse(
         success: json["success"],
         data: List<Sectionitem>.from(
-            json["data"].map((x) => Sectionitem.fromJson(x))),
+          json["data"].map((x) => Sectionitem.fromJson(x)),
+        ),
       );
 
   Map<String, dynamic> toJson() => {
-        "success": success,
-        "data": List<dynamic>.from(data.map((x) => x.toJson())),
-      };
+    "success": success,
+    "data": List<dynamic>.from(data.map((x) => x.toJson())),
+  };
 }
 
 class Sectionitem {
@@ -62,28 +57,27 @@ class Sectionitem {
     String? stockQty,
     int? isInStock,
     String? imageUrl,
-  }) =>
-      Sectionitem(
-        sku: sku ?? this.sku,
-        productName: productName ?? this.productName,
-        stockQty: stockQty ?? this.stockQty,
-        isInStock: isInStock ?? this.isInStock,
-        imageUrl: imageUrl ?? this.imageUrl,
-      );
+  }) => Sectionitem(
+    sku: sku ?? this.sku,
+    productName: productName ?? this.productName,
+    stockQty: stockQty ?? this.stockQty,
+    isInStock: isInStock ?? this.isInStock,
+    imageUrl: imageUrl ?? this.imageUrl,
+  );
 
   factory Sectionitem.fromJson(Map<String, dynamic> json) => Sectionitem(
-        sku: json["sku"],
-        productName: json["product_name"],
-        stockQty: json["stock_qty"],
-        isInStock: json["is_in_stock"],
-        imageUrl: json["image_url"],
-      );
+    sku: json["sku"],
+    productName: json["product_name"],
+    stockQty: json["stock_qty"] ?? "0.00",
+    isInStock: json["is_in_stock"] ?? 0,
+    imageUrl: json["image_url"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "sku": sku,
-        "product_name": productName,
-        "stock_qty": stockQty,
-        "is_in_stock": isInStock,
-        "image_url": imageUrl,
-      };
+    "sku": sku,
+    "product_name": productName,
+    "stock_qty": stockQty,
+    "is_in_stock": isInStock,
+    "image_url": imageUrl,
+  };
 }

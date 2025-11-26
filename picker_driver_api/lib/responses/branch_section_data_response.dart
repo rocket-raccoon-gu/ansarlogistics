@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final branchSectionDataResponse = branchSectionDataResponseFromJson(jsonString);
+
 import 'dart:convert';
 
 BranchSectionDataResponse branchSectionDataResponseFromJson(String str) =>
@@ -7,72 +11,95 @@ String branchSectionDataResponseToJson(BranchSectionDataResponse data) =>
     json.encode(data.toJson());
 
 class BranchSectionDataResponse {
-  List<Branchdatum> branchdata;
+  List<Branchdatum> data;
 
-  BranchSectionDataResponse({required this.branchdata});
+  BranchSectionDataResponse({required this.data});
 
   factory BranchSectionDataResponse.fromJson(Map<String, dynamic> json) =>
       BranchSectionDataResponse(
-        branchdata: List<Branchdatum>.from(
+        data: List<Branchdatum>.from(
           json["data"].map((x) => Branchdatum.fromJson(x)),
         ),
       );
 
   Map<String, dynamic> toJson() => {
-    "data": List<dynamic>.from(branchdata.map((x) => x.toJson())),
+    "data": List<dynamic>.from(data.map((x) => x.toJson())),
   };
 }
 
 class Branchdatum {
-  // String id;
-  String categoryId;
+  int id;
+  int categoryId;
   String productName;
   String sku;
-  int isInStock;
+  int status;
+  UserId userId;
+  BranchCode branchCode;
+  DateTime updatedAt;
+  DateTime latestUpdate;
   String imageUrl;
-  // String status;
-  // String userId;
-  // DateTime updatedAt;
-  // String branchCode;
 
   Branchdatum({
-    // required this.id,
+    required this.id,
     required this.categoryId,
     required this.productName,
     required this.sku,
-    required this.isInStock,
+    required this.status,
+    required this.userId,
+    required this.branchCode,
+    required this.updatedAt,
+    required this.latestUpdate,
     required this.imageUrl,
-    // required this.status,
-    // required this.userId,
-    // required this.updatedAt,
-    // required this.branchCode,
   });
 
   factory Branchdatum.fromJson(Map<String, dynamic> json) => Branchdatum(
-    // id: json["id"].toString(),
-    categoryId: json["category_id"].toString(),
+    id: json["id"],
+    categoryId: json["category_id"],
     productName: json["product_name"],
     sku: json["sku"],
-    isInStock: json["is_in_stock"],
-    imageUrl: json["image_url"],
-
-    // status: json["status"].toString(),
-    // userId: json["user_id"],
-    // updatedAt: DateTime.parse(json["updated_at"]),
-    // branchCode: json["branch_code"],
+    status: json["status"],
+    userId: userIdValues.map[json["user_id"]]!,
+    branchCode: branchCodeValues.map[json["branch_code"]]!,
+    updatedAt: DateTime.parse(json["updated_at"]),
+    latestUpdate: DateTime.parse(json["latest_update"]),
+    imageUrl: json["image_url"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
-    // "id": id,
+    "id": id,
     "category_id": categoryId,
     "product_name": productName,
     "sku": sku,
-    "is_in_stock": isInStock,
+    "status": status,
+    "user_id": userIdValues.reverse[userId],
+    "branch_code": branchCodeValues.reverse[branchCode],
+    "updated_at": updatedAt.toIso8601String(),
+    "latest_update": latestUpdate.toIso8601String(),
     "image_url": imageUrl,
-
-    // "status": status,
-    // "user_id": userId,
-    // "updated_at": updatedAt.toIso8601String(),
-    // "branch_code": branchCode,
   };
+}
+
+enum BranchCode { Q015 }
+
+final branchCodeValues = EnumValues({"Q015": BranchCode.Q015});
+
+enum UserId { EMPTY, FISH_RAWDAH, RAWDAH_BUTCH, VEG_RAWDAH }
+
+final userIdValues = EnumValues({
+  "": UserId.EMPTY,
+  "fish_rawdah": UserId.FISH_RAWDAH,
+  "rawdah_butch": UserId.RAWDAH_BUTCH,
+  "veg_rawdah": UserId.VEG_RAWDAH,
+});
+
+class EnumValues<T> {
+  Map<String, T> map;
+  late Map<T, String> reverseMap;
+
+  EnumValues(this.map);
+
+  Map<T, String> get reverse {
+    reverseMap = map.map((k, v) => MapEntry(v, k));
+    return reverseMap;
+  }
 }

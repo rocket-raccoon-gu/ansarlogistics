@@ -145,7 +145,7 @@ class _ArBranchSectionProductListItemState
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  widget.branchdatum.isInStock == 1
+                                  widget.branchdatum.status == 1
                                       ? Text(
                                         'Enabled barwa',
                                         style: customTextStyle(
@@ -164,10 +164,10 @@ class _ArBranchSectionProductListItemState
                                     isSelected:
                                         widget
                                             .branchdatum
-                                            .isInStock, // ✅ int as expected
+                                            .status, // ✅ int as expected
                                     onChanged: (v) {
                                       setState(() {
-                                        widget.branchdatum.isInStock =
+                                        widget.branchdatum.status =
                                             v; // ✅ assign int directly
                                         widget.onSectionChanged(
                                           widget.branchdatum.sku,

@@ -1332,42 +1332,43 @@ extension on PickerDriverApi {
     // print(
     //   '${root}get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}',
     // );
-    return '${root}get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}';
-    // switch (userid) {
-    //   case "ahqa_fish":
-    //   case "fish_alkhor":
-    //   case "fish_rawdah":
-    //   case "fish_rayyan":
-    //     return '${root}get_section_data.php?category_ids=761,762,764,763';
-    //   case "ahqa_butch":
-    //   case "alkhor_butch":
-    //   case "rawdah_butch":
-    //   case "rayyan_butch":
-    //     if (catid != 0) {
-    //       return '${root}get_section_data.php?category_ids=${catid.toString()}';
-    //     } else {
-    //       return '${root}get_section_data.php?category_ids=17';
-    //     }
-    //   case "ahqa_deli":
-    //   case "alkhor_deli":
-    //   case "rawdah_deli":
-    //   case "rayyan_deli":
-    //     return '${root}get_section_data.php?category_ids=793,782,781';
-    //   case "ahqa_veg":
-    //     return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1214,1215,1216,1207,1219,1226,1220,1230,1228,1231,1299';
-    //   case "veg_rawdah":
-    //     return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
-    //   case "veg_rayyan":
-    //     log('${mainbaseUrl}');
-    //     log(
-    //       '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008',
-    //     );
-    //     return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008';
-    //   case "ah_grabgo":
-    //     return '${mainbaseUrl}${applicationPath}get_section_data.php?category_ids=101';
-    //   default:
-    //     return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1215,1216,1207,1219,1226,1220,1230,1228,1231';
-    // }
+
+    switch (userid) {
+      //   case "ahqa_fish":
+      //   case "fish_alkhor":
+      //   case "fish_rawdah":
+      //   case "fish_rayyan":
+      //     return '${root}get_section_data.php?category_ids=761,762,764,763';
+      //   case "ahqa_butch":
+      //   case "alkhor_butch":
+      //   case "rawdah_butch":
+      //   case "rayyan_butch":
+      //     if (catid != 0) {
+      //       return '${root}get_section_data.php?category_ids=${catid.toString()}';
+      //     } else {
+      //       return '${root}get_section_data.php?category_ids=17';
+      //     }
+      //   case "ahqa_deli":
+      //   case "alkhor_deli":
+      //   case "rawdah_deli":
+      //   case "rayyan_deli":
+      //     return '${root}get_section_data.php?category_ids=793,782,781';
+      //   case "ahqa_veg":
+      //     return '${root}get_section_data.php?category_ids=10,9,11,744,1217,1225,1214,1215,1216,1207,1219,1226,1220,1230,1228,1231,1299';
+      case "veg_rawdah":
+      case "vegtable section rawdah":
+        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q015';
+      case "veg_rayyan":
+        log('${mainbaseUrl}');
+        log(
+          '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008',
+        );
+        return '${mainbaseUrl}${applicationPath}getARProduceData.php?category_id=14&branch_code=Q008';
+      //   case "ah_grabgo":
+      //     return '${mainbaseUrl}${applicationPath}get_section_data.php?category_ids=101';
+      default:
+        return '${root}get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}';
+    }
   }
 
   Future<T> _handleRequest<T>({

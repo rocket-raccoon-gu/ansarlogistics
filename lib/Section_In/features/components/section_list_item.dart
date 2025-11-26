@@ -75,7 +75,18 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
           final bTime = b['updated_at'] ?? '';
           return bTime.compareTo(aTime); // Descending sort
         });
-        return int.parse(existingItems.first['status'].toString());
+
+        final rawStatus = existingItems.first['status'];
+
+        // Safely parse status, fallback to sectionitem.isInStock if null/invalid
+        if (rawStatus == null) {
+          return widget.sectionitem.isInStock;
+        }
+
+        final statusStr = rawStatus.toString();
+        final parsed = int.tryParse(statusStr);
+
+        return parsed ?? widget.sectionitem.isInStock;
       }
     }
 
@@ -217,11 +228,13 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                                 children: [
                                   Text(
                                     // Check if SKU exists in updates, then use its status
-                                    widget.sectionitem.isInStock == 1
+                                    widget.sectionitem.isInStock == 1 &&
+                                            val == 1
                                         ? 'Enabled'
                                         : 'Disabled',
                                     style:
-                                        widget.sectionitem.isInStock == 1
+                                        widget.sectionitem.isInStock == 1 &&
+                                                val == 1
                                             ? customTextStyle(
                                               fontStyle:
                                                   FontStyle.HeaderXS_Bold,
