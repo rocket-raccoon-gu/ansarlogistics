@@ -386,7 +386,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                         erp.erpPrice.toString(),
                                         editquantity.toString(),
                                         widget.preparationNumber,
-                                        int.parse(isProduce),
+                                        isProduce == 'null'
+                                            ? 0
+                                            : int.parse(isProduce),
                                         erp.erpId,
                                         isProduce,
                                         widget.orderNumber,
