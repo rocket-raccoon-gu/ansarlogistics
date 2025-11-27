@@ -810,7 +810,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   Future<void> _maybeFetchSadad() async {
     try {
       final pm = (order.paymentMethod ?? '').trim().toLowerCase();
-      if (pm == 'sadadqa') {
+      if (pm == 'tns_hosted') {
         await _fetchSadadTransactions(
           _sanitizeWebsiteRef(order.subgroupIdentifier),
         );
@@ -827,7 +827,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   }
 
   // Call Sadad QA APIs: login to retrieve token, then query transactions by website_ref_no
-  Future<void> _fetchSadadTransactions(String websiteRefNo) async {
+  // Call Mastercard API to check online payment status for this suborder
+  Future<void> _fetchSadadTransactions(String orderId) async {
     setState(() {
       _sadadLoading = true;
       _sadadError = null;
@@ -835,62 +836,56 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     });
 
     try {
-      // 1) Login to get access token
-      final loginResp = await http.post(
-        Uri.parse('https://api-s.sadad.qa/api/userbusinesses/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'sadadId': 1423378,
-          'secretKey': '5tviXaSRNyCvr4h5',
-          'domain': 'www.ansargallery.com',
-        }),
+      // Build Basic Auth header: "Basic base64(username:password)"
+      // TODO: move credentials to secure storage / config in real app
+      const username = 'merchant.520000339';
+      const password = '36c973377a7b4b456914c1edd1fdd24c';
+      final basicAuth =
+          'Basic ' + base64Encode(utf8.encode('$username:$password'));
+
+      final uri = Uri.parse(
+        'https://cbq.gateway.mastercard.com/api/rest/version/100/merchant/520000339/order/$orderId',
       );
-      if (loginResp.statusCode != 200) {
-        throw Exception('Sadad login failed (${loginResp.statusCode})');
-      }
-      final loginJson = jsonDecode(loginResp.body) as Map<String, dynamic>;
-      final token = (loginJson['accessToken'] ?? '').toString();
-      if (token.isEmpty) {
-        throw Exception('Sadad access token missing');
-      }
 
-      // 2) Fetch transactions filtered by website_ref_no
-      final listUri = Uri.parse(
-        'https://api-s.sadad.qa/api/transactions/listTransactions?filter[skip]=0&filter[limit]=50&filter[website_ref_no]=$websiteRefNo',
+      final resp = await http.get(
+        uri,
+        headers: {
+          'Authorization': basicAuth,
+          'Content-Type': 'application/json',
+        },
       );
-      final listResp = await http.get(
-        listUri,
-        headers: {'Authorization': token},
-      );
-      if (listResp.statusCode != 200) {
-        throw Exception('Sadad list failed (${listResp.statusCode})');
-      }
-      final parsed = jsonDecode(listResp.body);
-      if (parsed is! List) {
-        throw Exception('Unexpected Sadad response');
+
+      if (resp.statusCode != 200) {
+        throw Exception('Mastercard order lookup failed (${resp.statusCode})');
       }
 
-      final List<Map<String, dynamic>> items = [];
-      for (final e in parsed) {
-        final row = (e as Map).cast<String, dynamic>();
-        final entity = (row['transactionentity'] ?? {}) as Map<String, dynamic>;
-        final status = (row['transactionstatus'] ?? {}) as Map<String, dynamic>;
-        final mode = (row['transactionmode'] ?? {}) as Map<String, dynamic>;
-        final entityId = int.tryParse('${entity['id'] ?? ''}') ?? -1;
-        if (entityId == 4) continue; // skip entity id 4 like the PHP logic
+      final json = jsonDecode(resp.body) as Map<String, dynamic>;
 
-        final amount = row['amount']?.toString() ?? '0.00';
-        final statusId = int.tryParse('${status['id'] ?? ''}') ?? 0;
-        final modeName = mode['name']?.toString();
-        final invoice = row['invoicenumber']?.toString();
+      // Adapt response -> our generic _sadadTxns format
+      // Adjust these keys based on the exact JSON you get back.
+      final amount =
+          (json['amount'] ?? json['order']['amount'] ?? '0').toString();
 
-        items.add({
+      final authStatus =
+          (json['authenticationStatus'] ??
+                  (json['3ds'] is Map
+                      ? json['3ds']['authenticationStatus']
+                      : null) ??
+                  json['result'])
+              ?.toString() ??
+          '';
+
+      final isSuccess = authStatus.toUpperCase().contains('SUCCESS');
+
+      final List<Map<String, dynamic>> items = [
+        {
           'amount': amount,
-          'statusId': statusId,
-          'modeName': modeName,
-          'invoice': invoice,
-        });
-      }
+          // Keep using statusId == 3 as "Online Paid" to match existing UI
+          'statusId': isSuccess ? 3 : 0,
+          'modeName': 'Online Payment',
+          'invoice': orderId,
+        },
+      ];
 
       if (mounted) {
         setState(() {
@@ -901,7 +896,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _sadadError = 'Sadad error: $e';
+          _sadadError = 'Online payment error: $e';
           _sadadLoading = false;
         });
       }
@@ -1096,7 +1091,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                           if ((order.paymentMethod ?? '')
                                   .trim()
                                   .toLowerCase() ==
-                              'sadadqa') ...[
+                              'tns_hosted') ...[
                             if (_sadadLoading)
                               Row(
                                 children: const [
@@ -2608,7 +2603,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   // Update local state for payment method and refresh Sadad section visibility
   void _setPaymentMethod(String method) {
     final prev = (order.paymentMethod ?? '').trim().toLowerCase();
-    if (prev == 'sadadqa') return; // Do not allow changing from online
+    if (prev == 'tns_hosted') return; // Do not allow changing from online
     if (prev == method) return;
     setState(() {
       order.paymentMethod = method;

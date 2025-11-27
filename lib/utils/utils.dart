@@ -100,7 +100,7 @@ Widget dispatchSelector({
   //     ((postcodePrefix >= 42 && postcodePrefix <= 46) ||
   //         postcodePrefix == 50 ||
   //         (postcodePrefix >= 56 && postcodePrefix <= 58))) {
-  options.add({'key': 'rider', 'label': 'Snoonu Rider'});
+  options.add({'key': 'rider', 'label': 'Snoonu'});
   // }
   // }
 

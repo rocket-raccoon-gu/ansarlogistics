@@ -2016,6 +2016,7 @@ String getPaymentMethod(String method) {
     case "banktransfer":
       return "Card On Delivery";
     case "sadadqa":
+    case "tns_hosted":
       return "Credit / Debit / Wallet";
     default:
       return "";

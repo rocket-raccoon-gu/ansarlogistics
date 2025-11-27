@@ -121,17 +121,30 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
             const SizedBox(height: 6),
             // Time Range
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(
-                  Icons.access_time,
-                  size: 18,
-                  color: customColors().fontPrimary,
+                Row(
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      size: 18,
+                      color: customColors().fontPrimary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Time ${widget.orderResponseItem.timeRange ?? '-'}',
+                      style: customTextStyle(
+                        fontStyle: FontStyle.BodyS_Regular,
+                        color: FontColor.FontPrimary,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
+
                 Text(
-                  'Time Range ${widget.orderResponseItem.timeRange ?? '-'}',
+                  '${widget.orderResponseItem.items.length} items',
                   style: customTextStyle(
-                    fontStyle: FontStyle.BodyS_Regular,
+                    fontStyle: FontStyle.BodyM_SemiBold,
                     color: FontColor.FontPrimary,
                   ),
                 ),
@@ -216,7 +229,7 @@ class _BottomBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = customColors();
-    final isStarted = order.status == 'start_picking';
+    final isStarted = order.status != 'assigned_picker';
     return Container(
       decoration: BoxDecoration(
         color: colors.adBackground,
