@@ -204,22 +204,20 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
               Expanded(child: body),
             ],
           ),
-          floatingActionButton:
-              widget.orderResponseItem.status != 'end_picking'
-                  ? FloatingActionButton(
-                    onPressed: () {
-                      context.gNavigationService.openOrderItemAddPage(
-                        context,
-                        arg: {
-                          "order_id": widget.orderResponseItem,
-                          "preparationNumber": widget.orderResponseItem.id,
-                          "orderNumber": widget.orderResponseItem.id!,
-                        },
-                      );
-                    },
-                    child: const Icon(Icons.add),
-                  )
-                  : null,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              context.gNavigationService.openOrderItemAddPage(
+                context,
+                arg: {
+                  "order_id": widget.orderResponseItem,
+                  "preparationNumber": widget.orderResponseItem.id,
+                  "orderNumber": widget.orderResponseItem.id!,
+                },
+              );
+            },
+            child: const Icon(Icons.add),
+          ),
+
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex,
             onTap: (i) => setState(() => _currentIndex = i),

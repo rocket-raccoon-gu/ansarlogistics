@@ -56,12 +56,10 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
               .toList();
 
       final notAvailable =
-          filtered
-              .where(
-                (e) =>
-                    (e.itemStatus ?? '').toLowerCase() == 'item_not_available',
-              )
-              .toList();
+          filtered.where((e) {
+            final st = (e.itemStatus ?? '').toLowerCase();
+            return st == 'item_not_available' || st == 'canceled';
+          }).toList();
 
       emit(
         PickerDashboardTabLoadedState(

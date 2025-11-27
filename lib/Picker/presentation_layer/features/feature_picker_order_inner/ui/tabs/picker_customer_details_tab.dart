@@ -215,6 +215,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                     borderRadius: BorderRadius.circular(5.0),
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -231,6 +232,20 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8.0,
+                          horizontal: 14.0,
+                        ),
+                        child: Text(
+                          '${widget.orderResponseItem!.deliveryNote}',
+                          textAlign: TextAlign.start,
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.CarnationRed,
+                          ),
                         ),
                       ),
                     ],

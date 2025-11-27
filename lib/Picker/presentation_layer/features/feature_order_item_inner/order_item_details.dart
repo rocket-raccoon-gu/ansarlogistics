@@ -578,7 +578,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         Text(
                                           'SKU: ${item.sku ?? '-'}',
                                           style: customTextStyle(
-                                            fontStyle: FontStyle.BodyS_Regular,
+                                            fontStyle: FontStyle.BodyM_Bold,
                                             color: FontColor.FontSecondary,
                                           ),
                                         ),

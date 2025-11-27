@@ -62,8 +62,8 @@ class ItemTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
                 color: customColors().backgroundSecondary,
                 borderRadius: BorderRadius.circular(8),
@@ -72,8 +72,8 @@ class ItemTile extends StatelessWidget {
                 imageUrl: resolved,
                 imageBuilder:
                     (context, imageProvider) => Container(
-                      width: 60,
-                      height: 60,
+                      width: 80,
+                      height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
@@ -214,8 +214,8 @@ class ItemTile extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 6,
+                    horizontal: 12,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
                     color: HexColor('#D66435'),
