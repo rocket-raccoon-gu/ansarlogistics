@@ -509,7 +509,7 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                                         ?.isProduce ??
                                                     '')
                                                 .toString(),
-                                            erp.erpId.toString(),
+                                            erp.erpItemNumber.toString(),
                                           );
                                     } else if (context
                                             .read<ItemReplacementPageCubit>()

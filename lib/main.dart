@@ -62,7 +62,7 @@ Future<void> main() async {
       }
 
       // Initialize notifications
-      await NotificationService.initialize();
+      // await NotificationService.initialize();
 
       // Initialize notifications plugin
       const AndroidInitializationSettings initializationSettingsAndroid =

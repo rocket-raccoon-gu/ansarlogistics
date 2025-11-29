@@ -389,7 +389,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                         isProduce == 'null'
                                             ? 0
                                             : int.parse(isProduce),
-                                        erp.erpId,
+                                        int.parse(erp.erpItemNumber.toString()),
                                         isProduce,
                                         widget.orderNumber,
                                         context,

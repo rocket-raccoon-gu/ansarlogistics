@@ -51,190 +51,191 @@ class ItemTile extends StatelessWidget {
           arg: {'itemNew': item, 'preparationLabel': preparationLabel},
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(top: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: customColors().backgroundTertiary),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: customColors().backgroundSecondary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: CachedNetworkImage(
-                imageUrl: resolved,
-                imageBuilder:
-                    (context, imageProvider) => Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: imageProvider,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                placeholder:
-                    (context, url) =>
-                        const Center(child: CircularProgressIndicator()),
-                errorWidget:
-                    (context, url, error) =>
-                        const Icon(Icons.error, color: Colors.red),
-              ),
+      child: Stack(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: customColors().backgroundTertiary),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name ?? '-',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyM_Bold,
-                      color: FontColor.FontPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'SKU: ${item.sku ?? '-'}',
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyS_Regular,
-                      color: FontColor.FontSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Builder(
-                    builder: (_) {
-                      final bool isProduce = item.isProduce == true;
-                      final Color borderColor =
-                          isProduce ? green500 : HexColor('#2D7EFF');
-                      final Color textColor = borderColor;
-
-                      num? priceNum;
-                      if (item.price != null) {
-                        priceNum = num.tryParse(item.price!.trim());
-                      }
-
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10.0,
-                              vertical: 4.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(8.0),
-                              border: Border.all(
-                                color: borderColor,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (isProduce) ...[
-                                  Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      color: borderColor,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: const Icon(
-                                      Icons.scale,
-                                      size: 12,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                ],
-                                Text(
-                                  priceNum != null
-                                      ? 'QAR ${priceNum.toStringAsFixed(2)}'
-                                      : (item.price == null ||
-                                              item.price!.isEmpty
-                                          ? '—'
-                                          : 'QAR ${item.price}'),
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyS_Bold,
-                                    color: FontColor.Info,
-                                  ).copyWith(color: textColor),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: statusColor(
-                                statusRaw,
-                              ).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                color: statusColor(statusRaw),
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              statusText,
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyS_Bold,
-                                color: FontColor.FontPrimary,
-                              ).copyWith(color: statusColor(statusRaw)),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            // const SizedBox(width: 6),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
+            child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
-                    color: HexColor('#D66435'),
-                    borderRadius: BorderRadius.circular(6),
+                    color: customColors().backgroundSecondary,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
-                    '0/${double.parse(item.qtyOrdered.toString()).toInt()}',
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyS_Bold,
-                      color: FontColor.White,
-                    ),
+                  child: CachedNetworkImage(
+                    imageUrl: resolved,
+                    imageBuilder:
+                        (context, imageProvider) => Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                    placeholder:
+                        (context, url) =>
+                            const Center(child: CircularProgressIndicator()),
+                    errorWidget:
+                        (context, url, error) =>
+                            const Icon(Icons.error, color: Colors.red),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.name ?? '-',
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'SKU: ${item.sku ?? '-'}',
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyS_Regular,
+                          color: FontColor.FontSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Builder(
+                        builder: (_) {
+                          final bool isProduce = item.isProduce == true;
+                          final Color borderColor =
+                              isProduce ? green500 : HexColor('#2D7EFF');
+                          final Color textColor = borderColor;
+
+                          num? priceNum;
+                          if (item.price != null) {
+                            priceNum = num.tryParse(item.price!.trim());
+                          }
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0,
+                                  vertical: 4.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  border: Border.all(
+                                    color: borderColor,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isProduce) ...[
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          color: borderColor,
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: const Icon(
+                                          Icons.scale,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                    ],
+                                    Text(
+                                      priceNum != null
+                                          ? 'QAR ${priceNum.toStringAsFixed(2)}'
+                                          : (item.price == null ||
+                                                  item.price!.isEmpty
+                                              ? '—'
+                                              : 'QAR ${item.price}'),
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyS_Bold,
+                                        color: FontColor.Info,
+                                      ).copyWith(color: textColor),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: statusColor(
+                                    statusRaw,
+                                  ).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: statusColor(statusRaw),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  statusText,
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyS_Bold,
+                                    color: FontColor.FontPrimary,
+                                  ).copyWith(color: statusColor(statusRaw)),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
 
-                // const SizedBox(height: 6),
+                // const SizedBox(width: 6),
               ],
             ),
-          ],
-        ),
+          ),
+
+          Positioned(
+            bottom: 5.0,
+            left: 5.0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: HexColor('#D66435'),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                '0/${double.parse(item.qtyOrdered.toString()).toInt()}',
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyS_Bold,
+                  color: FontColor.White,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
