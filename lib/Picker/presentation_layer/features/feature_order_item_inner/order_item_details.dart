@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/bloc/order_item_details_cubit.dart';
@@ -204,6 +205,49 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
     }
   }
 
+  List<Map<String, String>> _getAttributeOptions(String? productOptionsJson) {
+    final List<Map<String, String>> result = [];
+
+    if (productOptionsJson == null || productOptionsJson.isEmpty) {
+      return result;
+    }
+
+    try {
+      final decoded = jsonDecode(productOptionsJson);
+      if (decoded is! Map) return result;
+
+      // 1) Collect from "options" (simple products like the diaper)
+      final options = decoded['options'];
+      if (options is List) {
+        for (final o in options) {
+          if (o is! Map) continue;
+          final label = (o['label'] ?? '').toString().trim();
+          final value = (o['value'] ?? '').toString().trim();
+          if (label.isNotEmpty && value.isNotEmpty) {
+            result.add({'label': label, 'value': value});
+          }
+        }
+      }
+
+      // 2) Collect from "attributes_info" (configurable, like Color/Carpet Size)
+      final attrs = decoded['attributes_info'];
+      if (attrs is List) {
+        for (final a in attrs) {
+          if (a is! Map) continue;
+          final label = (a['label'] ?? '').toString().trim();
+          final value = (a['value'] ?? '').toString().trim();
+          if (label.isNotEmpty && value.isNotEmpty) {
+            result.add({'label': label, 'value': value});
+          }
+        }
+      }
+    } catch (_) {
+      // ignore parse errors
+    }
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -306,6 +350,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                       if (state is OrderItemDetailInitialNewState) {
                         // New model rendering
                         final item = state.orderItem;
+                        final attributeOptions = _getAttributeOptions(
+                          item.productOptions,
+                        );
+
                         return Container(
                           color: Colors.white,
                           child: Column(
@@ -571,7 +619,52 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         color: FontColor.FontPrimary,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(height: 10),
+
+                                    if (attributeOptions.isNotEmpty) ...[
+                                      for (final opt in attributeOptions) ...[
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "${opt['label']} : ",
+                                              style: customTextStyle(
+                                                fontStyle: FontStyle.BodyM_Bold,
+                                                color: FontColor.FontPrimary,
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 2.0,
+                                                    horizontal: 4.0,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color:
+                                                      customColors()
+                                                          .backgroundTertiary,
+                                                  width: 2.0,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                opt['value'] ?? '',
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                      ],
+                                    ],
+
+                                    const SizedBox(height: 10),
                                     // SKU + delivery badge (NOL)
                                     Row(
                                       children: [

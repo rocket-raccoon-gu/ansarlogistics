@@ -1,211 +1,188 @@
-// Improved init_notification.dart
-import 'dart:convert';
+import 'dart:developer';
+import 'dart:typed_data';
+
+import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/restart_widget.dart';
+import 'package:ansarlogistics/themes/style.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:overlay_support/overlay_support.dart';
 
-class NotificationService {
-  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
-  static final FirebaseMessaging messaging = FirebaseMessaging.instance;
+initializeFirebasenotification() async {
+  await createNotificationChannel();
 
-  static Future<void> initialize() async {
-    await _setupNotificationChannels();
-    await _requestPermissions();
-    await _getFCMToken();
-    await _setupMessageHandlers();
-  }
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  static Future<void> _setupNotificationChannels() async {
-    // For Android
-    const AndroidInitializationSettings androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+  FirebaseMessaging.onMessage.listen(
+    (event) {
+      log("notification hitted");
 
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: androidSettings);
+      showLocalNotification(event);
+    },
+    onDone: () {
+      // FlutterAppBadger.removeBadge();
+    },
+  );
+}
 
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle notification tap
-        _onNotificationTap(response.payload);
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  log('Handling a background message ${message.messageId}');
+  log('${message.data}');
+
+  //
+  //
+
+  flutterLocalNotificationsPlugin.show(
+    message.data.hashCode,
+    message.notification!.title,
+    message.notification!.body,
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        'channel_id_5',
+        'channelname',
+        icon: '@mipmap/ic_launcher',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+        sound: RawResourceAndroidNotificationSound('alert'),
+        vibrationPattern: Int64List.fromList([0, 1000, 5000, 2000]),
+      ),
+    ),
+  );
+}
+
+// Add this channel creation function (call it during app initialization)
+Future<void> createNotificationChannel() async {
+  // AndroidNotificationChannel channel = AndroidNotificationChannel(
+  //   'channel_id_5', // Must match your channel ID
+  //   'Important Notifications', // User-visible name
+  //   description: 'Important notifications channel', // User-visible description
+  //   importance: Importance.high,
+  //   playSound: true,
+  //   enableVibration: true,
+  //   vibrationPattern: Int64List.fromList([0, 1000, 5000, 2000]),
+  //   sound: RawResourceAndroidNotificationSound('alert'),
+  //   showBadge: true, // Uncomment if you have this sound file
+  // );
+
+  // First delete existing channel to ensure fresh creation
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
+      ?.deleteNotificationChannel('channel_id_5');
+
+  AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'channel_id_5',
+    'Important Notifications',
+    description: 'Important notifications channel',
+    importance: Importance.max,
+    playSound: true,
+    sound: RawResourceAndroidNotificationSound('alert'),
+    enableVibration: true,
+    vibrationPattern: Int64List.fromList([0, 1000, 5000, 2000]),
+    showBadge: true,
+  );
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
+      ?.createNotificationChannel(channel);
+}
+
+// Modified showLocalNotification function
+void showLocalNotification(RemoteMessage message) {
+  if (message.notification == null) return;
+
+  late OverlaySupportEntry entry;
+
+  // Show overlay notification
+  entry = showSimpleNotification(
+    Text(
+      message.notification!.title ?? 'Notification Title',
+      style: customTextStyle(
+        fontStyle: FontStyle.BodyL_Bold,
+        color: FontColor.FontPrimary,
+      ),
+    ),
+    subtitle: Builder(
+      builder: (context) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Image.asset('assets/notification.png', height: 80.0),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Text(
+                message.notification!.body ?? 'Notification Body',
+                textAlign: TextAlign.center,
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyL_Bold,
+                  color: FontColor.FontPrimary,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: BasketButton(
+                      onpress: () {
+                        entry.dismiss();
+                        // RestartWidget.restartApp(context);
+                      },
+                      text: "OK",
+                      bgcolor: customColors().dodgerBlue,
+                      textStyle: customTextStyle(
+                        fontStyle: FontStyle.BodyL_Bold,
+                        color: FontColor.White,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
       },
-    );
+    ),
+    background: customColors().backgroundPrimary,
+    leading: const Icon(Icons.notifications_active),
+    position: NotificationPosition.bottom,
+    autoDismiss: false,
+  );
 
-    // Create notification channel for Android 8.0+
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'ansar_logistics_channel', // ID must match your FCM payload
-      'Important Notifications',
-      description: 'This channel is used for important notifications.',
-      importance: Importance.high,
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound('alert'),
-      enableVibration: true,
-    );
-
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(channel);
-  }
-
-  static Future<void> _requestPermissions() async {
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
-
-    print('User granted permission: ${settings.authorizationStatus}');
-
-    // For iOS/macOS specific settings
-    await messaging.setForegroundNotificationPresentationOptions(
-      alert: true, // Required to display heads up notifications
-      badge: true,
-      sound: true,
-    );
-  }
-
-  static Future<void> _getFCMToken() async {
-    try {
-      String? token = await messaging.getToken();
-      print('FCM Token: $token');
-
-      // Save token to shared preferences for later use
-      // await PreferenceUtils.storeDataToShared("fcm_token", token ?? "");
-
-      // Listen for token refresh
-      messaging.onTokenRefresh.listen((newToken) {
-        print('FCM Token refreshed: $newToken');
-        // Update token on your server
-        // await updateTokenOnServer(newToken);
-      });
-    } catch (e) {
-      print('Error getting FCM token: $e');
-    }
-  }
-
-  static Future<void> _setupMessageHandlers() async {
-    // Handle messages when the app is in foreground
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Foreground message received: ${message.messageId}');
-      _showLocalNotification(message);
-    });
-
-    // Handle messages when the app is in background but not terminated
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Background message opened: ${message.messageId}');
-      _handleMessageNavigation(message);
-    });
-
-    // Handle background messages (app terminated)
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    // Check if app was opened from terminated state via notification
-    RemoteMessage? initialMessage = await messaging.getInitialMessage();
-    if (initialMessage != null) {
-      _handleMessageNavigation(initialMessage);
-    }
-  }
-
-  // Background message handler - must be top-level or static
-  @pragma('vm:entry-point')
-  static Future<void> _firebaseMessagingBackgroundHandler(
-    RemoteMessage message,
-  ) async {
-    print('Handling a background message: ${message.messageId}');
-
-    // Initialize Firebase if needed
-    await Firebase.initializeApp();
-
-    // Show notification
-    await _showBackgroundNotification(message);
-  }
-
-  static Future<void> _showBackgroundNotification(RemoteMessage message) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-          'ansar_logistics_channel',
-          'Important Notifications',
-          channelDescription: 'Important notifications channel',
-          importance: Importance.high,
-          priority: Priority.high,
-          playSound: true,
-          sound: RawResourceAndroidNotificationSound('alert'),
-          enableVibration: true,
-          // vibrationPattern: Int64List.fromList([0, 1000, 5000, 2000]),
-        );
-
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-    );
-
-    await flutterLocalNotificationsPlugin.show(
-      message.hashCode,
-      message.notification?.title ?? 'Notification',
-      message.notification?.body ?? 'New message',
-      platformChannelSpecifics,
-      payload: json.encode(message.data),
-    );
-  }
-
-  static void _showLocalNotification(RemoteMessage message) {
-    if (message.notification == null) return;
-
-    // Show system notification
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-          'ansar_logistics_channel',
-          'Important Notifications',
-          channelDescription: 'Important notifications channel',
-          importance: Importance.high,
-          priority: Priority.high,
-          playSound: true,
-          sound: RawResourceAndroidNotificationSound('alert'),
-          enableVibration: true,
-          // vibrationPattern: Int64List.fromList([0, 1000, 5000, 2000]),
-          styleInformation: BigTextStyleInformation(''),
-        );
-
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-    );
-
-    flutterLocalNotificationsPlugin.show(
-      message.hashCode,
-      message.notification?.title ?? 'Notification',
-      message.notification?.body ?? 'New message',
-      platformChannelSpecifics,
-      payload: json.encode(message.data),
-    );
-  }
-
-  static void _onNotificationTap(String? payload) {
-    if (payload != null) {
-      try {
-        Map<String, dynamic> data = json.decode(payload);
-        _handleMessageData(data);
-      } catch (e) {
-        print('Error parsing notification payload: $e');
-      }
-    }
-  }
-
-  static void _handleMessageNavigation(RemoteMessage message) {
-    _handleMessageData(message.data);
-  }
-
-  static void _handleMessageData(Map<String, dynamic> data) {
-    // Handle navigation based on message data
-    print('Notification data: $data');
-
-    // Example: Navigate to specific screen based on data
-    // if (data['type'] == 'order') {
-    //   Navigator.push(context, MaterialPageRoute(builder: (_) => OrderScreen()));
-    // }
-  }
+  // Show system notification
+  flutterLocalNotificationsPlugin.show(
+    message.data.hashCode,
+    message.notification?.title ?? 'Notification Title',
+    message.notification?.body ?? 'Notification Body',
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        'channel_id_5', // Must match created channel
+        'Important Notifications', // Should match channel name
+        channelDescription: 'Important notifications channel',
+        icon: '@mipmap/ic_launcher',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+        sound: RawResourceAndroidNotificationSound(
+          'alert',
+        ), // Uncomment if you have this sound file
+        vibrationPattern: Int64List.fromList([0, 1000, 5000, 2000]),
+      ),
+    ),
+  );
 }

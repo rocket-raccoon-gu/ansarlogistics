@@ -170,6 +170,7 @@ class OrderItemNew {
   final String? productImage;
   final bool? isProduce;
   final String? subgroupIdentifier;
+  final String? productOptions;
 
   OrderItemNew({
     this.id,
@@ -188,6 +189,7 @@ class OrderItemNew {
     this.productImage,
     this.isProduce,
     this.subgroupIdentifier,
+    this.productOptions,
   });
 
   factory OrderItemNew.fromJson(Map<String, dynamic> json) => OrderItemNew(
@@ -225,6 +227,10 @@ class OrderItemNew {
     productImage: json['product_images']?.toString(),
     isProduce: json['is_produce']?.toString() == '1',
     subgroupIdentifier: json['subgroup_identifier']?.toString(),
+    productOptions:
+        json['product_options'] == null
+            ? ""
+            : json['product_options']?.toString(),
   );
 }
 
