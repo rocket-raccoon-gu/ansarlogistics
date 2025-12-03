@@ -38,27 +38,68 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
     _sliderController = CarouselSliderController();
   }
 
+  // int get _currentStatus {
+  //   final currentBranch = UserController.userController.profile.branchCode;
+  //   final currentSku = widget.sectionitem.sku;
+
+  //   if (UserController.userController.profile.branchCode != 'Q013') {
+  //     // 1. Check statusHistory for all matching entries
+  //     final statusHistoryItems =
+  //         widget.statusHistory
+  //             .where(
+  //               (item) =>
+  //                   item.sku == currentSku && item.branchCode == currentBranch,
+  //             )
+  //             .toList();
+
+  //     if (statusHistoryItems.isNotEmpty) {
+  //       // Sort by timestamp descending (newest first) and take the first item
+  //       statusHistoryItems.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+  //       return statusHistoryItems.first.status;
+  //     }
+
+  //     // 2. Check existingUpdates for all matching entries
+  //     final existingItems =
+  //         widget.existingUpdates
+  //             .where(
+  //               (item) =>
+  //                   item['sku'] == currentSku &&
+  //                   item['branch'] == currentBranch,
+  //             )
+  //             .toList();
+
+  //     if (existingItems.isNotEmpty) {
+  //       // Sort by timestamp if available (newest first)
+  //       existingItems.sort((a, b) {
+  //         final aTime = a['updated_at'] ?? '';
+  //         final bTime = b['updated_at'] ?? '';
+  //         return bTime.compareTo(aTime); // Descending sort
+  //       });
+
+  //       final rawStatus = existingItems.first['status'];
+
+  //       // Safely parse status, fallback to sectionitem.isInStock if null/invalid
+  //       if (rawStatus == null) {
+  //         return widget.sectionitem.isInStock;
+  //       }
+
+  //       final statusStr = rawStatus.toString();
+  //       final parsed = int.tryParse(statusStr);
+
+  //       return parsed ?? widget.sectionitem.isInStock;
+  //     }
+  //   }
+
+  //   // 3. Fall back to default status
+  //   return widget.sectionitem.isInStock;
+  // }
+
   int get _currentStatus {
     final currentBranch = UserController.userController.profile.branchCode;
     final currentSku = widget.sectionitem.sku;
 
-    if (UserController.userController.profile.branchCode != 'Q013') {
-      // 1. Check statusHistory for all matching entries
-      final statusHistoryItems =
-          widget.statusHistory
-              .where(
-                (item) =>
-                    item.sku == currentSku && item.branchCode == currentBranch,
-              )
-              .toList();
-
-      if (statusHistoryItems.isNotEmpty) {
-        // Sort by timestamp descending (newest first) and take the first item
-        statusHistoryItems.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-        return statusHistoryItems.first.status;
-      }
-
-      // 2. Check existingUpdates for all matching entries
+    if (currentBranch != 'Q013') {
+      // 1. Check existingUpdates (local) FIRST
       final existingItems =
           widget.existingUpdates
               .where(
@@ -69,28 +110,38 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
               .toList();
 
       if (existingItems.isNotEmpty) {
-        // Sort by timestamp if available (newest first)
         existingItems.sort((a, b) {
           final aTime = a['updated_at'] ?? '';
           final bTime = b['updated_at'] ?? '';
-          return bTime.compareTo(aTime); // Descending sort
+          return bTime.compareTo(aTime);
         });
 
         final rawStatus = existingItems.first['status'];
 
-        // Safely parse status, fallback to sectionitem.isInStock if null/invalid
         if (rawStatus == null) {
           return widget.sectionitem.isInStock;
         }
 
-        final statusStr = rawStatus.toString();
-        final parsed = int.tryParse(statusStr);
-
+        final parsed = int.tryParse(rawStatus.toString());
         return parsed ?? widget.sectionitem.isInStock;
+      }
+
+      // 2. If no local overrides, use statusHistory from API
+      final statusHistoryItems =
+          widget.statusHistory
+              .where(
+                (item) =>
+                    item.sku == currentSku && item.branchCode == currentBranch,
+              )
+              .toList();
+
+      if (statusHistoryItems.isNotEmpty) {
+        statusHistoryItems.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        return statusHistoryItems.first.status;
       }
     }
 
-    // 3. Fall back to default status
+    // 3. Fallback
     return widget.sectionitem.isInStock;
   }
 
@@ -226,26 +277,45 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                               ),
                               child: Row(
                                 children: [
-                                  Text(
-                                    // Check if SKU exists in updates, then use its status
-                                    widget.sectionitem.isInStock == 1 &&
-                                            val == 1
-                                        ? 'Enabled'
-                                        : 'Disabled',
-                                    style:
-                                        widget.sectionitem.isInStock == 1 &&
-                                                val == 1
-                                            ? customTextStyle(
-                                              fontStyle:
-                                                  FontStyle.HeaderXS_Bold,
-                                              color: FontColor.Success,
-                                            )
-                                            : customTextStyle(
-                                              fontStyle:
-                                                  FontStyle.HeaderXS_Bold,
-                                              color: FontColor.CarnationRed,
-                                            ),
-                                  ),
+                                  if (UserController
+                                          .userController
+                                          .profile
+                                          .branchCode !=
+                                      "Q013")
+                                    Text(
+                                      val == 1 ? 'Enabled' : 'Disabled',
+                                      style:
+                                          val == 1
+                                              ? customTextStyle(
+                                                fontStyle:
+                                                    FontStyle.HeaderXS_Bold,
+                                                color: FontColor.Success,
+                                              )
+                                              : customTextStyle(
+                                                fontStyle:
+                                                    FontStyle.HeaderXS_Bold,
+                                                color: FontColor.CarnationRed,
+                                              ),
+                                    )
+                                  else
+                                    Text(
+                                      widget.sectionitem.isInStock == 1 &&
+                                              val == 1
+                                          ? 'Enabled'
+                                          : 'Disabled',
+                                      style:
+                                          val == 1
+                                              ? customTextStyle(
+                                                fontStyle:
+                                                    FontStyle.HeaderXS_Bold,
+                                                color: FontColor.Success,
+                                              )
+                                              : customTextStyle(
+                                                fontStyle:
+                                                    FontStyle.HeaderXS_Bold,
+                                                color: FontColor.CarnationRed,
+                                              ),
+                                    ),
                                 ],
                               ),
                             ),

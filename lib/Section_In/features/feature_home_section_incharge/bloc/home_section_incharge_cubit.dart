@@ -653,7 +653,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     String name,
     String imageUrl,
     bool isEnabled,
-  ) {
+  ) async {
     // 1) Update in-memory sectionitems list
     final index = sectionitems.indexWhere((item) => item.sku == sku);
     if (index != -1) {
@@ -712,8 +712,9 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       'sku': sku,
       'name': name,
       'imageUrl': imageUrl,
-      'isEnabled': isEnabled,
-      'updatedAt': DateTime.now().toIso8601String(),
+      // 'isEnabled': isEnabled,
+      'status': isEnabled ? 1 : 0,
+      'updated_at': DateTime.now().toIso8601String(),
       'branch': UserController().profile.branchCode,
     };
 
@@ -722,6 +723,8 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     } else {
       updateHistory.add(newUpdateEntry);
     }
+
+    await PreferenceUtils.storeListmap('updates_history', updateHistory);
 
     // 3) Emit a fresh state so BlocBuilder rebuilds with updated list
     emit(
