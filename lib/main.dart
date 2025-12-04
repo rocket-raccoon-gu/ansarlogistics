@@ -44,7 +44,6 @@ const applicationPath = String.fromEnvironment(
 
 // ################## DEVELOPMENT NEW ###########################
 
-
 const environment = String.fromEnvironment('FLAVOR', defaultValue: 'staging');
 const debuggable = bool.fromEnvironment('DEBUGGABLE', defaultValue: true);
 const loggable = bool.fromEnvironment('LOGGABLE', defaultValue: true);
