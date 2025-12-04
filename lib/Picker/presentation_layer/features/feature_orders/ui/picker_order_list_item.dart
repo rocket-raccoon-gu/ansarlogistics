@@ -123,23 +123,25 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 18,
-                      color: customColors().fontPrimary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Time ${widget.orderResponseItem.timeRange ?? '-'}',
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyS_Regular,
-                        color: FontColor.FontPrimary,
-                      ),
-                    ),
-                  ],
-                ),
+                widget.orderResponseItem.timeRange != null
+                    ? Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 18,
+                          color: customColors().fontPrimary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Time ${widget.orderResponseItem.timeRange ?? '-'}',
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyS_Regular,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ],
+                    )
+                    : const SizedBox(),
 
                 Text(
                   '${widget.orderResponseItem.items.length} items',
@@ -152,7 +154,8 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
             ),
             const SizedBox(height: 10),
             // Bottom Banner
-            _BottomBanner(order: widget.orderResponseItem),
+            if (widget.orderResponseItem.status != "end_picking")
+              _BottomBanner(order: widget.orderResponseItem),
           ],
         ),
       ),

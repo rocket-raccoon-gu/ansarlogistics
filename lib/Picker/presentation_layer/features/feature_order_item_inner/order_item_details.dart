@@ -87,7 +87,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
   scanBarcodeNormal(String? barcodeScanRes) async {
     try {
-      if (barcodeScanRes != null) {
+      if (barcodeScanRes != null && barcodeScanRes != "") {
         log('📦 Scanned barcode: $barcodeScanRes');
 
         final orderItem =
@@ -118,6 +118,13 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
         );
 
         // print('✅ checkitemdb completed for barcode: $barcodeScanRes');
+      } else {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(
+            errorMessage: "Please scan a valid barcode",
+          ),
+        );
       }
 
       if (!mounted) return;
@@ -660,11 +667,11 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 4),
+                                        // const SizedBox(height: 4),
                                       ],
                                     ],
 
-                                    const SizedBox(height: 10),
+                                    // const SizedBox(height: 10),
                                     // SKU + delivery badge (NOL)
                                     Row(
                                       children: [
@@ -702,7 +709,24 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                           ),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Quantity  ',
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyM_Bold,
+                                            color: FontColor.FontPrimary,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${double.tryParse('${item.qtyOrdered ?? 0}')?.toInt() ?? 0}',
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyM_Bold,
+                                            color: FontColor.FontPrimary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                     // Price and Quantity inline
                                     Row(
                                       mainAxisAlignment:
@@ -732,39 +756,24 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                             ),
                                           ],
                                         ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              'Quantity  ',
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyM_Bold,
-                                                color: FontColor.FontPrimary,
-                                              ),
-                                            ),
-                                            Text(
-                                              '${double.tryParse('${item.qtyOrdered ?? 0}')?.toInt() ?? 0}',
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyM_Bold,
-                                                color: FontColor.FontPrimary,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Quantity stepper + Scan Barcode button
-                              item.itemStatus != "item_not_available"
-                                  ? Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        // Stepper (uses existing CounterButton styles)
+                                        // Row(
+                                        //   children: [
+                                        //     Text(
+                                        //       'Quantity  ',
+                                        //       style: customTextStyle(
+                                        //         fontStyle: FontStyle.BodyM_Bold,
+                                        //         color: FontColor.FontPrimary,
+                                        //       ),
+                                        //     ),
+                                        //     Text(
+                                        //       '${double.tryParse('${item.qtyOrdered ?? 0}')?.toInt() ?? 0}',
+                                        //       style: customTextStyle(
+                                        //         fontStyle: FontStyle.BodyM_Bold,
+                                        //         color: FontColor.FontPrimary,
+                                        //       ),
+                                        //     ),
+                                        //   ],
+                                        // ),
                                         item.isProduce == true
                                             ? SizedBox()
                                             : SizedBox(
@@ -781,7 +790,22 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                 showLabel: false,
                                               ),
                                             ),
-                                        const SizedBox(width: 12),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Quantity stepper + Scan Barcode button
+                              item.itemStatus != "item_not_available"
+                                  ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        // Stepper (uses existing CounterButton styles)
+                                        // const SizedBox(width: 12),
                                         // Scan barcode (green)
                                         !isKeyboard
                                             ? Expanded(
@@ -799,6 +823,59 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                     );
                                                     return;
                                                   }
+
+                                                  if (editquantity !=
+                                                      double.tryParse(
+                                                        '${item.qtyOrdered ?? 0}',
+                                                      )?.toInt()) {
+                                                    final confirm = await showDialog<
+                                                      bool
+                                                    >(
+                                                      context: context,
+                                                      barrierDismissible: false,
+                                                      builder: (ctx) {
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                            'Confirm Quantity',
+                                                          ),
+                                                          content: Text(
+                                                            'Selected quantity ($editquantity) is not equal to quantity ordered (${double.tryParse('${item.qtyOrdered ?? 0}')?.toInt() ?? 0}).\n\nDo you want to continue?',
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed:
+                                                                  () =>
+                                                                      Navigator.of(
+                                                                        ctx,
+                                                                      ).pop(
+                                                                        false,
+                                                                      ),
+                                                              child: const Text(
+                                                                'Cancel',
+                                                              ),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed:
+                                                                  () =>
+                                                                      Navigator.of(
+                                                                        ctx,
+                                                                      ).pop(
+                                                                        true,
+                                                                      ),
+                                                              child: const Text(
+                                                                'Continue',
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    );
+
+                                                    if (confirm != true) {
+                                                      return;
+                                                    }
+                                                  }
+
                                                   var status =
                                                       await Permission
                                                           .camera
@@ -891,10 +968,65 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                       vertical: 6.0,
                                     ),
                                     child: InkWell(
-                                      onTap: () {
-                                        scanBarcodeNormal(
-                                          barcodeController.text.trim(),
-                                        );
+                                      onTap: () async {
+                                        if (editquantity !=
+                                            double.tryParse(
+                                              '${item.qtyOrdered ?? 0}',
+                                            )?.toInt()) {
+                                          final confirm = await showDialog<
+                                            bool
+                                          >(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (ctx) {
+                                              return AlertDialog(
+                                                title: const Text(
+                                                  'Confirm Quantity',
+                                                ),
+                                                content: Text(
+                                                  'Selected quantity ($editquantity) is not equal to quantity ordered (${double.tryParse('${item.qtyOrdered ?? 0}')?.toInt() ?? 0}).\n\nDo you want to continue?',
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed:
+                                                        () => Navigator.of(
+                                                          ctx,
+                                                        ).pop(false),
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed:
+                                                        () => Navigator.of(
+                                                          ctx,
+                                                        ).pop(true),
+                                                    child: const Text(
+                                                      'Continue',
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+
+                                          if (confirm != true) {
+                                            return;
+                                          }
+                                        }
+
+                                        if (editquantity != 0) {
+                                          scanBarcodeNormal(
+                                            barcodeController.text.trim(),
+                                          );
+                                        } else {
+                                          showSnackBar(
+                                            context: context,
+                                            snackBar: showErrorDialogue(
+                                              errorMessage:
+                                                  'Quantity cannot be zero',
+                                            ),
+                                          );
+                                        }
+
                                         // setState(() {
                                         //   isKeyboard = false;
                                         // });
@@ -927,7 +1059,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                   )
                                   : Container(),
 
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 5),
 
                               // Actions row
                               item.itemStatus != "item_not_available"

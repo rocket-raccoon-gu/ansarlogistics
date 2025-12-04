@@ -35,37 +35,53 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
   int _currentIndex = 0;
   StreamSubscription? _statusSub;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _statusSub = eventBus.on<ItemStatusUpdatedEvent>().listen((evt) {
+  //     // Switch to appropriate tab based on status and update state immediately
+  //     if (mounted) {
+  //       // final status = (evt.newStatus ?? '').toLowerCase();
+  //       // int nextIndex;
+  //       // switch (status) {
+  //       //   case 'end_picking':
+  //       //     nextIndex = 1; // Picked tab
+  //       //     break;
+  //       //   case 'holded':
+  //       //     nextIndex = 2; // On Hold tab
+  //       //     break;
+  //       //   case 'item_not_available':
+  //       //     nextIndex = 3; // Not Available tab
+  //       //     break;
+  //       //   default:
+  //       //     nextIndex = 0; // To Pick tab
+  //       // }
+  //       // setState(() {
+  //       //   _currentIndex = nextIndex;
+  //       // });
+  //       context.read<PickerDashboardTabCubit>().setItemStatusAndData(
+  //         evt.itemId,
+  //         evt.newStatus,
+  //         newPrice: evt.newPrice,
+  //         pickedQty: evt.newQty,
+  //       );
+  //     }
+  //   });
+  // }
+
   @override
   void initState() {
     super.initState();
     _statusSub = eventBus.on<ItemStatusUpdatedEvent>().listen((evt) {
-      // Switch to appropriate tab based on status and update state immediately
-      if (mounted) {
-        final status = (evt.newStatus ?? '').toLowerCase();
-        int nextIndex;
-        switch (status) {
-          case 'end_picking':
-            nextIndex = 1; // Picked tab
-            break;
-          case 'holded':
-            nextIndex = 2; // On Hold tab
-            break;
-          case 'item_not_available':
-            nextIndex = 3; // Not Available tab
-            break;
-          default:
-            nextIndex = 0; // To Pick tab
-        }
-        setState(() {
-          _currentIndex = nextIndex;
-        });
-        context.read<PickerDashboardTabCubit>().setItemStatusAndData(
-          evt.itemId,
-          evt.newStatus,
-          newPrice: evt.newPrice,
-          pickedQty: evt.newQty,
-        );
-      }
+      if (!mounted) return;
+
+      // Only update lists; do NOT change _currentIndex
+      context.read<PickerDashboardTabCubit>().setItemStatusAndData(
+        evt.itemId,
+        evt.newStatus,
+        newPrice: evt.newPrice,
+        pickedQty: evt.newQty,
+      );
     });
   }
 

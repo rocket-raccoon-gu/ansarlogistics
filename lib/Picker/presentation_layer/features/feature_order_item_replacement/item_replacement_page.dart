@@ -119,28 +119,35 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
       log("${barcodeScanRes} barcodeScanRes");
 
+      if (barcodeScanRes != null && barcodeScanRes != "") {
+        // get scanned barcode data
+        await BlocProvider.of<ItemReplacementPageCubit>(
+          context,
+        ).getScannedProductData(
+          barcodeScanRes,
+          producebarcode,
+          productSku,
+          action,
+        );
+
+        if (mounted) {
+          setState(() {
+            isScanner = false;
+            istextbarcode = false;
+          });
+          // }
+        }
+      } else {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(errorMessage: "Invalid Barcode"),
+        );
+      }
+
       // update barcode log
       // await BlocProvider.of<ItemReplacementPageCubit>(
       //   context,
       // ).updateBarcodeLog('', barcodeScanRes);
-
-      // get scanned barcode data
-      await BlocProvider.of<ItemReplacementPageCubit>(
-        context,
-      ).getScannedProductData(
-        barcodeScanRes,
-        producebarcode,
-        productSku,
-        action,
-      );
-
-      if (mounted) {
-        setState(() {
-          isScanner = false;
-          istextbarcode = false;
-        });
-        // }
-      }
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {

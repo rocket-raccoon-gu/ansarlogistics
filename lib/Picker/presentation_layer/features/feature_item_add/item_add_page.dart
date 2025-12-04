@@ -93,21 +93,30 @@ class _ItemAddPageState extends State<ItemAddPage> {
 
     // print("${barcodeScanRes}barcodeScanResbarcodeScanResbarcodeScanRes");
 
-    String action = "additional";
+    if (barcodeScanRes != null && barcodeScanRes != "") {
+      String action = "additional";
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    await BlocProvider.of<ItemAddPageCubit>(context).getScannedProductData(
-      barcodeScanRes,
-      producebarcode,
-      barcodeScanRes,
-      action,
-    );
+      await BlocProvider.of<ItemAddPageCubit>(context).getScannedProductData(
+        barcodeScanRes,
+        producebarcode,
+        barcodeScanRes,
+        action,
+      );
 
-    setState(() {
-      isScanner = false;
-      scannedBarcode = barcodeScanRes;
-    });
+      setState(() {
+        isScanner = false;
+        scannedBarcode = barcodeScanRes;
+      });
+
+      return;
+    } else {
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(errorMessage: "Invalid Barcode"),
+      );
+    }
   }
 
   Future<void> _startScan() async {
@@ -301,38 +310,6 @@ class _ItemAddPageState extends State<ItemAddPage> {
                     children: [Text("No Data Found...!")],
                   ),
                 ),
-
-              // else if (state is MobileScannerState1)
-              //   Expanded(
-              //     child: MobileScanner(
-              //       controller: cameraController,
-              //       onDetect: (capture) async {
-              //         final List<Barcode> barcodes = capture.barcodes;
-              //         if (barcodes.isNotEmpty &&
-              //             barcodes.first.rawValue != null) {
-              //           final scannedCode = barcodes.first.rawValue!;
-
-              //           if (scannedCode != barcodeController.text) {
-              //             barcodeController.text = scannedCode;
-
-              //             await BlocProvider.of<ItemAddPageCubit>(
-              //               context,
-              //             ).getScannedProductData(
-              //               scannedCode,
-              //               producebarcode,
-              //               scannedCode,
-              //               "additional",
-              //             );
-
-              //             // Optionally switch back to form
-              //             BlocProvider.of<ItemAddPageCubit>(
-              //               context,
-              //             ).updateFormState();
-              //           }
-              //         }
-              //       },
-              //     ),
-              //   ),
             ],
           ),
           bottomNavigationBar: SizedBox(
