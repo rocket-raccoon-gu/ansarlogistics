@@ -16,10 +16,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_scankit/flutter_scankit.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+// import 'package:flutter_scankit/flutter_scankit.dart';
+// import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:ansarlogistics/utils/utils.dart';
+import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
 
 class OrderItemDetails extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -42,53 +42,57 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
   TextEditingController barcodeController = new TextEditingController();
 
-  MobileScannerController cameraController = MobileScannerController();
+  // MobileScannerController cameraController = MobileScannerController();
 
-  late final ScanKit scanKit;
+  // late final ScanKit scanKit;
 
-  String result = '';
+  // String result = '';
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    scanKit = ScanKit(
-      photoMode: true,
-      viewType:
-          ScanTypes.qRCode.bit |
-          ScanTypes.code128.bit |
-          ScanTypes.ean13.bit |
-          ScanTypes.code39.bit |
-          ScanTypes.code93.bit |
-          ScanTypes.aztec.bit |
-          ScanTypes.dataMatrix.bit |
-          ScanTypes.pdf417.bit |
-          ScanTypes.upcCodeA.bit |
-          ScanTypes.upcCodeE.bit |
-          ScanTypes.ean8.bit |
-          ScanTypes.all.bit,
-    );
-    scanKit.onResult.listen((val) {
-      setState(() => result = val.originalValue);
-      scanBarcodeNormal(result);
-    });
-  }
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   scanKit = ScanKit(
+  //     photoMode: true,
+  //     viewType:
+  //         ScanTypes.qRCode.bit |
+  //         ScanTypes.code128.bit |
+  //         ScanTypes.ean13.bit |
+  //         ScanTypes.code39.bit |
+  //         ScanTypes.code93.bit |
+  //         ScanTypes.aztec.bit |
+  //         ScanTypes.dataMatrix.bit |
+  //         ScanTypes.pdf417.bit |
+  //         ScanTypes.upcCodeA.bit |
+  //         ScanTypes.upcCodeE.bit |
+  //         ScanTypes.ean8.bit |
+  //         ScanTypes.all.bit,
+  //   );
+  //   scanKit.onResult.listen((val) {
+  //     setState(() => result = val.originalValue);
+  //     scanBarcodeNormal(result);
+  //   });
+  // }
 
-  Future<void> _startScan() async {
+  // Future<void> _startScan() async {
+  //   try {
+  //     await scanKit.startScan(
+  //       scanTypes:
+  //           ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
+  //     );
+  //   } on PlatformException catch (e) {
+  //     debugPrint('Error: ${e.message}');
+  //   }
+  // }
+
+  scanBarcodeNormal() async {
     try {
-      await scanKit.startScan(
-        scanTypes:
-            ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
+      final result = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
       );
-    } on PlatformException catch (e) {
-      debugPrint('Error: ${e.message}');
-    }
-  }
 
-  scanBarcodeNormal(String? barcodeScanRes) async {
-    try {
-      if (barcodeScanRes != null && barcodeScanRes != "") {
-        log('📦 Scanned barcode: $barcodeScanRes');
+      if (result != null && result != "") {
+        log('📦 Scanned barcode: $result');
 
         final orderItem =
             BlocProvider.of<OrderItemDetailsCubit>(context).orderItemNew;
@@ -110,7 +114,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
         await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
           quantityToCheck!,
-          barcodeScanRes,
+          result,
           orderItem!,
           productSku!,
           action,
@@ -135,16 +139,16 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
-          barcodeScanRes = 'Camera permission was denied';
+          // barcodeScanRes = 'Camera permission was denied';
         });
       } else {
         setState(() {
-          barcodeScanRes = 'Unknown error: $e';
+          // barcodeScanRes = 'Unknown error: $e';
         });
       }
     } on FormatException {
       setState(() {
-        barcodeScanRes = 'Nothing captured.';
+        // barcodeScanRes = 'Nothing captured.';
       });
     } catch (e) {
       log(e.toString(), stackTrace: StackTrace.current);
@@ -886,7 +890,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   // setState(() {
                                                   //   isScanner = !isScanner;
                                                   // });
-                                                  _startScan();
+                                                  // _startScan();
+                                                  scanBarcodeNormal();
                                                 },
                                                 child: Container(
                                                   height: 44,
@@ -1014,9 +1019,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         }
 
                                         if (editquantity != 0) {
-                                          scanBarcodeNormal(
-                                            barcodeController.text.trim(),
-                                          );
+                                          scanBarcodeNormal();
                                         } else {
                                           showSnackBar(
                                             context: context,

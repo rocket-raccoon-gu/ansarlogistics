@@ -1051,13 +1051,9 @@ extension PDGeneralApi on PickerDriverApi {
       "action": action,
     };
 
-    // final url = Uri.parse(
-    //   'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
-    // );
-
-    // print(
-    //   'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
-    // );
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
+    );
 
     log("-------------------------------------");
 
@@ -1068,7 +1064,7 @@ extension PDGeneralApi on PickerDriverApi {
       'Authorization': 'Bearer $token1',
     };
 
-    final url = _endpointWithApplicationPath('picker/orders/check-sku');
+    // final url = _endpointWithApplicationPath('picker/orders/check-sku');
 
     log(url.toString());
 

@@ -6,6 +6,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_a
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/bloc/item_replacement_page_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/db_data_container.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/erp_data_container.dart';
+import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
@@ -62,52 +63,53 @@ class _ItemAddPageState extends State<ItemAddPage> {
 
   bool producebarcode = false;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    scanKit = ScanKit(
-      photoMode: true,
-      viewType:
-          ScanTypes.qRCode.bit |
-          ScanTypes.code128.bit |
-          ScanTypes.ean13.bit |
-          ScanTypes.code39.bit |
-          ScanTypes.code93.bit |
-          ScanTypes.aztec.bit |
-          ScanTypes.dataMatrix.bit |
-          ScanTypes.pdf417.bit |
-          ScanTypes.upcCodeA.bit |
-          ScanTypes.upcCodeE.bit |
-          ScanTypes.ean8.bit |
-          ScanTypes.all.bit,
-    );
-    scanKit.onResult.listen((val) {
-      setState(() => result = val.originalValue);
-      scanBarcodeNormal(result);
-    });
-  }
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   scanKit = ScanKit(
+  //     photoMode: true,
+  //     viewType:
+  //         ScanTypes.qRCode.bit |
+  //         ScanTypes.code128.bit |
+  //         ScanTypes.ean13.bit |
+  //         ScanTypes.code39.bit |
+  //         ScanTypes.code93.bit |
+  //         ScanTypes.aztec.bit |
+  //         ScanTypes.dataMatrix.bit |
+  //         ScanTypes.pdf417.bit |
+  //         ScanTypes.upcCodeA.bit |
+  //         ScanTypes.upcCodeE.bit |
+  //         ScanTypes.ean8.bit |
+  //         ScanTypes.all.bit,
+  //   );
+  //   scanKit.onResult.listen((val) {
+  //     setState(() => result = val.originalValue);
+  //     scanBarcodeNormal(result);
+  //   });
+  // }
 
-  Future<void> scanBarcodeNormal(String barcodeScanRes) async {
-    log(barcodeScanRes);
+  Future<void> scanBarcodeNormal() async {
+    final result = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+    );
+
+    log(result.toString());
 
     // print("${barcodeScanRes}barcodeScanResbarcodeScanResbarcodeScanRes");
 
-    if (barcodeScanRes != null && barcodeScanRes != "") {
+    if (result != null && result != "") {
       String action = "additional";
 
       if (!mounted) return;
 
-      await BlocProvider.of<ItemAddPageCubit>(context).getScannedProductData(
-        barcodeScanRes,
-        producebarcode,
-        barcodeScanRes,
-        action,
-      );
+      await BlocProvider.of<ItemAddPageCubit>(
+        context,
+      ).getScannedProductData(result, producebarcode, result, action);
 
       setState(() {
         isScanner = false;
-        scannedBarcode = barcodeScanRes;
+        scannedBarcode = result;
       });
 
       return;
@@ -119,16 +121,16 @@ class _ItemAddPageState extends State<ItemAddPage> {
     }
   }
 
-  Future<void> _startScan() async {
-    try {
-      await scanKit.startScan(
-        scanTypes:
-            ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
-      );
-    } on PlatformException catch (e) {
-      debugPrint('Error: ${e.message}');
-    }
-  }
+  // Future<void> _startScan() async {
+  //   try {
+  //     await scanKit.startScan(
+  //       scanTypes:
+  //           ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
+  //     );
+  //   } on PlatformException catch (e) {
+  //     debugPrint('Error: ${e.message}');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -439,10 +441,12 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                           await requestCameraPermission();
                                         }
 
+                                        scanBarcodeNormal();
+
                                         // BlocProvider.of<ItemAddPageCubit>(
                                         //   context,
                                         // ).updateScannerState();
-                                        _startScan();
+                                        // _startScan();
                                       },
                                       child: BasketButtonwithIcon(
                                         bgcolor: customColors().dodgerBlue,

@@ -1404,6 +1404,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  scandit_flutter_datacapture_barcode:
+    dependency: "direct main"
+    description:
+      name: scandit_flutter_datacapture_barcode
+      sha256: "6d4e460997de62a8c215fa46449a0db0a2ab7c818facff46b56fe6eecaaeba58"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.28.7"
+  scandit_flutter_datacapture_core:
+    dependency: "direct main"
+    description:
+      name: scandit_flutter_datacapture_core
+      sha256: "6500eedf503330d665a9f0cb1151bfb2a5b0bc1ce6c76537d593a3a9cc329ae8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.28.7"
+  scandit_flutter_datacapture_id:
+    dependency: "direct main"
+    description:
+      name: scandit_flutter_datacapture_id
+      sha256: "2ee00cfd39ddcf3504c7f9e24e19f7059ea36c6141a30a5466284ace59bf67c7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.28.7"
+  scandit_flutter_datacapture_parser:
+    dependency: "direct main"
+    description:
+      name: scandit_flutter_datacapture_parser
+      sha256: b35957ef8c34876e96e36b606ca830dd86778388889ab496c59ed42593d97229
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.28.7"
+  scandit_flutter_datacapture_text:
+    dependency: "direct main"
+    description:
+      name: scandit_flutter_datacapture_text
+      sha256: a775d305f4356d540bf892b725e7ea8c43ca52ef8bc487252276ceefd741bab3
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.28.7"
   shared_preferences:
     dependency: "direct main"
     description:
