@@ -94,6 +94,7 @@ class _DbDataContainerState extends State<DbDataContainer> {
                         horizontal: 4.0,
                       ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Text(
                             'Quantity',
@@ -105,12 +106,13 @@ class _DbDataContainerState extends State<DbDataContainer> {
                           const SizedBox(width: 12),
                           SizedBox(
                             width:
-                                140, // adjust as you like (120–160 works well)
+                                100, // adjust as you like (120–160 works well)
                             child: CounterDropdown(
                               initNumber: 0,
                               counterCallback: widget.counterCallback,
                               maxNumber: 500, // see next section
                               minNumber: 0,
+                              showLabel: true,
                             ),
                           ),
                         ],

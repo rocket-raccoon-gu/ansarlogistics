@@ -661,18 +661,24 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
             }
           } else {
             // print("✅ Item matched in order. No need to show dialog.");
-            if (!_isDialogShowing) {
-              _isDialogShowing = true;
-              // print("📛 _isDialogShowing was false, now set to true");
-              // Uncomment if needed
-              priceMismatchDialog(
-                context,
-                orderItem: orderItem,
-                orderResponseItem: orderResponseItem,
-                //  cubit.orderItem,
-                // orderResponseItem: cubit.orderResponseItem,
-              );
-            }
+            // if (!_isDialogShowing) {
+            //   _isDialogShowing = true;
+            //   // print("📛 _isDialogShowing was false, now set to true");
+            //   // Uncomment if needed
+            //   priceMismatchDialog(
+            //     context,
+            //     orderItem: orderItem,
+            //     orderResponseItem: orderResponseItem,
+            //     //  cubit.orderItem,
+            //     // orderResponseItem: cubit.orderResponseItem,
+            //   );
+            // }
+            showSnackBar(
+              context: context,
+              snackBar: showErrorDialogue(
+                errorMessage: "Barcode Not Matched....",
+              ),
+            );
           }
         } else {
           String mainMessage = data["message"] + data["suggestion"];

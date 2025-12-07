@@ -94,6 +94,7 @@ class Datum {
   String? driverType;
   double? orderPlacedTotal;
   double? combinedOrderPlacedTotal;
+  int? isProduce;
 
   Datum({
     required this.subgroupIdentifier,
@@ -148,6 +149,7 @@ class Datum {
     required this.driverType,
     required this.orderPlacedTotal,
     required this.combinedOrderPlacedTotal,
+    required this.isProduce,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -212,6 +214,7 @@ class Datum {
     orderPlacedTotal: json["order_placed_total"]?.toDouble() ?? 0,
     combinedOrderPlacedTotal:
         json["combined_order_placed_total"]?.toDouble() ?? 0,
+    isProduce: json["is_produce"] ?? 0,
   );
 
   Map<String, dynamic> toJson() => {
@@ -269,6 +272,7 @@ class Datum {
     "driver_type": driverType,
     "order_placed_total": orderPlacedTotal,
     "combined_order_placed_total": combinedOrderPlacedTotal,
+    "is_produce": isProduce,
   };
 }
 
@@ -296,6 +300,7 @@ class Item {
   String webprice;
   String? imageurl;
   String? productName;
+  String? isProduce;
 
   Item({
     required this.itemId,
@@ -313,6 +318,7 @@ class Item {
     required this.webprice,
     required this.imageurl,
     required this.productName,
+    required this.isProduce,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
@@ -331,6 +337,7 @@ class Item {
     webprice: json["web_price"] ?? "",
     imageurl: json["image_url"] ?? "",
     productName: json["product_name"] ?? "",
+    isProduce: json["is_produce"] ?? "0",
   );
 
   Map<String, dynamic> toJson() => {
@@ -349,6 +356,7 @@ class Item {
     "webprice": webprice,
     "image_url": imageurl,
     "product_name": productName,
+    "is_produce": isProduce,
   };
 }
 

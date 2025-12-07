@@ -8,6 +8,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/erp_data_container.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/manual_form.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/product_data.dart';
+import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
@@ -70,44 +71,44 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
     }
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    scanKit = ScanKit(
-      photoMode: true,
-      viewType:
-          ScanTypes.qRCode.bit |
-          ScanTypes.code128.bit |
-          ScanTypes.ean13.bit |
-          ScanTypes.code39.bit |
-          ScanTypes.code93.bit |
-          ScanTypes.aztec.bit |
-          ScanTypes.dataMatrix.bit |
-          ScanTypes.pdf417.bit |
-          ScanTypes.upcCodeA.bit |
-          ScanTypes.upcCodeE.bit |
-          ScanTypes.ean8.bit |
-          ScanTypes.all.bit,
-    );
-    scanKit.onResult.listen((val) {
-      setState(() => result = val.originalValue);
-      scanBarcodeNormal(result);
-    });
-  }
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   scanKit = ScanKit(
+  //     photoMode: true,
+  //     viewType:
+  //         ScanTypes.qRCode.bit |
+  //         ScanTypes.code128.bit |
+  //         ScanTypes.ean13.bit |
+  //         ScanTypes.code39.bit |
+  //         ScanTypes.code93.bit |
+  //         ScanTypes.aztec.bit |
+  //         ScanTypes.dataMatrix.bit |
+  //         ScanTypes.pdf417.bit |
+  //         ScanTypes.upcCodeA.bit |
+  //         ScanTypes.upcCodeE.bit |
+  //         ScanTypes.ean8.bit |
+  //         ScanTypes.all.bit,
+  //   );
+  //   scanKit.onResult.listen((val) {
+  //     setState(() => result = val.originalValue);
+  //     scanBarcodeNormal(result);
+  //   });
+  // }
 
-  Future<void> _startScan() async {
-    try {
-      await scanKit.startScan(
-        scanTypes:
-            ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
-      );
-    } on PlatformException catch (e) {
-      debugPrint('Error: ${e.message}');
-    }
-  }
+  // Future<void> _startScan() async {
+  //   try {
+  //     await scanKit.startScan(
+  //       scanTypes:
+  //           ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
+  //     );
+  //   } on PlatformException catch (e) {
+  //     debugPrint('Error: ${e.message}');
+  //   }
+  // }
 
-  Future<void> scanBarcodeNormal(String barcodeScanRes) async {
+  Future<void> scanBarcodeNormal() async {
     try {
       // print("${barcodeScanRes} asdfasdfasdfasdfsadasdf");
       String productSku = widget.itemdata.sku!;
@@ -117,18 +118,17 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
       String action = "replace";
 
-      log("${barcodeScanRes} barcodeScanRes");
+      final result = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+      );
 
-      if (barcodeScanRes != null && barcodeScanRes != "") {
+      log("${result} barcodeScanRes");
+
+      if (result != null && result != "") {
         // get scanned barcode data
         await BlocProvider.of<ItemReplacementPageCubit>(
           context,
-        ).getScannedProductData(
-          barcodeScanRes,
-          producebarcode,
-          productSku,
-          action,
-        );
+        ).getScannedProductData(result, producebarcode, productSku, action);
 
         if (mounted) {
           setState(() {
@@ -151,16 +151,16 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
-          barcodeScanRes = 'Camera permission was denied';
+          result = 'Camera permission was denied';
         });
       } else {
         setState(() {
-          barcodeScanRes = 'Unknown error: $e';
+          result = 'Unknown error: $e';
         });
       }
     } on FormatException {
       setState(() {
-        barcodeScanRes = 'Nothing captured.';
+        result = 'Nothing captured.';
       });
     } catch (e) {
       showSnackBar(
@@ -706,7 +706,9 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                 await requestCameraPermission();
               }
               // setState(() => isScanner = true);
-              _startScan();
+              // _startScan();
+
+              scanBarcodeNormal();
             },
             icon: const Icon(Icons.qr_code_scanner),
             label: const Text('Scan Barcode'),

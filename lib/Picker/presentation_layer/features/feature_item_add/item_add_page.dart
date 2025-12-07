@@ -146,330 +146,341 @@ class _ItemAddPageState extends State<ItemAddPage> {
         }
       },
       builder: (context, state) {
-        return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: PreferredSize(
-            child: AppBar(
-              elevation: 0,
-              backgroundColor: Color.fromRGBO(183, 214, 53, 1),
-            ),
-            preferredSize: const Size.fromHeight(0.0),
-          ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      width: 2.0,
-                      color: customColors().backgroundTertiary,
-                    ),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.only(top: mheight * .012),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            context.gNavigationService.back(context);
-                          },
-                          icon: Icon(Icons.arrow_back, size: 20.0),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: Row(
-                            children: [
-                              Text(
-                                "Add New Item",
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_SemiBold,
-                                  color: FontColor.FontPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(),
-                      ],
-                    ),
-                  ),
-                ),
+        return SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: PreferredSize(
+              child: AppBar(
+                elevation: 0,
+                backgroundColor: Color.fromRGBO(183, 214, 53, 1),
               ),
-              if (state is ItemAddFormState)
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text("Is Produce"),
-                          Switch(
-                            value: producebarcode,
-                            onChanged: (value) {
-                              setState(() {
-                                producebarcode = value;
-                              });
-                            },
-                          ),
-                        ],
+              preferredSize: const Size.fromHeight(0.0),
+            ),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        width: 2.0,
+                        color: customColors().backgroundTertiary,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: Column(
-                          children: [
-                            Row(children: [Text("Enter product barcode")]),
-                            Row(
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: mheight * .012),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              context.gNavigationService.back(context);
+                            },
+                            icon: Icon(Icons.arrow_back, size: 20.0),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: Row(
                               children: [
-                                Expanded(
-                                  child: CustomTextFormField(
-                                    keyboardType: TextInputType.number,
-                                    bordercolor: customColors().fontTertiary,
-                                    context: context,
-                                    controller: barcodeController,
-                                    fieldName: "",
-                                    hintText: "Type here...",
+                                Text(
+                                  "Add New Item",
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyL_SemiBold,
+                                    color: FontColor.FontPrimary,
                                   ),
                                 ),
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 12.0),
-                              child: BasketButton(
-                                onpress: () async {
-                                  // context.read<ItemAddPageCubit>().updatedata(
-                                  //   barcodeController.text,
-                                  //   producebarcode,
-                                  // );.
-                                  // print(barcodeController.text);
-
-                                  if (barcodeController.text.isEmpty) {
-                                    showSnackBar(
-                                      context: context,
-                                      snackBar: showErrorDialogue(
-                                        errorMessage: "Please enter barcode",
-                                      ),
-                                    );
-                                  } else {
-                                    await BlocProvider.of<ItemAddPageCubit>(
-                                      context,
-                                    ).getScannedProductData(
-                                      barcodeController.text,
-                                      producebarcode,
-                                      barcodeController.text,
-                                      "additional",
-                                    );
-                                  }
-                                },
-                                bgcolor: customColors().dodgerBlue,
-                                text: "Enter",
-                                textStyle: customTextStyle(
-                                  fontStyle: FontStyle.HeaderXS_Bold,
-                                  color: FontColor.White,
-                                ),
-                              ),
+                          ),
+                          SizedBox(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                if (state is ItemAddFormState)
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text("Is Produce"),
+                            Switch(
+                              value: producebarcode,
+                              onChanged: (value) {
+                                setState(() {
+                                  producebarcode = value;
+                                });
+                              },
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              else if (state is ItemAddPageInitialState &&
-                  (state.erPdata != null || state.productDBdata != null))
-                Column(
-                  children: [
-                    if (state.erPdata != null)
-                      ErpDataContainer(
-                        erPdata: state.erPdata,
-                        counterCallback: (v) {
-                          setState(() {
-                            editquantity = v;
-                          });
-                        },
-                      )
-                    else if (state.productDBdata != null)
-                      DbDataContainer(
-                        productDBdata: state.productDBdata,
-                        counterCallback: (v) {
-                          setState(() {
-                            editquantity = v;
-                          });
-                        },
-                      ),
-                  ],
-                )
-              else if (state is ItemAddPageInitialState &&
-                  (state.erPdata == null || state.productDBdata == null))
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Text("No Data Found...!")],
-                  ),
-                ),
-            ],
-          ),
-          bottomNavigationBar: SizedBox(
-            height:
-                context.read<ItemAddPageCubit>().erPdata != null ||
-                        context.read<ItemAddPageCubit>().productDBdata != null
-                    ? screenSize.height * 0.1
-                    : screenSize.height * 0.11,
-            child: Stack(
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Divider(
-                      thickness: 1.0,
-                      color: customColors().backgroundTertiary,
-                    ),
-                    context.read<ItemAddPageCubit>().erPdata != null ||
-                            context.read<ItemAddPageCubit>().productDBdata !=
-                                null
-                        ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Column(
                             children: [
-                              Expanded(
+                              Row(children: [Text("Enter product barcode")]),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomTextFormField(
+                                      keyboardType: TextInputType.number,
+                                      bordercolor: customColors().fontTertiary,
+                                      context: context,
+                                      controller: barcodeController,
+                                      fieldName: "",
+                                      hintText: "Type here...",
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 12.0),
                                 child: BasketButton(
-                                  loading: loading,
-                                  onpress: () {
-                                    // print(
-                                    //   "----------------------------------------- submit ----------------------------------------",
-                                    // );
+                                  onpress: () async {
+                                    // context.read<ItemAddPageCubit>().updatedata(
+                                    //   barcodeController.text,
+                                    //   producebarcode,
+                                    // );.
+                                    // print(barcodeController.text);
 
-                                    if (BlocProvider.of<ItemAddPageCubit>(
-                                          context,
-                                        ).erPdata !=
-                                        null) {
-                                      final cubit =
-                                          context.read<ItemAddPageCubit>();
-                                      final erp = cubit.erPdata!;
-                                      final isProduce =
-                                          cubit.productDBdata?.isProduce
-                                              .toString() ??
-                                          "null";
-
-                                      cubit.updateItem(
-                                        0,
-                                        scannedBarcode == ""
-                                            ? barcodeController.text
-                                            : scannedBarcode,
-                                        "",
-                                        erp.erpPrice.toString(),
-                                        editquantity.toString(),
-                                        widget.preparationNumber,
-                                        isProduce == 'null'
-                                            ? 0
-                                            : int.parse(isProduce),
-                                        int.parse(erp.erpItemNumber.toString()),
-                                        isProduce,
-                                        widget.orderNumber,
-                                        context,
+                                    if (barcodeController.text.isEmpty) {
+                                      showSnackBar(
+                                        context: context,
+                                        snackBar: showErrorDialogue(
+                                          errorMessage: "Please enter barcode",
+                                        ),
                                       );
-                                    } else if (BlocProvider.of<
-                                          ItemAddPageCubit
-                                        >(context).productDBdata !=
-                                        null) {
-                                      final cubit =
-                                          context.read<ItemAddPageCubit>();
-                                      final product = cubit.productDBdata!;
-
-                                      final priceToUse =
-                                          product.specialPrice != ""
-                                              ? product.specialPrice.toString()
-                                              : product.regularPrice.toString();
-
-                                      cubit.updateItem(
-                                        0,
-                                        scannedBarcode == ""
-                                            ? barcodeController.text
-                                            : scannedBarcode,
-                                        "",
-                                        priceToUse,
-                                        editquantity.toString(),
-                                        widget.preparationNumber,
-                                        int.parse(product.isProduce.toString()),
-                                        product.productId,
-                                        product.skuName.toString(),
-                                        widget.orderNumber,
+                                    } else {
+                                      await BlocProvider.of<ItemAddPageCubit>(
                                         context,
+                                      ).getScannedProductData(
+                                        barcodeController.text,
+                                        producebarcode,
+                                        barcodeController.text,
+                                        "additional",
                                       );
                                     }
-
-                                    // setState(() {
-                                    //   loading = false;
-                                    // });
                                   },
-                                  text: "Submit",
                                   bgcolor: customColors().dodgerBlue,
+                                  text: "Enter",
                                   textStyle: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
+                                    fontStyle: FontStyle.HeaderXS_Bold,
                                     color: FontColor.White,
                                   ),
                                 ),
                               ),
                             ],
                           ),
+                        ),
+                      ],
+                    ),
+                  )
+                else if (state is ItemAddPageInitialState &&
+                    (state.erPdata != null || state.productDBdata != null))
+                  Column(
+                    children: [
+                      if (state.erPdata != null)
+                        ErpDataContainer(
+                          erPdata: state.erPdata,
+                          counterCallback: (v) {
+                            setState(() {
+                              editquantity = v;
+                            });
+                          },
                         )
-                        : Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
+                      else if (state.productDBdata != null)
+                        DbDataContainer(
+                          productDBdata: state.productDBdata,
+                          counterCallback: (v) {
+                            setState(() {
+                              editquantity = v;
+                            });
+                          },
+                        ),
+                    ],
+                  )
+                else if (state is ItemAddPageInitialState &&
+                    (state.erPdata == null || state.productDBdata == null))
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [Text("No Data Found...!")],
+                    ),
+                  ),
+              ],
+            ),
+            bottomNavigationBar: SizedBox(
+              height:
+                  context.read<ItemAddPageCubit>().erPdata != null ||
+                          context.read<ItemAddPageCubit>().productDBdata != null
+                      ? screenSize.height * 0.14
+                      : screenSize.height * 0.13,
+              child: Stack(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Divider(
+                        thickness: 1.0,
+                        color: customColors().backgroundTertiary,
+                      ),
+                      context.read<ItemAddPageCubit>().erPdata != null ||
+                              context.read<ItemAddPageCubit>().productDBdata !=
+                                  null
+                          ? Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
+                            child: Row(
                               children: [
                                 Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 15.0,
-                                      right: 10.0,
-                                    ),
-                                    child: InkWell(
-                                      onTap: () async {
-                                        // scanBarcodeNormal();
+                                  child: BasketButton(
+                                    loading: loading,
+                                    onpress: () {
+                                      // print(
+                                      //   "----------------------------------------- submit ----------------------------------------",
+                                      // );
 
-                                        var status =
-                                            await Permission.camera.status;
-                                        if (!status.isGranted) {
-                                          await requestCameraPermission();
-                                        }
+                                      if (BlocProvider.of<ItemAddPageCubit>(
+                                            context,
+                                          ).erPdata !=
+                                          null) {
+                                        final cubit =
+                                            context.read<ItemAddPageCubit>();
+                                        final erp = cubit.erPdata!;
+                                        final isProduce =
+                                            cubit.productDBdata?.isProduce
+                                                .toString() ??
+                                            "null";
 
-                                        scanBarcodeNormal();
+                                        cubit.updateItem(
+                                          0,
+                                          scannedBarcode == ""
+                                              ? barcodeController.text
+                                              : scannedBarcode,
+                                          "",
+                                          erp.erpPrice.toString(),
+                                          editquantity.toString(),
+                                          widget.preparationNumber,
+                                          isProduce == 'null'
+                                              ? 0
+                                              : int.parse(isProduce),
+                                          int.parse(
+                                            erp.erpItemNumber.toString(),
+                                          ),
+                                          isProduce,
+                                          widget.orderNumber,
+                                          context,
+                                        );
+                                      } else if (BlocProvider.of<
+                                            ItemAddPageCubit
+                                          >(context).productDBdata !=
+                                          null) {
+                                        final cubit =
+                                            context.read<ItemAddPageCubit>();
+                                        final product = cubit.productDBdata!;
 
-                                        // BlocProvider.of<ItemAddPageCubit>(
-                                        //   context,
-                                        // ).updateScannerState();
-                                        // _startScan();
-                                      },
-                                      child: BasketButtonwithIcon(
-                                        bgcolor: customColors().dodgerBlue,
-                                        text: "Start Scan",
-                                        image: "assets/noun_scan.png",
-                                        textStyle: customTextStyle(
-                                          fontStyle: FontStyle.BodyL_Bold,
-                                          color: FontColor.White,
-                                        ),
-                                      ),
+                                        final priceToUse =
+                                            product.specialPrice != ""
+                                                ? product.specialPrice
+                                                    .toString()
+                                                : product.regularPrice
+                                                    .toString();
+
+                                        cubit.updateItem(
+                                          0,
+                                          scannedBarcode == ""
+                                              ? barcodeController.text
+                                              : scannedBarcode,
+                                          "",
+                                          priceToUse,
+                                          editquantity.toString(),
+                                          widget.preparationNumber,
+                                          int.parse(
+                                            product.isProduce.toString(),
+                                          ),
+                                          product.productId,
+                                          product.skuName.toString(),
+                                          widget.orderNumber,
+                                          context,
+                                        );
+                                      }
+
+                                      // setState(() {
+                                      //   loading = false;
+                                      // });
+                                    },
+                                    text: "Submit",
+                                    bgcolor: customColors().dodgerBlue,
+                                    textStyle: customTextStyle(
+                                      fontStyle: FontStyle.BodyL_Bold,
+                                      color: FontColor.White,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                  ],
-                ),
-                Positioned(
-                  child: loading ? LinearProgressIndicator() : SizedBox(),
-                ),
-              ],
+                          )
+                          : Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 15.0,
+                                        right: 10.0,
+                                      ),
+                                      child: InkWell(
+                                        onTap: () async {
+                                          // scanBarcodeNormal();
+
+                                          var status =
+                                              await Permission.camera.status;
+                                          if (!status.isGranted) {
+                                            await requestCameraPermission();
+                                          }
+
+                                          scanBarcodeNormal();
+
+                                          // BlocProvider.of<ItemAddPageCubit>(
+                                          //   context,
+                                          // ).updateScannerState();
+                                          // _startScan();
+                                        },
+                                        child: BasketButtonwithIcon(
+                                          bgcolor: customColors().dodgerBlue,
+                                          text: "Start Scan",
+                                          image: "assets/noun_scan.png",
+                                          textStyle: customTextStyle(
+                                            fontStyle: FontStyle.BodyL_Bold,
+                                            color: FontColor.White,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                    ],
+                  ),
+                  Positioned(
+                    child: loading ? LinearProgressIndicator() : SizedBox(),
+                  ),
+                ],
+              ),
             ),
           ),
         );

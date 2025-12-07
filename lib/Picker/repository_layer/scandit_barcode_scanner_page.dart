@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode_capture.dart';
-import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_spark_scan.dart';
 import 'package:scandit_flutter_datacapture_core/scandit_flutter_datacapture_core.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 
@@ -14,22 +13,27 @@ class ScanditBarcodeScannerPage extends StatefulWidget {
 }
 
 class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
-    implements SparkScanListener {
+    implements BarcodeCaptureListener {
   late final DataCaptureContext _context;
   late final Camera _camera;
+  late final DataCaptureView _captureView;
   late final BarcodeCapture _barcodeCapture;
+
   bool _handled = false;
-
-  late SparkScan _sparkScan;
-
-  late final SparkScanViewSettings _viewSettings;
 
   @override
   void initState() {
     super.initState();
+
     _context = DataCaptureContext.forLicenseKey(scankey);
 
-    final settings = SparkScanSettings();
+    _context.removeAllModes();
+
+    _camera = Camera.defaultCamera!;
+    _context.setFrameSource(_camera);
+    _camera.switchToDesiredState(FrameSourceState.on);
+
+    final settings = BarcodeCaptureSettings();
     settings.enableSymbologies({
       Symbology.ean13Upca,
       Symbology.ean8,
@@ -38,68 +42,68 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
       Symbology.code128,
       Symbology.interleavedTwoOfFive,
     });
-    final symbologySettings = settings.settingsForSymbology(Symbology.code39);
-    symbologySettings.activeSymbolCounts = {
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20,
-    };
 
-    _sparkScan = SparkScan.withSettings(settings);
-    _sparkScan.addListener(this);
+    _barcodeCapture = BarcodeCapture.forContext(_context, settings);
+    _barcodeCapture.addListener(this);
+    _barcodeCapture.isEnabled = true;
 
-    _viewSettings = SparkScanViewSettings();
-  }
+    _captureView = DataCaptureView.forContext(_context);
 
-  @override
-  void dispose() {
-    _sparkScan.removeListener(this);
-    super.dispose();
-  }
+    /// ----------- HIGHLIGHT BARCODE HERE ------------
+    final overlay = BarcodeCaptureOverlay.withBarcodeCapture(_barcodeCapture);
 
-  @override
-  Future<void> didScan(
-    SparkScan sparkScan,
-    SparkScanSession session,
-    Future<FrameData> Function() getFrameData,
-  ) async {
-    final barcode = session.newlyRecognizedBarcode;
-    if (barcode?.data == null || barcode!.data!.isEmpty) return;
-    if (!mounted) return;
-    Navigator.of(context).pop<String>(barcode.data);
+    // Viewfinder — focus area on screen
+    overlay.viewfinder = RectangularViewfinder();
+
+    // Brush — the highlight color
+    overlay.brush = Brush(Colors.transparent, Colors.greenAccent, 4);
+
+    _captureView.addOverlay(overlay);
   }
 
   @override
   Widget build(BuildContext context) {
-    final view = SparkScanView.forContext(
-      Container(),
-      _context,
-      _sparkScan,
-      _viewSettings,
-    );
+    return Scaffold(body: SafeArea(child: _captureView));
+  }
 
-    return Scaffold(body: SafeArea(child: view));
+  @override
+  void didScan(BarcodeCapture barcodeCapture, BarcodeCaptureSession session) {
+    if (_handled) return;
+
+    final newBarcodes = session.newlyRecognizedBarcodes;
+    if (newBarcodes.isEmpty) return;
+
+    final barcode = newBarcodes.first;
+    final code = barcode.data;
+    if (code == null || code.isEmpty) return;
+
+    _handled = true;
+
+    // Disable scanning so no more barcodes get scanned
+    _barcodeCapture.isEnabled = false;
+
+    Future.delayed(const Duration(milliseconds: 350), () {
+      // Freeze camera view (optional)
+      _camera.switchToDesiredState(FrameSourceState.standby);
+
+      if (mounted) {
+        Navigator.pop(context, code);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _barcodeCapture.removeListener(this);
+    _camera.switchToDesiredState(FrameSourceState.off);
+    super.dispose();
   }
 
   @override
   void didUpdateSession(
-    SparkScan sparkScan,
-    SparkScanSession session,
-    Future<FrameData> Function() getFrameData,
+    BarcodeCapture barcodeCapture,
+    BarcodeCaptureSession session,
   ) {
     // TODO: implement didUpdateSession
   }
-
-  // implement other listener methods as empty bodies
 }

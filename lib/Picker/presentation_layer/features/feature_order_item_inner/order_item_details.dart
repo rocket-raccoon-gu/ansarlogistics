@@ -413,35 +413,49 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         images.length - 1,
                                       )],
                                     );
+
+                                    final bool hasValidMainUrl =
+                                        mainUrl.isNotEmpty &&
+                                        mainUrl.startsWith('http');
+
                                     return SizedBox(
                                       height: 275.0,
                                       width: 275.0,
                                       child: Center(
-                                        child: CachedNetworkImage(
-                                          imageUrl: mainUrl,
-                                          imageBuilder: (
-                                            context,
-                                            imageProvider,
-                                          ) {
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                  image: imageProvider,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          placeholder:
-                                              (context, url) => Center(
-                                                child: Image.asset(
-                                                  'assets/Iphone_spinner.gif',
-                                                ),
-                                              ),
-                                          errorWidget: (context, url, error) {
-                                            return Image.network(noimageurl);
-                                          },
-                                        ),
+                                        child:
+                                            hasValidMainUrl
+                                                ? CachedNetworkImage(
+                                                  imageUrl: mainUrl,
+                                                  imageBuilder: (
+                                                    context,
+                                                    imageProvider,
+                                                  ) {
+                                                    return Container(
+                                                      decoration: BoxDecoration(
+                                                        image: DecorationImage(
+                                                          image: imageProvider,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  placeholder:
+                                                      (context, url) => Center(
+                                                        child: Image.asset(
+                                                          'assets/Iphone_spinner.gif',
+                                                        ),
+                                                      ),
+                                                  errorWidget: (
+                                                    context,
+                                                    url,
+                                                    error,
+                                                  ) {
+                                                    return Image.network(
+                                                      noimageurl,
+                                                    );
+                                                  },
+                                                )
+                                                : Image.network(noimageurl),
                                       ),
                                     );
                                   },
@@ -540,6 +554,11 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                           final thumbUrl = resolve(
                                             images[index],
                                           );
+
+                                          final bool hasValidMainUrl =
+                                              thumbUrl.isNotEmpty &&
+                                              thumbUrl.startsWith('http');
+
                                           return Padding(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 8.0,
@@ -567,41 +586,48 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   ),
                                                 ),
                                                 child: Center(
-                                                  child: CachedNetworkImage(
-                                                    imageUrl: thumbUrl,
-                                                    imageBuilder: (
-                                                      context,
-                                                      imageProvider,
-                                                    ) {
-                                                      return Container(
-                                                        decoration: BoxDecoration(
-                                                          image: DecorationImage(
-                                                            image:
-                                                                imageProvider,
-                                                            fit: BoxFit.cover,
+                                                  child:
+                                                      hasValidMainUrl
+                                                          ? CachedNetworkImage(
+                                                            imageUrl: thumbUrl,
+                                                            imageBuilder: (
+                                                              context,
+                                                              imageProvider,
+                                                            ) {
+                                                              return Container(
+                                                                decoration: BoxDecoration(
+                                                                  image: DecorationImage(
+                                                                    image:
+                                                                        imageProvider,
+                                                                    fit:
+                                                                        BoxFit
+                                                                            .cover,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            placeholder:
+                                                                (
+                                                                  context,
+                                                                  url,
+                                                                ) => Center(
+                                                                  child: Image.asset(
+                                                                    'assets/Iphone_spinner.gif',
+                                                                  ),
+                                                                ),
+                                                            errorWidget: (
+                                                              context,
+                                                              url,
+                                                              error,
+                                                            ) {
+                                                              return Image.network(
+                                                                noimageurl,
+                                                              );
+                                                            },
+                                                          )
+                                                          : Image.network(
+                                                            noimageurl,
                                                           ),
-                                                        ),
-                                                      );
-                                                    },
-                                                    placeholder:
-                                                        (
-                                                          context,
-                                                          url,
-                                                        ) => Center(
-                                                          child: Image.asset(
-                                                            'assets/Iphone_spinner.gif',
-                                                          ),
-                                                        ),
-                                                    errorWidget: (
-                                                      context,
-                                                      url,
-                                                      error,
-                                                    ) {
-                                                      return Image.network(
-                                                        noimageurl,
-                                                      );
-                                                    },
-                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -829,9 +855,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   }
 
                                                   if (editquantity !=
-                                                      double.tryParse(
-                                                        '${item.qtyOrdered ?? 0}',
-                                                      )?.toInt()) {
+                                                          double.tryParse(
+                                                            '${item.qtyOrdered ?? 0}',
+                                                          )?.toInt() &&
+                                                      item.isProduce != true) {
                                                     final confirm = await showDialog<
                                                       bool
                                                     >(
