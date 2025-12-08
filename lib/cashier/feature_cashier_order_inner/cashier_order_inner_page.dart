@@ -866,23 +866,16 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       final amount =
           (json['amount'] ?? json['order']['amount'] ?? '0').toString();
 
-      final authStatus =
-          (json['authenticationStatus'] ??
-                  (json['3ds'] is Map
-                      ? json['3ds']['authenticationStatus']
-                      : null) ??
-                  json['result'])
-              ?.toString() ??
-          '';
+      final authStatus = (json['status'])?.toString() ?? '';
 
-      final isSuccess = authStatus.toUpperCase().contains('SUCCESS');
+      final isSuccess = authStatus.toUpperCase().contains('CAPTURED');
 
       final List<Map<String, dynamic>> items = [
         {
           'amount': amount,
           // Keep using statusId == 3 as "Online Paid" to match existing UI
-          'statusId': isSuccess ? 3 : 0,
-          'modeName': 'Online Payment',
+          'statusId': getstat(authStatus),
+          'modeName': authStatus,
           'invoice': orderId,
         },
       ];
@@ -900,6 +893,45 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           _sadadLoading = false;
         });
       }
+    }
+  }
+
+  int getstat(String authstat) {
+    switch (authstat) {
+      case 'CAPTURED':
+        return 3;
+      case 'REFUNDED':
+        return 2;
+      case 'AUTHENTICATED':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  Color getstatcolor(String authstat) {
+    switch (authstat) {
+      case 'CAPTURED':
+        return customColors().secretGarden;
+      case 'REFUNDED':
+        return customColors().islandAqua;
+      case 'AUTHENTICATED':
+        return customColors().carnationRed;
+      default:
+        return customColors().warning;
+    }
+  }
+
+  String getaction(int id) {
+    switch (id) {
+      case 3:
+        return "(Online Paid)";
+      case 2:
+        return "(Refunded)";
+      case 1:
+        return "(Failed)";
+      default:
+        return "Fialed";
     }
   }
 
@@ -1136,10 +1168,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                     children: [
                                       Container(
                                         decoration: BoxDecoration(
-                                          color:
-                                              (t['statusId'] == 3)
-                                                  ? Colors.green
-                                                  : Colors.red,
+                                          color: getstatcolor(t['modeName']),
                                           borderRadius: BorderRadius.circular(
                                             16,
                                           ),
@@ -1150,9 +1179,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                         ),
                                         child: Text(
                                           'QAR ${t['amount']} ' +
-                                              ((t['statusId'] == 3)
-                                                  ? '(Online Paid)'
-                                                  : '(Failed)'),
+                                              getaction(t['statusId']),
                                           style: customTextStyle(
                                             fontStyle: FontStyle.BodyS_Bold,
                                             color: FontColor.White,
