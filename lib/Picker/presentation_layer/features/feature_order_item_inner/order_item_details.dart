@@ -85,6 +85,72 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
   //   }
   // }
 
+  scanBarcodeManual(String result) async {
+    try {
+      if (result != null && result != "") {
+        log('📦 Scanned barcode: $result');
+
+        final orderItem =
+            BlocProvider.of<OrderItemDetailsCubit>(context).orderItemNew;
+        final productSku = orderItem?.sku;
+
+        // print('🔍 Found product SKU: $productSku');
+
+        // await BlocProvider.of<OrderItemDetailsCubit>(
+        //   context,
+        // ).updateBarcodeLog(productSku!, barcodeScanRes);
+        // print('✅ Barcode log updated for SKU: $productSku');
+
+        final quantityToCheck =
+            editquantity != 0 ? editquantity.toString() : orderItem!.qtyOrdered;
+
+        // print('📊 Quantity to check: $quantityToCheck');
+
+        String action = "pick";
+
+        await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
+          quantityToCheck!,
+          result,
+          orderItem!,
+          productSku!,
+          action,
+          widget.data['preparationLabel'],
+        );
+
+        // print('✅ checkitemdb completed for barcode: $barcodeScanRes');
+      } else {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(
+            errorMessage: "Please scan a valid barcode",
+          ),
+        );
+      }
+
+      if (!mounted) return;
+      setState(() {
+        isScanner = false;
+        // istextbarcode = false;
+      });
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
+        setState(() {
+          // barcodeScanRes = 'Camera permission was denied';
+        });
+      } else {
+        setState(() {
+          // barcodeScanRes = 'Unknown error: $e';
+        });
+      }
+    } on FormatException {
+      setState(() {
+        // barcodeScanRes = 'Nothing captured.';
+      });
+    } catch (e) {
+      log(e.toString(), stackTrace: StackTrace.current);
+    }
+  }
+
   scanBarcodeNormal() async {
     try {
       final result = await Navigator.of(context).push<String>(
@@ -1046,7 +1112,11 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         }
 
                                         if (editquantity != 0) {
-                                          scanBarcodeNormal();
+                                          scanBarcodeManual(
+                                            barcodeController.text
+                                                .toString()
+                                                .trim(),
+                                          );
                                         } else {
                                           showSnackBar(
                                             context: context,

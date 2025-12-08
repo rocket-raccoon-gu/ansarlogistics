@@ -1395,7 +1395,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               DataCell(Text(orderPrice.toStringAsFixed(2))),
               DataCell(Text(pickerPrice.toStringAsFixed(2))),
               DataCell(Text(orderQty.toStringAsFixed(0))),
-              DataCell(Text(qty.toStringAsFixed(2))),
+              DataCell(Text(qty.round().toString())),
               const DataCell(Text('0.00')),
               DataCell(Text(subtotal.toStringAsFixed(2))),
             ],

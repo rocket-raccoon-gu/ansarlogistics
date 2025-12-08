@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode_capture.dart';
@@ -25,14 +26,20 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
   void initState() {
     super.initState();
 
+    // Create a fresh context
     _context = DataCaptureContext.forLicenseKey(scankey);
 
-    _context.removeAllModes();
+    // Remove any previously attached modes (prevents Error 1028)
+    try {
+      _context.removeAllModes();
+    } catch (_) {}
 
+    // Setup camera
     _camera = Camera.defaultCamera!;
     _context.setFrameSource(_camera);
     _camera.switchToDesiredState(FrameSourceState.on);
 
+    // Configure barcode settings
     final settings = BarcodeCaptureSettings();
     settings.enableSymbologies({
       Symbology.ean13Upca,
@@ -43,19 +50,18 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
       Symbology.interleavedTwoOfFive,
     });
 
+    // DON'T use non-existent setters (e.g. singleBarcodeAutoDetection)
     _barcodeCapture = BarcodeCapture.forContext(_context, settings);
     _barcodeCapture.addListener(this);
     _barcodeCapture.isEnabled = true;
 
+    // Create native camera view and overlay
     _captureView = DataCaptureView.forContext(_context);
 
-    /// ----------- HIGHLIGHT BARCODE HERE ------------
     final overlay = BarcodeCaptureOverlay.withBarcodeCapture(_barcodeCapture);
-
-    // Viewfinder — focus area on screen
     overlay.viewfinder = RectangularViewfinder();
 
-    // Brush — the highlight color
+    // Use named parameters for Brush for clarity
     overlay.brush = Brush(Colors.transparent, Colors.greenAccent, 4);
 
     _captureView.addOverlay(overlay);
@@ -74,28 +80,71 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
     if (newBarcodes.isEmpty) return;
 
     final barcode = newBarcodes.first;
-    final code = barcode.data;
-    if (code == null || code.isEmpty) return;
+
+    String code = extractBarcodeValue(barcode);
+
+    // Only normalize EAN-13; others are returned unchanged
+    code = normalizeScannedBarcode(barcode, code);
+
+    if (code.isEmpty) return;
 
     _handled = true;
 
-    // Disable scanning so no more barcodes get scanned
+    // Stop further scanning
     _barcodeCapture.isEnabled = false;
 
-    Future.delayed(const Duration(milliseconds: 350), () {
-      // Freeze camera view (optional)
-      _camera.switchToDesiredState(FrameSourceState.standby);
-
-      if (mounted) {
-        Navigator.pop(context, code);
-      }
+    Future.delayed(const Duration(milliseconds: 200), () {
+      try {
+        _camera.switchToDesiredState(FrameSourceState.standby);
+      } catch (_) {}
+      if (mounted) Navigator.pop(context, code);
     });
+  }
+
+  // Decode rawData (base64) if present; fallback to barcode.data
+  String extractBarcodeValue(Barcode barcode) {
+    // Always prefer .data first — it preserves leading zeros
+    if (barcode.data != null && barcode.data!.isNotEmpty) {
+      return barcode.data!;
+    }
+
+    // Fallback to rawData decode if .data is empty
+    try {
+      final raw = barcode.rawData;
+      if (raw != null && raw.isNotEmpty) {
+        final decoded = base64Decode(raw);
+        final s = utf8.decode(decoded);
+        if (s.isNotEmpty) return s;
+      }
+    } catch (_) {
+      // ignore decode errors
+    }
+
+    return "";
+  }
+
+  // Normalize only EAN-13 values; leave others untouched
+  String normalizeScannedBarcode(Barcode barcode, String value) {
+    final sym = barcode.symbology.toString().toLowerCase();
+    String code = value;
+
+    // Only normalize true EAN-13 barcodes that were originally UPC-A
+    if (sym.contains('ean13') && code.length == 13 && code.startsWith('0')) {
+      return code.substring(1); // remove the extra leading zero
+    }
+
+    // For all other barcodes, return exactly as scanned
+    return code;
   }
 
   @override
   void dispose() {
-    _barcodeCapture.removeListener(this);
-    _camera.switchToDesiredState(FrameSourceState.off);
+    try {
+      _barcodeCapture.removeListener(this);
+    } catch (_) {}
+    try {
+      _camera.switchToDesiredState(FrameSourceState.off);
+    } catch (_) {}
     super.dispose();
   }
 
@@ -103,7 +152,5 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
   void didUpdateSession(
     BarcodeCapture barcodeCapture,
     BarcodeCaptureSession session,
-  ) {
-    // TODO: implement didUpdateSession
-  }
+  ) {}
 }
