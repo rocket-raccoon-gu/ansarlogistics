@@ -227,7 +227,7 @@ class ItemTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '0/${double.parse(item.qtyOrdered.toString()).toInt()}',
+                '${double.parse((item.qtyShipped ?? 0).toString()).toInt()}/${double.parse(item.qtyOrdered.toString()).toInt()}',
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyS_Bold,
                   color: FontColor.White,
