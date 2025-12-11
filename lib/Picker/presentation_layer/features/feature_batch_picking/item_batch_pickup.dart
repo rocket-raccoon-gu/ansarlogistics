@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/bloc/item_batch_pickup_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/bloc/item_batch_pickup_state.dart';
+import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
 import 'package:ansarlogistics/constants/methods.dart';
@@ -44,45 +45,49 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
   late final ScanKit scanKit;
   String result = '';
 
-  @override
-  void initState() {
-    super.initState();
-    scanKit = ScanKit(
-      photoMode: true,
-      viewType:
-          ScanTypes.qRCode.bit |
-          ScanTypes.code128.bit |
-          ScanTypes.ean13.bit |
-          ScanTypes.code39.bit |
-          ScanTypes.code93.bit |
-          ScanTypes.aztec.bit |
-          ScanTypes.dataMatrix.bit |
-          ScanTypes.pdf417.bit |
-          ScanTypes.upcCodeA.bit |
-          ScanTypes.upcCodeE.bit |
-          ScanTypes.ean8.bit |
-          ScanTypes.all.bit,
-    );
-    scanKit.onResult.listen((val) {
-      setState(() => result = val.originalValue);
-      scanBarcodeNormal(result);
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   scanKit = ScanKit(
+  //     photoMode: true,
+  //     viewType:
+  //         ScanTypes.qRCode.bit |
+  //         ScanTypes.code128.bit |
+  //         ScanTypes.ean13.bit |
+  //         ScanTypes.code39.bit |
+  //         ScanTypes.code93.bit |
+  //         ScanTypes.aztec.bit |
+  //         ScanTypes.dataMatrix.bit |
+  //         ScanTypes.pdf417.bit |
+  //         ScanTypes.upcCodeA.bit |
+  //         ScanTypes.upcCodeE.bit |
+  //         ScanTypes.ean8.bit |
+  //         ScanTypes.all.bit,
+  //   );
+  //   scanKit.onResult.listen((val) {
+  //     setState(() => result = val.originalValue);
+  //     scanBarcodeNormal(result);
+  //   });
+  // }
 
-  Future<void> _startScan() async {
-    try {
-      await scanKit.startScan(
-        scanTypes:
-            ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
-      );
-    } on PlatformException catch (e) {
-      debugPrint('Error: ${e.message}');
-    }
-  }
+  // Future<void> _startScan() async {
+  //   try {
+  //     await scanKit.startScan(
+  //       scanTypes:
+  //           ScanTypes.qRCode.bit | ScanTypes.code128.bit | ScanTypes.all.bit,
+  //     );
+  //   } on PlatformException catch (e) {
+  //     debugPrint('Error: ${e.message}');
+  //   }
+  // }
 
-  scanBarcodeNormal(String? barcodeScanRes) async {
+  scanBarcodeNormal() async {
     try {
       // log(widget.data['items_data'].toString());
+
+      final result = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+      );
 
       final item = widget.data['items_data'];
 
@@ -93,10 +98,10 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
 
       log(groupedProduct.sku.toString());
 
-      if (barcodeScanRes != null) {
+      if (result != null) {
         context.read<ItemBatchPickupCubit>().checkitemdb(
           "",
-          barcodeScanRes,
+          result,
           groupedProduct.sku!,
           "pick",
           context,
@@ -179,18 +184,18 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                     ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      isKeyboard = !isKeyboard;
-                    });
-                  },
-                  icon: Icon(
-                    Icons.keyboard,
-                    size: 30,
-                    color: HexColor("#A3A3A3"),
-                  ),
-                ),
+                // IconButton(
+                //   onPressed: () {
+                //     setState(() {
+                //       isKeyboard = !isKeyboard;
+                //     });
+                //   },
+                //   icon: Icon(
+                //     Icons.keyboard,
+                //     size: 30,
+                //     color: HexColor("#A3A3A3"),
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -553,7 +558,8 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                                   if (!status.isGranted) {
                                                     await requestCameraPermission();
                                                   }
-                                                  _startScan();
+                                                  // _startScan();
+                                                  scanBarcodeNormal();
                                                 },
                                                 child: Container(
                                                   height: 44,
@@ -640,7 +646,7 @@ class _ItemBatchPickupState extends State<ItemBatchPickup> {
                                           child: InkWell(
                                             onTap: () {
                                               scanBarcodeNormal(
-                                                barcodeController.text,
+                                                // barcodeController.text,
                                               );
                                               setState(() {
                                                 isKeyboard = false;

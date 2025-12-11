@@ -87,37 +87,36 @@ class _DbDataContainerState extends State<DbDataContainer> {
                   ),
 
                   // Quantity selector for non‑produce items
-                  if (widget.productDBdata?.isProduce == "0")
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 4.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Quantity',
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyM_Bold,
-                              color: FontColor.FontPrimary,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          SizedBox(
-                            width:
-                                100, // adjust as you like (120–160 works well)
-                            child: CounterDropdown(
-                              initNumber: 0,
-                              counterCallback: widget.counterCallback,
-                              maxNumber: 500, // see next section
-                              minNumber: 0,
-                              showLabel: true,
-                            ),
-                          ),
-                        ],
-                      ),
+                  // if (widget.productDBdata?.isProduce == "0")
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12.0,
+                      horizontal: 4.0,
                     ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Quantity',
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyM_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        SizedBox(
+                          width: 100, // adjust as you like (120–160 works well)
+                          child: CounterDropdown(
+                            initNumber: 0,
+                            counterCallback: widget.counterCallback,
+                            maxNumber: 500, // see next section
+                            minNumber: 0,
+                            showLabel: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

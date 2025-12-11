@@ -146,7 +146,9 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
       sku: src.sku,
       price: price ?? src.price,
       qtyOrdered: src.qtyOrdered,
-      qtyShipped: qtyShipped ?? src.qtyShipped,
+      qtyShipped:
+          double.parse(qtyShipped.toString()).toInt().toString() ??
+          src.qtyShipped,
       categoryId: src.categoryId,
       categoryName: src.categoryName,
       imageUrl: src.imageUrl,

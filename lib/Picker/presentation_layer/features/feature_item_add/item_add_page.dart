@@ -399,7 +399,13 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                               ? barcodeController.text
                                               : scannedBarcode,
                                           "",
-                                          priceToUse,
+                                          product.isProduce.toString() == '0'
+                                              ? priceToUse
+                                              : getPriceFromBarcode(
+                                                getLastSixDigits(
+                                                  scannedBarcode,
+                                                ),
+                                              ),
                                           editquantity.toString(),
                                           widget.preparationNumber,
                                           int.parse(

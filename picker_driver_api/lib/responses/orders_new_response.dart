@@ -159,7 +159,7 @@ class OrderItemNew {
   final String? sku;
   final String? price;
   final String? qtyOrdered;
-  final int? qtyShipped;
+  final String? qtyShipped;
   final String? categoryId;
   final String? categoryName;
   final String? imageUrl;
@@ -171,6 +171,7 @@ class OrderItemNew {
   final bool? isProduce;
   final String? subgroupIdentifier;
   final String? productOptions;
+  final String? finalPrice;
 
   OrderItemNew({
     this.id,
@@ -190,6 +191,7 @@ class OrderItemNew {
     this.isProduce,
     this.subgroupIdentifier,
     this.productOptions,
+    this.finalPrice,
   });
 
   factory OrderItemNew.fromJson(Map<String, dynamic> json) => OrderItemNew(
@@ -201,10 +203,7 @@ class OrderItemNew {
         json['qty_ordered'] is String
             ? json['qty_ordered']
             : int.tryParse('${json['qty_ordered'] ?? ''}'),
-    qtyShipped:
-        json['qty_shipped'] is int
-            ? json['qty_shipped']
-            : int.tryParse('${json['qty_shipped'] ?? ''}'),
+    qtyShipped: '${json['qty_shipped'] ?? ''}',
     categoryId: (json['categoryId'] ?? json['category_id'])?.toString(),
     categoryName: (json['categoryName'] ?? json['category'])?.toString(),
     imageUrl: json['imageUrl']?.toString(),
@@ -231,6 +230,7 @@ class OrderItemNew {
         json['product_options'] == null
             ? ""
             : json['product_options']?.toString(),
+    finalPrice: json['final_price']?.toString(),
   );
 }
 

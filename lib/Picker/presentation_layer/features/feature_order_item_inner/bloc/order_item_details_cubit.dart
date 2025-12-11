@@ -534,12 +534,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
 
                     if (orderItem.price == erPdata.erpPrice) {
                       updateitemstatuspick(
-                        orderItem.isProduce == true
-                            ? getWeightFromBarcode(
-                              getLastSixDigits(scannedSku),
-                              orderItem.price?.toString() ?? '0',
-                            )
-                            : qty,
+                        // orderItem.isProduce == true
+                        //     ? getWeightFromBarcode(
+                        //       getLastSixDigits(scannedSku),
+                        //       orderItem.price?.toString() ?? '0',
+                        //     )
+                        //     :
+                        qty,
                         scannedSku,
                         calculatedPrice,
                         preparationLabel11,
@@ -624,12 +625,13 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                             ? productDBdata.specialPrice
                             : productDBdata.regularPrice;
                     updateitemstatuspick(
-                      orderItem.isProduce == true
-                          ? getWeightFromBarcode(
-                            getLastSixDigits(scannedSku),
-                            orderItem.price?.toString() ?? '0',
-                          )
-                          : qty,
+                      // orderItem.isProduce == true
+                      //     ? getWeightFromBarcode(
+                      //       getLastSixDigits(scannedSku),
+                      //       orderItem.price?.toString() ?? '0',
+                      //     )
+                      //     :
+                      qty,
                       scannedSku,
                       calculatedPrice,
                       preparationLabel11,

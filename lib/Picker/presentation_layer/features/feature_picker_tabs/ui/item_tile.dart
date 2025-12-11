@@ -168,10 +168,10 @@ class ItemTile extends StatelessWidget {
                                     Text(
                                       priceNum != null
                                           ? 'QAR ${priceNum.toStringAsFixed(2)}'
-                                          : (item.price == null ||
-                                                  item.price!.isEmpty
-                                              ? '—'
-                                              : 'QAR ${item.price}'),
+                                          : (item.finalPrice == null ||
+                                                  item.finalPrice!.isEmpty
+                                              ? item.price.toString()
+                                              : 'QAR ${item.finalPrice}'),
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyS_Bold,
                                         color: FontColor.Info,

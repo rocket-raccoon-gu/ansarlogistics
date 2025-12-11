@@ -62,17 +62,20 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
 
-        if (data['priority'] == 1) {
-          ErPdata erPdata = ErPdata.fromJson(data);
+        if (data['match'] == "0") {
+          if (data['priority'] == 1) {
+            ErPdata erPdata = ErPdata.fromJson(data);
 
-          if (!_isDialogShowing) {
-            _isDialogShowing = true;
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              builder:
-                  (context) =>
-                      buildPriority1BottomSheet(context, erPdata, () async {
+            if (!_isDialogShowing) {
+              _isDialogShowing = true;
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder:
+                    (context) => buildPriority1BottomSheet(
+                      context,
+                      erPdata,
+                      () async {
                         if (scannedSku == erPdata.erpSku ||
                             scannedSku == productSku) {
                           //
@@ -127,86 +130,95 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                             ),
                           );
                         }
-                      }),
-            ).whenComplete(() {
-              _isDialogShowing = false;
-            });
-          }
-        } else if (data['priority'] == 2) {
-          ProductDBdata productDBdata = ProductDBdata.fromJson(data);
+                      },
+                    ),
+              ).whenComplete(() {
+                _isDialogShowing = false;
+              });
+            }
+          } else if (data['priority'] == 2) {
+            ProductDBdata productDBdata = ProductDBdata.fromJson(data);
 
-          if (!_isDialogShowing) {
-            _isDialogShowing = true;
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              builder:
-                  (context) => buildPriority2BottomSheet(
-                    context,
-                    productDBdata,
-                    () async {
-                      if (scannedSku == productSku ||
-                          productDBdata.barcodes.contains(scannedSku)) {
-                        //
-                        // picking logic here
+            if (!_isDialogShowing) {
+              _isDialogShowing = true;
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder:
+                    (context) => buildPriority2BottomSheet(
+                      context,
+                      productDBdata,
+                      () async {
+                        if (scannedSku == productSku ||
+                            productDBdata.barcodes.contains(scannedSku)) {
+                          //
+                          // picking logic here
 
-                        final token = await PreferenceUtils.getDataFromShared(
-                          "usertoken",
-                        );
+                          final token = await PreferenceUtils.getDataFromShared(
+                            "usertoken",
+                          );
 
-                        final response = await serviceLocator.tradingApi
-                            .updateBatchPickup(
-                              itemids: itemIds,
-                              userid: UserController().profile.id.toString(),
-                              token1: token!,
-                              status: "end_picking",
-                              orderIds: orderIds,
-                              itemSku: productDBdata.sku,
-                              reason: "",
+                          final response = await serviceLocator.tradingApi
+                              .updateBatchPickup(
+                                itemids: itemIds,
+                                userid: UserController().profile.id.toString(),
+                                token1: token!,
+                                status: "end_picking",
+                                orderIds: orderIds,
+                                itemSku: productDBdata.sku,
+                                reason: "",
+                              );
+
+                          if (response.statusCode == 200) {
+                            Navigator.pop(context);
+                            showSnackBar(
+                              context: context,
+                              snackBar: showSuccessDialogue(
+                                message: "Picked Successfully!",
+                              ),
                             );
 
-                        if (response.statusCode == 200) {
-                          Navigator.pop(context);
-                          showSnackBar(
-                            context: context,
-                            snackBar: showSuccessDialogue(
-                              message: "Picked Successfully!",
-                            ),
-                          );
+                            context.gNavigationService.openPickerWorkspacePage(
+                              context,
+                            );
 
-                          context.gNavigationService.openPickerWorkspacePage(
-                            context,
-                          );
-
-                          // Get the PickerOrdersCubit instance
-                          // final pickerOrdersCubit =
-                          //     context1.read<PickerOrdersCubit>();
-                          // pickerOrdersCubit.loadOrdersNew();
+                            // Get the PickerOrdersCubit instance
+                            // final pickerOrdersCubit =
+                            //     context1.read<PickerOrdersCubit>();
+                            // pickerOrdersCubit.loadOrdersNew();
+                          } else {
+                            Navigator.pop(context);
+                            showSnackBar(
+                              context: context,
+                              snackBar: showErrorDialogue(
+                                errorMessage: "Picking Failed!",
+                              ),
+                            );
+                          }
                         } else {
                           Navigator.pop(context);
                           showSnackBar(
                             context: context,
                             snackBar: showErrorDialogue(
-                              errorMessage: "Picking Failed!",
+                              errorMessage: "Barcode Not Matching!",
                             ),
                           );
                         }
-                      } else {
-                        Navigator.pop(context);
-                        showSnackBar(
-                          context: context,
-                          snackBar: showErrorDialogue(
-                            errorMessage: "Barcode Not Matching!",
-                          ),
-                        );
-                      }
-                    },
-                  ),
-            ).whenComplete(() {
-              _isDialogShowing = false;
-            });
+                      },
+                    ),
+              ).whenComplete(() {
+                _isDialogShowing = false;
+              });
+            }
+          } else if (data['priority'] == 0) {
+            showSnackBar(
+              context: context,
+              snackBar: showErrorDialogue(
+                errorMessage: "Barcode Not Matching!",
+              ),
+            );
           }
-        } else if (data['priority'] == 0) {
+        } else {
           showSnackBar(
             context: context,
             snackBar: showErrorDialogue(errorMessage: "Barcode Not Matching!"),
