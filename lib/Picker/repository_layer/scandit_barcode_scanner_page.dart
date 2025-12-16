@@ -50,6 +50,17 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
       Symbology.interleavedTwoOfFive,
     });
 
+    // Enable UPC-A → remove leading zero (ONLY for UPC-A inside EAN13)
+    final ean13UpcaSettings = settings.settingsForSymbology(
+      Symbology.ean13Upca,
+    );
+
+    // Enable extension
+    ean13UpcaSettings.setExtensionEnabled(
+      'remove_leading_upca_zero',
+      enabled: true,
+    );
+
     // DON'T use non-existent setters (e.g. singleBarcodeAutoDetection)
     _barcodeCapture = BarcodeCapture.forContext(_context, settings);
     _barcodeCapture.addListener(this);
@@ -129,9 +140,9 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
     String code = value;
 
     // Only normalize true EAN-13 barcodes that were originally UPC-A
-    if (sym.contains('ean13') && code.length == 13 && code.startsWith('0')) {
-      return code.substring(1); // remove the extra leading zero
-    }
+    // if (sym.contains('ean13') && code.length == 13 && code.startsWith('0')) {
+    //   return code.substring(1); // remove the extra leading zero
+    // }
 
     // For all other barcodes, return exactly as scanned
     return code;
