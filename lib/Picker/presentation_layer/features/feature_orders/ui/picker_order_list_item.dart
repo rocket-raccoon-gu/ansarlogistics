@@ -154,8 +154,13 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
             ),
             const SizedBox(height: 10),
             // Bottom Banner
-            if (widget.orderResponseItem.status != "end_picking")
+            if (widget.orderResponseItem.status == "assigned_picker")
               _BottomBanner(order: widget.orderResponseItem),
+
+            if (widget.orderResponseItem.deliveryNote != null)
+              // Inside the main Column in build(), before the final Row(...)
+              SizedBox(height: 5),
+            CustomerBottomBanner(order: widget.orderResponseItem),
           ],
         ),
       ),
@@ -300,6 +305,52 @@ class _BottomBanner extends StatelessWidget {
             SizedBox()
           else
             Icon(Icons.swipe_left, color: colors.warning),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomerBottomBanner extends StatelessWidget {
+  final OrderNew? order;
+  const CustomerBottomBanner({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = customColors();
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.adBackground,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: colors.backgroundTertiary),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Row(
+        children: [
+          Icon(Icons.person, color: colors.warning),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Customer Saying',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyS_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  "\" ${order?.deliveryNote ?? ''} \" ",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.CarnationRed,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

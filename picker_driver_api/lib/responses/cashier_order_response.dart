@@ -43,7 +43,7 @@ class CashierOrders {
 
 class Datum {
   String subgroupIdentifier;
-  BranchCode branchCode;
+  // BranchCode branchCode;
   int suborderId;
   int orderSychNo;
   int orderId;
@@ -98,7 +98,7 @@ class Datum {
 
   Datum({
     required this.subgroupIdentifier,
-    required this.branchCode,
+    // required this.branchCode,
     required this.suborderId,
     required this.orderSychNo,
     required this.orderId,
@@ -154,7 +154,7 @@ class Datum {
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     subgroupIdentifier: json["subgroup_identifier"],
-    branchCode: branchCodeValues.map[json["branch_code"]]!,
+    // branchCode: branchCodeValues.map[json["branch_code"]]!,
     suborderId: json["suborder_id"] ?? 0,
     orderSychNo: json["order_sych_no"] ?? 0,
     orderId: json["order_id"] ?? 0,
@@ -219,7 +219,7 @@ class Datum {
 
   Map<String, dynamic> toJson() => {
     "subgroup_identifier": subgroupIdentifier,
-    "branch_code": branchCodeValues.reverse[branchCode],
+    // "branch_code": branchCodeValues.reverse[branchCode],
     "suborder_id": suborderId,
     "order_sych_no": orderSychNo,
     "order_id": orderId,
