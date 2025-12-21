@@ -532,20 +532,20 @@ class _HomeSectionState extends State<HomeSection> {
                       ),
                 );
 
-                try {
-                  final file = await PdfService.generateComprehensivePdf(
-                    context.read<HomeSectionInchargeCubit>().stockUpdates,
-                    UserController().sectionitems,
-                    context.read<HomeSectionInchargeCubit>().statusHistories,
-                  );
-                  Navigator.pop(context);
-                  await PdfService.shareComprehensivePdf(file);
-                } catch (e) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error generating report: $e')),
-                  );
-                }
+                // try {
+                //   final file = await PdfService.generateComprehensivePdf(
+                //     context.read<HomeSectionInchargeCubit>().stockUpdates,
+                //     UserController().sectionitems,
+                //     context.read<HomeSectionInchargeCubit>().statusHistories,
+                //   );
+                //   Navigator.pop(context);
+                //   await PdfService.shareComprehensivePdf(file);
+                // } catch (e) {
+                //   Navigator.pop(context);
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     SnackBar(content: Text('Error generating report: $e')),
+                //   );
+                // }
               },
               child: Container(
                 height: 60.0,
