@@ -162,25 +162,24 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
 
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
-                              child: InkWell(
-                                onTap: () async {
-                                  context.gNavigationService.openSignupPage(
-                                    context,
-                                    arg: {},
-                                  );
-                                },
-                                child: Text(
-                                  "Create New Account",
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                    color: FontColor.DodgerBlue,
-                                  ),
-                                ),
-                              ),
-                            ),
-
+                            // Padding(
+                            //   padding: const EdgeInsets.only(top: 5.0),
+                            //   child: InkWell(
+                            //     onTap: () async {
+                            //       context.gNavigationService.openSignupPage(
+                            //         context,
+                            //         arg: {},
+                            //       );
+                            //     },
+                            //     child: Text(
+                            //       "Create New Account",
+                            //       style: customTextStyle(
+                            //         fontStyle: FontStyle.BodyL_Bold,
+                            //         color: FontColor.DodgerBlue,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                             if (UserController().userName != "")
                               userNameAndTradeCode(
                                 UserController().userName,

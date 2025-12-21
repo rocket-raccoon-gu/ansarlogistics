@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
+import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
 import 'package:ansarlogistics/Sales_staff/features/bloc/sales_staff_dashboard_cubit.dart';
 import 'package:ansarlogistics/Sales_staff/features/bloc/sales_staff_dashboard_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
@@ -33,10 +34,13 @@ class _SalesStaffDashboardState extends State<SalesStaffDashboard>
     try {
       await requestCameraPermission();
 
-      ScanResult scanResult = await BarcodeScanner.scan();
-      setState(() {
-        barcodescanRes = scanResult.rawContent;
-      });
+      final result = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+      );
+
+      log(result.toString());
+
+      barcodescanRes = result;
 
       log(barcodescanRes!);
     } on PlatformException catch (e) {

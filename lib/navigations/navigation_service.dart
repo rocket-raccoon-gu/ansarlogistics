@@ -195,9 +195,10 @@ class NavigationService {
     ).pushNamed(_itemBatchPickupRouteName, arguments: MapArguments(arg!));
   }
 
-  // Future<void> openSelectRegionsPage(
-  //   BuildContext context
-  // ){
-  //  return Navigator.of(context)
-  // }
+  Future<void> openSelectRegionsPage(BuildContext context) {
+    return Navigator.of(context).pushNamedAndRemoveUntil(
+      _selectRegionsPageRouteName,
+      (Route<dynamic> route) => false,
+    );
+  }
 }

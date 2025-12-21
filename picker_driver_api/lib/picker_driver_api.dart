@@ -168,6 +168,88 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future<http.Response> loginServiceOtherRegion({
+    required String userId,
+    required String password,
+    required String version,
+    required String base,
+  }) async {
+    final url = Uri.parse(
+      'https://oman.ahmarket.com/rest/V1/integration/admin/token',
+    );
+
+    final body = jsonEncode({"username": userId, "password": password});
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': 'PostmanRuntime/7.35.0',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Connection': 'keep-alive',
+    };
+
+    try {
+      serviceSend("Login");
+      final response = await http.post(url, headers: headers, body: body);
+
+      log('status: ${response.statusCode}');
+      log('body: ${response.body}');
+
+      return response;
+    } catch (e) {
+      serviceSendError("Login");
+      rethrow;
+    }
+  }
+
+  // Future<http.Response> loginServiceOtherRegion({
+  //   required String userId,
+  //   required String password,
+  //   required String version,
+  //   required String base,
+  // }) async {
+  //   Uri url = Uri.parse('${base}rest/V1/integration/admin/token');
+
+  //   final Map<String, dynamic> body = {
+  //     "username": userId,
+  //     "password": password,
+  //   };
+
+  //   final headers = {
+  //     'Content-Type': 'application/json',
+  //     'Accept': 'application/json',
+  //     // Try imitating Postman’s UA so the WAF treats it similarly
+  //     'User-Agent': 'PostmanRuntime/7.35.0',
+  //     // Optional, but often present:
+  //     'Accept-Encoding': 'gzip, deflate, br',
+  //     'Connection': 'keep-alive',
+  //   };
+
+  //   try {
+  //     serviceSend("Login");
+  //     return _handleRequest(
+  //       onRequest:
+  //           () => _client.post(
+  //             Uri.parse(
+  //               'https://oman.ahmarket.com/rest/V1/integration/admin/token',
+  //             ),
+  //             body: jsonEncode(body),
+  //             headers: headers,
+  //           ),
+  //       onResponse: (response) {
+  //         // print(response.body);
+  //         // cookie = updateCookie(response);
+  //         // fullcookie = updateFullCookie(response);
+
+  //         return response;
+  //       },
+  //     );
+  //   } catch (e) {
+  //     serviceSendError("Login");
+  //     rethrow;
+  //   }
+  // }
+
   Future<LoginResponse> loginService({
     required String userId,
     required String password,
@@ -1025,6 +1107,32 @@ extension PDGeneralApi on PickerDriverApi {
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
+    };
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response.body;
+      },
+    );
+  }
+
+  Future<String> checkPromotionServiceRegions({
+    required String endpoint,
+    required String base,
+  }) async {
+    final url = Uri.parse(
+      '$base/custom-api/api/scan_barcode_percentage.php?barcode=' + endpoint,
+    );
+
+    log(url.toString());
+
+    final headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Accept': 'application/json',
+      'User-Agent': 'PostmanRuntime/7.35.0',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Connection': 'keep-alive',
     };
 
     return _handleRequest(

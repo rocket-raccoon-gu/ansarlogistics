@@ -7,6 +7,7 @@ import 'package:ansarlogistics/main.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,11 +29,23 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
 
   checkBarcodeData(String barcodescanRes) async {
     try {
-      String response = await serviceLocator.tradingApi.generalPromotionService(
-        endpoint: barcodescanRes,
-      );
+      String? response;
 
-      log(response);
+      final region = await PreferenceUtils.getDataFromShared("region");
+
+      if (region == "OM") {
+        response = await serviceLocator.tradingApi
+            .generalPromotionServiceRegions(
+              endpoint: barcodescanRes,
+              base: "https://oman.ahmarket.com",
+            );
+      } else {
+        response = await serviceLocator.tradingApi.generalPromotionService(
+          endpoint: barcodescanRes,
+        );
+      }
+
+      log(response!);
 
       Map<String, dynamic> data = jsonDecode(response);
 
@@ -72,11 +85,11 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                         ),
                       ],
                     ),
-                    Lottie.asset(
-                      "assets/lottie_files/update_error.json",
-                      height: 150.0,
-                      width: 150.0,
-                    ),
+                    // Lottie.asset(
+                    //   "assets/lottie_files/update_error.json",
+                    //   height: 150.0,
+                    //   width: 150.0,
+                    // ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Text(
@@ -137,11 +150,11 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                         ),
                       ],
                     ),
-                    Lottie.asset(
-                      "assets/lottie_files/success_animation.json",
-                      height: 150.0,
-                      width: 150.0,
-                    ),
+                    // Lottie.asset(
+                    //   "assets/lottie_files/success_animation.json",
+                    //   height: 150.0,
+                    //   width: 150.0,
+                    // ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Text(
@@ -156,7 +169,7 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
-                        "Retail Price : ${double.parse(data['items'][0]['retail_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
+                        "Retail Price : ${double.parse(data['items'][0]['retail_price']).toStringAsFixed(3)} ${getcurrencyfromurl('https://oman.ahmarket.com/')}",
                         textAlign: TextAlign.center,
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyL_Bold,
@@ -164,17 +177,17 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      child: Center(
-                        child: GetPromotionStatus(
-                          promotionStatus: data['items'][0]['promotion_status'],
-                        ),
-                      ),
-                    ),
+                    // SizedBox(
+                    //   child: Center(
+                    //     child: GetPromotionStatus(
+                    //       promotionStatus: data['items'][0]['promotion_status'],
+                    //     ),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
-                        "Discount Price : ${double.parse(data['items'][0]['discount_amount']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
+                        "Offer Price : ${double.parse(data['items'][0]['discount_price']).toStringAsFixed(3)} ${getcurrencyfromurl('https://oman.ahmarket.com/')}",
                         textAlign: TextAlign.center,
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyL_Bold,
@@ -182,23 +195,24 @@ class SalesStaffDashboardCubit extends Cubit<SalesStaffDashboardState> {
                         ),
                       ),
                     ),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Offer Price : ",
+                            "Discounted Percentage : ",
                             textAlign: TextAlign.center,
                             style: customTextStyle(
-                              fontStyle: FontStyle.HeaderS_Bold,
+                              fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.FontPrimary,
                             ),
                           ),
                           Text(
-                            "${double.parse(data['items'][0]['offer_price']).toStringAsFixed(2)} ${getcurrencyfromurl(baseUrl)}",
+                            "${double.parse(data['items'][0]['discount_percentage']).toStringAsFixed(2)} %",
                             style: customTextStyle(
-                              fontStyle: FontStyle.HeaderS_Bold,
+                              fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.CarnationRed,
                             ),
                           ),

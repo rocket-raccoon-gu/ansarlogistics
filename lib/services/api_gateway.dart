@@ -49,6 +49,29 @@ class PDApiGateway implements AuthenticationService {
   }
 
   @override
+  Future loginOtherREgion({
+    required String userId,
+    required String password,
+    required String base,
+  }) async {
+    final response = await pickerDriverApi
+        .loginServiceOtherRegion(
+          userId: userId,
+          password: password,
+          version: "",
+          base: base,
+        )
+        .catchError((e, trace) {
+          // fatalError(e.toString(), trace);
+
+          networkStreamController.sink.add(e.toString());
+          throw e;
+        });
+
+    return response;
+  }
+
+  @override
   Future<LoginResponse> loginRequest({
     required String userId,
     required String password,
@@ -680,6 +703,26 @@ class PDApiGateway implements AuthenticationService {
       return response;
     } catch (e) {
       serviceSendError("general PromotionService Error");
+      return "";
+    }
+  }
+
+  @override
+  Future generalPromotionServiceRegions({
+    required String endpoint,
+    required String base,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .checkPromotionServiceRegions(endpoint: endpoint, base: base)
+          .catchError((e) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("general PromotionService UAE Error");
       return "";
     }
   }

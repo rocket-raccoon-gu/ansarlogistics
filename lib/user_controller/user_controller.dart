@@ -40,6 +40,7 @@ class UserController {
   String base = "";
   String producturl = "";
   String applicationpath = "";
+  String mainbaseUrl = "";
   bool scanselection = true;
   final translationCache = <String, String>{};
   bool translate = false;

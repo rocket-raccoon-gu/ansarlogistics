@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.ansar.ansarlogistics"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -27,8 +27,8 @@ android {
         applicationId = "com.ansar.ansarlogistics"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
-        versionCode = 34
-        versionName = "2.0.33"
+        versionCode = 35
+        versionName = "2.0.34"
         multiDexEnabled = true
     }
 
@@ -67,6 +67,7 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.gms:google-services:4.3.15")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("androidx.concurrent:concurrent-futures:1.2.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }
 

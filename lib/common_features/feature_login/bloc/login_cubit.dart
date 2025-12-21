@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/navigations/navigation.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -31,11 +32,15 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   getUserCode() async {
-    if (await PreferenceUtils.preferenceHasKey("userCode")) {
+    if (await PreferenceUtils.preferenceHasKey("region")) {
       String id =
           UserController().userName =
               (await PreferenceUtils.getDataFromShared("userCode")) ?? "";
       String val = await PreferenceUtils.getDataFromShared("password") ?? "";
+
+      if (id != "" && id == 'ahoman_sales') {
+        context.gNavigationService.openSalesDashboard(context);
+      }
 
       if (id != "" && val != "") {
         // Validate the encrypted password
@@ -58,7 +63,13 @@ class LoginCubit extends Cubit<LoginState> {
           UserController().profile = profile;
         }
 
-        swithcnavigate(context, role);
+        final region = await PreferenceUtils.getDataFromShared('region') ?? '';
+
+        if (region.isEmpty) {
+          context.read<NavigationService>().openSelectRegionsPage(context);
+        } else {
+          swithcnavigate(context, role);
+        }
 
         // try {
         //   // String pass = decryptStringForUser(val, keyVal(id));
@@ -86,14 +97,15 @@ class LoginCubit extends Cubit<LoginState> {
         if (!isClosed) emit(LoginInitial());
       }
     } else {
-      if (!isClosed) emit(LoginInitial());
+      context.gNavigationService.openSelectRegionsPage(context);
+      // if (!isClosed) emit(LoginInitial());
     }
     // }
     // if (!isClosed) emit(LoginInitial());
   }
 
   Future<bool> sendLoginRequest({
-    required context,
+    required BuildContext context,
     required String userId,
     required String password,
   }) async {
@@ -130,68 +142,101 @@ class LoginCubit extends Cubit<LoginState> {
           "model": androidInfo.model,
         };
 
-        LoginResponse loginResponse = await serviceLocator.tradingApi
-            .loginRequest(
-              userId: userId,
-              password: password,
-              token: value,
-              bearertoken: serverkey,
-              appversion: info.version,
-            );
-        DateTime responseTime = DateTime.now();
+        if (await PreferenceUtils.getDataFromShared("region") != "QA") {
+          // other regions code
 
-        if (loginResponse.success) {
-          UserController.userController.profile = loginResponse.profile;
-
-          UserController().app_token = loginResponse.token;
-
-          await PreferenceUtils.storeDataToShared(
-            "usertoken",
-            loginResponse.token,
-          );
-
-          await PreferenceUtils.storeDataToShared(
-            "userid",
-            loginResponse.profile.id.toString(),
-          );
-
-          await PreferenceUtils.storeDataToShared(
-            "role",
-            loginResponse.profile.role.toString(),
-          );
-
-          await PreferenceUtils.storeDataToShared(
-            "profiledata",
-            json.encode(loginResponse.profile.toJson()),
-          );
-
-          // // Encrypt the password
-          // String encryptedHex = encryptStringForUser(password, key);
-
-          await PreferenceUtils.storeDataToShared("password", password);
-
-          updateUserController(
-            sessionKey: "",
+          final result = await loginotherregions(
+            context: context,
             userId: userId,
-            username: userId,
+            password: password,
+            serviceLocator: serviceLocator,
           );
 
-          swithcnavigate(context, loginResponse.profile.role.toString());
+          if (!result) {
+            emit(LoginInitial(errorMessage: "Login Failed"));
+          } else {
+            showSnackBar(
+              context: context,
+              snackBar: showSuccessDialogue(message: "Login Success....!"),
+            );
+          }
 
-          // context.gNavigationService.openPickerWorkspacePage(context);
-
-          showSnackBar(
-            context: context,
-            snackBar: showSuccessDialogue(message: "Login Success....!"),
-          );
-
-          return true;
+          return result;
         } else {
-          showSnackBar(
-            context: context,
-            snackBar: showErrorDialogue(errorMessage: "Login Failed"),
-          );
-          return false;
+          // qatar region code
+
+          LoginResponse loginResponse = await serviceLocator.tradingApi
+              .loginRequest(
+                userId: userId,
+                password: password,
+                token: value,
+                bearertoken: serverkey,
+                appversion: info.version,
+              );
+          DateTime responseTime = DateTime.now();
+
+          if (loginResponse.success) {
+            UserController.userController.profile = loginResponse.profile;
+
+            UserController().app_token = loginResponse.token;
+
+            await PreferenceUtils.storeDataToShared(
+              "usertoken",
+              loginResponse.token,
+            );
+
+            await PreferenceUtils.storeDataToShared(
+              "userid",
+              loginResponse.profile.id.toString(),
+            );
+
+            await PreferenceUtils.storeDataToShared(
+              "role",
+              loginResponse.profile.role.toString(),
+            );
+
+            await PreferenceUtils.storeDataToShared(
+              "profiledata",
+              json.encode(loginResponse.profile.toJson()),
+            );
+
+            // // Encrypt the password
+            // String encryptedHex = encryptStringForUser(password, key);
+
+            await PreferenceUtils.storeDataToShared("password", password);
+
+            updateUserController(
+              sessionKey: "",
+              userId: userId,
+              username: userId,
+            );
+
+            final region =
+                await PreferenceUtils.getDataFromShared('region') ?? '';
+            if (region.isEmpty) {
+              // No region saved → navigate to select-region page
+              context.gNavigationService.openSelectRegionsPage(context);
+            } else {
+              // Region exists → proceed with role-based navigation
+              swithcnavigate(context, loginResponse.profile.role.toString());
+            }
+            // swithcnavigate(context, loginResponse.profile.role.toString());
+
+            // context.gNavigationService.openPickerWorkspacePage(context);
+
+            showSnackBar(
+              context: context,
+              snackBar: showSuccessDialogue(message: "Login Success....!"),
+            );
+
+            return true;
+          } else {
+            showSnackBar(
+              context: context,
+              snackBar: showErrorDialogue(errorMessage: "Login Failed"),
+            );
+            return false;
+          }
         }
       });
     } on SocketException {
@@ -211,6 +256,56 @@ class LoginCubit extends Cubit<LoginState> {
         emit(LoginInitial(errorMessage: e.toString()));
       }
     }
+    return false;
+  }
+}
+
+Future<bool> loginotherregions({
+  required BuildContext context,
+  required String userId,
+  required String password,
+  required ServiceLocator serviceLocator,
+}) async {
+  try {
+    final responce = await serviceLocator.tradingApi.loginOtherREgion(
+      userId: userId,
+      password: password,
+      base: UserController.userController.mainbaseUrl,
+    );
+
+    if (responce.statusCode == 200) {
+      // Map jsonUser = jsonDecode(responce.body);
+
+      updateUserController(sessionKey: "", userId: userId, username: userId);
+
+      if (userId == "ahoman_sales") {
+        // serviceLocator.navigationService.openOrderPage(context);
+
+        // serviceLocator.navigationService.openSalesMansDashboardPage(
+        //   context,
+        //   mapdata,
+        // );
+        serviceLocator.navigationService.openSalesDashboard(context);
+        return true;
+      } else {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(errorMessage: "Login Failed"),
+        );
+        return false;
+      }
+    } else {
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(errorMessage: "Login Failed"),
+      );
+      return false;
+    }
+  } catch (e) {
+    showSnackBar(
+      context: context,
+      snackBar: showErrorDialogue(errorMessage: "Login Failed"),
+    );
     return false;
   }
 }
