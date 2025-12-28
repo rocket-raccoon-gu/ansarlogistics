@@ -24,46 +24,46 @@ class StatusHistory extends StatefulWidget {
 class _StatusHistoryState extends State<StatusHistory> {
   @override
   Widget build(BuildContext context) {
-    return Container();
-    // return BlocProvider(
-    //   create:
-    //       (context) => StatusHistoryCubit(
-    //         context,
-    //         widget.serviceLocator,
-    //         widget.orderResponseItem.subgroupIdentifier,
-    //       ),
-    //   child: BlocBuilder<StatusHistoryCubit, StatusHistoryState>(
-    //     builder: (context, state) {
-    //       if (state is StatusHistorystateInitial) {
-    //         return Column(
-    //           children: [
-    //             Expanded(
-    //               child: MediaQuery.removePadding(
-    //                 removeTop: true,
-    //                 context: context,
-    //                 child: ListView.builder(
-    //                   itemCount: state.historylist.length,
-    //                   shrinkWrap: true,
-    //                   itemBuilder: (context, index) {
-    //                     return CustomTimeline(
-    //                       isFirst: index == 0,
-    //                       isLast: index == state.historylist.length - 1,
-    //                       statushistory: state.historylist[index],
-    //                     );
-    //                   },
-    //                 ),
-    //               ),
-    //             ),
-    //           ],
-    //         );
-    //       } else {
-    //         return Column(
-    //           mainAxisAlignment: MainAxisAlignment.center,
-    //           children: [LoadingIndecator()],
-    //         );
-    //       }
-    //     },
-    //   ),
-    // );
+    // return Container();
+    return BlocProvider(
+      create:
+          (context) => StatusHistoryCubit(
+            context,
+            widget.serviceLocator,
+            widget.orderResponseItem.id!,
+          ),
+      child: BlocBuilder<StatusHistoryCubit, StatusHistoryState>(
+        builder: (context, state) {
+          if (state is StatusHistorystateInitial) {
+            return Column(
+              children: [
+                Expanded(
+                  child: MediaQuery.removePadding(
+                    removeTop: true,
+                    context: context,
+                    child: ListView.builder(
+                      itemCount: state.historylist.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return CustomTimeline(
+                          isFirst: index == 0,
+                          isLast: index == state.historylist.length - 1,
+                          statushistory: state.historylist[index],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [LoadingIndecator()],
+            );
+          }
+        },
+      ),
+    );
   }
 }

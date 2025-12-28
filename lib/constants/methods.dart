@@ -1939,7 +1939,7 @@ whatsapp(
 
     log(contactsplit);
 
-    if (UserController.userController.profile.role == "1") {
+    if (UserController.userController.profile.role == 1) {
       androidUrl =
           "whatsapp://send?phone=${contactsplit}&text=Hello,this is ${UserController.userController.profile.name} Your *Ansar Gallery Order Picker*. I am here to assist with Preparing your order ${ordernum}";
     } else {
