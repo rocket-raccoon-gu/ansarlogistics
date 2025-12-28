@@ -166,9 +166,9 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: DottedBorder(
-                        color: Colors.black, //color of dotted/dash line
-                        strokeWidth: 3, //thickness of dash/dots
-                        dashPattern: [10, 6],
+                        // color: Colors.black, //color of dotted/dash line
+                        // strokeWidth: 3, //thickness of dash/dots
+                        // dashPattern: [10, 6],
                         //dash patterns, 10 is dash width, 6 is space width
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 5.0),

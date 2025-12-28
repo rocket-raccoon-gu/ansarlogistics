@@ -1,10 +1,12 @@
 import 'package:ansarlogistics/Section_In/features/components/custom_toggle_button.dart';
+import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_cubit.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/check_section_status_list.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -151,6 +153,9 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
     // print(
     //   "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
     // );
+
+    final cubit = context.read<HomeSectionInchargeCubit>();
+    final isUpdating = cubit.updatingSkus.contains(widget.sectionitem.sku);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -334,18 +339,20 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
             child: CustomToggleButton1(
               isSelected: val,
               onChanged: (v) {
-                setState(() {
-                  // Update the in-stock status locally
-                  widget.sectionitem.isInStock = v;
-                  val = v;
+                if (!isUpdating) {
+                  setState(() {
+                    // Update the in-stock status locally
+                    widget.sectionitem.isInStock = v;
+                    val = v;
 
-                  // Notify parent widget about the change (if needed)
-                  widget.onSectionChanged(
-                    widget.sectionitem.sku,
-                    widget.sectionitem.isInStock.toString(),
-                    widget.sectionitem.productName,
-                  );
-                });
+                    // Notify parent widget about the change (if needed)
+                    widget.onSectionChanged(
+                      widget.sectionitem.sku,
+                      widget.sectionitem.isInStock.toString(),
+                      widget.sectionitem.productName,
+                    );
+                  });
+                }
               },
             ),
           ),

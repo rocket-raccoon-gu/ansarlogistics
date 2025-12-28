@@ -5,25 +5,28 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 class ForgroundTaskService {
   static init() {
     FlutterForegroundTask.init(
-        androidNotificationOptions: AndroidNotificationOptions(
-          channelId: 'foreground_service',
-          channelName: 'Foreground Service Notification',
-          channelDescription:
-              'This notification appears when the foreground service is running.',
-          channelImportance: NotificationChannelImportance.LOW,
-          priority: NotificationPriority.LOW,
-        ),
-        iosNotificationOptions: const IOSNotificationOptions(
-          showNotification: true,
-          playSound: false,
-        ),
-        foregroundTaskOptions: ForegroundTaskOptions(
-            eventAction: ForegroundTaskEventAction.repeat(10)));
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'foreground_service',
+        channelName: 'Foreground Service Notification',
+        channelDescription:
+            'This notification appears when the foreground service is running.',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+        playSound: false,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.repeat(10),
+      ),
+    );
   }
 }
 
 @pragma(
-    'vm:entry-point') // This decorator means that this function calls native code
+  'vm:entry-point',
+) // This decorator means that this function calls native code
 void startCallback() {
   FlutterForegroundTask.setTaskHandler(FirstTaskHandler());
 }

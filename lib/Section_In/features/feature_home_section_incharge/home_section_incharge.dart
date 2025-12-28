@@ -30,6 +30,8 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
 
   int selectedcat = -1;
 
+  final Set<String> updatingSkus = Set<String>();
+
   @override
   void initState() {
     // TODO: implement initState

@@ -53,6 +53,8 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
   List<StockUpdate> stockUpdates = [];
 
+  final Set<String> updatingSkus = {};
+
   // Getter to convert StockUpdate objects to maps for UI compatibility
   List<Map<String, dynamic>> get stockUpdatesAsMaps =>
       stockUpdates.map((update) => update.toMap()).toList();
@@ -364,19 +366,95 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
     }
   }
 
+  // Future<void> addToStockStatusList(
+  //   String sku,
+  //   String status,
+  //   String productname,
+  //   String imageUrl,
+  // ) async {
+  //   try {
+  //     // print("👤 User: ${UserController.userController.userName}");
+
+  //     int catid = getUserCategory(UserController.userController.userName);
+  //     // print("📦 Category ID: $catid");
+
+  //     // Prepare the request
+  //     final updateSectionRequest = UpdateSectionRequest(
+  //       categoryId: catid,
+  //       userId: UserController.userController.profile.empId,
+  //       branchCode: UserController.userController.profile.branchCode,
+  //       newStatuses: [
+  //         NewStatus(sku: sku, status: status, productname: productname),
+  //       ],
+  //       branch: UserController.userController.profile.branchCode,
+  //     );
+
+  //     // print(
+  //     //   "📤 Sending updateSectionRequest: ${updateSectionRequest.toJson()}",
+  //     // );
+
+  //     // Call the API
+  //     final response = await serviceLocator.tradingApi.updateSectionDataRequest(
+  //       updateSectionRequest: updateSectionRequest,
+  //       branch: UserController.userController.profile.branchCode,
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       // print("✅ Stock update succeeded for SKU: $sku");
+
+  //       updateItemStatus(
+  //         sku,
+  //         productname,
+  //         imageUrl,
+  //         status == "1" ? true : false,
+  //       );
+
+  //       showSnackBar(
+  //         context: context,
+  //         snackBar: showSuccessDialogue(
+  //           message: "Stock status updated successfully.",
+  //         ),
+  //       );
+  //     } else {
+  //       // print("❌ API Error: Status code ${response.statusCode}");
+
+  //       showSnackBar(
+  //         context: context,
+  //         snackBar: showErrorDialogue(
+  //           errorMessage:
+  //               "Failed to update stock status. Please try again later.",
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     // print("🔥 Exception during API call: $e");
+
+  //     showSnackBar(
+  //       context: context,
+  //       snackBar: showErrorDialogue(
+  //         errorMessage: "Something went wrong. Please try again.\nError: $e",
+  //       ),
+  //     );
+  //   }
+  // }
+
   Future<void> addToStockStatusList(
     String sku,
     String status,
     String productname,
     String imageUrl,
   ) async {
+    // 1) If this SKU is already in progress, ignore the click
+    if (updatingSkus.contains(sku)) {
+      return;
+    }
+
+    // 2) Mark this SKU as "updating"
+    updatingSkus.add(sku);
+
     try {
-      // print("👤 User: ${UserController.userController.userName}");
-
       int catid = getUserCategory(UserController.userController.userName);
-      // print("📦 Category ID: $catid");
 
-      // Prepare the request
       final updateSectionRequest = UpdateSectionRequest(
         categoryId: catid,
         userId: UserController.userController.profile.empId,
@@ -387,19 +465,12 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
         branch: UserController.userController.profile.branchCode,
       );
 
-      // print(
-      //   "📤 Sending updateSectionRequest: ${updateSectionRequest.toJson()}",
-      // );
-
-      // Call the API
       final response = await serviceLocator.tradingApi.updateSectionDataRequest(
         updateSectionRequest: updateSectionRequest,
         branch: UserController.userController.profile.branchCode,
       );
 
       if (response.statusCode == 200) {
-        // print("✅ Stock update succeeded for SKU: $sku");
-
         updateItemStatus(
           sku,
           productname,
@@ -414,8 +485,6 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
           ),
         );
       } else {
-        // print("❌ API Error: Status code ${response.statusCode}");
-
         showSnackBar(
           context: context,
           snackBar: showErrorDialogue(
@@ -425,14 +494,15 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
         );
       }
     } catch (e) {
-      // print("🔥 Exception during API call: $e");
-
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(
           errorMessage: "Something went wrong. Please try again.\nError: $e",
         ),
       );
+    } finally {
+      // 3) Always clear the flag, even on error
+      updatingSkus.remove(sku);
     }
   }
 
