@@ -158,9 +158,7 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
               _BottomBanner(order: widget.orderResponseItem),
 
             if (widget.orderResponseItem.deliveryNote != null)
-              // Inside the main Column in build(), before the final Row(...)
-              SizedBox(height: 5),
-            CustomerBottomBanner(order: widget.orderResponseItem),
+              CustomerBottomBanner(order: widget.orderResponseItem),
           ],
         ),
       ),

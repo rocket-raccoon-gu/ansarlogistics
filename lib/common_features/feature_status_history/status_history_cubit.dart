@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:ansarlogistics/common_features/feature_status_history/status_history_state.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,10 +31,13 @@ class StatusHistoryCubit extends Cubit<StatusHistoryState> {
       // print("📡 Emitted: StatusHistoryStateLoading");
     }
 
+    String token = await PreferenceUtils.getDataFromShared('usertoken') ?? '';
+
     try {
       // print("🌐 Calling API: statusHistoryRequest");
       final response = await serviceLocator.tradingApi.statusHistoryRequest(
         orderid: orderid,
+        token: token,
       );
 
       // print("✅ API Response Code: ${response.statusCode}");
@@ -46,10 +50,10 @@ class StatusHistoryCubit extends Cubit<StatusHistoryState> {
         // print("🧩 Decoded JSON: $datamap");
 
         StatusHistoryResponse statusHistoryResponse =
-            await StatusHistoryResponse.fromJson(datamap);
+            StatusHistoryResponse.fromJson(datamap);
         // print("🔄 Parsed StatusHistoryResponse");
 
-        historylist = statusHistoryResponse.items;
+        historylist = statusHistoryResponse.data;
         // print("📊 Items Count: ${historylist.length}");
 
         log("data");

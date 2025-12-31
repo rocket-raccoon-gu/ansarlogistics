@@ -918,15 +918,19 @@ extension PDGeneralApi on PickerDriverApi {
     return response;
   }
 
-  Future<http.Response> getStatusHistoryData(String orderid) async {
+  Future<http.Response> getStatusHistoryData({
+    required String orderid,
+    required String token,
+  }) async {
     Uri url = Uri.parse(
-      _endpointWithApplicationPathString('order-history.php?order_id=$orderid'),
+      _endpointWithApplicationPathString('picker/history?order_id=$orderid'),
     );
 
     log(url.toString());
 
     final Map<String, String> headers = {
       "Content-Type": ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
     };
 
     try {

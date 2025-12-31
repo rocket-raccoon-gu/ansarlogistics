@@ -11,37 +11,42 @@ String statusHistoryResponseToJson(StatusHistoryResponse data) =>
     json.encode(data.toJson());
 
 class StatusHistoryResponse {
-  List<StatusHistory> items;
+  bool success;
+  List<StatusHistory> data;
+  int length;
 
   StatusHistoryResponse({
-    required this.items,
+    required this.success,
+    required this.data,
+    required this.length,
   });
-
-  StatusHistoryResponse copyWith({
-    List<StatusHistory>? items,
-  }) =>
-      StatusHistoryResponse(
-        items: items ?? this.items,
-      );
 
   factory StatusHistoryResponse.fromJson(Map<String, dynamic> json) =>
       StatusHistoryResponse(
-        items: List<StatusHistory>.from(
-            json["items"].map((x) => StatusHistory.fromJson(x))),
+        success: json["success"],
+        data: List<StatusHistory>.from(
+          json["data"].map((x) => StatusHistory.fromJson(x)),
+        ),
+        length: json["length"],
       );
 
   Map<String, dynamic> toJson() => {
-        "items": List<dynamic>.from(items.map((x) => x.toJson())),
-      };
+    "success": success,
+    "data": List<dynamic>.from(data.map((x) => x.toJson())),
+    "length": length,
+  };
 }
 
 class StatusHistory {
-  String id;
+  int id;
   String parentId;
   String comment;
   String status;
-  String statusType;
-  String userId;
+  dynamic statusType;
+  int? userId;
+  int updatedBy;
+  String latitude;
+  String longitude;
   DateTime createdAt;
 
   StatusHistory({
@@ -51,45 +56,35 @@ class StatusHistory {
     required this.status,
     required this.statusType,
     required this.userId,
+    required this.updatedBy,
+    required this.latitude,
+    required this.longitude,
     required this.createdAt,
   });
 
-  StatusHistory copyWith({
-    String? id,
-    String? parentId,
-    String? comment,
-    String? status,
-    String? statusType,
-    String? userId,
-    DateTime? createdAt,
-  }) =>
-      StatusHistory(
-        id: id ?? this.id,
-        parentId: parentId ?? this.parentId,
-        comment: comment ?? this.comment,
-        status: status ?? this.status,
-        statusType: statusType ?? this.statusType,
-        userId: userId ?? this.userId,
-        createdAt: createdAt ?? this.createdAt,
-      );
-
   factory StatusHistory.fromJson(Map<String, dynamic> json) => StatusHistory(
-        id: json["id"].toString(),
-        parentId: json["parent_id"].toString(),
-        comment: json["comment"],
-        status: json["status"],
-        statusType: json["status_type"] ?? "",
-        userId: json["user_id"].toString(),
-        createdAt: DateTime.parse(json["created_at"]),
-      );
+    id: json["id"],
+    parentId: json["parent_id"],
+    comment: json["comment"],
+    status: json["status"],
+    statusType: json["status_type"],
+    userId: json["user_id"],
+    updatedBy: json["updated_by"],
+    latitude: json["latitude"],
+    longitude: json["longitude"],
+    createdAt: DateTime.parse(json["created_at"]),
+  );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "parent_id": parentId,
-        "comment": comment,
-        "status": status,
-        "status_type": statusType,
-        "user_id": userId,
-        "created_at": createdAt.toIso8601String(),
-      };
+    "id": id,
+    "parent_id": parentId,
+    "comment": comment,
+    "status": status,
+    "status_type": statusType,
+    "user_id": userId,
+    "updated_by": updatedBy,
+    "latitude": latitude,
+    "longitude": longitude,
+    "created_at": createdAt.toIso8601String(),
+  };
 }

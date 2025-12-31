@@ -507,10 +507,13 @@ class PDApiGateway implements AuthenticationService {
   }
 
   @override
-  Future statusHistoryRequest({required String orderid}) async {
+  Future statusHistoryRequest({
+    required String orderid,
+    required String token,
+  }) async {
     try {
       final response = await pickerDriverApi
-          .getStatusHistoryData(orderid)
+          .getStatusHistoryData(orderid: orderid, token: token)
           .catchError((e, trace) {
             throw e;
           });
