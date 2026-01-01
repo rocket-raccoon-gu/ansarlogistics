@@ -221,7 +221,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
     _editableGrandTotal =
         order.posAmount != null &&
-                order.posAmount != 0 &&
+                order.posAmount != '0.0' &&
                 order.posAmount != "" &&
                 order.subgroupIdentifier.startsWith("EXP")
             ? _toDouble(order.posAmount!.toString())
@@ -2326,7 +2326,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                             double grandTotal = 0;
 
                                             if (order.posAmount != null &&
-                                                order.posAmount != 0 &&
+                                                order.posAmount != '0.0' &&
                                                 order.posAmount != "" &&
                                                 order.subgroupIdentifier
                                                     .startsWith("EXP")) {

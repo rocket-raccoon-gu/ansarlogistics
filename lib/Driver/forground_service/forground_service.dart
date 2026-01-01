@@ -43,11 +43,12 @@ class FirstTaskHandler extends TaskHandler {
 
   @override
   void onRepeatEvent(DateTime timestamp) {
-    // TODO: implement onRepeatEvent
+    log("Foreground Service Running - ${timestamp.toString()}");
   }
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) {
+    log("Foreground Service Started");
     // TODO: implement onStart
     throw UnimplementedError();
   }
