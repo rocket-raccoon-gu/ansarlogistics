@@ -883,6 +883,34 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future<http.Response> syncDataRequest({
+    required String branch,
+    required String token,
+    required List<int> syncData,
+  }) async {
+    final url = _endpointWithApplicationPath('sync_stock_data.php');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+    };
+
+    final body = {"category_ids": syncData};
+
+    try {
+      serviceSend("sync data send");
+      return _handleRequest(
+        onRequest:
+            () => _client.post(url, headers: headers, body: jsonEncode(body)),
+        onResponse: (response) {
+          return response;
+        },
+      );
+    } catch (e) {
+      serviceSendError("sync data error");
+      rethrow;
+    }
+  }
+
   Future<http.Response> driverRegisterService({
     required Map<String, dynamic> driverdata,
   }) async {

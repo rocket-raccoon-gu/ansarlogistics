@@ -37,7 +37,8 @@ class FirstTaskHandler extends TaskHandler {
   @override
   Future<void> onDestroy(DateTime timestamp) {
     // TODO: implement onDestroy
-    throw UnimplementedError();
+    print('Foreground service destroyed:');
+    return Future.value();
   }
 
   @override
@@ -48,6 +49,7 @@ class FirstTaskHandler extends TaskHandler {
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) {
     // TODO: implement onStart
-    throw UnimplementedError();
+    print('Foreground service started');
+    return Future.value();
   }
 }

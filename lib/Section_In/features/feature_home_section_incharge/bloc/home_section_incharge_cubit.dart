@@ -59,165 +59,6 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
   List<Map<String, dynamic>> get stockUpdatesAsMaps =>
       stockUpdates.map((update) => update.toMap()).toList();
 
-  // loadProducts() async {
-  //   try {
-  //     // print("🔄 Clearing existing section items...");
-  //     sectionitems.clear();
-  //     emit(HomeSectionInchargeLoading());
-
-  //     // print("📦 Fetching update history from preferences...");
-  //     updateHistory =
-  //         (await PreferenceUtils.getstoremap(
-  //           'updates_history',
-  //         )).cast<Map<String, dynamic>>();
-  //     // print("🕘 History List: $updateHistory");
-
-  //     // print("🌐 Calling getSectionDataCheckList API...");
-  //     final respdata = await serviceLocator.tradingApi.getSectionDataCheckList(
-  //       UserController().profile.empId,
-  //       UserController().profile.branchCode,
-  //       UserController().profile.categoryIds,
-  //     );
-
-  //     if (UserController.userController.profile.branchCode != "Q0113") {
-  //       // print("📥 Decoding JSON response from checklist API...");
-  //       map3 = jsonDecode(respdata);
-
-  //       if (map3.containsKey('data')) {
-  //         CheckSectionstatusList checkSectionstatusList =
-  //             CheckSectionstatusList.fromJson(map3);
-  //         statusHistories = checkSectionstatusList.data;
-  //         // print("✅ statusHistories loaded: $statusHistories");
-  //       } else {
-  //         // print("❌ 'data' key missing in checklist response");
-  //       }
-  //     }
-
-  //     // print("${UserController.userController.profile.branchCode} branchCode");
-
-  //     // Rawdah Branch && Al Rayyan Branch data Fetch
-  //     if (UserController.userController.profile.branchCode == "Q015" ||
-  //         UserController.userController.profile.branchCode == "Q008") {
-  //       print(
-  //         "🏪 Fetching branch-specific section data for Rawdah or Rayyan...",
-  //       );
-  //       final response = await serviceLocator.tradingApi.getSectionDataRequest(
-  //         UserController.userController.userName,
-  //         0,
-  //         UserController().profile.categoryIds,
-  //         UserController().profile.branchCode,
-  //       );
-
-  //       // print("🏪 ${jsonEncode(response)} Fetching Rawdah or Rayyan...");
-
-  //       if (UserController.userController.profile.empId == "veg_rawdah" ||
-  //           UserController.userController.profile.empId == "veg_rayyan") {
-  //         map1 = jsonDecode(response);
-  //         // map1.forEach((key, value) {
-  //         //   print("Key: $key");
-
-  //         //   // If value is Map or List, encode as JSON string for full detail
-  //         //   // if (value is Map || value is List) {
-  //         //   //   print("Value: ${jsonEncode(value)}");
-  //         //   // } else {
-  //         //   //   print("Value: $value");
-  //         //   // }
-
-  //         //   // print("-----");
-  //         // });
-  //         BranchSectionDataResponse branchSectionDataResponse =
-  //             BranchSectionDataResponse.fromJson(map1);
-
-  //         // print("✅ Branch data loaded: ${map1.toString()}");
-
-  //         branchdata = branchSectionDataResponse.branchdata;
-
-  //         if (branchdata.isNotEmpty) {
-  //           // print("🟢 Setting branch data in controller...");
-  //           UserController().branchdata = branchdata;
-  //         }
-  //       } else {
-  //         map = jsonDecode(response);
-  //         if (map["data"].isNotEmpty) {
-  //           SectionItemResponse sectionItemResponse =
-  //               await SectionItemResponse.fromJson(map);
-
-  //           sectionitems = sectionItemResponse.data;
-  //           // print("✅ Section Items loaded: ${sectionitems.length} items");
-  //           // for (var item in sectionitems) {
-  //           //   print("🔸 Sectionitem: ${item.toJson()}");
-  //           // }
-  //           UserController().sectionitems = sectionitems;
-  //         }
-  //       }
-
-  //       emit(
-  //         HomeSectionInchargeInitial(
-  //           sectionitems: sectionitems,
-  //           branchdata: branchdata,
-  //         ),
-  //       );
-  //     } else {
-  //       // Barwa Branch and Al Khor Branch data Fetch
-  //       print("🏬 Fetching section data for Barwa or Al Khor...");
-  //       final response = await serviceLocator.tradingApi.getSectionDataRequest(
-  //         UserController.userController.userName,
-  //         0,
-  //         UserController().profile.categoryIds,
-  //         UserController().profile.branchCode,
-  //       );
-
-  //       // print("📩 Raw section data response: $response");
-
-  //       final testMap = jsonDecode(response);
-  //       // print("${testMap["data"]} 🔸 rawDataList");
-
-  //       if (testMap["data"].isNotEmpty) {
-  //         SectionItemResponse sectionItemResponse =
-  //             SectionItemResponse.fromJson(testMap);
-
-  //         List<Sectionitem> tempItems = sectionItemResponse.data;
-  //         // print("🔍 Looping through loaded section items...");
-  //         // for (var item in tempItems) {
-  //         //   print("${item.toJson()} ✅ sectionItem");
-  //         // }
-  //       }
-
-  //       map = jsonDecode(response);
-  //       if (map["data"].isNotEmpty) {
-  //         SectionItemResponse sectionItemResponse =
-  //             await SectionItemResponse.fromJson(map);
-  //         sectionitems = sectionItemResponse.data;
-  //         // print("✅ Final sectionitems assigned: ${sectionitems.length}");
-  //       }
-
-  //       UserController.userController.sectionitems = sectionitems;
-
-  //       emit(
-  //         HomeSectionInchargeInitial(
-  //           sectionitems: sectionitems,
-  //           branchdata: branchdata,
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     // print("❌ Error during loadProducts: ${e.toString()}");
-
-  //     showSnackBar(
-  //       context: context,
-  //       snackBar: showErrorDialogue(
-  //         errorMessage: "something went wrong..! Please Try Again...",
-  //       ),
-  //     );
-  //     emit(
-  //       HomeSectionInchargeInitial(
-  //         sectionitems: sectionitems,
-  //         branchdata: branchdata,
-  //       ),
-  //     );
-  //   }
-  // }
-
   loadProducts() async {
     try {
       // print("🟡 loadProducts started");
@@ -365,78 +206,6 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       );
     }
   }
-
-  // Future<void> addToStockStatusList(
-  //   String sku,
-  //   String status,
-  //   String productname,
-  //   String imageUrl,
-  // ) async {
-  //   try {
-  //     // print("👤 User: ${UserController.userController.userName}");
-
-  //     int catid = getUserCategory(UserController.userController.userName);
-  //     // print("📦 Category ID: $catid");
-
-  //     // Prepare the request
-  //     final updateSectionRequest = UpdateSectionRequest(
-  //       categoryId: catid,
-  //       userId: UserController.userController.profile.empId,
-  //       branchCode: UserController.userController.profile.branchCode,
-  //       newStatuses: [
-  //         NewStatus(sku: sku, status: status, productname: productname),
-  //       ],
-  //       branch: UserController.userController.profile.branchCode,
-  //     );
-
-  //     // print(
-  //     //   "📤 Sending updateSectionRequest: ${updateSectionRequest.toJson()}",
-  //     // );
-
-  //     // Call the API
-  //     final response = await serviceLocator.tradingApi.updateSectionDataRequest(
-  //       updateSectionRequest: updateSectionRequest,
-  //       branch: UserController.userController.profile.branchCode,
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       // print("✅ Stock update succeeded for SKU: $sku");
-
-  //       updateItemStatus(
-  //         sku,
-  //         productname,
-  //         imageUrl,
-  //         status == "1" ? true : false,
-  //       );
-
-  //       showSnackBar(
-  //         context: context,
-  //         snackBar: showSuccessDialogue(
-  //           message: "Stock status updated successfully.",
-  //         ),
-  //       );
-  //     } else {
-  //       // print("❌ API Error: Status code ${response.statusCode}");
-
-  //       showSnackBar(
-  //         context: context,
-  //         snackBar: showErrorDialogue(
-  //           errorMessage:
-  //               "Failed to update stock status. Please try again later.",
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     // print("🔥 Exception during API call: $e");
-
-  //     showSnackBar(
-  //       context: context,
-  //       snackBar: showErrorDialogue(
-  //         errorMessage: "Something went wrong. Please try again.\nError: $e",
-  //       ),
-  //     );
-  //   }
-  // }
 
   Future<void> addToStockStatusList(
     String sku,
@@ -856,5 +625,71 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
         branchdata: branchdata,
       ),
     );
+  }
+
+  Future<void> syncData() async {
+    try {
+      // Show loading in UI
+      emit(HomeSectionInchargeLoading());
+
+      // 1) Get token and branch
+      final token = await PreferenceUtils.getDataFromShared("usertoken");
+      final branch = UserController().profile.branchCode;
+      final categoryIdsString = UserController().profile.categoryIds;
+
+      // 2) Build syncData list<int> from categoryIds (e.g. "1,2,3")
+      final List<int> syncData =
+          categoryIdsString
+              .split(',')
+              .map((e) => int.tryParse(e.trim()))
+              .whereType<int>()
+              .toList();
+
+      // 3) Call API
+      final response = await serviceLocator.tradingApi.updateSyncDataRequest(
+        branch: branch,
+        token: token ?? "",
+        syncData: syncData,
+      );
+
+      if (response.statusCode == 200) {
+        // Optionally reload products to reflect new data
+        await loadProducts();
+
+        showSnackBar(
+          context: context,
+          snackBar: showSuccessDialogue(message: "Data synced successfully."),
+        );
+      } else {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(
+            errorMessage: "Sync failed. Please try again.",
+          ),
+        );
+
+        // Go back to normal state
+        emit(
+          HomeSectionInchargeInitial(
+            sectionitems: sectionitems,
+            branchdata: branchdata,
+          ),
+        );
+      }
+    } catch (e) {
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(
+          errorMessage: "Something went wrong during sync.\nError: $e",
+        ),
+      );
+
+      emit(
+        HomeSectionInchargeInitial(
+          sectionitems: sectionitems,
+          branchdata: branchdata,
+        ),
+      );
+    }
   }
 }

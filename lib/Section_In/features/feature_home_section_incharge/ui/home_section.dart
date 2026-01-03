@@ -3,6 +3,7 @@ import 'package:ansarlogistics/Section_In/features/components/section_list_item.
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_cubit.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/animation_switch.dart';
+import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/custom_search_field.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -103,6 +104,86 @@ class _HomeSectionState extends State<HomeSection> {
                   },
                   controller: _searchcontroller,
                 ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        // 1) Ask for confirmation
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder:
+                              (ctx) => AlertDialog(
+                                title: Text('Sync Data'),
+                                content: Text(
+                                  'Are you sure you want to sync data?\n'
+                                  'This will send your latest stock changes to the server.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed:
+                                        () => Navigator.of(ctx).pop(false),
+                                    child: Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed:
+                                        () => Navigator.of(ctx).pop(true),
+                                    child: Text('Yes, Sync'),
+                                  ),
+                                ],
+                              ),
+                        );
+                        if (confirmed != true) return;
+                        // 2) Show syncing loader
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder:
+                              (ctx) => AlertDialog(
+                                content: Row(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(width: 16),
+                                    Text('Syncing data...'),
+                                  ],
+                                ),
+                              ),
+                        );
+                        // 3) Call cubit method
+                        await context
+                            .read<HomeSectionInchargeCubit>()
+                            .syncData();
+                        // 4) Close loader
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        height: 40.0,
+                        decoration: BoxDecoration(
+                          color: customColors().islandAqua,
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.sync, color: customColors().fontPrimary),
+                            Text(
+                              "Sync Data",
+                              style: customTextStyle(
+                                fontStyle: FontStyle.BodyL_Bold,
+                                color: FontColor.FontPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 

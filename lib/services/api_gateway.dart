@@ -540,6 +540,25 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
+  Future updateSyncDataRequest({
+    required String branch,
+    required String token,
+    required List<int> syncData,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .syncDataRequest(branch: branch, token: token, syncData: syncData)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("update sync data request");
+      rethrow;
+    }
+  }
+
   Future setDriverRegister({required Map<String, dynamic> driverdata}) async {
     try {
       final response = await pickerDriverApi
