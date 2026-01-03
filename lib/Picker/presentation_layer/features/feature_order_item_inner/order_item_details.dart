@@ -1068,9 +1068,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                     child: InkWell(
                                       onTap: () async {
                                         if (editquantity !=
-                                            double.tryParse(
-                                              '${item.qtyOrdered ?? 0}',
-                                            )?.toInt()) {
+                                                double.tryParse(
+                                                  '${item.qtyOrdered ?? 0}',
+                                                )?.toInt() &&
+                                            item.isProduce != true) {
                                           final confirm = await showDialog<
                                             bool
                                           >(
@@ -1111,7 +1112,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                           }
                                         }
 
-                                        if (editquantity != 0) {
+                                        if (editquantity != 0 ||
+                                            item.isProduce == true) {
                                           scanBarcodeManual(
                                             barcodeController.text
                                                 .toString()
