@@ -54,7 +54,6 @@ Future<void> main() async {
   runZonedGuarded<void>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-
       // First check if update is required
 
       // Continue with your existing initialization

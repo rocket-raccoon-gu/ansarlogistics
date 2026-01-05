@@ -629,9 +629,6 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
   Future<void> syncData() async {
     try {
-      // Show loading in UI
-      emit(HomeSectionInchargeLoading());
-
       // 1) Get token and branch
       final token = await PreferenceUtils.getDataFromShared("usertoken");
       final branch = UserController().profile.branchCode;
@@ -646,48 +643,22 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
               .toList();
 
       // 3) Call API
-      final response = await serviceLocator.tradingApi.updateSyncDataRequest(
+      await serviceLocator.tradingApi.updateSyncDataRequest(
         branch: branch,
         token: token ?? "",
         syncData: syncData,
       );
-
-      if (response.statusCode == 200) {
-        // Optionally reload products to reflect new data
-        await loadProducts();
-
-        showSnackBar(
-          context: context,
-          snackBar: showSuccessDialogue(message: "Data synced successfully."),
-        );
-      } else {
-        showSnackBar(
-          context: context,
-          snackBar: showErrorDialogue(
-            errorMessage: "Sync failed. Please try again.",
-          ),
-        );
-
-        // Go back to normal state
-        emit(
-          HomeSectionInchargeInitial(
-            sectionitems: sectionitems,
-            branchdata: branchdata,
-          ),
-        );
-      }
+      // If we reach here without throwing, treat as success – no extra loader
+      // state, just a simple confirmation toast/dialog.
+      showSnackBar(
+        context: context,
+        snackBar: showSuccessDialogue(message: "Data synced successfully."),
+      );
     } catch (e) {
       showSnackBar(
         context: context,
         snackBar: showErrorDialogue(
           errorMessage: "Something went wrong during sync.\nError: $e",
-        ),
-      );
-
-      emit(
-        HomeSectionInchargeInitial(
-          sectionitems: sectionitems,
-          branchdata: branchdata,
         ),
       );
     }

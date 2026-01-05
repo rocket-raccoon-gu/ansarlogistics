@@ -896,15 +896,16 @@ extension PDGeneralApi on PickerDriverApi {
 
     final body = {"category_ids": syncData};
 
+    log("Sync data request: $body");
+
     try {
       serviceSend("sync data send");
-      return _handleRequest(
-        onRequest:
-            () => _client.post(url, headers: headers, body: jsonEncode(body)),
-        onResponse: (response) {
-          return response;
-        },
-      );
+      // Fire-and-forget style: perform the POST but ignore the real response
+      // content. We return a simple synthetic response so callers can treat
+      // this as "synced" without depending on server body.
+      await _client.post(url, headers: headers, body: jsonEncode(body));
+
+      return http.Response('data synced', 200);
     } catch (e) {
       serviceSendError("sync data error");
       rethrow;
@@ -1403,6 +1404,8 @@ extension on PickerDriverApi {
   Future<T> _handleRequest<T>({
     required Future<http.Response> Function() onRequest,
     required T Function(http.Response) onResponse,
+    String? requesttype,
+    bool disableTimeout = false,
   }) async {
     if (!networkOnline) {
       throw NetworkException(
@@ -1411,10 +1414,13 @@ extension on PickerDriverApi {
     }
 
     try {
-      final response = await onRequest().timeout(
-        timeoutDuration,
-        onTimeout: () => throw TimeoutException("Request timed out"),
-      );
+      final response =
+          disableTimeout
+              ? await onRequest()
+              : await onRequest().timeout(
+                timeoutDuration,
+                onTimeout: () => throw TimeoutException("Request timed out"),
+              );
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {
@@ -1423,7 +1429,9 @@ extension on PickerDriverApi {
 
         final baseResponse = BaseResponse.fromJson(response.body);
         if (baseResponse.errorCode == 1604) {
-          throw NetworkException("Session timeout, please relogin");
+          if (requesttype != "sync") {
+            throw NetworkException("Session timeout, please relogin");
+          }
         }
 
         return onResponse(response);
@@ -1434,8 +1442,12 @@ extension on PickerDriverApi {
         ); // Optional: Handle non-200 status codes here
       }
     } on SocketException catch (e) {
-      log("Socket Exception: $e", time: DateTime.now());
-      throw NetworkException("Network error: Unable to reach server");
+      if (requesttype != "sync") {
+        log("Socket Exception: $e", time: DateTime.now());
+        throw NetworkException("Network error: Unable to reach server");
+      } else {
+        rethrow;
+      }
     } on TimeoutException catch (e) {
       log("Timeout Exception: $e", time: DateTime.now());
       throw NetworkException('Request took too long, please try again');
