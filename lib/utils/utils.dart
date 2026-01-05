@@ -1089,7 +1089,7 @@ sholoadingIndicator(BuildContext context) {
                   ),
                 ),
               ),
-              Lottie.asset('assets/lottie_files/loading.json'),
+              // Lottie.asset('assets/lottie_files/loading.json'),
             ],
           ),
         ),

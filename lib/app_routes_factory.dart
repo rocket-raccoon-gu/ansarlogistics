@@ -23,6 +23,7 @@ import 'package:ansarlogistics/common_features/feature_select_region/select_regi
 import 'package:ansarlogistics/common_features/feature_signup/signup_page_routebuilder.dart';
 import 'package:ansarlogistics/common_features/feature_splash/splash_route_builder.dart';
 import 'package:ansarlogistics/navigations/navigation.dart';
+import 'package:ansarlogistics/photography/feature_photography/photography_dashboard_page_route_builder.dart';
 // import 'package:ansarlogistics/photography/feature_photography/photography_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:flutter/material.dart';
@@ -237,6 +238,16 @@ class AppRoutesFactory extends RoutesFactory {
     // TODO: implement createHomeSectionInchargePageRoute
     return CustomRoute(
       builder: HomeSectionInchargeRootBuilder(_serviceLocator),
+    );
+  }
+
+  @override
+  Route<dynamic> createPhotographyDashboardPageRoute() {
+    // TODO: implement createPhotographyDashboardPageRoute
+    return CustomRoute(
+      builder: PhotographyDashboardPageRouteBuilder(
+        serviceLocator: _serviceLocator,
+      ),
     );
   }
 }

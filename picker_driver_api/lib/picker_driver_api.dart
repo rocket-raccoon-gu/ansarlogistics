@@ -638,13 +638,13 @@ extension PDGeneralApi on PickerDriverApi {
   }) async {
     log("endpoint.........${endpoint}");
 
-    // final url = Uri.parse(
-    //     'https://admin-qatar.testuatah.com/custom-api/api/qatar/getProductdata_new.php?sku=' +
-    //         endpoint.trim());
-
-    final url = _endpointWithApplicationPathString(
-      'getProductdata_new.php?sku=${endpoint.trim()}',
+    final url = Uri.parse(
+      'https://www.ansargallery.com/rest/V1/products/${endpoint.trim()}',
     );
+
+    // final url = _endpointWithApplicationPathString(
+    //   'getProductdata_new.php?sku=${endpoint.trim()}',
+    // );
 
     log(url.toString());
 
@@ -654,7 +654,7 @@ extension PDGeneralApi on PickerDriverApi {
     };
 
     return _handleRequest(
-      onRequest: () => _client.get(Uri.parse(url), headers: headers),
+      onRequest: () => _client.get(url, headers: headers),
       onResponse: (response) {
         return response;
       },
@@ -1083,7 +1083,9 @@ extension PDGeneralApi on PickerDriverApi {
   }
 
   Future checkavailabilitybarcode({required String sku}) async {
-    final url = _endpointWithApplicationPath('/checkAvailabileBarcode.php');
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/checkAvailabileBarcode.php',
+    );
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
@@ -1313,7 +1315,9 @@ extension PDGeneralApi on PickerDriverApi {
   Future addtoproductlist({
     required List<Map<String, dynamic>> dynamiclist,
   }) async {
-    final url = _endpointWithApplicationPath('/addSkuScanned.php');
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/addSkuScanned.php',
+    );
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,

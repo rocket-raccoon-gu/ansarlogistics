@@ -12,7 +12,7 @@ import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
-import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
 import 'package:camera/camera.dart';
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -74,22 +74,19 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
     try {
       await requestCameraPermission();
 
-      ScanResult scanResult = await BarcodeScanner.scan();
+      final result = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+      );
+
       setState(() {
-        barcodescanRes = scanResult.rawContent;
+        barcodescanRes = result;
       });
 
-      log(barcodescanRes!);
+      log(barcodescanRes.toString());
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied) {
-        setState(() {
-          barcodescanRes = 'Camera permission was denied';
-        });
-      } else {
-        setState(() {
-          barcodescanRes = 'Unknown error: $e';
-        });
-      }
+      setState(() {
+        barcodescanRes = 'Unknown error: $e';
+      });
     } on FormatException {
       setState(() {
         barcodescanRes = 'Nothing captured.';
@@ -145,7 +142,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                       ),
                     ),
                   ),
-                  Lottie.asset('assets/lottie_files/loading.json'),
+                  // Lottie.asset('assets/lottie_files/loading.json'),
                 ],
               ),
             ),
@@ -1813,28 +1810,28 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
           );
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: customColors().backgroundTertiary,
-        elevation: 10.0,
-        onPressed: () async {
-          int sdkVersion = await getAndroidSdkVersion();
 
-          log('Android SDK version: $sdkVersion');
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: customColors().backgroundTertiary,
+      //   elevation: 10.0,
+      //   onPressed: () async {
+      //     int sdkVersion = await getAndroidSdkVersion();
 
-          // scanBarcodeNormal(context);
+      //     log('Android SDK version: $sdkVersion');
 
-          if (sdkVersion > 29) {
-            scanBarcodeNormal(context);
-          } else {
-            setState(() {
-              isScan = true;
-            });
-          }
-        },
-        child: Image.asset('assets/barcode_scan.png', height: 25.0),
-      ),
+      //     // scanBarcodeNormal(context);
 
+      //     if (sdkVersion > 29) {
+      //       scanBarcodeNormal(context);
+      //     } else {
+      //       setState(() {
+      //         isScan = true;
+      //       });
+      //     }
+      //   },
+      //   child: Image.asset('assets/barcode_scan.png', height: 25.0),
+      // ),
       bottomNavigationBar: Container(
         height: screenSize.height * 0.12,
         padding: const EdgeInsets.symmetric(vertical: 10.0),

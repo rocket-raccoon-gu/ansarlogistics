@@ -18,7 +18,7 @@ abstract class RoutesFactory {
   // Route<dynamic> createHomeSectionPageRoute(Map<String, dynamic> dara);
   Route<dynamic> createNewScanBarcodePageRoute(Map<String, dynamic> data);
   Route<dynamic> createSelectRegionsPageRoute();
-  // Route<dynamic> createPhotoGrpahyDashBoardPageRoute();
+  Route<dynamic> createPhotographyDashboardPageRoute();
   Route<dynamic> createSalesSectionDashBoardPageRoute();
   Route<dynamic> createPickerOrderDetailsRoute(Map<String, dynamic> data);
   Route<dynamic> createCashierDashboardRoute();
