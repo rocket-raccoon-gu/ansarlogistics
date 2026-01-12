@@ -290,6 +290,8 @@ extension PDGeneralApi on PickerDriverApi {
           cookie = updateCookie(response);
           // fullcookie = updateFullCookie(response);
 
+          log(response.body.toString());
+
           return loginResponseFromJson(response.body);
         },
       );
@@ -501,6 +503,9 @@ extension PDGeneralApi on PickerDriverApi {
           break;
         case 'rider':
           dispatchMethod = 'rider';
+          break;
+        case 'shipbee':
+          dispatchMethod = 'shipbee';
           break;
         default:
           dispatchMethod = 'normal';

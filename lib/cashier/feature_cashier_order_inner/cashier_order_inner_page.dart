@@ -1572,6 +1572,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       );
       return;
     }
+
+    log(dispatchMethod.toString());
     // If POS bill missing, offer Upload Now / Upload Later
     if (_posBillUrl == null && !forceLater) {
       final choice = await showDialog<String>(

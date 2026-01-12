@@ -48,7 +48,7 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
       };
 
       currentstat =
-          UserController().profile.availabilityStatus == "1" ? true : false;
+          UserController().profile.availabilityStatus == 1 ? true : false;
 
       emit(ProfilePageInitialState(profiledata: UserController().profile));
     }

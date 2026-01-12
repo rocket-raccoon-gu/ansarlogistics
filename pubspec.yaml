@@ -76,6 +76,7 @@ dependencies:
     sdk: flutter
   flutter_date_range_picker: any
   google_mlkit_barcode_scanning: any
+  google_mlkit_translation: any
   # google_mlkit_text_recognition: any
   camera: any
   mobile_scanner: any

@@ -5,6 +5,7 @@ import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class PickerOrderListItem extends StatefulWidget {
@@ -309,13 +310,69 @@ class _BottomBanner extends StatelessWidget {
   }
 }
 
-class CustomerBottomBanner extends StatelessWidget {
+class CustomerBottomBanner extends StatefulWidget {
   final OrderNew? order;
   const CustomerBottomBanner({required this.order});
 
   @override
+  State<CustomerBottomBanner> createState() => _CustomerBottomBannerState();
+}
+
+class _CustomerBottomBannerState extends State<CustomerBottomBanner> {
+  OnDeviceTranslator? _translator;
+  String? _translatedNote;
+  bool _isTranslating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _maybeTranslateNote();
+  }
+
+  Future<void> _maybeTranslateNote() async {
+    final note = widget.order?.deliveryNote ?? '';
+    if (note.isEmpty) return;
+
+    // Simple check for Arabic characters in the note
+    final hasArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(note);
+    if (!hasArabic) return;
+
+    setState(() {
+      _isTranslating = true;
+    });
+
+    _translator = OnDeviceTranslator(
+      sourceLanguage: TranslateLanguage.arabic,
+      targetLanguage: TranslateLanguage.english,
+    );
+
+    try {
+      final translatedText = await _translator!.translateText(note);
+      if (!mounted) return;
+      setState(() {
+        _translatedNote = translatedText;
+        _isTranslating = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isTranslating = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _translator?.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = customColors();
+    final originalNote = widget.order?.deliveryNote ?? '';
+    final displayNote = _translatedNote ?? originalNote;
+
     return Container(
       decoration: BoxDecoration(
         color: colors.adBackground,
@@ -340,7 +397,7 @@ class CustomerBottomBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "\" ${order?.deliveryNote ?? ''} \" ",
+                  "\" $displayNote \" ",
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyL_Bold,
                     color: FontColor.CarnationRed,

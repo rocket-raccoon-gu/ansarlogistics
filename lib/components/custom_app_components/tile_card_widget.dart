@@ -15,8 +15,7 @@ class TileCardWidget extends StatefulWidget {
 }
 
 class _TileCardWidgetState extends State<TileCardWidget> {
-  bool value =
-      UserController().profile.availabilityStatus == "1" ? true : false;
+  bool value = UserController().profile.availabilityStatus == 1 ? true : false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +39,7 @@ class _TileCardWidgetState extends State<TileCardWidget> {
                         children: [
                           // Image.asset("assets/user-profile.png"),
                           Image.asset("assets/user-profile.png"),
-                          value
+                          UserController().profile.availabilityStatus == 1
                               ? Padding(
                                 padding: const EdgeInsets.only(left: 8.0),
                                 child: InkWell(

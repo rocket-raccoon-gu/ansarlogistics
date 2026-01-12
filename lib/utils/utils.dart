@@ -104,9 +104,12 @@ Widget dispatchSelector({
   // }
   // }
 
+  options.add({'key': 'shipbee', 'label': 'Shipbee'});
+
   final Color selectedBg = switch (value) {
     'driver' => const Color(0xFF9729BA),
     'rider' => Colors.red,
+    'shipbee' => Colors.grey,
     _ => customColors().islandAqua,
   };
 
@@ -126,6 +129,7 @@ Widget dispatchSelector({
               final Color selectedBg = switch (key) {
                 'driver' => HexColor('#9729BA'),
                 'rider' => HexColor('#FF0000'),
+                'shipbee' => HexColor('#808080'),
                 _ => customColors().islandAqua,
               };
 
@@ -246,6 +250,23 @@ Widget getDriverTypeWidget(String driverType, String type) {
         child: Row(
           children: [
             Image.asset('assets/snoonu_logo.png', height: 16),
+            const SizedBox(width: 8),
+            Text(
+              type,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_SemiBold,
+                color: FontColor.White,
+              ),
+            ),
+          ],
+        ),
+      );
+    case 'Shipbee':
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+        child: Row(
+          children: [
             const SizedBox(width: 8),
             Text(
               type,
