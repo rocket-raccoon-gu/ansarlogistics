@@ -261,13 +261,15 @@ Widget getDriverTypeWidget(String driverType, String type) {
           ],
         ),
       );
-    case 'Shipbee':
+    case 'shipbee':
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          color: HexColor('#4d4b49'),
+        ),
         child: Row(
           children: [
-            const SizedBox(width: 8),
             Text(
               type,
               style: customTextStyle(
@@ -1643,6 +1645,28 @@ Widget buildPriority2BottomSheet(
       ],
     ),
   );
+}
+
+bool containsArabic(String text) {
+  final arabicRegex = RegExp(r'[\u0600-\u06FF]');
+  return arabicRegex.hasMatch(text);
+}
+
+String convertArabicNoteToEnglish(String text) {
+  const arabicToEnglishDigits = {
+    '٠': '0',
+    '١': '1',
+    '٢': '2',
+    '٣': '3',
+    '٤': '4',
+    '٥': '5',
+    '٦': '6',
+    '٧': '7',
+    '٨': '8',
+    '٩': '9',
+  };
+
+  return text.split('').map((ch) => arabicToEnglishDigits[ch] ?? ch).join();
 }
 
 Widget _buildDetailRow(String label, String value) {

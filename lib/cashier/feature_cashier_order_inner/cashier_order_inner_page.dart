@@ -10,6 +10,7 @@ import 'package:ansarlogistics/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import 'package:picker_driver_api/responses/cashier_order_response.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -48,6 +49,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   double? _uploadProgress; // 0.0 - 1.0
   final Set<int> _selectedItemIds = <int>{};
   String? paymentMethodnew;
+
+  OnDeviceTranslator? _translator;
+  String? _translatedNote;
+  bool _isTranslating = false;
 
   double _editableGrandTotal = 0.0;
 
@@ -215,6 +220,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     order = widget.arguments['order'] as Datum;
     _loadExistingPosBillIfAny();
     _maybeFetchSadad();
+    _maybeTranslateNote();
 
     // _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
     _grandTotalOverride = null;
@@ -1555,6 +1561,38 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     );
   }
 
+  Future<void> _maybeTranslateNote() async {
+    final note = order.deliveryNote ?? '';
+    if (note.isEmpty) return;
+
+    // Simple check for Arabic characters in the note
+    final hasArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(note);
+    if (!hasArabic) return;
+
+    setState(() {
+      _isTranslating = true;
+    });
+
+    _translator = OnDeviceTranslator(
+      sourceLanguage: TranslateLanguage.arabic,
+      targetLanguage: TranslateLanguage.english,
+    );
+
+    try {
+      final translatedText = await _translator!.translateText(note);
+      if (!mounted) return;
+      setState(() {
+        _translatedNote = translatedText;
+        _isTranslating = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isTranslating = false;
+      });
+    }
+  }
+
   Future<void> _confirmAndMarkReady({
     bool forceLater = false,
     String status = 'ready_to_dispatch',
@@ -1754,6 +1792,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           }
         })();
 
+    final originalNote = (order.deliveryNote ?? '').trim();
+    final displayNote =
+        _translatedNote?.trim().isNotEmpty == true
+            ? _translatedNote!.trim()
+            : originalNote;
+
     return BlocConsumer<CashierOrderInnerPageCubit, CashierOrderInnerPageState>(
       listener: (context, state) {
         if (state is CashierOrderInnerPageStateLoaded) {
@@ -1769,6 +1813,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             //             : double.parse(order.grandTotal))
             //         .toString();
             _grandTotalOverride = null;
+
+            _translatedNote = null;
           });
 
           _maybeFetchSadad();
@@ -2134,17 +2180,17 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                               timeRangeText!,
                                             ),
                                           if ((order.deliveryNote ?? '')
-                                              .toString()
                                               .trim()
                                               .isNotEmpty)
                                             _kvSelectable(
                                               'Delivery Note',
-                                              order.deliveryNote!.trim(),
-                                              valueStyle: TextStyle(
+                                              displayNote,
+                                              valueStyle: const TextStyle(
                                                 color: Colors.red,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
+
                                           if ((order.pickername ?? '')
                                               .toString()
                                               .trim()

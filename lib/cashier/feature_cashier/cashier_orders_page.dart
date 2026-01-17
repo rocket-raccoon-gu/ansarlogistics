@@ -397,6 +397,8 @@ String getDriverType(String driverType) {
       return 'Rafeeq';
     case 'rad':
       return 'RAD';
+    case 'shipbee':
+      return 'Shipbee';
     default:
       return 'Ansar';
   }
