@@ -1338,10 +1338,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         final webPrice = _toDouble(item.webprice);
         final unitPrice = pickerPrice != 0 ? pickerPrice : orderPrice;
 
-        final subtotal =
-            item.isProduce == "1"
-                ? double.parse(item.finalPrice.toString())
-                : double.parse(item.price.toString()) * qty;
+        final subtotal = double.parse(item.finalPrice.toString()) * qty;
 
         // log("subtotal ${item.price} * Qty $qty");
 

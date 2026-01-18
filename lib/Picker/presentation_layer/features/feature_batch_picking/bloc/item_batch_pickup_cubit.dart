@@ -93,6 +93,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                                 status: "end_picking",
                                 orderIds: orderIds,
                                 itemSku: productSku,
+                                price: data['current_promotion_price'],
                                 reason: "",
                               );
 
@@ -166,6 +167,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                                 status: "end_picking",
                                 orderIds: orderIds,
                                 itemSku: productDBdata.sku,
+                                price: data['current_promotion_price'],
                                 reason: "",
                               );
 
@@ -254,6 +256,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     List<String> orderIds,
     String itemSku,
     String reason,
+    String price,
   ) async {
     final token = await PreferenceUtils.getDataFromShared("usertoken");
     if (token == null) return;
@@ -266,6 +269,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
       orderIds: orderIds,
       itemSku: itemSku,
       reason: reason,
+      price: price,
     );
 
     if (response.statusCode == 200) {
@@ -352,6 +356,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                             orderIds,
                             itemSku,
                             "",
+                            "0",
                           );
                           _isDialogShowing = false;
                         },
@@ -446,6 +451,7 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
                               orderIds,
                               itemSku,
                               reason, // <‑ pass reason here
+                              "0",
                             );
                             _isDialogShowing = false;
                           },

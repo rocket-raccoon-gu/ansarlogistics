@@ -824,6 +824,7 @@ class PDApiGateway implements AuthenticationService {
     required String status,
     required List<String> orderIds,
     required String itemSku,
+    required String price,
     required String reason,
   }) async {
     try {
@@ -835,6 +836,7 @@ class PDApiGateway implements AuthenticationService {
             status: status,
             orderIds: orderIds,
             itemSku: itemSku,
+            price: price,
             reason: reason,
           )
           .catchError((e, trace) {

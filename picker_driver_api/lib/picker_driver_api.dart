@@ -1350,6 +1350,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String status,
     required List<String> orderIds,
     required String itemSku,
+    required String price,
     required String reason,
   }) async {
     final url = _endpointWithApplicationPath('picker/orders/item/statusbulk');
@@ -1365,6 +1366,7 @@ extension PDGeneralApi on PickerDriverApi {
       "itemstatus": status,
       "order_id": orderIds,
       "sku": itemSku,
+      "price": price,
       "reason": reason,
     };
 
