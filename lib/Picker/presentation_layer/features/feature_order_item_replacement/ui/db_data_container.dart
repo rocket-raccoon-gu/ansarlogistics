@@ -1,5 +1,6 @@
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
 import 'package:ansarlogistics/constants/texts.dart';
+import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -27,14 +28,50 @@ class _DbDataContainerState extends State<DbDataContainer> {
         SizedBox(
           height: 275.0,
           width: 275.0,
-          child:
-              widget.productDBdata!.images != null &&
-                      widget.productDBdata!.images != ""
-                  ? Image.network(
-                    '${mainimageurl}${getFirstImage(widget.productDBdata!.images)}',
-                    fit: BoxFit.fill,
-                  )
-                  : Image.network(noimageurl, fit: BoxFit.fill),
+          child: FutureBuilder<Map<String, dynamic>>(
+            future: getData(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError || !snapshot.hasData) {
+                // Fallback to default no-image URL if Firestore fails
+                return Image.network(noimageurl, fit: BoxFit.fill);
+              }
+
+              final Map<String, dynamic> data = snapshot.data!;
+              final String base = (data['imagepath'] ?? '').toString().trim();
+
+              final hasImages =
+                  widget.productDBdata!.images != null &&
+                  widget.productDBdata!.images!.isNotEmpty;
+
+              if (!hasImages || base.isEmpty) {
+                return Image.network(noimageurl, fit: BoxFit.fill);
+              }
+
+              final String firstImage =
+                  getFirstImage(widget.productDBdata!.images).trim();
+
+              // Ensure exactly one slash between base and path
+              String resolve(String baseUrl, String path) {
+                if (path.startsWith('http')) return path;
+                String b = baseUrl;
+                String p = path;
+                if (b.endsWith('/') && p.startsWith('/')) {
+                  p = p.substring(1);
+                } else if (!b.endsWith('/') && !p.startsWith('/')) {
+                  b = '$b/';
+                }
+                return '$b$p';
+              }
+
+              final String fullUrl = resolve(base, firstImage);
+
+              return Image.network(fullUrl, fit: BoxFit.fill);
+            },
+          ),
         ),
 
         Padding(
