@@ -9,6 +9,7 @@ import 'package:ansarlogistics/firebase_configs/init_notification.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/custom_theme.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -29,20 +30,25 @@ import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_
 // );
 //################## DEVELOPMENT NEW ###########################
 
-const baseUrl = String.fromEnvironment(
-  'BASE_URL',
-  defaultValue: "https://pickerdriver-api.testuatah.com",
-);
+// keep these as default constants if you want
+const defaultBaseUrl = "https://pickerdriver-api.testuatah.com";
+const defaultApplicationPath = "/api/";
+const defaultProductUrl = "https://www.ansargallery.com/rest/V1/";
 
-const productUrl = String.fromEnvironment(
-  'PRODUCT_URL',
-  defaultValue: "https://www.ansargallery.com/rest/V1/",
-);
+// const baseUrl = String.fromEnvironment(
+//   'BASE_URL',
+//   defaultValue: "https://pickerdriver-api.testuatah.com",
+// );
 
-const applicationPath = String.fromEnvironment(
-  'APPLICATION_PATH',
-  defaultValue: "/api/",
-);
+// const productUrl = String.fromEnvironment(
+//   'PRODUCT_URL',
+//   defaultValue: "https://www.ansargallery.com/rest/V1/",
+// );
+
+// const applicationPath = String.fromEnvironment(
+//   'APPLICATION_PATH',
+//   defaultValue: "/api/",
+// );
 
 // ################## DEVELOPMENT NEW ###########################
 
@@ -64,6 +70,9 @@ Future<void> main() async {
       if (Firebase.apps.isEmpty) {
         await initializeFirebase();
       }
+
+      final savedBaseUrl =
+          await PreferenceUtils.getDataFromShared("mainbaseurl") as String?;
 
       // Initialize notifications plugin
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -99,6 +108,19 @@ Future<void> main() async {
       if (!kIsWeb) {
         enableCrashlytics();
       }
+
+      final String baseUrl =
+          (savedBaseUrl != null && savedBaseUrl.isNotEmpty)
+              ? savedBaseUrl
+              : const String.fromEnvironment(
+                'BASE_URL',
+                defaultValue: defaultBaseUrl,
+              );
+
+      final String applicationPath = const String.fromEnvironment(
+        'APPLICATION_PATH',
+        defaultValue: defaultApplicationPath,
+      );
 
       // Initialize service locator
       final locator = ServiceLocator(

@@ -86,13 +86,12 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                               // context.gNavigationService
                               //     .openWorkspacePage(context, data);
 
-                              context.gNavigationService.openLoginPage(context);
                               UserController
                                   .userController
                                   .mainbaseUrl = String.fromEnvironment(
                                 'BASE_URL',
                                 defaultValue:
-                                    "https://admin-qatar.testuatah.com/",
+                                    "https://pickerdriver-api.testuatah.com",
                               );
                               // await PreferenceUtils.storeDataToShared(
                               //     "mainbaseurl",
@@ -101,7 +100,19 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                 "region",
                                 'QA',
                               );
+
+                              await PreferenceUtils.storeDataToShared(
+                                "mainbaseurl",
+                                UserController.userController.mainbaseUrl,
+                              );
+
                               // await logout(context);
+
+                              if (context.mounted) {
+                                context.gNavigationService.openLoginPage(
+                                  context,
+                                );
+                              }
                             },
                             child: Image.asset('assets/qatar.png', height: 80),
                           ),
@@ -113,13 +124,25 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                     .userController
                                     .mainbaseUrl = String.fromEnvironment(
                                   'BASE_URL',
-                                  defaultValue: "https://bahrain.ahmarket.com/",
+                                  defaultValue:
+                                      "https://pickerdriver-api-bh.testuatah.com",
                                 );
-                                // await PreferenceUtils.storeDataToShared(
-                                //     "mainbaseurl",
-                                //     UserController.userController.mainbaseUrl);
-                                // await PreferenceUtils.storeDataToShared(
-                                //     "region", 'BH');
+
+                                await PreferenceUtils.storeDataToShared(
+                                  "mainbaseurl",
+                                  UserController.userController.mainbaseUrl,
+                                );
+
+                                await PreferenceUtils.storeDataToShared(
+                                  "region",
+                                  'BH',
+                                );
+
+                                if (!context.mounted) return;
+                                context.gNavigationService.openLoginPage(
+                                  context,
+                                );
+
                                 // await logout(context);
                                 // Map<String, dynamic> data = {};
                                 // context.gNavigationService
@@ -142,17 +165,26 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                 // Map<String, dynamic> data = {};
                                 // context.gNavigationService
                                 //     .openWorkspacePage(context, data);
-                                // UserController.userController.mainbaseUrl =
-                                //     String.fromEnvironment('BASE_URL',
-                                //         defaultValue:
-                                //             "https://uae.ahmarket.com/");
+                                UserController
+                                    .userController
+                                    .mainbaseUrl = String.fromEnvironment(
+                                  'BASE_URL',
+                                  defaultValue:
+                                      "https://pickerdriver-api-uae.testuatah.com",
+                                );
                                 await PreferenceUtils.storeDataToShared(
                                   "mainbaseurl",
                                   UserController.userController.mainbaseUrl,
                                 );
 
-                                // await PreferenceUtils.storeDataToShared(
-                                //     "region", 'UAE');
+                                await PreferenceUtils.storeDataToShared(
+                                  "region",
+                                  'UAE',
+                                );
+                                if (!context.mounted) return;
+                                context.gNavigationService.openLoginPage(
+                                  context,
+                                );
                                 // await logout(context);
                               },
                               child: Image.asset('assets/uae.png', height: 80),
@@ -169,7 +201,8 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                       .userController
                                       .mainbaseUrl = String.fromEnvironment(
                                     'BASE_URL',
-                                    defaultValue: "https://oman.ahmarket.com/",
+                                    defaultValue:
+                                        "https://pickerdriver-api-om.testuatah.com",
                                   );
                                   // await PreferenceUtils.storeDataToShared(
                                   //     "mainbaseurl",
@@ -180,6 +213,12 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                     'OM',
                                   );
 
+                                  await PreferenceUtils.storeDataToShared(
+                                    "mainbaseurl",
+                                    UserController.userController.mainbaseUrl,
+                                  );
+
+                                  if (!context.mounted) return;
                                   context.gNavigationService.openLoginPage(
                                     context,
                                   );

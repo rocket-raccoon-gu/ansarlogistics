@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io'; // internet connectivity
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_login/bloc/login_cubit.dart';
@@ -7,6 +8,7 @@ import 'package:ansarlogistics/components/custom_app_components/scrollable_botto
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -343,32 +345,38 @@ class _LoginPageState extends State<LoginPage> {
                                           color: FontColor.White,
                                         ),
                                         onpress: () async {
-                                          if (idFormKey.currentState != null) {
-                                            if (!idFormKey.currentState!
-                                                .validate())
-                                              return;
-                                          }
-                                          if ((UserController()
-                                                      .userName
-                                                      .isNotEmpty ||
-                                                  idcontroller
-                                                      .text
-                                                      .isNotEmpty) &&
-                                              !state.loading) {
-                                            FocusManager.instance.primaryFocus
-                                                ?.unfocus();
-                                            BlocProvider.of<LoginCubit>(
-                                              context,
-                                            ).sendLoginRequest(
-                                              context: context,
-                                              userId:
-                                                  idcontroller.text.isEmpty
-                                                      ? UserController()
-                                                          .userName
-                                                      : idcontroller.text,
-                                              password: passwordcontroller.text,
-                                            );
-                                          }
+                                          String? url =
+                                              await PreferenceUtils.getDataFromShared(
+                                                "mainbaseurl",
+                                              );
+                                          log("URL: $url");
+
+                                          // if (idFormKey.currentState != null) {
+                                          //   if (!idFormKey.currentState!
+                                          //       .validate())
+                                          //     return;
+                                          // }
+                                          // if ((UserController()
+                                          //             .userName
+                                          //             .isNotEmpty ||
+                                          //         idcontroller
+                                          //             .text
+                                          //             .isNotEmpty) &&
+                                          //     !state.loading) {
+                                          //   FocusManager.instance.primaryFocus
+                                          //       ?.unfocus();
+                                          //   BlocProvider.of<LoginCubit>(
+                                          //     context,
+                                          //   ).sendLoginRequest(
+                                          //     context: context,
+                                          //     userId:
+                                          //         idcontroller.text.isEmpty
+                                          //             ? UserController()
+                                          //                 .userName
+                                          //             : idcontroller.text,
+                                          //     password: passwordcontroller.text,
+                                          //   );
+                                          // }
                                         },
                                       ),
                                     ),
