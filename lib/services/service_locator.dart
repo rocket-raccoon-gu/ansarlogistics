@@ -13,7 +13,7 @@ abstract class CubitsLocator {
 
 class ServiceLocator implements CubitsLocator {
   final GetIt _registry;
-  final String _baseUrl;
+  String _baseUrl;
   final String _applicationPath;
   final bool _debuggable;
 
@@ -57,5 +57,30 @@ class ServiceLocator implements CubitsLocator {
   @override
   void resetCubits() {
     // TODO: implement resetCubits
+  }
+
+  void updateBaseUrl(String newBaseUrl) {
+    _baseUrl = newBaseUrl;
+
+    if (_registry.isRegistered<PDApiGateway>()) {
+      _registry.unregister<PDApiGateway>();
+    }
+
+    _registry.registerLazySingleton(
+      () => PDApiGateway(
+        _debuggable
+            ? PickerDriverApi.debuggable(
+              baseUrl: _baseUrl,
+              applicationPath: _applicationPath,
+              productUrl: 'https://www.ansargallery.com/en/rest/V1/',
+            )
+            : PickerDriverApi.create(
+              baseUrl: _baseUrl,
+              applicationPath: _applicationPath,
+              productUrl: 'https://www.ansargallery.com/en/rest/V1/',
+            ),
+        StreamController<String>.broadcast(),
+      ),
+    );
   }
 }

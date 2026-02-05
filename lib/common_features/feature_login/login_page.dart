@@ -36,6 +36,8 @@ class _LoginPageState extends State<LoginPage> {
   final focus1 = FocusNode();
   final focus2 = FocusNode();
 
+  String _currentRegion = '';
+
   final Stream<NetworkStatus> _stream =
       NetworkStatusService.networkStatusController.stream;
   var scrollcontroller = ScrollController();
@@ -66,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
 
     checkInternetConnection(context);
     _initPackageInfo();
+    _loadRegion();
   }
 
   @override
@@ -109,6 +112,14 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _loadRegion() async {
+    final region = await PreferenceUtils.getDataFromShared('region');
+    if (!mounted) return;
+    setState(() {
+      _currentRegion = region ?? '';
+    });
   }
 
   @override
@@ -326,9 +337,12 @@ class _LoginPageState extends State<LoginPage> {
                                         },
                                       ),
                                     ),
+
+                                    _buildRegionBlock(),
+
                                     Padding(
                                       padding: EdgeInsets.only(
-                                        top: mheight * .040,
+                                        top: mheight * .010,
                                         left: 16.0,
                                         right: 16.0,
                                       ),
@@ -351,33 +365,68 @@ class _LoginPageState extends State<LoginPage> {
                                               );
                                           log("URL: $url");
 
-                                          // if (idFormKey.currentState != null) {
-                                          //   if (!idFormKey.currentState!
-                                          //       .validate())
-                                          //     return;
-                                          // }
-                                          // if ((UserController()
-                                          //             .userName
-                                          //             .isNotEmpty ||
-                                          //         idcontroller
-                                          //             .text
-                                          //             .isNotEmpty) &&
-                                          //     !state.loading) {
-                                          //   FocusManager.instance.primaryFocus
-                                          //       ?.unfocus();
-                                          //   BlocProvider.of<LoginCubit>(
-                                          //     context,
-                                          //   ).sendLoginRequest(
-                                          //     context: context,
-                                          //     userId:
-                                          //         idcontroller.text.isEmpty
-                                          //             ? UserController()
-                                          //                 .userName
-                                          //             : idcontroller.text,
-                                          //     password: passwordcontroller.text,
-                                          //   );
-                                          // }
+                                          if (idFormKey.currentState != null) {
+                                            if (!idFormKey.currentState!
+                                                .validate())
+                                              return;
+                                          }
+                                          if ((UserController()
+                                                      .userName
+                                                      .isNotEmpty ||
+                                                  idcontroller
+                                                      .text
+                                                      .isNotEmpty) &&
+                                              !state.loading) {
+                                            FocusManager.instance.primaryFocus
+                                                ?.unfocus();
+                                            BlocProvider.of<LoginCubit>(
+                                              context,
+                                            ).sendLoginRequest(
+                                              context: context,
+                                              userId:
+                                                  idcontroller.text.isEmpty
+                                                      ? UserController()
+                                                          .userName
+                                                      : idcontroller.text,
+                                              password: passwordcontroller.text,
+                                            );
+                                          }
                                         },
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 16),
+                                    Center(
+                                      child: InkWell(
+                                        onTap: () {
+                                          context.gNavigationService.openSignupPage(
+                                            context,
+                                            arg:
+                                                {}, // adjust if you need arguments
+                                          );
+                                        },
+                                        child: RichText(
+                                          text: TextSpan(
+                                            text: 'New to Ansar Logistics? ',
+                                            style: customTextStyle(
+                                              fontStyle:
+                                                  FontStyle.BodyM_Regular,
+                                              color: FontColor.FontSecondary,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: 'Register Now',
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color:
+                                                      FontColor
+                                                          .Danger, // or a pink brand color
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -392,21 +441,21 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               );
             }
-            if (state is LoginLoading) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset("assets/ansar-logistics.png", height: 50.0),
-                    const SizedBox(height: 12.0),
-                    const SizedBox(
-                      width: 100,
-                      child: ProgressIndicator(duration: Duration(seconds: 3)),
-                    ),
-                  ],
-                ),
-              );
-            }
+            // if (state is LoginLoading) {
+            //   return Center(
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         Image.asset("assets/ansar-logistics.png", height: 50.0),
+            //         const SizedBox(height: 12.0),
+            //         const SizedBox(
+            //           width: 100,
+            //           child: ProgressIndicator(duration: Duration(seconds: 3)),
+            //         ),
+            //       ],
+            //     ),
+            //   );
+            // }
             return Container();
           },
           listener: (context, state) {
@@ -447,44 +496,73 @@ class _LoginPageState extends State<LoginPage> {
       // print("Failed to load package info: $e");
     }
   }
-}
 
-class ProgressIndicator extends StatefulWidget {
-  final Duration duration;
-  const ProgressIndicator({
-    Key? key,
-    this.duration = const Duration(seconds: 5),
-  }) : super(key: key);
+  Widget _buildRegionBlock() {
+    final regionLabel =
+        _currentRegion.isEmpty ? 'Not selected' : _currentRegion;
 
-  @override
-  State<ProgressIndicator> createState() => _ProgressIndicatorState();
-}
-
-class _ProgressIndicatorState extends State<ProgressIndicator>
-    with TickerProviderStateMixin {
-  late AnimationController controller;
-
-  @override
-  void initState() {
-    controller = AnimationController(vsync: this, duration: widget.duration)
-      ..addListener(() {
-        setState(() {});
-      });
-    controller.repeat(period: widget.duration);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LinearProgressIndicator(
-      value: controller.value,
-      color: customColors().primary,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.pink.shade50,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.language, // or your own region icon
+                color: Colors.pink.shade400,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CURRENT REGION',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyS_Bold,
+                    color: FontColor.FontSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  regionLabel,
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            InkWell(
+              onTap: () {
+                // open your existing region page
+                context.gNavigationService.openSelectRegionsPage(context);
+                // after region change, that page navigates back to login,
+                // and _loadRegion() will read new value on new instance.
+              },
+              child: Text(
+                'Change',
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyS_Bold,
+                  color: FontColor.DodgerBlue, // or pink from design
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

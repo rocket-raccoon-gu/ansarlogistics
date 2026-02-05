@@ -100,9 +100,14 @@ Future<void> main() async {
         DeviceOrientation.landscapeRight,
       ]);
 
+      // const initialRoute = String.fromEnvironment(
+      //   'INITIAL_ROUTE',
+      //   defaultValue: '/login',
+      // );
+
       const initialRoute = String.fromEnvironment(
         'INITIAL_ROUTE',
-        defaultValue: '/login',
+        defaultValue: '/splash', // or '/splash'
       );
 
       if (!kIsWeb) {

@@ -11,6 +11,7 @@ import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,6 +35,8 @@ class _ProfilePageState extends State<ProfilePage> {
     buildSignature: 'Unknown',
   );
 
+  String? _regionCode;
+
   @override
   void initState() {
     super.initState();
@@ -46,10 +49,12 @@ class _ProfilePageState extends State<ProfilePage> {
     final info = await PackageInfo.fromPlatform();
 
     langval = await PreferenceUtils.getDataFromShared('language');
+    final savedRegion = await PreferenceUtils.getDataFromShared('region');
 
     if (mounted) {
       setState(() {
         _packageInfo = info;
+        _regionCode = savedRegion; // e.g. 'QA', 'BH', 'UAE', 'OM'
       });
     }
   }
@@ -434,7 +439,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             fontStyle: FontStyle.BodyL_SemiBold,
                           ),
                         ),
-                        Image.asset('assets/qatar.png', height: 60.0),
+                        Image.asset(regionFlagAsset(_regionCode), height: 60.0),
                       ],
                     ),
                   ),

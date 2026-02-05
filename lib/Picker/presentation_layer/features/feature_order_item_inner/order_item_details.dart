@@ -10,6 +10,7 @@ import 'package:ansarlogistics/components/custom_app_components/buttons/counter_
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -436,18 +437,238 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                           child: Column(
                             children: [
                               // Main image
-                              Padding(
-                                padding: const EdgeInsets.only(top: 6.0),
-                                child: FutureBuilder<Map<String, dynamic>>(
-                                  future: getData(),
+                              // Padding(
+                              //   padding: const EdgeInsets.only(top: 6.0),
+
+                              //   child: FutureBuilder<Map<String, dynamic>>(
+                              //     future: getData(),
+                              //     builder: (context, snapshot) {
+                              //       final String base =
+                              //           snapshot.data != null
+                              //               ? (snapshot.data!['mediapath'] ??
+                              //                       '')
+                              //                   .toString()
+                              //               : '';
+                              //       // Build images list from imageUrl or productImage (comma separated)
+                              //       final List<String> images =
+                              //           (() {
+                              //             final List<String> acc = [];
+                              //             if ((item.imageUrl ?? '')
+                              //                 .isNotEmpty) {
+                              //               acc.add(item.imageUrl!);
+                              //             }
+                              //             if ((item.productImage ?? '')
+                              //                 .isNotEmpty) {
+                              //               acc.addAll(
+                              //                 item.productImage!
+                              //                     .split(',')
+                              //                     .map((e) => e.trim())
+                              //                     .where((e) => e.isNotEmpty),
+                              //               );
+                              //             }
+                              //             return acc.isEmpty
+                              //                 ? [noimageurl]
+                              //                 : acc;
+                              //           })();
+                              //       String resolve(String p) {
+                              //         if (p.startsWith('http')) return p;
+                              //         return '$base$p';
+                              //       }
+
+                              //       final String mainUrl = resolve(
+                              //         images[selectedindex.clamp(
+                              //           0,
+                              //           images.length - 1,
+                              //         )],
+                              //       );
+
+                              //       final bool hasValidMainUrl =
+                              //           mainUrl.isNotEmpty &&
+                              //           mainUrl.startsWith('http');
+
+                              //       return SizedBox(
+                              //         height: 275.0,
+                              //         width: 275.0,
+                              //         child: Center(
+                              //           child:
+                              //               hasValidMainUrl
+                              //                   ? CachedNetworkImage(
+                              //                     imageUrl: mainUrl,
+                              //                     imageBuilder: (
+                              //                       context,
+                              //                       imageProvider,
+                              //                     ) {
+                              //                       return Container(
+                              //                         decoration: BoxDecoration(
+                              //                           image: DecorationImage(
+                              //                             image: imageProvider,
+                              //                             fit: BoxFit.cover,
+                              //                           ),
+                              //                         ),
+                              //                       );
+                              //                     },
+                              //                     placeholder:
+                              //                         (context, url) => Center(
+                              //                           child: Image.asset(
+                              //                             'assets/Iphone_spinner.gif',
+                              //                           ),
+                              //                         ),
+                              //                     errorWidget: (
+                              //                       context,
+                              //                       url,
+                              //                       error,
+                              //                     ) {
+                              //                       return Image.network(
+                              //                         noimageurl,
+                              //                       );
+                              //                     },
+                              //                   )
+                              //                   : Image.network(noimageurl),
+                              //         ),
+                              //       );
+                              //     },
+                              //   ),
+
+                              // ),
+                              FutureBuilder<List<dynamic>>(
+                                future: Future.wait([
+                                  getData(), // Firestore document
+                                  PreferenceUtils.getDataFromShared(
+                                    'region',
+                                  ), // e.g. 'UAE', 'QA', ...
+                                ]),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return SizedBox(
+                                      height: 275.0,
+                                      width: 275.0,
+                                      child: Center(
+                                        child: Image.asset(
+                                          'assets/Iphone_spinner.gif',
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  final data =
+                                      snapshot.data![0] as Map<String, dynamic>;
+                                  final region = snapshot.data![1] as String?;
+
+                                  // choose mediapath key based on region
+                                  final baseKey =
+                                      region == 'UAE'
+                                          ? 'imagepathuae'
+                                          : 'mediapath';
+                                  final String base =
+                                      (data[baseKey] ?? '').toString();
+
+                                  log(base.toString());
+
+                                  final List<String> images =
+                                      (() {
+                                        final List<String> acc = [];
+                                        if ((item.imageUrl ?? '').isNotEmpty) {
+                                          acc.add(item.imageUrl!);
+                                        }
+                                        if ((item.productImage ?? '')
+                                            .isNotEmpty) {
+                                          acc.addAll(
+                                            item.productImage!
+                                                .split(',')
+                                                .map((e) => e.trim())
+                                                .where((e) => e.isNotEmpty),
+                                          );
+                                        }
+                                        return acc.isEmpty ? [noimageurl] : acc;
+                                      })();
+
+                                  String resolve(String p) {
+                                    if (p.startsWith('http')) return p;
+                                    return '$base$p';
+                                  }
+
+                                  final String mainUrl = resolve(
+                                    images[selectedindex.clamp(
+                                      0,
+                                      images.length - 1,
+                                    )],
+                                  );
+
+                                  final bool hasValidMainUrl =
+                                      mainUrl.isNotEmpty &&
+                                      mainUrl.startsWith('http');
+
+                                  return SizedBox(
+                                    height: 275.0,
+                                    width: 275.0,
+                                    child: Center(
+                                      child:
+                                          hasValidMainUrl
+                                              ? CachedNetworkImage(
+                                                imageUrl: mainUrl,
+                                                imageBuilder: (
+                                                  context,
+                                                  imageProvider,
+                                                ) {
+                                                  return Container(
+                                                    decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                        image: imageProvider,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                placeholder:
+                                                    (context, url) => Center(
+                                                      child: Image.asset(
+                                                        'assets/Iphone_spinner.gif',
+                                                      ),
+                                                    ),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        Image.network(
+                                                          noimageurl,
+                                                        ),
+                                              )
+                                              : Image.network(noimageurl),
+                                    ),
+                                  );
+                                },
+                              ),
+
+                              Divider(color: customColors().fontTertiary),
+
+                              SizedBox(
+                                height: 60,
+                                child: FutureBuilder<List<dynamic>>(
+                                  future: Future.wait([
+                                    getData(),
+                                    PreferenceUtils.getDataFromShared('region'),
+                                  ]),
                                   builder: (context, snapshot) {
+                                    if (!snapshot.hasData) {
+                                      return const SizedBox(
+                                        height: 60,
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      );
+                                    }
+
+                                    final data =
+                                        snapshot.data![0]
+                                            as Map<String, dynamic>;
+                                    final region = snapshot.data![1] as String?;
+
+                                    // choose base key based on region (same as main image)
+                                    final baseKey =
+                                        region == 'UAE'
+                                            ? 'imagepathuae'
+                                            : 'mediapath';
                                     final String base =
-                                        snapshot.data != null
-                                            ? (snapshot.data!['mediapath'] ??
-                                                    '')
-                                                .toString()
-                                            : '';
-                                    // Build images list from imageUrl or productImage (comma separated)
+                                        (data[baseKey] ?? '').toString();
+
                                     final List<String> images =
                                         (() {
                                           final List<String> acc = [];
@@ -468,162 +689,19 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                               ? [noimageurl]
                                               : acc;
                                         })();
+
                                     String resolve(String p) {
                                       if (p.startsWith('http')) return p;
                                       return '$base$p';
                                     }
 
-                                    final String mainUrl = resolve(
-                                      images[selectedindex.clamp(
-                                        0,
-                                        images.length - 1,
-                                      )],
-                                    );
-
-                                    final bool hasValidMainUrl =
-                                        mainUrl.isNotEmpty &&
-                                        mainUrl.startsWith('http');
-
-                                    return SizedBox(
-                                      height: 275.0,
-                                      width: 275.0,
-                                      child: Center(
-                                        child:
-                                            hasValidMainUrl
-                                                ? CachedNetworkImage(
-                                                  imageUrl: mainUrl,
-                                                  imageBuilder: (
-                                                    context,
-                                                    imageProvider,
-                                                  ) {
-                                                    return Container(
-                                                      decoration: BoxDecoration(
-                                                        image: DecorationImage(
-                                                          image: imageProvider,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                  placeholder:
-                                                      (context, url) => Center(
-                                                        child: Image.asset(
-                                                          'assets/Iphone_spinner.gif',
-                                                        ),
-                                                      ),
-                                                  errorWidget: (
-                                                    context,
-                                                    url,
-                                                    error,
-                                                  ) {
-                                                    return Image.network(
-                                                      noimageurl,
-                                                    );
-                                                  },
-                                                )
-                                                : Image.network(noimageurl),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              Divider(color: customColors().fontTertiary),
-                              // Thumbnails
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                ),
-                                child: SizedBox(
-                                  height: 60,
-                                  child: FutureBuilder<Map<String, dynamic>>(
-                                    future: getData(),
-                                    builder: (context, snapshot) {
-                                      final String base =
-                                          snapshot.data != null
-                                              ? (snapshot.data!['mediapath'] ??
-                                                      '')
-                                                  .toString()
-                                              : '';
-                                      final List<String> images =
-                                          (() {
-                                            final List<String> acc = [];
-                                            if ((item.imageUrl ?? '')
-                                                .isNotEmpty) {
-                                              acc.add(item.imageUrl!);
-                                            }
-                                            if ((item.productImage ?? '')
-                                                .isNotEmpty) {
-                                              acc.addAll(
-                                                item.productImage!
-                                                    .split(',')
-                                                    .map((e) => e.trim())
-                                                    .where((e) => e.isNotEmpty),
-                                              );
-                                            }
-                                            return acc.isEmpty
-                                                ? [noimageurl]
-                                                : acc;
-                                          })();
-                                      String resolve(String p) {
-                                        if (p.startsWith('http')) return p;
-                                        return '$base$p';
-                                      }
-
-                                      return ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount: images.length + 1,
-                                        itemBuilder: (context, index) {
-                                          if (index == images.length) {
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8.0,
-                                                  ),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  context
-                                                      .read<
-                                                        OrderItemDetailsCubit
-                                                      >()
-                                                      .searchOnGoogle(
-                                                        "${item.name ?? item.sku ?? ''} images",
-                                                      );
-                                                },
-                                                child: Container(
-                                                  height: 60.0,
-                                                  width: 60.0,
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color:
-                                                          customColors()
-                                                              .backgroundTertiary,
-                                                    ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      "More",
-                                                      style: customTextStyle(
-                                                        fontStyle:
-                                                            FontStyle
-                                                                .BodyL_Bold,
-                                                        color:
-                                                            FontColor
-                                                                .FontPrimary,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                          final thumbUrl = resolve(
-                                            images[index],
-                                          );
-
-                                          final bool hasValidMainUrl =
-                                              thumbUrl.isNotEmpty &&
-                                              thumbUrl.startsWith('http');
+                                    return ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: images.length + 1,
+                                      itemBuilder: (context, index) {
+                                        if (index == images.length) {
+                                          // your existing "More" tile unchanged
 
                                           return Padding(
                                             padding: const EdgeInsets.symmetric(
@@ -631,36 +709,81 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                             ),
                                             child: InkWell(
                                               onTap: () {
-                                                setState(() {
-                                                  selectedindex = index;
-                                                });
+                                                context
+                                                    .read<
+                                                      OrderItemDetailsCubit
+                                                    >()
+                                                    .searchOnGoogle(
+                                                      "${item.name ?? item.sku ?? ''} images",
+                                                    );
                                               },
                                               child: Container(
                                                 height: 60.0,
                                                 width: 60.0,
                                                 decoration: BoxDecoration(
-                                                  border: Border(
-                                                    bottom: BorderSide(
-                                                      width: 3.0,
-                                                      color:
-                                                          selectedindex == index
-                                                              ? customColors()
-                                                                  .backgroundTertiary
-                                                              : Colors
-                                                                  .transparent,
-                                                    ),
+                                                  border: Border.all(
+                                                    color:
+                                                        customColors()
+                                                            .backgroundTertiary,
                                                   ),
                                                 ),
                                                 child: Center(
-                                                  child:
-                                                      hasValidMainUrl
-                                                          ? CachedNetworkImage(
-                                                            imageUrl: thumbUrl,
-                                                            imageBuilder: (
-                                                              context,
-                                                              imageProvider,
-                                                            ) {
-                                                              return Container(
+                                                  child: Text(
+                                                    "More",
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle.BodyL_Bold,
+                                                      color:
+                                                          FontColor.FontPrimary,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+
+                                        final thumbUrl = resolve(images[index]);
+                                        final bool hasValidMainUrl =
+                                            thumbUrl.isNotEmpty &&
+                                            thumbUrl.startsWith('http');
+
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                          ),
+                                          child: InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                selectedindex = index;
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 60.0,
+                                              width: 60.0,
+                                              decoration: BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(
+                                                    width: 3.0,
+                                                    color:
+                                                        selectedindex == index
+                                                            ? customColors()
+                                                                .backgroundTertiary
+                                                            : Colors
+                                                                .transparent,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Center(
+                                                child:
+                                                    hasValidMainUrl
+                                                        ? CachedNetworkImage(
+                                                          imageUrl: thumbUrl,
+                                                          imageBuilder:
+                                                              (
+                                                                context,
+                                                                imageProvider,
+                                                              ) => Container(
                                                                 decoration: BoxDecoration(
                                                                   image: DecorationImage(
                                                                     image:
@@ -670,40 +793,215 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                                             .cover,
                                                                   ),
                                                                 ),
-                                                              );
-                                                            },
-                                                            placeholder:
-                                                                (
-                                                                  context,
-                                                                  url,
-                                                                ) => Center(
-                                                                  child: Image.asset(
-                                                                    'assets/Iphone_spinner.gif',
-                                                                  ),
+                                                              ),
+                                                          placeholder:
+                                                              (
+                                                                context,
+                                                                url,
+                                                              ) => Center(
+                                                                child: Image.asset(
+                                                                  'assets/Iphone_spinner.gif',
                                                                 ),
-                                                            errorWidget: (
-                                                              context,
-                                                              url,
-                                                              error,
-                                                            ) {
-                                                              return Image.network(
-                                                                noimageurl,
-                                                              );
-                                                            },
-                                                          )
-                                                          : Image.network(
-                                                            noimageurl,
-                                                          ),
-                                                ),
+                                                              ),
+                                                          errorWidget:
+                                                              (
+                                                                context,
+                                                                url,
+                                                                error,
+                                                              ) =>
+                                                                  Image.network(
+                                                                    noimageurl,
+                                                                  ),
+                                                        )
+                                                        : Image.network(
+                                                          noimageurl,
+                                                        ),
                                               ),
                                             ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
                                 ),
                               ),
+
+                              // Thumbnails
+                              // Padding(
+                              //   padding: const EdgeInsets.symmetric(
+                              //     horizontal: 8.0,
+                              //   ),
+                              //   child: SizedBox(
+                              //     height: 60,
+                              //     child: FutureBuilder<Map<String, dynamic>>(
+                              //       future: getData(),
+                              //       builder: (context, snapshot) {
+                              //         final String base =
+                              //             snapshot.data != null
+                              //                 ? (snapshot.data!['mediapath'] ??
+                              //                         '')
+                              //                     .toString()
+                              //                 : '';
+                              //         final List<String> images =
+                              //             (() {
+                              //               final List<String> acc = [];
+                              //               if ((item.imageUrl ?? '')
+                              //                   .isNotEmpty) {
+                              //                 acc.add(item.imageUrl!);
+                              //               }
+                              //               if ((item.productImage ?? '')
+                              //                   .isNotEmpty) {
+                              //                 acc.addAll(
+                              //                   item.productImage!
+                              //                       .split(',')
+                              //                       .map((e) => e.trim())
+                              //                       .where((e) => e.isNotEmpty),
+                              //                 );
+                              //               }
+                              //               return acc.isEmpty
+                              //                   ? [noimageurl]
+                              //                   : acc;
+                              //             })();
+                              //         String resolve(String p) {
+                              //           if (p.startsWith('http')) return p;
+                              //           return '$base$p';
+                              //         }
+
+                              //         return ListView.builder(
+                              //           shrinkWrap: true,
+                              //           scrollDirection: Axis.horizontal,
+                              //           itemCount: images.length + 1,
+                              //           itemBuilder: (context, index) {
+                              //             if (index == images.length) {
+                              //               return Padding(
+                              //                 padding:
+                              //                     const EdgeInsets.symmetric(
+                              //                       horizontal: 8.0,
+                              //                     ),
+                              //                 child: InkWell(
+                              //                   onTap: () {
+                              //                     context
+                              //                         .read<
+                              //                           OrderItemDetailsCubit
+                              //                         >()
+                              //                         .searchOnGoogle(
+                              //                           "${item.name ?? item.sku ?? ''} images",
+                              //                         );
+                              //                   },
+                              //                   child: Container(
+                              //                     height: 60.0,
+                              //                     width: 60.0,
+                              //                     decoration: BoxDecoration(
+                              //                       border: Border.all(
+                              //                         color:
+                              //                             customColors()
+                              //                                 .backgroundTertiary,
+                              //                       ),
+                              //                     ),
+                              //                     child: Center(
+                              //                       child: Text(
+                              //                         "More",
+                              //                         style: customTextStyle(
+                              //                           fontStyle:
+                              //                               FontStyle
+                              //                                   .BodyL_Bold,
+                              //                           color:
+                              //                               FontColor
+                              //                                   .FontPrimary,
+                              //                         ),
+                              //                       ),
+                              //                     ),
+                              //                   ),
+                              //                 ),
+                              //               );
+                              //             }
+                              //             final thumbUrl = resolve(
+                              //               images[index],
+                              //             );
+
+                              //             final bool hasValidMainUrl =
+                              //                 thumbUrl.isNotEmpty &&
+                              //                 thumbUrl.startsWith('http');
+
+                              //             return Padding(
+                              //               padding: const EdgeInsets.symmetric(
+                              //                 horizontal: 8.0,
+                              //               ),
+                              //               child: InkWell(
+                              //                 onTap: () {
+                              //                   setState(() {
+                              //                     selectedindex = index;
+                              //                   });
+                              //                 },
+                              //                 child: Container(
+                              //                   height: 60.0,
+                              //                   width: 60.0,
+                              //                   decoration: BoxDecoration(
+                              //                     border: Border(
+                              //                       bottom: BorderSide(
+                              //                         width: 3.0,
+                              //                         color:
+                              //                             selectedindex == index
+                              //                                 ? customColors()
+                              //                                     .backgroundTertiary
+                              //                                 : Colors
+                              //                                     .transparent,
+                              //                       ),
+                              //                     ),
+                              //                   ),
+                              //                   child: Center(
+                              //                     child:
+                              //                         hasValidMainUrl
+                              //                             ? CachedNetworkImage(
+                              //                               imageUrl: thumbUrl,
+                              //                               imageBuilder: (
+                              //                                 context,
+                              //                                 imageProvider,
+                              //                               ) {
+                              //                                 return Container(
+                              //                                   decoration: BoxDecoration(
+                              //                                     image: DecorationImage(
+                              //                                       image:
+                              //                                           imageProvider,
+                              //                                       fit:
+                              //                                           BoxFit
+                              //                                               .cover,
+                              //                                     ),
+                              //                                   ),
+                              //                                 );
+                              //                               },
+                              //                               placeholder:
+                              //                                   (
+                              //                                     context,
+                              //                                     url,
+                              //                                   ) => Center(
+                              //                                     child: Image.asset(
+                              //                                       'assets/Iphone_spinner.gif',
+                              //                                     ),
+                              //                                   ),
+                              //                               errorWidget: (
+                              //                                 context,
+                              //                                 url,
+                              //                                 error,
+                              //                               ) {
+                              //                                 return Image.network(
+                              //                                   noimageurl,
+                              //                                 );
+                              //                               },
+                              //                             )
+                              //                             : Image.network(
+                              //                               noimageurl,
+                              //                             ),
+                              //                   ),
+                              //                 ),
+                              //               ),
+                              //             );
+                              //           },
+                              //         );
+                              //       },
+                              //     ),
+                              //   ),
+                              // ),
 
                               // Details card (title/SKU/price/qty)
                               Padding(
@@ -852,24 +1150,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                             ),
                                           ],
                                         ),
-                                        // Row(
-                                        //   children: [
-                                        //     Text(
-                                        //       'Quantity  ',
-                                        //       style: customTextStyle(
-                                        //         fontStyle: FontStyle.BodyM_Bold,
-                                        //         color: FontColor.FontPrimary,
-                                        //       ),
-                                        //     ),
-                                        //     Text(
-                                        //       '${double.tryParse('${item.qtyOrdered ?? 0}')?.toInt() ?? 0}',
-                                        //       style: customTextStyle(
-                                        //         fontStyle: FontStyle.BodyM_Bold,
-                                        //         color: FontColor.FontPrimary,
-                                        //       ),
-                                        //     ),
-                                        //   ],
-                                        // ),
+
                                         item.isProduce == true
                                             ? SizedBox()
                                             : SizedBox(

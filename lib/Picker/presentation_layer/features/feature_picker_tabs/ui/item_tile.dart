@@ -70,26 +70,38 @@ class ItemTile extends StatelessWidget {
                     color: customColors().backgroundSecondary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: CachedNetworkImage(
-                    imageUrl: resolved,
-                    imageBuilder:
-                        (context, imageProvider) => Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
+                  child: FutureBuilder<String>(
+                    future: resolveImageUrlFromFirebase(imgPath),
+                    builder: (context, snapshot) {
+                      // final resolved = snapshot.data ?? '';
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        // loading or no URL → placeholder
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final resolved = snapshot.data!;
+                      return CachedNetworkImage(
+                        imageUrl: resolved,
+                        imageBuilder:
+                            (context, imageProvider) => Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                    placeholder:
-                        (context, url) =>
-                            const Center(child: CircularProgressIndicator()),
-                    errorWidget:
-                        (context, url, error) =>
-                            const Icon(Icons.error, color: Colors.red),
+                        placeholder:
+                            (context, url) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                        errorWidget:
+                            (context, url, error) =>
+                                const Icon(Icons.error, color: Colors.red),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),

@@ -37,7 +37,41 @@ String resolveImageUrl(String? path) {
   final p = path.trim();
   if (p.startsWith('http://') || p.startsWith('https://')) return p;
   // ensure single slash between base and path
-  final base = mainimageurl; // assumed defined in constants/methods.dart
+  final base = mainimageurl;
+  if (p.startsWith('/')) {
+    if (base.endsWith('/')) {
+      return base.substring(0, base.length - 1) + p;
+    }
+    return base + p;
+  } else {
+    if (base.endsWith('/')) {
+      return base + p;
+    }
+    return '$base/$p';
+  }
+}
+
+Future<String> resolveImageUrlFromFirebase(String? path) async {
+  if (path == null || path.isEmpty) return '';
+
+  // Fetch Firestore config
+  final data = await getData();
+
+  // Fetch region from shared prefs
+  final region = await PreferenceUtils.getDataFromShared('region');
+
+  // Choose base key by region
+  final baseKey = region == 'UAE' ? 'imagepathuae' : 'imagepath';
+  final base = (data[baseKey] as String?) ?? '';
+
+  if (base.isEmpty) return '';
+
+  final p = path.trim();
+
+  // If path already absolute, just return it
+  if (p.startsWith('http://') || p.startsWith('https://')) return p;
+
+  // Ensure single slash between base and path
   if (p.startsWith('/')) {
     if (base.endsWith('/')) {
       return base.substring(0, base.length - 1) + p;

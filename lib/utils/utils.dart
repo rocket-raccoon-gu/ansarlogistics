@@ -560,6 +560,20 @@ String getWeightFromBarcode(String orderprice, String scaleprice) {
   return weight.toStringAsFixed(3);
 }
 
+String regionFlagAsset(String? regionCode) {
+  switch (regionCode) {
+    case 'BH':
+      return 'assets/bahrain.png';
+    case 'UAE':
+      return 'assets/uae.png';
+    case 'OM':
+      return 'assets/oman.png';
+    case 'QA':
+    default:
+      return 'assets/qatar.png';
+  }
+}
+
 String getPriceFromBarcode(String code) {
   String last = code;
   String price = "00";

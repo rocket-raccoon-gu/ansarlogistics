@@ -27,10 +27,10 @@ class ContentTypes {
   static const String formurlencoded = "application/x-www-form-urlencoded";
 }
 
-var mainbaseUrl = String.fromEnvironment(
-  'BASE_URL',
-  defaultValue: "https://pickerdriver-api.testuatah.com/api/",
-);
+// var mainbaseUrl = String.fromEnvironment(
+//   'BASE_URL',
+//   defaultValue: "https://pickerdriver-api.testuatah.com/api/",
+// );
 var mainapplicationPath = String.fromEnvironment(
   'APPLICATION_PATH',
   defaultValue: "/v1/",

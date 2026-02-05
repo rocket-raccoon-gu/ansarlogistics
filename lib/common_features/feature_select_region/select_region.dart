@@ -1,12 +1,16 @@
 import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/components/restart_widget.dart';
+import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 class SelectRegionPage extends StatefulWidget {
-  const SelectRegionPage({super.key});
+  final ServiceLocator serviceLocator;
+  const SelectRegionPage({super.key, required this.serviceLocator});
 
   @override
   State<SelectRegionPage> createState() => _SelectRegionPageState();
@@ -56,7 +60,16 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                 //     ],
                 //   ),
                 // ),
-                SizedBox(height: 100.0),
+                Padding(
+                  padding: const EdgeInsets.only(top: 70),
+                  child: SizedBox(
+                    height: 150,
+                    width: 250,
+                    child: Image.asset("assets/ansar-logistics.png"),
+                  ),
+                ),
+
+                // SizedBox(height: 100.0),
                 Padding(
                   padding: const EdgeInsets.only(top: 15.0),
                   child: Row(
@@ -107,12 +120,12 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                               );
 
                               // await logout(context);
+                              if (!context.mounted) return;
+                              widget.serviceLocator.updateBaseUrl(
+                                UserController.userController.mainbaseUrl,
+                              );
 
-                              if (context.mounted) {
-                                context.gNavigationService.openLoginPage(
-                                  context,
-                                );
-                              }
+                              context.gNavigationService.openLoginPage(context);
                             },
                             child: Image.asset('assets/qatar.png', height: 80),
                           ),
@@ -139,14 +152,13 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                 );
 
                                 if (!context.mounted) return;
+                                widget.serviceLocator.updateBaseUrl(
+                                  UserController.userController.mainbaseUrl,
+                                );
+
                                 context.gNavigationService.openLoginPage(
                                   context,
                                 );
-
-                                // await logout(context);
-                                // Map<String, dynamic> data = {};
-                                // context.gNavigationService
-                                //     .openWorkspacePage(context, data);
                               },
                               child: Image.asset(
                                 'assets/bahrain.png',
@@ -182,10 +194,12 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                   'UAE',
                                 );
                                 if (!context.mounted) return;
+                                widget.serviceLocator.updateBaseUrl(
+                                  UserController.userController.mainbaseUrl,
+                                );
                                 context.gNavigationService.openLoginPage(
                                   context,
                                 );
-                                // await logout(context);
                               },
                               child: Image.asset('assets/uae.png', height: 80),
                             ),
@@ -219,10 +233,12 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                   );
 
                                   if (!context.mounted) return;
+                                  widget.serviceLocator.updateBaseUrl(
+                                    UserController.userController.mainbaseUrl,
+                                  );
                                   context.gNavigationService.openLoginPage(
                                     context,
                                   );
-                                  // await logout(context);
                                 },
                                 child: Image.asset(
                                   'assets/oman.png',

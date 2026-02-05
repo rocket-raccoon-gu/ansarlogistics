@@ -20,7 +20,7 @@ class SelectRegionRootBuilder {
         create:
             (context) =>
                 RepositoryProvider.value(value: _serviceLocator.tradingApi),
-        child: SelectRegionPage(),
+        child: SelectRegionPage(serviceLocator: _serviceLocator),
       ),
     );
   }

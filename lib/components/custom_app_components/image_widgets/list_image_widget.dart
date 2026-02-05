@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,14 +18,21 @@ class ListImageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // log('${mainimageurl}${imageurl}');
 
-    return FutureBuilder<Map<String, dynamic>>(
-      future: getData(),
+    return FutureBuilder<List<dynamic>>(
+      future: Future.wait([
+        getData(), // Firestore document
+        PreferenceUtils.getDataFromShared('region'), // e.g. 'UAE', 'QA', ...
+      ]),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          Map<String, dynamic> data = snapshot.data!;
-          // log('${data['imagepath']}${imageurl}');
+          final data = snapshot.data![0] as Map<String, dynamic>;
+          final region = snapshot.data![1] as String?;
+
+          // Choose which key to use based on region
+          final imageKey = region == 'UAE' ? 'imagepathuae' : 'imagepath';
+
           return CachedNetworkImage(
-            imageUrl: '${data['imagepath']}${imageurl}',
+            imageUrl: '${data[imageKey]}$imageurl',
             imageBuilder: (context, imageProvider) {
               return Container(
                 decoration: BoxDecoration(
@@ -39,12 +47,13 @@ class ListImageWidget extends StatelessWidget {
                 (context, url) =>
                     Center(child: Image.asset('assets/Iphone_spinner.gif')),
             errorWidget: (context, url, error) {
-              return Image.network('${noimageurl}');
+              return Image.network('$noimageurl');
             },
           );
         } else {
+          // keep your existing fallback
           return CachedNetworkImage(
-            imageUrl: '{$noimageurl}',
+            imageUrl: '$noimageurl',
             imageBuilder: (context, imageProvider) {
               return Container(
                 decoration: BoxDecoration(
@@ -59,7 +68,7 @@ class ListImageWidget extends StatelessWidget {
                 (context, url) =>
                     Center(child: Image.asset('assets/Iphone_spinner.gif')),
             errorWidget: (context, url, error) {
-              return Image.network('${mainimageurl}${imageurl}');
+              return Image.network('${mainimageurl}$imageurl');
             },
           );
         }
