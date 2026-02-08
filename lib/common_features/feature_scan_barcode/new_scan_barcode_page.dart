@@ -1811,27 +1811,27 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
         },
       ),
 
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: customColors().backgroundTertiary,
-      //   elevation: 10.0,
-      //   onPressed: () async {
-      //     int sdkVersion = await getAndroidSdkVersion();
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: customColors().backgroundTertiary,
+        elevation: 10.0,
+        onPressed: () async {
+          int sdkVersion = await getAndroidSdkVersion();
 
-      //     log('Android SDK version: $sdkVersion');
+          log('Android SDK version: $sdkVersion');
 
-      //     // scanBarcodeNormal(context);
+          // scanBarcodeNormal(context);
 
-      //     if (sdkVersion > 29) {
-      //       scanBarcodeNormal(context);
-      //     } else {
-      //       setState(() {
-      //         isScan = true;
-      //       });
-      //     }
-      //   },
-      //   child: Image.asset('assets/barcode_scan.png', height: 25.0),
-      // ),
+          if (sdkVersion > 29) {
+            scanBarcodeNormal(context);
+          } else {
+            setState(() {
+              isScan = true;
+            });
+          }
+        },
+        child: Image.asset('assets/barcode_scan.png', height: 25.0),
+      ),
       bottomNavigationBar: Container(
         height: screenSize.height * 0.12,
         padding: const EdgeInsets.symmetric(vertical: 10.0),

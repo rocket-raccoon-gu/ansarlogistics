@@ -5,6 +5,7 @@ import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/product_bd_data_response.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 
 class DbDataContainer extends StatefulWidget {
   ProductDBdata? productDBdata;
@@ -28,8 +29,13 @@ class _DbDataContainerState extends State<DbDataContainer> {
         SizedBox(
           height: 275.0,
           width: 275.0,
-          child: FutureBuilder<Map<String, dynamic>>(
-            future: getData(),
+          child: FutureBuilder<List<dynamic>>(
+            future: Future.wait([
+              getData(), // Firestore document
+              PreferenceUtils.getDataFromShared(
+                'region',
+              ), // 'UAE', 'QA', 'OM', 'BH', ...
+            ]),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -40,8 +46,14 @@ class _DbDataContainerState extends State<DbDataContainer> {
                 return Image.network(noimageurl, fit: BoxFit.fill);
               }
 
-              final Map<String, dynamic> data = snapshot.data!;
-              final String base = (data['imagepath'] ?? '').toString().trim();
+              final Map<String, dynamic> data =
+                  snapshot.data![0] as Map<String, dynamic>;
+              final String? region = snapshot.data![1] as String?;
+
+              // choose imagepath key based on region
+              final String baseKey =
+                  region == 'UAE' ? 'imagepathuae' : 'imagepath';
+              final String base = (data[baseKey] ?? '').toString().trim();
 
               final hasImages =
                   widget.productDBdata!.images != null &&
@@ -173,48 +185,62 @@ class _DbDataContainerState extends State<DbDataContainer> {
 
     if (hasSpecial && special != null && special > 0) {
       // Regular + special price
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Regular price, strikethrough
-          Text(
-            'QAR ${regular.toStringAsFixed(2)}',
-            style: customTextStyle(
-              fontStyle: FontStyle.BodyS_Regular,
-              color: FontColor.FontSecondary,
-            ).copyWith(decoration: TextDecoration.lineThrough),
-          ),
-          const SizedBox(height: 2),
-          // Special price highlighted
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: customColors().adBackground,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              'QAR ${special.toStringAsFixed(2)}',
-              style: customTextStyle(
-                fontStyle: FontStyle.BodyM_Bold,
-                color: FontColor.Danger, // or FontColor.Info if you prefer
+      return FutureBuilder(
+        future: getCurrency(),
+        builder: (context, snapshot) {
+          final currency = snapshot.data ?? 'QAR';
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Regular price, strikethrough
+              Text(
+                '$currency ${regular.toStringAsFixed(2)}',
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyS_Regular,
+                  color: FontColor.FontSecondary,
+                ).copyWith(decoration: TextDecoration.lineThrough),
               ),
-            ),
-          ),
-        ],
+              const SizedBox(height: 2),
+              // Special price highlighted
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: customColors().adBackground,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '$currency ${special.toStringAsFixed(2)}',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.Danger, // or FontColor.Info if you prefer
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       );
     } else {
       // Only regular price
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            'QAR ${regular.toStringAsFixed(2)}',
-            style: customTextStyle(
-              fontStyle: FontStyle.HeaderXS_Bold,
-              color: FontColor.FontPrimary,
-            ),
-          ),
-        ],
+      return FutureBuilder(
+        future: getCurrency(),
+        builder: (context, snapshot) {
+          final currency = snapshot.data ?? 'QAR';
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$currency ${regular.toStringAsFixed(2)}',
+                style: customTextStyle(
+                  fontStyle: FontStyle.HeaderXS_Bold,
+                  color: FontColor.FontPrimary,
+                ),
+              ),
+            ],
+          );
+        },
       );
     }
   }

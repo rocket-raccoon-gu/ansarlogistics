@@ -114,7 +114,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                       ),
                     ),
                     Text(
-                      "+974 ${widget.orderResponseItem!.customer!.phone}",
+                      "${widget.orderResponseItem!.customer!.phone}",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Bold,
                         color: FontColor.FontPrimary,
@@ -143,12 +143,19 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                       color: FontColor.FontSecondary,
                     ),
                   ),
-                  Text(
-                    "QAR ${double.parse(widget.orderResponseItem!.orderAmount.toString() == "" ? "0" : widget.orderResponseItem!.orderAmount!.toString()).toStringAsFixed(2)}",
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyL_Bold,
-                      color: FontColor.FontPrimary,
-                    ),
+                  FutureBuilder(
+                    future: getCurrency(),
+                    builder: (context, snapshot) {
+                      final currency = snapshot.data ?? 'QAR';
+
+                      return Text(
+                        "${currency} ${double.parse(widget.orderResponseItem!.orderAmount.toString() == "" ? "0" : widget.orderResponseItem!.orderAmount!.toString()).toStringAsFixed(2)}",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

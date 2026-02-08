@@ -17,6 +17,7 @@ import 'package:ansarlogistics/components/loading_indecator.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -334,7 +335,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                     repSku = p.sku;
                                     if ((p.images ?? '').isNotEmpty) {
                                       final imgPath = getFirstImage(p.images);
-                                      repImageUrl = resolveImageUrl(imgPath);
+                                      // repImageUrl = resolveImageUrl(imgPath);
+                                      repImageUrl = imgPath;
                                     }
                                     productBlock = const SizedBox.shrink();
                                   } else if (state.erPdata != null) {
@@ -372,11 +374,20 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                         const SizedBox(height: 12),
                                         // Compact replacement item card
                                         if (repName != null && repSku != null)
-                                          _replacementCompactCard(
-                                            name: repName!,
-                                            sku: repSku!,
-                                            price: replacementPrice,
-                                            imageUrl: repImageUrl,
+                                          FutureBuilder<String>(
+                                            future: resolveImageUrlFromFirebase(
+                                              repImageUrl,
+                                            ),
+                                            builder: (context, snapshot) {
+                                              final imgurl = snapshot.data;
+
+                                              return _replacementCompactCard(
+                                                name: repName!,
+                                                sku: repSku!,
+                                                price: replacementPrice!,
+                                                imageUrl: imgurl,
+                                              );
+                                            },
                                           ),
                                         const SizedBox(height: 12),
                                         _quantitySelector(),
@@ -615,7 +626,50 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
               color: customColors().backgroundSecondary,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Image.network(resolved, fit: BoxFit.cover),
+            child: FutureBuilder(
+              future: Future.wait([
+                getData(), // Firestore document
+                PreferenceUtils.getDataFromShared(
+                  'region',
+                ), // e.g. 'UAE', 'QA', ...
+              ]),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final data = snapshot.data![0] as Map<String, dynamic>;
+                  final region = snapshot.data![1] as String?;
+
+                  // Choose which key to use based on region
+                  final imageKey =
+                      region == 'UAE' ? 'imagepathuae' : 'imagepath';
+
+                  return Image.network(
+                    '${data[imageKey]}$imgPath',
+                    fit: BoxFit.cover,
+                  );
+                } else {
+                  return CachedNetworkImage(
+                    imageUrl: '$noimageurl',
+                    imageBuilder: (context, imageProvider) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                    placeholder:
+                        (context, url) => Center(
+                          child: Image.asset('assets/Iphone_spinner.gif'),
+                        ),
+                    errorWidget: (context, url, error) {
+                      return Image.network('$noimageurl');
+                    },
+                  );
+                }
+              },
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -651,12 +705,19 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: HexColor('#2D7EFF')),
                     ),
-                    child: Text(
-                      'QAR ${num.tryParse(priceStr)?.toStringAsFixed(2) ?? priceStr}',
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyS_Bold,
-                        color: FontColor.Info,
-                      ),
+                    child: FutureBuilder<String>(
+                      future: getCurrency(),
+                      builder: (context, snapshot) {
+                        final currency = snapshot.data ?? "QAR";
+
+                        return Text(
+                          '${currency} ${num.tryParse(priceStr)?.toStringAsFixed(2) ?? priceStr}',
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyS_Bold,
+                            color: FontColor.Info,
+                          ),
+                        );
+                      },
                     ),
                   ),
               ],
@@ -843,20 +904,26 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
           ),
         ),
         const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color),
-          ),
-          child: Text(
-            'QAR ${price.toStringAsFixed(2)}',
-            style: customTextStyle(
-              fontStyle: FontStyle.BodyS_Bold,
-              color: FontColor.Info,
-            ),
-          ),
+        FutureBuilder(
+          future: getCurrency(),
+          builder: (context, snapshot) {
+            final currency = snapshot.data ?? 'QAR';
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: color),
+              ),
+              child: Text(
+                '$currency ${price.toStringAsFixed(2)}',
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyS_Bold,
+                  color: FontColor.Info,
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -918,19 +985,28 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
             ),
           ),
           const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: HexColor('#FFE0F0'),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              'QAR ${price.toStringAsFixed(2)}',
-              style: customTextStyle(
-                fontStyle: FontStyle.BodyM_Bold,
-                color: FontColor.Info,
-              ),
-            ),
+          FutureBuilder(
+            future: getCurrency(),
+            builder: (context, snapshot) {
+              final currency = snapshot.data ?? 'QAR';
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: HexColor('#FFE0F0'),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$currency ${price.toStringAsFixed(2)}',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.Info,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

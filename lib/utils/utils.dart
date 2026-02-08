@@ -1394,17 +1394,22 @@ class BarcodeUtils {
   }
 }
 
-String getcurrencyfromurl(String url) {
-  switch (url) {
-    case 'https://uae.ahmarket.com/':
+String getcurrencyfromurl(String region) {
+  switch (region) {
+    case 'UAE':
       return 'AED';
-    case 'https://oman.ahmarket.com/':
+    case 'OM':
       return 'OMR';
-    case 'https://bahrain.ahmarket.com/':
+    case 'BH':
       return 'BHD';
     default:
       return 'QAR';
   }
+}
+
+Future<String> getCurrency() async {
+  final region = await PreferenceUtils.getDataFromShared("region");
+  return getcurrencyfromurl(region ?? 'QA');
 }
 
 class ActionChips extends StatelessWidget {

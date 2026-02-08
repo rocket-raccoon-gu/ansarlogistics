@@ -365,6 +365,8 @@ extension PDGeneralApi on PickerDriverApi {
 
     final url = _endpointWithApplicationPath('picker/orders/item/status');
 
+    log(url.toString());
+
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationJson,
       'Authorization': 'Bearer $token',
@@ -1170,9 +1172,11 @@ extension PDGeneralApi on PickerDriverApi {
       "action": action,
     };
 
-    final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
-    );
+    // final url = Uri.parse(
+    //   'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
+    // );
+
+    final url = _endpointWithApplicationPath('picker/orders/check-sku');
 
     log("-------------------------------------");
 

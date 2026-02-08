@@ -1135,18 +1135,30 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                 color: FontColor.FontPrimary,
                                               ),
                                             ),
-                                            Text(
-                                              (() {
-                                                final p = item.price;
-                                                if (p == null || p.isEmpty)
-                                                  return 'QAR —';
-                                                final n = num.tryParse(p);
-                                                return 'QAR ${n != null ? n.toStringAsFixed(2) : p}';
-                                              })(),
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyM_Bold,
-                                                color: FontColor.FontPrimary,
-                                              ),
+                                            FutureBuilder<String>(
+                                              future: getCurrency(),
+                                              builder: (context, snapshot) {
+                                                final currency =
+                                                    snapshot.data ?? 'QAR';
+
+                                                return Text(
+                                                  (() {
+                                                    final p = item.price;
+                                                    if (p == null ||
+                                                        p.isEmpty) {
+                                                      return '$currency —';
+                                                    }
+                                                    final n = num.tryParse(p);
+                                                    return '$currency ${n != null ? n.toStringAsFixed(2) : p}';
+                                                  })(),
+                                                  style: customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle.BodyM_Bold,
+                                                    color:
+                                                        FontColor.FontPrimary,
+                                                  ),
+                                                );
+                                              },
                                             ),
                                           ],
                                         ),

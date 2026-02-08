@@ -6,6 +6,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/bloc/picker_orders_cubit.dart';
 import 'package:ansarlogistics/Section_In/features/components/section_list_item.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -766,16 +767,48 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                       border: Border.all(color: Colors.grey.shade200),
                     ),
                     child:
-                        imageUrl == null || imageUrl.isEmpty
+                        imageUrl == null || imageUrl!.isEmpty
                             ? const Icon(Icons.image, color: Colors.grey)
-                            : Image.network(
-                              '$mainimageurl$imageUrl',
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (_, __, ___) => const Icon(
-                                    Icons.image,
-                                    color: Colors.grey,
-                                  ),
+                            : FutureBuilder(
+                              future: Future.wait([
+                                getData(), // Firestore document
+                                PreferenceUtils.getDataFromShared(
+                                  'region',
+                                ), // e.g. 'UAE', 'QA', ...
+                              ]),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final data =
+                                      snapshot.data![0] as Map<String, dynamic>;
+                                  final region = snapshot.data![1] as String?;
+
+                                  // Choose which key to use based on region
+                                  final imageKey =
+                                      region == 'UAE'
+                                          ? 'imagepathuae'
+                                          : 'imagepath';
+
+                                  return Image.network(
+                                    '${data[imageKey]}$imageUrl',
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (_, __, ___) => const Icon(
+                                          Icons.image,
+                                          color: Colors.grey,
+                                        ),
+                                  );
+                                } else {
+                                  return Image.network(
+                                    '$noimageurl',
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (_, __, ___) => const Icon(
+                                          Icons.image,
+                                          color: Colors.grey,
+                                        ),
+                                  );
+                                }
+                              },
                             ),
                   ),
                   const SizedBox(width: 12),
@@ -802,51 +835,61 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                         ),
                         const SizedBox(height: 8),
                         // Price line
-                        Row(
-                          children: [
-                            const Text(
-                              'Price: QAR ',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                            ),
-                            if (newPrice != null && newPrice.isNotEmpty)
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 6),
-                                    child: Text(
-                                      formatPrice(regularPrice),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black54,
-                                        decoration: TextDecoration.lineThrough,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                        FutureBuilder(
+                          future: getCurrency(),
+                          builder: (context, snapshot) {
+                            final currency = snapshot.data ?? 'QAR';
+
+                            return Row(
+                              children: [
+                                Text(
+                                  'Price: $currency ',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
                                   ),
+                                ),
+                                if (newPrice != null && newPrice.isNotEmpty)
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 6,
+                                        ),
+                                        child: Text(
+                                          formatPrice(regularPrice),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.black54,
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        formatPrice(newPrice),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFFD32F2F),
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                else
                                   Text(
-                                    formatPrice(newPrice),
+                                    formatPrice(regularPrice),
                                     style: const TextStyle(
                                       fontSize: 14,
                                       color: Color(0xFFD32F2F),
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                ],
-                              )
-                            else
-                              Text(
-                                formatPrice(regularPrice),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFFD32F2F),
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                          ],
+                              ],
+                            );
+                          },
                         ),
                         const SizedBox(height: 8),
                         if (isproduce)

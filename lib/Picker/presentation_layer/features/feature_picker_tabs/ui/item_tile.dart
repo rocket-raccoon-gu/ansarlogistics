@@ -177,17 +177,24 @@ class ItemTile extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 6),
                                     ],
-                                    Text(
-                                      priceNum != null
-                                          ? 'QAR ${priceNum.toStringAsFixed(2)}'
-                                          : (item.finalPrice == null ||
-                                                  item.finalPrice!.isEmpty
-                                              ? item.price.toString()
-                                              : 'QAR ${item.finalPrice}'),
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyS_Bold,
-                                        color: FontColor.Info,
-                                      ).copyWith(color: textColor),
+                                    FutureBuilder<String>(
+                                      future: getCurrency(),
+                                      builder: (context, snapshot) {
+                                        final currency = snapshot.data ?? 'QAR';
+
+                                        return Text(
+                                          priceNum != null
+                                              ? '$currency ${priceNum.toStringAsFixed(2)}'
+                                              : (item.finalPrice == null ||
+                                                      item.finalPrice!.isEmpty
+                                                  ? item.price.toString()
+                                                  : '$currency ${item.finalPrice}'),
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyS_Bold,
+                                            color: FontColor.Info,
+                                          ).copyWith(color: textColor),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

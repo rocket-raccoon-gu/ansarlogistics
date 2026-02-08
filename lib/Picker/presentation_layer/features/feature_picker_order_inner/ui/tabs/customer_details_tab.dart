@@ -3,6 +3,7 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
@@ -121,12 +122,19 @@ class _CustomerDetailsTabState extends State<CustomerDetailsTab> {
                         color: FontColor.FontSecondary,
                       ),
                     ),
-                    Text(
-                      "QAR ${double.parse(widget.orderResponseItem!.grandTotal == "" ? "0" : widget.orderResponseItem!.grandTotal).toStringAsFixed(2)}",
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyL_Bold,
-                        color: FontColor.FontPrimary,
-                      ),
+                    FutureBuilder<String>(
+                      future: getCurrency(),
+                      builder: (context, snapshot) {
+                        final currency = snapshot.data ?? 'QAR';
+
+                        return Text(
+                          "$currency ${double.parse(widget.orderResponseItem!.grandTotal == "" ? "0" : widget.orderResponseItem!.grandTotal).toStringAsFixed(2)}",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
