@@ -8,12 +8,16 @@ class PostRepositories {
 
   PostRepositories(this.postService);
 
-  // Future<List<OrderNew>> fetchposts(int page, int pagecount, String status) async {
-  //   final String statusToPass = status == 'all' ? '' : status;
-  //   final post = await postService.fetchpost(page, pagecount, statusToPass);
-  //   UserController.userController.orderitems.addAll(post);
-  //   return post;
-  // }
+  Future<List<OrderNew>> fetchposts(
+    int page,
+    int pagecount,
+    String status,
+  ) async {
+    final String statusToPass = status == 'all' ? '' : status;
+    final post = await postService.fetchpost(page, pagecount, statusToPass);
+    UserController.userController.orderitems.addAll(post);
+    return post;
+  }
 
   // New: non-paginated orders + categories
   Future<OrdersNewResponse?> fetchOrdersNew() async {

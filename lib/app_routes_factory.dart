@@ -3,6 +3,7 @@
 // import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
 // import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
 // import 'package:ansarlogistics/Driver/features/feature_order_routes/order_routes_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/item_batch_pickup_root_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_add/item_add_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/order_item_inner_route_builder.dart';
@@ -248,6 +249,14 @@ class AppRoutesFactory extends RoutesFactory {
       builder: PhotographyDashboardPageRouteBuilder(
         serviceLocator: _serviceLocator,
       ),
+    );
+  }
+
+  @override
+  Route<dynamic> createDriverDashboardPageRoute() {
+    // TODO: implement createDriverDashboardPageRoute
+    return CustomRoute(
+      builder: DriverDashboardPageRouteBuilder(_serviceLocator),
     );
   }
 }

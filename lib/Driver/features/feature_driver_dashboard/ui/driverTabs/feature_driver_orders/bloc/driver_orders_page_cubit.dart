@@ -70,20 +70,21 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
 
       log(status);
 
-      // if (!searchvisible) {
-      // postRepositories.fetchposts(page, 6, status).then((newpost) {
-      //   page++;
-      //   List<Order> posts = (state as DriverPageLoadingState).oldpost;
+      if (!searchvisible) {
+        postRepositories.fetchposts(page, 6, status).then((newpost) {
+          page++;
+          List<Order> posts = (state as DriverPageLoadingState).oldpost;
 
-      //   posts.addAll(newpost);
-      //   // }
+          posts.addAll(newpost);
+          // }
 
-      //   var postlist = posts.toSet().toList();
+          var postlist = posts.toSet().toList();
 
-      //   emit(DriverPageLoadedState(postlist.toSet().toList()));
-      // });
+          emit(DriverPageLoadedState(postlist.toSet().toList()));
+        });
+      }
     } catch (e) {
-      // print(e);
+      print(e);
 
       // emit(DriverPageLoadedState(UserController.userController.orderitems));
     }
