@@ -2,10 +2,10 @@ import 'package:ansarlogistics/components/custom_app_components/image_widgets/li
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 class DriverOrderInnerListItem extends StatelessWidget {
-  EndPicking orderItem;
+  ItemItem orderItem;
   DriverOrderInnerListItem({super.key, required this.orderItem});
 
   @override
@@ -32,15 +32,15 @@ class DriverOrderInnerListItem extends StatelessWidget {
                   top: 4.0,
                   bottom: 4.0,
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child:
-                      orderItem.productImages.isNotEmpty
-                          ? ListImageWidget(
-                            imageurl: orderItem.productImages[0],
-                          )
-                          : Image.asset('assets/placeholder.png'),
-                ),
+                // child: ClipRRect(
+                //   borderRadius: BorderRadius.circular(10.0),
+                //   child:
+                //       orderItem.productImages.isNotEmpty
+                //           ? ListImageWidget(
+                //             imageurl: orderItem.productImages[0],
+                //           )
+                //           : Image.asset('assets/placeholder.png'),
+                // ),
               ),
             ],
           ),
@@ -52,7 +52,7 @@ class DriverOrderInnerListItem extends StatelessWidget {
                   children: [
                     Expanded(
                       child: TranslatedText(
-                        text: orderItem.productName,
+                        text: orderItem.name,
                         style: customTextStyle(
                           fontStyle: FontStyle.Inter_Medium,
                           color: FontColor.FontPrimary,
@@ -76,7 +76,7 @@ class DriverOrderInnerListItem extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        orderItem.productSku,
+                        orderItem.sku,
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyM_Bold,
                           color: FontColor.FontPrimary,
@@ -100,7 +100,9 @@ class DriverOrderInnerListItem extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            double.parse(orderItem.price).toStringAsFixed(2),
+                            double.parse(
+                              orderItem.price.toString(),
+                            ).toStringAsFixed(2),
                             style: customTextStyle(
                               fontStyle: FontStyle.Inter_SemiBold,
                               color: FontColor.FontPrimary,
@@ -135,8 +137,7 @@ class DriverOrderInnerListItem extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            (double.parse(orderItem.qtyOrdered).toInt() -
-                                    double.parse(orderItem.qtyCanceled).toInt())
+                            (double.parse(orderItem.qty.toString()).toInt())
                                 .toString(),
                             style: customTextStyle(
                               fontStyle: FontStyle.Inter_SemiBold,

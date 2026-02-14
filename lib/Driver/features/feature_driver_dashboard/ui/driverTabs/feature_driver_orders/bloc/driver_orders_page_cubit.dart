@@ -15,8 +15,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/picker_driver_api.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:toastification/toastification.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
   final PDApiGateway pdApiGateway;
@@ -35,9 +35,9 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
 
   final PostRepositories postRepositories;
 
-  List<Order> searchorderlist = [];
+  List<DataItem> searchorderlist = [];
 
-  List<Order> searchresult = [];
+  List<DataItem> searchresult = [];
 
   bool searchvisible = false;
 
@@ -47,7 +47,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
 
       final currentstate = state;
 
-      var oldpost = <Order>[];
+      var oldpost = <DataItem>[];
 
       if (currentstate is DriverPageLoadedState) {
         oldpost = currentstate.posts;
@@ -73,7 +73,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
       if (!searchvisible) {
         postRepositories.fetchposts(page, 6, status).then((newpost) {
           page++;
-          List<Order> posts = (state as DriverPageLoadingState).oldpost;
+          List<DataItem> posts = (state as DriverPageLoadingState).oldpost;
 
           posts.addAll(newpost);
           // }
@@ -90,7 +90,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
     }
   }
 
-  updatesearchorder(List<Order> orderslist, String keyword) {
+  updatesearchorder(List<DataItem> orderslist, String keyword) {
     searchresult.clear();
     searchorderlist.clear();
 

@@ -3,10 +3,10 @@ import 'package:ansarlogistics/components/custom_app_components/textfields/trans
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 class ContactCustomerSheet extends StatelessWidget {
-  Order orderResponseItem;
+  final DataItem orderResponseItem;
   ContactCustomerSheet({super.key, required this.orderResponseItem});
 
   CallLogs c1 = CallLogs();

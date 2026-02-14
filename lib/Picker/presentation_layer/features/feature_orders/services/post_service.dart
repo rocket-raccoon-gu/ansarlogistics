@@ -4,12 +4,13 @@ import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/session_out_bottom_sheet.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
-import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
+import 'package:picker_driver_api/responses/orders_new_response.dart';
 
 class PostService {
   final ServiceLocator _serviceLocator;
@@ -18,28 +19,35 @@ class PostService {
 
   PostService(this._serviceLocator, this.context);
 
-  List<Order> orderlist = [];
+  List<DataItem> orderlist = [];
 
-  Future<List<Order>> fetchpost(int page, int postcount, String status) async {
+  Future<List<DataItem>> fetchpost(
+    int page,
+    int postcount,
+    String status,
+  ) async {
     Map<String, dynamic> map = {};
 
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
+      int userId = UserController.userController.profile.id;
+
       final responce = await _serviceLocator.tradingApi.orderRequestService(
         pagesize: FETCH_LIMIT,
         currentpage: page,
         token: token,
-        role: '',
         status: status,
+        id: userId,
       );
 
       if (responce.statusCode == 200) {
         map = jsonDecode(responce.body);
 
-        if (map.containsKey("items")) {
-          OrderResponse orderResponse = OrderResponse.fromJson(map);
-          orderlist = orderResponse.items;
+        if (map.containsKey("data")) {
+          DriverBaseOrderResponse orderResponse =
+              DriverBaseOrderResponse.fromJson(map);
+          orderlist = orderResponse.data.items;
         } else if (map.containsKey("success") && map["success"] == 0) {
           // print("ok");
           // ignore: use_build_context_synchronously

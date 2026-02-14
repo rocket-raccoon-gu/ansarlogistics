@@ -9,10 +9,10 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 class DriverOrderListItem extends StatefulWidget {
-  Order orderResponseItem;
+  DataItem orderResponseItem;
   int index;
   Function() reschedulesuccess;
   DriverOrderListItem({
@@ -135,6 +135,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                               fontStyle: FontStyle.Inter_Light,
                             ),
                           ),
+                          SizedBox(width: 5.0),
                           Text(
                             getFormatedDate(
                               widget.orderResponseItem.deliveryFrom.toString(),
@@ -167,21 +168,23 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                       vertical: 3.0,
                                     ),
                                     child: TranslatedText(
-                                      text: "Zone  ",
+                                      text: "Area  ",
                                       style: customTextStyle(
                                         fontStyle: FontStyle.Inter_Light,
                                       ),
                                     ),
                                   ),
-                                  // Padding(
-                                  //   padding: const EdgeInsets.symmetric(
-                                  //       vertical: 3.0),
-                                  //   child: Text(
-                                  //     "Street ",
-                                  //     style: customTextStyle(
-                                  //         fontStyle: FontStyle.Inter_Light),
-                                  //   ),
-                                  // ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 3.0,
+                                    ),
+                                    child: Text(
+                                      "Street ",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.Inter_Light,
+                                      ),
+                                    ),
+                                  ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 3.0,
@@ -203,35 +206,37 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                       vertical: 3.0,
                                     ),
                                     child: Text(
-                                      widget.orderResponseItem.postcode,
+                                      widget.orderResponseItem.city,
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyL_Bold,
                                         color: FontColor.FontPrimary,
                                       ),
                                     ),
                                   ),
-                                  // Padding(
-                                  //   padding: const EdgeInsets.symmetric(
-                                  //       vertical: 3.0),
-                                  //   child: Row(
-                                  //     children: [
-                                  //       Text(
-                                  //         widget.orderResponseItem
-                                  //             .billingStreet,
-                                  //         style: customTextStyle(
-                                  //             fontStyle:
-                                  //                 FontStyle.BodyL_Bold,
-                                  //             color: FontColor.FontPrimary),
-                                  //       ),
-                                  //     ],
-                                  //   ),
-                                  // ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 3.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          widget
+                                              .orderResponseItem
+                                              .billingStreet,
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyL_Bold,
+                                            color: FontColor.FontPrimary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 3.0,
                                     ),
                                     child: Text(
-                                      widget.orderResponseItem.buildingNumber
+                                      "  ${widget.orderResponseItem.buildingNumber}"
                                           .toString(),
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyL_Bold,

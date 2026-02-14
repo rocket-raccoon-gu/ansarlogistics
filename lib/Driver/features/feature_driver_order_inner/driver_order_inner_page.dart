@@ -12,10 +12,10 @@ import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 class DriverOrderInnerPage extends StatefulWidget {
-  Order orderResponseItem;
+  DataItem orderResponseItem;
   ServiceLocator serviceLocator;
   DriverOrderInnerPage({
     super.key,

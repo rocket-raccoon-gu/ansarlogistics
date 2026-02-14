@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 import 'package:toastification/toastification.dart';
 
 class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
@@ -27,12 +27,12 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
     updateSelectedItem(0);
   }
 
-  List<EndPicking> assignedDriver = [];
+  List<ItemItem> assignedDriver = [];
 
   updateSelectedItem(int val) async {
     assignedDriver.clear();
 
-    Order orderItem = data['orderitem'];
+    DataItem orderItem = data['orderitem'];
 
     String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
@@ -40,17 +40,17 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
       emit(DriverOrderLoadingPageState());
     }
 
-    if (orderItem.items.assignedDriver!.isNotEmpty) {
-      assignedDriver.addAll(orderItem.items.assignedDriver!);
-    }
+    // if (orderItem.items.assignedDriver!.isNotEmpty) {
+    //   assignedDriver.addAll(orderItem.items.assignedDriver!);
+    // }
 
-    if (orderItem.items.onTheWay!.isNotEmpty) {
-      assignedDriver.addAll(orderItem.items.onTheWay!);
-    }
+    // if (orderItem.items.onTheWay!.isNotEmpty) {
+    assignedDriver.addAll(orderItem.items);
+    // }
 
-    if (orderItem.items.holded!.isNotEmpty) {
-      assignedDriver.addAll(orderItem.items.holded!);
-    }
+    // if (orderItem.items.holded!.isNotEmpty) {
+    //   assignedDriver.addAll(orderItem.items.holded!);
+    // }
 
     emit(DriverOrderInitialPageState(assignedDriver: assignedDriver));
   }

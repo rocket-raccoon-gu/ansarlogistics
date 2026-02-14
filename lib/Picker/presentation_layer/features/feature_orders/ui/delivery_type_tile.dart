@@ -4,11 +4,11 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 class DeliveryTypeTile extends StatelessWidget {
-  Order orderResponseItem;
-  DeliveryTypeTile({super.key, required this.orderResponseItem});
+  final DataItem orderResponseItem;
+  const DeliveryTypeTile({super.key, required this.orderResponseItem});
 
   @override
   Widget build(BuildContext context) {

@@ -21,8 +21,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 import 'package:toastification/toastification.dart';
+import 'package:picker_driver_api/responses/base_response.dart';
 
 class DriverOrdersPage extends StatefulWidget {
   const DriverOrdersPage({super.key});
@@ -44,7 +45,7 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
 
   StreamSubscription<void>? fcmRefreshSubScription;
 
-  List<Order>? orderitems = [];
+  List<DataItem>? orderitems = [];
 
   bool isloading = false;
 

@@ -305,8 +305,8 @@ extension PDGeneralApi on PickerDriverApi {
     required pagesize,
     required currentpage,
     required token,
-    required role,
     required status,
+    required id,
   }) async {
     Uri urlorder;
     log("${pagesize.toString()}-------------------------------------");
@@ -316,13 +316,13 @@ extension PDGeneralApi on PickerDriverApi {
     if (status == "all") {
       urlorder = Uri.parse(
         _endpointWithApplicationPathString(
-          'pickerDriverOrdersItems.php?page_size=${pagesize}&current_page=${currentpage}',
+          'driver/orders?id=$id&page_size=$pagesize&current_page=$currentpage',
         ),
       );
     } else {
       urlorder = Uri.parse(
         _endpointWithApplicationPathString(
-          'pickerDriverOrdersItems.php?page_size=${pagesize}&current_page=${currentpage}',
+          'driver/orders?id=$id&page_size=$pagesize&current_page=$currentpage',
         ),
       );
     }

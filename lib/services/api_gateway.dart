@@ -118,16 +118,16 @@ class PDApiGateway implements AuthenticationService {
     required pagesize,
     required currentpage,
     required token,
-    required role,
     required status,
+    required id,
   }) async {
     try {
       final response = await pickerDriverApi.OrderService(
             pagesize: pagesize,
             currentpage: currentpage,
             token: token,
-            role: role,
             status: status,
+            id: id,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());

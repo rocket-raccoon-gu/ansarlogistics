@@ -1,11 +1,11 @@
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 abstract class DriverOrdersPageState {}
 
 class DriverPageInitialState extends DriverOrdersPageState {}
 
 class DriverPageLoadingState extends DriverOrdersPageState {
-  final List<Order> oldpost;
+  final List<DataItem> oldpost;
   final bool isFirstFetch;
   DriverPageLoadingState(this.oldpost, {this.isFirstFetch = false});
 }
@@ -15,10 +15,8 @@ class DriverOrderSeekLoadingState extends DriverOrdersPageState {
 }
 
 class DriverPageLoadedState extends DriverOrdersPageState {
-  final List<Order> posts;
-  DriverPageLoadedState(
-    this.posts,
-  );
+  final List<DataItem> posts;
+  DriverPageLoadedState(this.posts);
 }
 
 class DriverOrderErrorState extends DriverOrdersPageState {
