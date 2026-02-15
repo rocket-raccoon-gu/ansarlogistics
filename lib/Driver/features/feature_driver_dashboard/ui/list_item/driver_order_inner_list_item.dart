@@ -1,6 +1,7 @@
 import 'package:ansarlogistics/components/custom_app_components/image_widgets/list_image_widget.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/driver_base_response.dart';
 
@@ -32,15 +33,14 @@ class DriverOrderInnerListItem extends StatelessWidget {
                   top: 4.0,
                   bottom: 4.0,
                 ),
-                // child: ClipRRect(
-                //   borderRadius: BorderRadius.circular(10.0),
-                //   child:
-                //       orderItem.productImages.isNotEmpty
-                //           ? ListImageWidget(
-                //             imageurl: orderItem.productImages[0],
-                //           )
-                //           : Image.asset('assets/placeholder.png'),
-                // ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child:
+                      orderItem.imageUrl != null &&
+                              orderItem.imageUrl!.isNotEmpty
+                          ? ListImageWidget(imageurl: orderItem.imageUrl!)
+                          : Image.asset('assets/placeholder.png'),
+                ),
               ),
             ],
           ),
@@ -108,14 +108,24 @@ class DriverOrderInnerListItem extends StatelessWidget {
                               color: FontColor.FontPrimary,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 5.0),
-                            child: Text(
-                              "QAR",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyM_Bold,
-                              ),
-                            ),
+                          FutureBuilder(
+                            future: getCurrency(),
+                            builder: (context, snapshot) {
+                              String currency = "QAR";
+                              if (snapshot.hasData) {
+                                currency = snapshot.data!;
+                              }
+
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 5.0),
+                                child: Text(
+                                  currency,
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyM_Bold,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),

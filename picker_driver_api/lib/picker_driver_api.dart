@@ -487,12 +487,13 @@ extension PDGeneralApi on PickerDriverApi {
     String? dispatchMethod,
     String? paymentMethod,
   }) {
-    // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
-    //     'custom-api/api/qatar/updateSubOrder.php'));
-
-    Uri url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/updateSubOrderV1.php',
+    Uri url = _endpointWithApplicationPath(
+      'driver/orders/driver/status/$orderid',
     );
+
+    // Uri url = Uri.parse(
+    //   'https://pickerdriver.testuatah.com/v1/api/qatar/updateSubOrderV1.php',
+    // );
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationJson,

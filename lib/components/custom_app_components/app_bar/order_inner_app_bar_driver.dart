@@ -1,33 +1,25 @@
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
-import 'package:ansarlogistics/user_controller/user_controller.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
-import 'package:picker_driver_api/responses/orders_new_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
-class OrderInnerAppBar extends StatelessWidget {
-  OrderNew orderResponseItem;
-
+class OrderInnerAppBarDriver extends StatelessWidget {
   Function()? onTapinfo;
   Function()? onTapBack;
   final Function()? onTaptranslate;
   String? title;
-  OrderInnerAppBar({
+  DataItem orderResponseItem;
+  OrderInnerAppBarDriver({
     super.key,
-    required this.orderResponseItem,
     required this.onTapinfo,
     required this.onTapBack,
     this.onTaptranslate,
     this.title,
+    required this.orderResponseItem,
   });
-
-  bool translate = false;
 
   @override
   Widget build(BuildContext context) {
-    // double mheight = MediaQuery.of(context).size.height * 1.222;
-    // Size screenSize = MediaQuery.of(context).size;
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
@@ -41,7 +33,7 @@ class OrderInnerAppBar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: customColors().backgroundTertiary.withOpacity(1.0),
+            color: customColors().backgroundTertiary.withValues(alpha: 1.0),
             spreadRadius: 3,
             blurRadius: 5,
             // offset: Offset(0, 3), // changes the position of the shadow
@@ -63,6 +55,7 @@ class OrderInnerAppBar extends StatelessWidget {
                     color: HexColor("#A3A3A3"),
                   ),
                 ),
+
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -70,13 +63,15 @@ class OrderInnerAppBar extends StatelessWidget {
                       InkWell(
                         onTap: onTapinfo,
                         child: Text(
-                          title ?? orderResponseItem.id.toString(),
+                          title ??
+                              orderResponseItem.subgroupIdentifier.toString(),
                           style: customTextStyle(
                             fontStyle: FontStyle.Lato_Bold,
                             color: FontColor.FontPrimary,
                           ),
                         ),
                       ),
+
                       InkWell(
                         onTap: onTapinfo,
                         child: ImageIcon(
@@ -84,6 +79,7 @@ class OrderInnerAppBar extends StatelessWidget {
                           color: HexColor('#A3A3A3'),
                         ),
                       ),
+
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 18.0,
@@ -98,42 +94,6 @@ class OrderInnerAppBar extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class TranslateWidget extends StatefulWidget {
-  final Function()? onTaptranslate;
-  const TranslateWidget({super.key, required this.onTaptranslate});
-
-  @override
-  State<TranslateWidget> createState() => _TranslateWidgetState();
-}
-
-class _TranslateWidgetState extends State<TranslateWidget> {
-  bool translate = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: InkWell(
-        onTap: () {
-          widget.onTaptranslate!();
-          setState(() {
-            translate = !translate;
-          });
-        },
-        child: Container(
-          padding: EdgeInsets.all(4.0),
-          decoration: BoxDecoration(
-            color:
-                translate ? customColors().secretGarden : customColors().accent,
-            borderRadius: BorderRadius.circular(5.0),
-          ),
-          child: Icon(Icons.translate),
-        ),
       ),
     );
   }

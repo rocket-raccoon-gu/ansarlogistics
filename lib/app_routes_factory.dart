@@ -3,6 +3,7 @@
 // import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
 // import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
 // import 'package:ansarlogistics/Driver/features/feature_order_routes/order_routes_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_delivery_update/delivery_update_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/item_batch_pickup_root_builder.dart';
@@ -118,13 +119,13 @@ class AppRoutesFactory extends RoutesFactory {
   //   );
   // }
 
-  // @override
-  // Route createDeliveryUpdatePageRoute(Map<String, dynamic> data) {
-  //   // TODO: implement createDeliveryUpdatePageRoute
-  //   return CustomRoute(
-  //     builder: DeliveryUpdatePageRouteBuilder(_serviceLocator, data),
-  //   );
-  // }
+  @override
+  Route createDeliveryUpdatePageRoute(Map<String, dynamic> data) {
+    // TODO: implement createDeliveryUpdatePageRoute
+    return CustomRoute(
+      builder: DeliveryUpdatePageRouteBuilder(_serviceLocator, data),
+    );
+  }
 
   @override
   // Route createDocumentUploadPageRoute(Map<String, dynamic> data) {

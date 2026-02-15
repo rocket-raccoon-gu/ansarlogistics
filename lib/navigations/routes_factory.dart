@@ -11,7 +11,7 @@ abstract class RoutesFactory {
   Route<dynamic> createOrderItemAddPageRoute(Map<String, dynamic> data);
   Route<dynamic> createDriverDashboardPageRoute();
   Route<dynamic> createDriverOrderInnerPageRoute(Map<String, dynamic> data);
-  // Route<dynamic> createDeliveryUpdatePageRoute(Map<String, dynamic> data);
+  Route<dynamic> createDeliveryUpdatePageRoute(Map<String, dynamic> data);
   // Route<dynamic> createDocumentUploadPageRoute(Map<String, dynamic> data);
   // Route<dynamic> createViewOrderRoutePageRoute(Map<String, dynamic> dara);
   Route<dynamic> createHomeSectionInchargePageRoute();

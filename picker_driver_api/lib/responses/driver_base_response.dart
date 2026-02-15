@@ -186,12 +186,14 @@ class ItemItem {
   String sku;
   int qty;
   double price;
+  String? imageUrl;
 
   ItemItem({
     required this.name,
     required this.sku,
     required this.qty,
     required this.price,
+    this.imageUrl,
   });
 
   factory ItemItem.fromJson(Map<String, dynamic> json) => ItemItem(
@@ -199,6 +201,7 @@ class ItemItem {
     sku: json["sku"],
     qty: json["qty"],
     price: json["price"]?.toDouble(),
+    imageUrl: json["image"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -206,5 +209,6 @@ class ItemItem {
     "sku": sku,
     "qty": qty,
     "price": price,
+    "image": imageUrl,
   };
 }

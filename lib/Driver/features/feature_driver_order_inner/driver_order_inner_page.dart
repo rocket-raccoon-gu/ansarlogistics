@@ -3,6 +3,7 @@ import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/bloc/d
 import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/bloc/driver_order_inner_page_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/app_bar/order_inner_app_bar.dart';
+import 'package:ansarlogistics/components/custom_app_components/app_bar/order_inner_app_bar_driver.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/swipe_button.dart';
 import 'package:ansarlogistics/components/loading_indecator.dart';
@@ -50,22 +51,22 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
           ),
           body: Column(
             children: [
-              // Padding(
-              //   padding: const EdgeInsets.only(bottom: 8.0),
-              //   child: OrderInnerAppBar(
-              //     onTapBack: () {
-              //       context.gNavigationService.back(context);
-              //     },
-              //     orderResponseItem: widget.orderResponseItem,
-              //     onTapinfo: () {
-              //       showTopModel(
-              //         context,
-              //         widget.serviceLocator,
-              //         widget.orderResponseItem,
-              //       );
-              //     },
-              //   ),
-              // ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: OrderInnerAppBarDriver(
+                  onTapBack: () {
+                    context.gNavigationService.back(context);
+                  },
+                  orderResponseItem: widget.orderResponseItem,
+                  onTapinfo: () {
+                    // showTopModel(
+                    //   context,
+                    //   widget.serviceLocator,
+                    //   widget.orderResponseItem,
+                    // );
+                  },
+                ),
+              ),
               if (state is DriverOrderInitialPageState)
                 Expanded(
                   child: ListView.builder(
