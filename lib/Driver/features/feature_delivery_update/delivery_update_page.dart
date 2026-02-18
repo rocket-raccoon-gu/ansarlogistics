@@ -41,57 +41,57 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
 
   bool updatestat = false;
 
-  // Future<void>? getImage(String imgsource) async {
-  //   _pictures.clear();
-  //   bool isCameraGranted = await Permission.camera.request().isGranted;
-  //   if (!isCameraGranted) {
-  //     isCameraGranted =
-  //         await Permission.camera.request() == PermissionStatus.granted;
-  //   }
+  Future<void>? getImage(String imgsource) async {
+    _pictures.clear();
+    bool isCameraGranted = await Permission.camera.request().isGranted;
+    if (!isCameraGranted) {
+      isCameraGranted =
+          await Permission.camera.request() == PermissionStatus.granted;
+    }
 
-  //   if (!isCameraGranted) {
-  //     // Have not permission to camera
-  //     return;
-  //   }
-  //   if (isCameraGranted) {
-  //     try {
-  //       image = await imagePicker.pickImage(
-  //         source:
-  //             imgsource == "camera" ? ImageSource.camera : ImageSource.gallery,
-  //       );
-  //       final filePath = image!.path;
-  //       final lastindex = filePath.lastIndexOf(new RegExp(r'.jp'));
-  //       final splitted = filePath.substring(0, (lastindex));
-  //       final outpath = "${splitted}_out${filePath.substring(lastindex)}";
-  //       image = await FlutterImageCompress.compressAndGetFile(
-  //         filePath,
-  //         outpath,
-  //         quality: 28,
-  //       );
+    if (!isCameraGranted) {
+      // Have not permission to camera
+      return;
+    }
+    if (isCameraGranted) {
+      try {
+        image = await imagePicker.pickImage(
+          source:
+              imgsource == "camera" ? ImageSource.camera : ImageSource.gallery,
+        );
+        final filePath = image!.path;
+        final lastindex = filePath.lastIndexOf(new RegExp(r'.jp'));
+        final splitted = filePath.substring(0, (lastindex));
+        final outpath = "${splitted}_out${filePath.substring(lastindex)}";
+        image = await FlutterImageCompress.compressAndGetFile(
+          filePath,
+          outpath,
+          quality: 28,
+        );
 
-  //       Uint8List imagebytes = await image!.readAsBytes(); //convert to bytes
-  //       // List<int> imageBytes = result.readAsBytesSync();
-  //       // print("image bytes path = " + imagebytes.toString());
-  //       String base64string = base64.encode(imagebytes);
-  //       // print("base64 path = " + base64string.toString());
-  //       Uint8List imag = base64.decode(base64string.toString());
-  //       // print("my path = " + imag.toString());
-  //       _pictures.add(image!.path.toString());
-  //       // if (controller != null) {
-  //       //   image = await controller!.takePicture();
-  //       //   if (!mounted) return;
-  //       setState(() {});
-  //       // }
-  //     } catch (e) {
-  //       showSnackBar(
-  //         context: context,
-  //         snackBar: showErrorDialogue(
-  //           errorMessage: "Bill Image Not Captured Properly Try Again..!",
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
+        Uint8List imagebytes = await image!.readAsBytes(); //convert to bytes
+        // List<int> imageBytes = result.readAsBytesSync();
+        // print("image bytes path = " + imagebytes.toString());
+        String base64string = base64.encode(imagebytes);
+        // print("base64 path = " + base64string.toString());
+        Uint8List imag = base64.decode(base64string.toString());
+        // print("my path = " + imag.toString());
+        _pictures.add(image!.path.toString());
+        // if (controller != null) {
+        //   image = await controller!.takePicture();
+        //   if (!mounted) return;
+        setState(() {});
+        // }
+      } catch (e) {
+        showSnackBar(
+          context: context,
+          snackBar: showErrorDialogue(
+            errorMessage: "Bill Image Not Captured Properly Try Again..!",
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,494 +158,494 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
             ),
           ),
 
-          //         // BlocConsumer<DeliveryUpdatePageCubit, DeliveryUpdatePageState>(
-          //         //   builder: (context, state) {
-          //         //     return Expanded(
-          //         //       child: Column(
-          //         //         mainAxisAlignment: MainAxisAlignment.center,
-          //         //         children: [
-          //         //           Padding(
-          //         //             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          //         //             child: DottedBorder(
-          //         //               // color: Colors.black, //color of dotted/dash line
-          //         //               // strokeWidth: 3, //thickness of dash/dots
-          //         //               // dashPattern: [10, 6],
-          //         //               //dash patterns, 10 is dash width, 6 is space width
-          //         //               child: Container(
-          //         //                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
-          //         //                 child: Column(
-          //         //                   mainAxisAlignment: MainAxisAlignment.end,
-          //         //                   crossAxisAlignment: CrossAxisAlignment.center,
-          //         //                   children: [
-          //         //                     Padding(
-          //         //                       padding: const EdgeInsets.only(top: 50.0),
-          //         //                       child: Row(
-          //         //                         mainAxisAlignment: MainAxisAlignment.center,
-          //         //                         children: [
-          //         //                           _pictures.isEmpty
-          //         //                               ? InkWell(
-          //         //                                 onTap: () async {
-          //         //                                   // getImage();
-          //         //                                   customShowModalBottomSheet(
-          //         //                                     context: context,
-          //         //                                     inputWidget: Column(
-          //         //                                       children: [
-          //         //                                         InkWell(
-          //         //                                           onTap: () {
-          //         //                                             Navigator.pop(context);
-          //         //                                             getImage("camera");
-          //         //                                           },
-          //         //                                           child: Container(
-          //         //                                             padding:
-          //         //                                                 EdgeInsets.symmetric(
-          //         //                                                   vertical: 18.0,
-          //         //                                                   horizontal: 18.0,
-          //         //                                                 ),
-          //         //                                             decoration: BoxDecoration(
-          //         //                                               border: Border(
-          //         //                                                 bottom: BorderSide(
-          //         //                                                   color:
-          //         //                                                       customColors()
-          //         //                                                           .fontPrimary,
-          //         //                                                 ),
-          //         //                                               ),
-          //         //                                             ),
-          //         //                                             child: Row(
-          //         //                                               mainAxisAlignment:
-          //         //                                                   MainAxisAlignment
-          //         //                                                       .spaceBetween,
-          //         //                                               children: [
-          //         //                                                 TranslatedText(
-          //         //                                                   text: "Camera",
-          //         //                                                   style: customTextStyle(
-          //         //                                                     fontStyle:
-          //         //                                                         FontStyle
-          //         //                                                             .BodyL_Bold,
-          //         //                                                     color:
-          //         //                                                         FontColor
-          //         //                                                             .FontPrimary,
-          //         //                                                   ),
-          //         //                                                 ),
-          //         //                                                 Icon(
-          //         //                                                   Icons.camera_alt,
-          //         //                                                 ),
-          //         //                                               ],
-          //         //                                             ),
-          //         //                                           ),
-          //         //                                         ),
-          //         //                                         InkWell(
-          //         //                                           onTap: () {
-          //         //                                             Navigator.pop(context);
-          //         //                                             getImage("gallery");
-          //         //                                           },
-          //         //                                           child: Container(
-          //         //                                             padding:
-          //         //                                                 EdgeInsets.symmetric(
-          //         //                                                   vertical: 18.0,
-          //         //                                                   horizontal: 18.0,
-          //         //                                                 ),
-          //         //                                             decoration: BoxDecoration(
-          //         //                                               border: Border(
-          //         //                                                 bottom: BorderSide(
-          //         //                                                   color:
-          //         //                                                       customColors()
-          //         //                                                           .fontPrimary,
-          //         //                                                 ),
-          //         //                                               ),
-          //         //                                             ),
-          //         //                                             child: Row(
-          //         //                                               mainAxisAlignment:
-          //         //                                                   MainAxisAlignment
-          //         //                                                       .spaceBetween,
-          //         //                                               children: [
-          //         //                                                 TranslatedText(
-          //         //                                                   text: "Gallery",
-          //         //                                                   style: customTextStyle(
-          //         //                                                     fontStyle:
-          //         //                                                         FontStyle
-          //         //                                                             .BodyL_Bold,
-          //         //                                                     color:
-          //         //                                                         FontColor
-          //         //                                                             .FontPrimary,
-          //         //                                                   ),
-          //         //                                                 ),
-          //         //                                                 Icon(
-          //         //                                                   Icons
-          //         //                                                       .browse_gallery,
-          //         //                                                 ),
-          //         //                                               ],
-          //         //                                             ),
-          //         //                                           ),
-          //         //                                         ),
-          //         //                                       ],
-          //         //                                     ),
-          //         //                                   );
-          //         //                                 },
-          //         //                                 child: Container(
-          //         //                                   height: 210.0,
-          //         //                                   width: 210.0,
-          //         //                                   decoration: BoxDecoration(
-          //         //                                     border: Border.all(
-          //         //                                       color:
-          //         //                                           customColors()
-          //         //                                               .backgroundTertiary,
-          //         //                                     ),
-          //         //                                     borderRadius:
-          //         //                                         BorderRadius.circular(6.0),
-          //         //                                   ),
-          //         //                                   child: Center(
-          //         //                                     child: Column(
-          //         //                                       mainAxisAlignment:
-          //         //                                           MainAxisAlignment.center,
-          //         //                                       children: [
-          //         //                                         Icon(
-          //         //                                           Icons.camera_alt_rounded,
-          //         //                                           size: 65.0,
-          //         //                                         ),
-          //         //                                         TranslatedText(
-          //         //                                           text: "Take Photo",
-          //         //                                           style: customTextStyle(
-          //         //                                             fontStyle:
-          //         //                                                 FontStyle
-          //         //                                                     .BodyM_SemiBold,
-          //         //                                           ),
-          //         //                                         ),
-          //         //                                       ],
-          //         //                                     ),
-          //         //                                   ),
-          //         //                                 ),
-          //         //                               )
-          //         //                               : Padding(
-          //         //                                 padding: const EdgeInsets.only(
-          //         //                                   top: 25.0,
-          //         //                                 ),
-          //         //                                 child:
-          //         //                                     image != null
-          //         //                                         ? Image.file(
-          //         //                                           File(
-          //         //                                             _pictures[_pictures
-          //         //                                                     .length -
-          //         //                                                 1],
-          //         //                                           ),
-          //         //                                           height: 210.0,
-          //         //                                           width: 210.0,
-          //         //                                         )
-          //         //                                         : Container(
-          //         //                                           height: 210.0,
-          //         //                                           width: 210.0,
-          //         //                                         ),
-          //         //                               ),
-          //         //                         ],
-          //         //                       ),
-          //         //                     ),
-          //         //                     uploading
-          //         //                         ? Padding(
-          //         //                           padding: const EdgeInsets.only(
-          //         //                             top: 50.0,
-          //         //                             left: 10.0,
-          //         //                             right: 10.0,
-          //         //                           ),
-          //         //                           child: Column(
-          //         //                             children: [
-          //         //                               LinearProgressIndicator(
-          //         //                                 minHeight: 12.0,
-          //         //                                 backgroundColor: customColors().grey,
-          //         //                                 valueColor: AlwaysStoppedAnimation(
-          //         //                                   customColors().secretGarden,
-          //         //                                 ),
-          //         //                                 // value: context
-          //         //                                 //     .read<ImageCaptureCubit>()
-          //         //                                 //     .uploadprogress,
-          //         //                               ),
-          //         //                               Padding(
-          //         //                                 padding: const EdgeInsets.only(
-          //         //                                   top: 8.0,
-          //         //                                 ),
-          //         //                                 child: Text(
-          //         //                                   "Uploading Please Wait....!",
-          //         //                                   style: customTextStyle(
-          //         //                                     fontStyle: FontStyle.BodyM_Bold,
-          //         //                                     color: FontColor.SecretGarden,
-          //         //                                   ),
-          //         //                                 ),
-          //         //                               ),
-          //         //                             ],
-          //         //                           ),
-          //         //                         )
-          //         //                         : SizedBox(height: 50),
-          //         //                     _pictures.isNotEmpty
-          //         //                         ? Padding(
-          //         //                           padding: const EdgeInsets.only(top: 50.0),
-          //         //                           child: Row(
-          //         //                             mainAxisAlignment:
-          //         //                                 MainAxisAlignment.spaceBetween,
-          //         //                             children: [
-          //         //                               Padding(
-          //         //                                 padding: const EdgeInsets.only(
-          //         //                                   left: 8.0,
-          //         //                                   bottom: 8.0,
-          //         //                                 ),
-          //         //                                 child: InkWell(
-          //         //                                   onTap: () async {
-          //         //                                     try {
-          //         //                                       if (image
-          //         //                                               .toString()
-          //         //                                               .isNotEmpty ||
-          //         //                                           image != null) {
-          //         //                                         setState(() {
-          //         //                                           uploading = true;
-          //         //                                         });
+          BlocConsumer<DeliveryUpdatePageCubit, DeliveryUpdatePageState>(
+            builder: (context, state) {
+              return Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: DottedBorder(
+                        // color: Colors.black, //color of dotted/dash line
+                        // strokeWidth: 3, //thickness of dash/dots
+                        // dashPattern: [10, 6],
+                        //dash patterns, 10 is dash width, 6 is space width
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 50.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _pictures.isEmpty
+                                        ? InkWell(
+                                          onTap: () async {
+                                            // getImage();
+                                            customShowModalBottomSheet(
+                                              context: context,
+                                              inputWidget: Column(
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      getImage("camera");
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                            vertical: 18.0,
+                                                            horizontal: 18.0,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        border: Border(
+                                                          bottom: BorderSide(
+                                                            color:
+                                                                customColors()
+                                                                    .fontPrimary,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          TranslatedText(
+                                                            text: "Camera",
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyL_Bold,
+                                                              color:
+                                                                  FontColor
+                                                                      .FontPrimary,
+                                                            ),
+                                                          ),
+                                                          Icon(
+                                                            Icons.camera_alt,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      getImage("gallery");
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                            vertical: 18.0,
+                                                            horizontal: 18.0,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        border: Border(
+                                                          bottom: BorderSide(
+                                                            color:
+                                                                customColors()
+                                                                    .fontPrimary,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          TranslatedText(
+                                                            text: "Gallery",
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyL_Bold,
+                                                              color:
+                                                                  FontColor
+                                                                      .FontPrimary,
+                                                            ),
+                                                          ),
+                                                          Icon(
+                                                            Icons
+                                                                .browse_gallery,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            height: 210.0,
+                                            width: 210.0,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color:
+                                                    customColors()
+                                                        .backgroundTertiary,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(6.0),
+                                            ),
+                                            child: Center(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    Icons.camera_alt_rounded,
+                                                    size: 65.0,
+                                                  ),
+                                                  TranslatedText(
+                                                    text: "Take Photo",
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle
+                                                              .BodyM_SemiBold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                        : Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 25.0,
+                                          ),
+                                          child:
+                                              image != null
+                                                  ? Image.file(
+                                                    File(
+                                                      _pictures[_pictures
+                                                              .length -
+                                                          1],
+                                                    ),
+                                                    height: 210.0,
+                                                    width: 210.0,
+                                                  )
+                                                  : Container(
+                                                    height: 210.0,
+                                                    width: 210.0,
+                                                  ),
+                                        ),
+                                  ],
+                                ),
+                              ),
+                              uploading
+                                  ? Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 50.0,
+                                      left: 10.0,
+                                      right: 10.0,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        LinearProgressIndicator(
+                                          minHeight: 12.0,
+                                          backgroundColor: customColors().grey,
+                                          valueColor: AlwaysStoppedAnimation(
+                                            customColors().secretGarden,
+                                          ),
+                                          // value: context
+                                          //     .read<ImageCaptureCubit>()
+                                          //     .uploadprogress,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 8.0,
+                                          ),
+                                          child: Text(
+                                            "Uploading Please Wait....!",
+                                            style: customTextStyle(
+                                              fontStyle: FontStyle.BodyM_Bold,
+                                              color: FontColor.SecretGarden,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  : SizedBox(height: 50),
+                              _pictures.isNotEmpty
+                                  ? Padding(
+                                    padding: const EdgeInsets.only(top: 50.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 8.0,
+                                            bottom: 8.0,
+                                          ),
+                                          child: InkWell(
+                                            onTap: () async {
+                                              try {
+                                                if (image
+                                                        .toString()
+                                                        .isNotEmpty ||
+                                                    image != null) {
+                                                  setState(() {
+                                                    uploading = true;
+                                                  });
 
-          //         //                                         File file = File(image!.path);
+                                                  File file = File(image!.path);
 
-          //         //                                         // print("image");
-          //         //                                         BlocProvider.of<
-          //         //                                           DeliveryUpdatePageCubit
-          //         //                                         >(context).uploadimage(file);
-          //         //                                       } else {
-          //         //                                         showSnackBar(
-          //         //                                           context: context,
-          //         //                                           snackBar: showErrorDialogue(
-          //         //                                             errorMessage:
-          //         //                                                 "Please Select a Picture",
-          //         //                                           ),
-          //         //                                         );
-          //         //                                       }
-          //         //                                     } catch (e) {
-          //         //                                       showSnackBar(
-          //         //                                         context: context,
-          //         //                                         snackBar: showSnackBar(
-          //         //                                           context: context,
-          //         //                                           snackBar: showErrorDialogue(
-          //         //                                             errorMessage:
-          //         //                                                 e.toString(),
-          //         //                                           ),
-          //         //                                         ),
-          //         //                                       );
-          //         //                                     }
-          //         //                                   },
-          //         //                                   child: Container(
-          //         //                                     padding:
-          //         //                                         const EdgeInsets.symmetric(
-          //         //                                           horizontal: 24.0,
-          //         //                                           vertical: 9.0,
-          //         //                                         ),
-          //         //                                     decoration: BoxDecoration(
-          //         //                                       color:
-          //         //                                           _pictures.isEmpty
-          //         //                                               ? customColors()
-          //         //                                                   .pacificBlue
-          //         //                                                   .withOpacity(0.5)
-          //         //                                               : customColors()
-          //         //                                                   .pacificBlue,
-          //         //                                       borderRadius:
-          //         //                                           BorderRadius.circular(5.0),
-          //         //                                     ),
-          //         //                                     child: Center(
-          //         //                                       child: Row(
-          //         //                                         children: [
-          //         //                                           TranslatedText(
-          //         //                                             text: "Upload",
-          //         //                                             style: customTextStyle(
-          //         //                                               fontStyle:
-          //         //                                                   FontStyle
-          //         //                                                       .BodyM_Bold,
-          //         //                                               color: FontColor.White,
-          //         //                                             ),
-          //         //                                           ),
-          //         //                                           const Padding(
-          //         //                                             padding: EdgeInsets.only(
-          //         //                                               left: 8.0,
-          //         //                                             ),
-          //         //                                             child: Icon(
-          //         //                                               Icons
-          //         //                                                   .cloud_upload_outlined,
-          //         //                                             ),
-          //         //                                           ),
-          //         //                                         ],
-          //         //                                       ),
-          //         //                                     ),
-          //         //                                   ),
-          //         //                                 ),
-          //         //                               ),
-          //         //                               Padding(
-          //         //                                 padding: const EdgeInsets.only(
-          //         //                                   right: 8.0,
-          //         //                                   bottom: 8.0,
-          //         //                                 ),
-          //         //                                 child: InkWell(
-          //         //                                   onTap: () async {
-          //         //                                     // getImage();
+                                                  // print("image");
+                                                  BlocProvider.of<
+                                                    DeliveryUpdatePageCubit
+                                                  >(context).uploadimage(file);
+                                                } else {
+                                                  showSnackBar(
+                                                    context: context,
+                                                    snackBar: showErrorDialogue(
+                                                      errorMessage:
+                                                          "Please Select a Picture",
+                                                    ),
+                                                  );
+                                                }
+                                              } catch (e) {
+                                                showSnackBar(
+                                                  context: context,
+                                                  snackBar: showSnackBar(
+                                                    context: context,
+                                                    snackBar: showErrorDialogue(
+                                                      errorMessage:
+                                                          e.toString(),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 24.0,
+                                                    vertical: 9.0,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    _pictures.isEmpty
+                                                        ? customColors()
+                                                            .pacificBlue
+                                                            .withOpacity(0.5)
+                                                        : customColors()
+                                                            .pacificBlue,
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0),
+                                              ),
+                                              child: Center(
+                                                child: Row(
+                                                  children: [
+                                                    TranslatedText(
+                                                      text: "Upload",
+                                                      style: customTextStyle(
+                                                        fontStyle:
+                                                            FontStyle
+                                                                .BodyM_Bold,
+                                                        color: FontColor.White,
+                                                      ),
+                                                    ),
+                                                    const Padding(
+                                                      padding: EdgeInsets.only(
+                                                        left: 8.0,
+                                                      ),
+                                                      child: Icon(
+                                                        Icons
+                                                            .cloud_upload_outlined,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 8.0,
+                                            bottom: 8.0,
+                                          ),
+                                          child: InkWell(
+                                            onTap: () async {
+                                              // getImage();
 
-          //         //                                     setState(() {
-          //         //                                       uploading = false;
-          //         //                                     });
-          //         //                                     customShowModalBottomSheet(
-          //         //                                       context: context,
-          //         //                                       inputWidget: Column(
-          //         //                                         children: [
-          //         //                                           InkWell(
-          //         //                                             onTap: () {
-          //         //                                               Navigator.pop(context);
-          //         //                                               getImage("camera");
-          //         //                                             },
-          //         //                                             child: Container(
-          //         //                                               padding:
-          //         //                                                   EdgeInsets.symmetric(
-          //         //                                                     vertical: 18.0,
-          //         //                                                     horizontal: 18.0,
-          //         //                                                   ),
-          //         //                                               decoration: BoxDecoration(
-          //         //                                                 border: Border(
-          //         //                                                   bottom: BorderSide(
-          //         //                                                     color:
-          //         //                                                         customColors()
-          //         //                                                             .fontPrimary,
-          //         //                                                   ),
-          //         //                                                 ),
-          //         //                                               ),
-          //         //                                               child: Row(
-          //         //                                                 mainAxisAlignment:
-          //         //                                                     MainAxisAlignment
-          //         //                                                         .spaceBetween,
-          //         //                                                 children: [
-          //         //                                                   TranslatedText(
-          //         //                                                     text: "Camera",
-          //         //                                                     style: customTextStyle(
-          //         //                                                       fontStyle:
-          //         //                                                           FontStyle
-          //         //                                                               .BodyL_Bold,
-          //         //                                                       color:
-          //         //                                                           FontColor
-          //         //                                                               .FontPrimary,
-          //         //                                                     ),
-          //         //                                                   ),
-          //         //                                                   Icon(
-          //         //                                                     Icons.camera_alt,
-          //         //                                                   ),
-          //         //                                                 ],
-          //         //                                               ),
-          //         //                                             ),
-          //         //                                           ),
-          //         //                                           InkWell(
-          //         //                                             onTap: () {
-          //         //                                               Navigator.pop(context);
-          //         //                                               getImage("gallery");
-          //         //                                             },
-          //         //                                             child: Container(
-          //         //                                               padding:
-          //         //                                                   EdgeInsets.symmetric(
-          //         //                                                     vertical: 18.0,
-          //         //                                                     horizontal: 18.0,
-          //         //                                                   ),
-          //         //                                               decoration: BoxDecoration(
-          //         //                                                 border: Border(
-          //         //                                                   bottom: BorderSide(
-          //         //                                                     color:
-          //         //                                                         customColors()
-          //         //                                                             .fontPrimary,
-          //         //                                                   ),
-          //         //                                                 ),
-          //         //                                               ),
-          //         //                                               child: Row(
-          //         //                                                 mainAxisAlignment:
-          //         //                                                     MainAxisAlignment
-          //         //                                                         .spaceBetween,
-          //         //                                                 children: [
-          //         //                                                   TranslatedText(
-          //         //                                                     text: "Gallery",
-          //         //                                                     style: customTextStyle(
-          //         //                                                       fontStyle:
-          //         //                                                           FontStyle
-          //         //                                                               .BodyL_Bold,
-          //         //                                                       color:
-          //         //                                                           FontColor
-          //         //                                                               .FontPrimary,
-          //         //                                                     ),
-          //         //                                                   ),
-          //         //                                                   Icon(
-          //         //                                                     Icons
-          //         //                                                         .browse_gallery,
-          //         //                                                   ),
-          //         //                                                 ],
-          //         //                                               ),
-          //         //                                             ),
-          //         //                                           ),
-          //         //                                         ],
-          //         //                                       ),
-          //         //                                     );
-          //         //                                   },
-          //         //                                   child: Container(
-          //         //                                     padding:
-          //         //                                         const EdgeInsets.symmetric(
-          //         //                                           horizontal: 24.0,
-          //         //                                           vertical: 12.0,
-          //         //                                         ),
-          //         //                                     decoration: BoxDecoration(
-          //         //                                       color:
-          //         //                                           customColors().secretGarden,
-          //         //                                       borderRadius:
-          //         //                                           BorderRadius.circular(5.0),
-          //         //                                     ),
-          //         //                                     child: Center(
-          //         //                                       child: TranslatedText(
-          //         //                                         text: "Retake",
-          //         //                                         style: customTextStyle(
-          //         //                                           fontStyle:
-          //         //                                               FontStyle.BodyM_Bold,
-          //         //                                           color: FontColor.White,
-          //         //                                         ),
-          //         //                                       ),
-          //         //                                     ),
-          //         //                                   ),
-          //         //                                 ),
-          //         //                               ),
-          //         //                             ],
-          //         //                           ),
-          //         //                         )
-          //         //                         : SizedBox(height: 100.0),
-          //         //                   ],
-          //         //                 ),
-          //         //               ),
-          //         //             ),
-          //         //           ),
-          //         //         ],
-          //         //       ),
-          //         //     );
-          //         //   },
-          //         //   listener: (context, state) {
-          //         //     if (state is DeliveryBillUpdatedState) {
-          //         //       setState(() {
-          //         //         upload = true;
-          //         //         uploading = false;
-          //         //       });
-          //         //     }
+                                              setState(() {
+                                                uploading = false;
+                                              });
+                                              customShowModalBottomSheet(
+                                                context: context,
+                                                inputWidget: Column(
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                        getImage("camera");
+                                                      },
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              vertical: 18.0,
+                                                              horizontal: 18.0,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          border: Border(
+                                                            bottom: BorderSide(
+                                                              color:
+                                                                  customColors()
+                                                                      .fontPrimary,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            TranslatedText(
+                                                              text: "Camera",
+                                                              style: customTextStyle(
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .BodyL_Bold,
+                                                                color:
+                                                                    FontColor
+                                                                        .FontPrimary,
+                                                              ),
+                                                            ),
+                                                            Icon(
+                                                              Icons.camera_alt,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                        getImage("gallery");
+                                                      },
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              vertical: 18.0,
+                                                              horizontal: 18.0,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          border: Border(
+                                                            bottom: BorderSide(
+                                                              color:
+                                                                  customColors()
+                                                                      .fontPrimary,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            TranslatedText(
+                                                              text: "Gallery",
+                                                              style: customTextStyle(
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .BodyL_Bold,
+                                                                color:
+                                                                    FontColor
+                                                                        .FontPrimary,
+                                                              ),
+                                                            ),
+                                                            Icon(
+                                                              Icons
+                                                                  .browse_gallery,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 24.0,
+                                                    vertical: 12.0,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    customColors().secretGarden,
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0),
+                                              ),
+                                              child: Center(
+                                                child: TranslatedText(
+                                                  text: "Retake",
+                                                  style: customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle.BodyM_Bold,
+                                                    color: FontColor.White,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  : SizedBox(height: 100.0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            listener: (context, state) {
+              if (state is DeliveryBillUpdatedState) {
+                setState(() {
+                  upload = true;
+                  uploading = false;
+                });
+              }
 
-          //         //     if (state is DeliveryBillUpdateErrorState) {
-          //         //       setState(() {
-          //         //         upload = false;
-          //         //       });
+              if (state is DeliveryBillUpdateErrorState) {
+                setState(() {
+                  upload = false;
+                });
 
-          //         //       toastification.show(
-          //         //         backgroundColor: customColors().carnationRed,
-          //         //         context: context,
-          //         //         title: TranslatedText(
-          //         //           text: "Failed To Upload Bill Please Try Again...!",
-          //         //           style: customTextStyle(
-          //         //             fontStyle: FontStyle.BodyL_Bold,
-          //         //             color: FontColor.White,
-          //         //           ),
-          //         //         ),
-          //         //       );
-          //         //     }
+                toastification.show(
+                  backgroundColor: customColors().carnationRed,
+                  context: context,
+                  title: TranslatedText(
+                    text: "Failed To Upload Bill Please Try Again...!",
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyL_Bold,
+                      color: FontColor.White,
+                    ),
+                  ),
+                );
+              }
 
-          //         //     if (state is DeliveryStatusUpdateState) {
-          //         //       setState(() {
-          //         //         updatestat = false;
-          //         //       });
-          //         //     }
-          //         //   },
-          //         // ),
+              if (state is DeliveryStatusUpdateState) {
+                setState(() {
+                  updatestat = false;
+                });
+              }
+            },
+          ),
         ],
       ),
       bottomNavigationBar:

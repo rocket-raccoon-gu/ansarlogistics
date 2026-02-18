@@ -61,6 +61,7 @@ class Profile {
   DateTime updatedAt;
   String rpToken;
   DateTime rpTokenCreatedAt;
+  String token;
 
   Profile({
     required this.id,
@@ -94,6 +95,7 @@ class Profile {
     required this.updatedAt,
     required this.rpToken,
     required this.rpTokenCreatedAt,
+    required this.token,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
@@ -128,6 +130,7 @@ class Profile {
     updatedAt: DateTime.parse(json["updated_at"]),
     rpToken: json["rp_token"] ?? "",
     rpTokenCreatedAt: DateTime.parse(json["rp_token_created_at"]),
+    token: json["token"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -162,5 +165,6 @@ class Profile {
     "updated_at": updatedAt.toIso8601String(),
     "rp_token": rpToken,
     "rp_token_created_at": rpTokenCreatedAt.toIso8601String(),
+    "token": token,
   };
 }

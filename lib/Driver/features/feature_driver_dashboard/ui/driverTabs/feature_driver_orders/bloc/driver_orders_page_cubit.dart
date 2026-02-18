@@ -173,6 +173,8 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
             ),
           ]);
 
+          String? token = await PreferenceUtils.getDataFromShared("usertoken");
+
           // Update controller
           UserController.userController
             ..locationlatitude = position.latitude.toString()
@@ -184,6 +186,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
                 userId: UserController.userController.profile.id,
                 latitude: position.latitude.toString(),
                 longitude: position.longitude.toString(),
+                token: token!,
               )
               .timeout(Duration(seconds: 15)); // Add timeout
 
@@ -231,10 +234,13 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
   updatelocation(String latitude, String longitude) async {
     String? val = await PreferenceUtils.getDataFromShared("userid");
 
+    final String? token = await PreferenceUtils.getDataFromShared("usertoken");
+
     final resp = await pdApiGateway.pickerDriverApi.updateDriverLocation(
       userId: int.parse(val!),
       latitude: latitude,
       longitude: longitude,
+      token1: token!,
     );
 
     if (resp.statusCode == 200) {

@@ -176,7 +176,10 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
     String scannedsku1,
     String producebarcode,
     String isProduce,
-    String product_id,
+    String productId,
+    String actualSku,
+    String oldItemPrice,
+    String oldItemQty,
   ) async {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
@@ -199,14 +202,17 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
         'item_id': itemdata!.id,
         'order_number': itemdata!.subgroupIdentifier,
         'scanned_sku': scannedsku1,
+        'actual_sku': actualSku,
         'status': "replaced",
         'price': isProduce == "1" ? newProducrPrice : price,
+        'old_item_price': oldItemPrice,
         'qty': newProductQty,
         'preparation_id': data['preparationId'],
         'is_produce': isProduce == "1" ? 1 : 0,
-        'productId': product_id,
+        'productId': productId,
         'name': product_name,
         'reason': reason,
+        'old_item_qty': oldItemQty,
       };
 
       // print('📝 [DEBUG] Request body to send:');

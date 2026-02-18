@@ -85,6 +85,10 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
                 position.longitude.toString(),
               );
 
+              String? token = await PreferenceUtils.getDataFromShared(
+                "usertoken",
+              );
+
               UserController.userController.locationlatitude =
                   position.latitude.toString();
 
@@ -96,6 +100,7 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
                     userId: UserController().profile.id,
                     latitude: position.latitude.toString(),
                     longitude: position.longitude.toString(),
+                    token: token!,
                   );
 
               if (resp1.statusCode == 200) {

@@ -825,32 +825,34 @@ extension PDGeneralApi on PickerDriverApi {
     required int userId,
     required String latitude,
     required String longitude,
+    required String token1,
   }) async {
-    final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/pd_driverstatus.php',
-    );
+    final url = _endpointWithApplicationPath('driver/driverstatus/$userId');
 
     log(url.toString());
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
-      'Authorization': 'Bearer $token',
+      'Authorization': 'Bearer $token1',
     };
 
     serviceSend("User Distance Update");
 
     Map<String, dynamic> usermap = {
-      "user_id": userId,
-      "lat": latitude,
-      "long": longitude,
+      "status": 1,
+      "latitude": latitude,
+      "longitude": longitude,
     };
 
     log(usermap.toString());
 
+    log("token1111: ${token1.toString()}");
+
     try {
       return _handleRequest(
         onRequest:
-            () => _client.put(url, body: jsonEncode(usermap), headers: headers),
+            () =>
+                _client.patch(url, body: jsonEncode(usermap), headers: headers),
         onResponse: (response) {
           return response;
         },

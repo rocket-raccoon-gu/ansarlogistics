@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:picker_driver_api/picker_driver_api.dart';
-import 'package:picker_driver_api/responses/order_response.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 import 'package:toastification/toastification.dart';
 
 class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
@@ -29,7 +29,7 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
     updateOrder();
   }
 
-  Order? orderResponseItem;
+  DataItem? orderResponseItem;
 
   updateOrder() {
     orderResponseItem = data['order'];

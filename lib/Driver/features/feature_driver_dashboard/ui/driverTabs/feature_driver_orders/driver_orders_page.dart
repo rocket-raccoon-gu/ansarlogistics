@@ -301,9 +301,10 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                 Expanded(
                   child: Column(
                     children: [
-                      Lottie.asset(
-                        'assets/lottie_files/Animation - 1733906326255.json',
-                      ),
+                      // Lottie.asset(
+                      //   'assets/lottie_files/Animation - 1733906326255.json',
+                      // ),
+                      CircularProgressIndicator(color: customColors().green3),
                       TranslatedText(
                         text: "Finding Orders...!",
                         style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),

@@ -528,6 +528,10 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                                     '')
                                                 .toString(),
                                             erp.erpItemNumber.toString(),
+                                            widget.itemdata.sku.toString(),
+                                            widget.itemdata.price.toString(),
+                                            widget.itemdata.qtyOrdered
+                                                .toString(),
                                           );
                                     } else if (context
                                             .read<ItemReplacementPageCubit>()
@@ -556,9 +560,12 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                             product.regularPrice,
                                             product.sku.toString(),
                                             barcodeController.text,
-                                            (product.isProduce ?? '0')
-                                                .toString(),
+                                            product.isProduce.toString(),
                                             product.productId.toString(),
+                                            widget.itemdata!.sku.toString(),
+                                            widget.itemdata!.price.toString(),
+                                            widget.itemdata!.qtyOrdered
+                                                .toString(),
                                           );
                                     }
                                   }

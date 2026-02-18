@@ -81,6 +81,7 @@ class UserController {
     rpTokenCreatedAt: DateTime.now(),
     categoryIds: "",
     zoneFlag: 0,
+    token: "",
   );
 
   dispose() {

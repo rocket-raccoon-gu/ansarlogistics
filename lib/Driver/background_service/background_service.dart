@@ -251,28 +251,33 @@ void fetchcurrentaddress() async {
             //           //             vibrationPattern:
             //           //                 Int64List.fromList([0, 1000, 5000, 2000]))));
           } else {
-            final resp = await locator.tradingApi.updateDriverLocationdetails(
-              // ignore: unnecessary_null_comparison
-              userId: int.parse(val!),
-              latitude: position1!.latitude.toString(),
-              longitude: position1!.longitude.toString(),
-            );
+            // final String? token = await PreferenceUtils.getDataFromShared(
+            //   "usertoken",
+            // );
 
-            if (resp.statusCode == 200) {
-              PreferenceUtils.storeDataToShared(
-                "driverlat",
-                position1!.latitude.toString(),
-              );
+            // final resp = await locator.tradingApi.updateDriverLocationdetails(
+            //   // ignore: unnecessary_null_comparison
+            //   userId: int.parse(val!),
+            //   latitude: position1!.latitude.toString(),
+            //   longitude: position1!.longitude.toString(),
+            //   token: token!,
+            // );
 
-              PreferenceUtils.storeDataToShared(
-                "driverlong",
-                position1!.longitude.toString(),
-              );
+            // if (resp.statusCode == 200) {
+            //   PreferenceUtils.storeDataToShared(
+            //     "driverlat",
+            //     position1!.latitude.toString(),
+            //   );
 
-              log("location updated");
-            } else {
-              log("location not updated");
-            }
+            //   PreferenceUtils.storeDataToShared(
+            //     "driverlong",
+            //     position1!.longitude.toString(),
+            //   );
+
+            //   log("location updated");
+            // } else {
+            //   log("location not updated");
+            // }
           }
         }
       } catch (e) {

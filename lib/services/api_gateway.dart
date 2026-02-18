@@ -461,13 +461,17 @@ class PDApiGateway implements AuthenticationService {
     required int userId,
     required String latitude,
     required String longitude,
+    required String token,
   }) async {
     try {
+      log("token $token");
+
       final response = await pickerDriverApi
           .updateDriverLocation(
             userId: userId,
             latitude: latitude,
             longitude: longitude,
+            token1: token,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
