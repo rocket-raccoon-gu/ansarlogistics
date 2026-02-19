@@ -31,7 +31,7 @@ import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_
 //################## DEVELOPMENT NEW ###########################
 
 // keep these as default constants if you want
-const defaultBaseUrl = "https://pickerdriver-api.testuatah.com";
+const defaultBaseUrl = "https://logistic.ansargallery.qa";
 const defaultApplicationPath = "/api/";
 const defaultProductUrl = "https://www.ansargallery.com/rest/V1/";
 
