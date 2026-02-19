@@ -146,9 +146,8 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
       sku: src.sku,
       price: price ?? src.price,
       qtyOrdered: src.qtyOrdered,
-      qtyShipped:
-          double.parse(qtyShipped.toString()).toInt().toString() ??
-          src.qtyShipped,
+      // If a new shipped quantity is provided, convert it to String; otherwise, keep existing value.
+      qtyShipped: qtyShipped != null ? qtyShipped.toString() : src.qtyShipped,
       categoryId: src.categoryId,
       categoryName: src.categoryName,
       imageUrl: src.imageUrl,

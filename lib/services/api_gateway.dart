@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 import 'package:ansarlogistics/services/authentication_service.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
+import 'package:ansarlogistics/utils/firebase_api_logger.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:picker_driver_api/picker_driver_api.dart';
@@ -109,6 +110,7 @@ class PDApiGateway implements AuthenticationService {
     } catch (e) {
       log("An error occurred: $e");
       serviceSendError("Login service Error: $e");
+
       rethrow;
     }
   }

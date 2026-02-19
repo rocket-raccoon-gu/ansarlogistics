@@ -49,7 +49,7 @@ class Datum {
   int orderId;
   String orderStatus;
   dynamic statusType;
-  DateTime deliveryFrom;
+  DateTime? deliveryFrom;
   DateTime? deliveryTo;
   String? timerange;
   int pickerId;
@@ -160,7 +160,10 @@ class Datum {
     orderId: json["order_id"] ?? 0,
     orderStatus: json["order_status"] ?? "",
     statusType: json["status_type"] ?? "",
-    deliveryFrom: DateTime.parse(json["delivery_from"]),
+    deliveryFrom:
+        json["delivery_from"] == null
+            ? null
+            : DateTime.parse(json["delivery_from"]),
     deliveryTo:
         json["delivery_to"] == null
             ? null
@@ -225,7 +228,7 @@ class Datum {
     "order_id": orderId,
     "order_status": orderStatus,
     "status_type": statusType,
-    "delivery_from": deliveryFrom.toIso8601String(),
+    "delivery_from": deliveryFrom?.toIso8601String(),
     "delivery_to": deliveryTo?.toIso8601String(),
     "timerange": timerange,
     "picker_id": pickerId ?? 0,

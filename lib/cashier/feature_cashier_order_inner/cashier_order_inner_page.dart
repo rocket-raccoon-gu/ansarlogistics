@@ -1768,7 +1768,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       if ((order.postcode ?? '').isNotEmpty) order.postcode!,
     ].where((e) => (e ?? '').toString().trim().isNotEmpty).join(', ');
     // Delivery date and time range formatting
-    final String deliveryDateText = getdateformatted(order.deliveryFrom);
+    final String deliveryDateText = getdateformatted(order.deliveryFrom!);
     final String? timeRangeText =
         (() {
           final tr = (order.timerange ?? '').toString().trim();
@@ -1778,12 +1778,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           final tf = DateFormat('hh:mm a');
           try {
             if (to != null) {
-              final fromStr = tf.format(from);
+              final fromStr = tf.format(from!);
               final toStr = tf.format(to);
               if (fromStr != toStr) return '$fromStr - $toStr';
               return fromStr;
             }
-            return tf.format(from);
+            return tf.format(from!);
           } catch (_) {
             return null;
           }

@@ -10,6 +10,7 @@ import 'package:http/io_client.dart';
 import 'package:picker_driver_api/requests/update_section_request.dart';
 import 'package:picker_driver_api/responses/base_response.dart';
 import 'package:picker_driver_api/responses/login_response.dart';
+import 'package:picker_driver_api/utils/firebase_api_logger.dart';
 import 'package:picker_driver_api/utils/utils.dart';
 
 import 'requests/login_request.dart' as loginRequestModel;
@@ -296,6 +297,27 @@ extension PDGeneralApi on PickerDriverApi {
         },
       );
     } catch (e) {
+      final duration = DateTime.now().difference(DateTime.now()).inMilliseconds;
+
+      await FirebaseApiLogger.logApiError(
+        apiName: 'Login Api',
+        payload: {
+          'username': userId,
+          'password': password,
+          'version': appversion,
+          'os': 'Android',
+          // DO NOT include password in logs if you care about security
+        },
+        req: {
+          'url': '$baseUrl/login', // or however you build it
+          'method': 'POST',
+        },
+        timedurationMs: duration,
+        token: bearertoken, // or your token if available
+        userid: userId, // no user yet at login
+        error: e.toString(),
+      );
+
       serviceSendError("Login");
       rethrow;
     }

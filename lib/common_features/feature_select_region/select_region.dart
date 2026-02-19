@@ -103,8 +103,10 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                   .userController
                                   .mainbaseUrl = String.fromEnvironment(
                                 'BASE_URL',
+                                // defaultValue:
+                                //     "https://pickerdriver-api.testuatah.com",
                                 defaultValue:
-                                    "https://pickerdriver-api.testuatah.com",
+                                    "https://logistic.ansargallery.qa",
                               );
                               // await PreferenceUtils.storeDataToShared(
                               //     "mainbaseurl",

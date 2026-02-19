@@ -228,7 +228,7 @@ class OrderTile extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Delivery Date: ${getdateformatted(order.deliveryFrom)}',
+              'Delivery Date: ${getdateformatted(order.deliveryFrom!)}',
               style: customTextStyle(
                 fontStyle: FontStyle.BodyL_Regular,
                 color: FontColor.FontSecondary,
@@ -360,12 +360,12 @@ class OrderTile extends StatelessWidget {
       final tf = DateFormat('hh:mm a');
       try {
         if (to != null) {
-          final fromStr = tf.format(from);
+          final fromStr = tf.format(from!);
           final toStr = tf.format(to);
           if (fromStr != toStr) return '$fromStr - $toStr';
           return fromStr;
         }
-        return tf.format(from);
+        return tf.format(from!);
       } catch (_) {
         return null;
       }

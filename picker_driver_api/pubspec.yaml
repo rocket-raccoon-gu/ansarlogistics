@@ -30,6 +30,11 @@ dependencies:
   plugin_platform_interface: ^2.0.2
   http: any
   uuid: any
+  firebase_core: any
+  firebase_crashlytics: any
+  firebase_storage: any
+  firebase_database: any
+  intl: any
 
 dev_dependencies:
   flutter_test:
