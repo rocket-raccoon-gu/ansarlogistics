@@ -1197,11 +1197,11 @@ extension PDGeneralApi on PickerDriverApi {
       "action": action,
     };
 
-    // final url = Uri.parse(
-    //   'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
-    // );
+    final url = Uri.parse(
+      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
+    );
 
-    final url = _endpointWithApplicationPath('picker/orders/check-sku');
+    // final url = _endpointWithApplicationPath('picker/orders/check-sku');
 
     log("-------------------------------------");
 

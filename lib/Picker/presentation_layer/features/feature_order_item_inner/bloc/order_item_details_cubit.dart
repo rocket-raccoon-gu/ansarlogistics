@@ -593,10 +593,12 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
               }
 
               if (productDBdata.sku == orderItem.sku ||
-                  productDBdata.barcodes.contains(scannedSku)) {
+                  productDBdata.barcodes.contains(
+                    scannedSku.trim().toString(),
+                  )) {
                 showPickConfirmBottomSheet(
-                  name: productDBdata.skuName ?? '-',
-                  sku: productDBdata.sku ?? '-',
+                  name: productDBdata.skuName!,
+                  sku: productDBdata.sku!,
                   oldPrice: orderItem.price?.toString(),
                   imageUrl: orderItem.productImage?.split(',').first,
                   newPrice:

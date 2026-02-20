@@ -3,7 +3,8 @@ import 'dart:developer';
 import 'dart:typed_data';
 import 'package:ansarlogistics/services/authentication_service.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
-import 'package:ansarlogistics/utils/firebase_api_logger.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:picker_driver_api/utils/firebase_api_logger.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:picker_driver_api/picker_driver_api.dart';
@@ -89,7 +90,29 @@ class PDApiGateway implements AuthenticationService {
             bearertoken: bearertoken,
             appversion: appversion,
           )
-          .catchError((e, trace) {
+          .catchError((e, trace) async {
+            final duration =
+                DateTime.now().difference(DateTime.now()).inMilliseconds;
+
+            await FirebaseApiLogger.logApiError(
+              apiName: 'Login Api',
+              payload: {
+                'username': userId,
+                'password': password,
+                'version': appversion,
+                'os': 'Android',
+                // DO NOT include password in logs if you care about security
+              },
+              req: {
+                'url': '/api/auth/login', // or however you build it
+                'method': 'POST',
+              },
+              timedurationMs: duration, // TODO: get actual duration
+              token: bearertoken, // or your token if available
+              userid: userId, // no user yet at login
+              error: e.toString(),
+            );
+
             fatalError(e.toString(), trace);
             networkStreamController.sink.add(e.toString());
             throw e;
@@ -104,10 +127,51 @@ class PDApiGateway implements AuthenticationService {
           );
       return response;
     } on TimeoutException catch (e) {
+      final duration = DateTime.now().difference(DateTime.now()).inMilliseconds;
+
+      await FirebaseApiLogger.logApiError(
+        apiName: 'Login Api',
+        payload: {
+          'username': userId,
+          'password': password,
+          'version': appversion,
+          'os': 'Android',
+          // DO NOT include password in logs if you care about security
+        },
+        req: {
+          'url': '/api/auth/login', // or however you build it
+          'method': 'POST',
+        },
+        timedurationMs: duration, // TODO: get actual duration
+        token: bearertoken, // or your token if available
+        userid: userId, // no user yet at login
+        error: e.toString(),
+      );
+
       log("TimeoutException: ${e.message}");
       networkStreamController.sink.add("Request timed out after 10 seconds.");
       throw e; // Optionally rethrow or handle gracefully
     } catch (e) {
+      final duration = DateTime.now().difference(DateTime.now()).inMilliseconds;
+
+      await FirebaseApiLogger.logApiError(
+        apiName: 'Login Api',
+        payload: {
+          'username': userId,
+          'password': password,
+          'version': appversion,
+          'os': 'Android',
+          // DO NOT include password in logs if you care about security
+        },
+        req: {
+          'url': '/api/auth/login', // or however you build it
+          'method': 'POST',
+        },
+        timedurationMs: duration, // TODO: get actual duration
+        token: bearertoken, // or your token if available
+        userid: userId, // no user yet at login
+        error: e.toString(),
+      );
       log("An error occurred: $e");
       serviceSendError("Login service Error: $e");
 
@@ -758,6 +822,20 @@ class PDApiGateway implements AuthenticationService {
             token1: token1,
           )
           .catchError((e) {
+            FirebaseApiLogger.logApiError(
+              apiName: 'Check Barcode DB Api',
+              payload: {
+                'endpoint': endpoint,
+                'productSku': productSku,
+                'action': action,
+              },
+              req: {'url': '/api/check-barcode-db', 'method': 'POST'},
+              timedurationMs: 0,
+              token: token1,
+              userid: UserController.userController.profile.id.toString(),
+              error: e.toString(),
+            );
+
             log("❗ Network Error in checkBarcodeDB: $e");
             // print("❗ Network Error in checkBarcodeDB: $e");
 
