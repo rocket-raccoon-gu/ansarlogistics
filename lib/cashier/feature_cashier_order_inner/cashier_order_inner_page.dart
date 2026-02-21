@@ -1695,6 +1695,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       final paid = _toDouble(order.orderAmount);
       final due = grandTotal - paid;
 
+      final token = await PreferenceUtils.getDataFromShared('usertoken');
+
       final resp = await context.gTradingApiGateway.updateMainOrderStat(
         orderid: order.subgroupIdentifier,
         // If your backend expects a different keyword, adjust here
@@ -1721,6 +1723,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         dueAmount: ((due < 0 ? 0 : due).toStringAsFixed(2)),
         dispatchMethod: dispatchMethod,
         paymentMethod: paymentMethodnew ?? order.paymentMethod,
+        token1: token!,
       );
 
       if (mounted) {

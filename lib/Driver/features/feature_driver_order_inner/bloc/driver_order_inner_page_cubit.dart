@@ -65,6 +65,7 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
         userid: UserController().profile.id.toString(),
         latitude: UserController.userController.locationlatitude,
         longitude: UserController.userController.locationlongitude,
+        token1: UserController().profile.token.toString(),
       );
 
       if (resp.statusCode == 200) {

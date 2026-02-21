@@ -508,6 +508,7 @@ extension PDGeneralApi on PickerDriverApi {
     String? dueAmount,
     String? dispatchMethod,
     String? paymentMethod,
+    required String token1,
   }) {
     Uri url = _endpointWithApplicationPath(
       'driver/orders/driver/status/$orderid',
@@ -519,6 +520,7 @@ extension PDGeneralApi on PickerDriverApi {
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token1',
     };
 
     if (dispatchMethod != null) {
@@ -552,9 +554,13 @@ extension PDGeneralApi on PickerDriverApi {
 
     // print(url);
 
+    log(url.toString());
+
     log(body.toString());
 
     log(DateTime.now().toString());
+
+    log("token ------ ${token1}");
 
     // throw Exception("Order Error");
 
@@ -562,7 +568,7 @@ extension PDGeneralApi on PickerDriverApi {
       serviceSend("update main order stat");
       return _handleRequest(
         onRequest:
-            () => _client.put(url, body: jsonEncode(body), headers: headers),
+            () => _client.patch(url, body: jsonEncode(body), headers: headers),
         onResponse: (response) {
           log(DateTime.now().toString());
 

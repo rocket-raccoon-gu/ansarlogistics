@@ -130,6 +130,7 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         userid: UserController().profile.id.toString(),
         latitude: lat,
         longitude: long,
+        token1: UserController().profile.token.toString(),
       );
 
       // final resp = await serviceLocator.tradingApi.updateMainOrderStat(
