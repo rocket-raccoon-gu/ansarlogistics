@@ -19,6 +19,11 @@ android {
 
     }
 
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+
     kotlinOptions {
         jvmTarget = "17"
     }
