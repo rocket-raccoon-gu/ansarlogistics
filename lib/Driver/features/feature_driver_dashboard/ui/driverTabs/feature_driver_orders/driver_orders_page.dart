@@ -49,6 +49,8 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
 
   bool isloading = false;
 
+  Timer? _locationTimer; // periodic location update timer
+
   @override
   void initState() {
     // TODO: implement initState
@@ -72,8 +74,6 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
 
     getusercheck();
     DateTime current = DateTime.now();
-
-    super.initState();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -127,7 +127,13 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
     if (state == AppLifecycleState.resumed) {
       await Future.delayed(Duration(seconds: 2));
 
-      Timer.periodic(Duration(seconds: 30), (tim) async {
+      // Cancel any existing timer before starting a new one
+      _locationTimer?.cancel();
+      _locationTimer = Timer.periodic(Duration(seconds: 30), (tim) async {
+        if (!mounted) {
+          tim.cancel();
+          return;
+        }
         await Permission.location.isGranted.then((value) async {
           if (value) {
             try {
@@ -192,6 +198,17 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
       //   RestartWidget.restartApp(context);
       // }
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _locationTimer?.cancel();
+    fcmRefreshSubScription?.cancel();
+    fcmRefreshStream.close();
+    scrollController.dispose();
+    _searchcontroller.dispose();
+    super.dispose();
   }
 
   @override
