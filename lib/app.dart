@@ -5,6 +5,7 @@ import 'package:ansarlogistics/app_theme.dart';
 import 'package:ansarlogistics/navigations/navigation.dart'
     show onGenerateAppRoute;
 import 'package:ansarlogistics/services/service_locator.dart';
+import 'package:ansarlogistics/services/scandit_manager.dart';
 import 'package:ansarlogistics/themes/custom_theme.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
@@ -32,7 +33,7 @@ class PDApp extends StatefulWidget {
   State<PDApp> createState() => _PDAppState();
 }
 
-class _PDAppState extends State<PDApp> {
+class _PDAppState extends State<PDApp> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
 
   CustomMode themeMode = CustomMode.Light;
@@ -42,9 +43,26 @@ class _PDAppState extends State<PDApp> {
     if (applyTheme) SystemChrome.setSystemUIOverlayStyle(lightTheme);
     getUserCredentials();
     getTheme();
-    // TODO: implement initState
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
     NetworkStatusService();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // Clean up Scandit resources when app is disposed
+    ScanditManager.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.detached) {
+      // Clean up Scandit resources when app is completely closed
+      ScanditManager.dispose();
+    }
   }
 
   getTheme() async {

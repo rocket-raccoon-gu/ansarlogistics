@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode_capture.dart';
 import 'package:scandit_flutter_datacapture_core/scandit_flutter_datacapture_core.dart';
-import 'package:ansarlogistics/constants/texts.dart';
+import 'package:ansarlogistics/services/scandit_manager.dart';
 
 class ScanditBarcodeScannerPage extends StatefulWidget {
   const ScanditBarcodeScannerPage({super.key});
@@ -27,66 +27,9 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _initScanner();
   }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   // Create a fresh context
-  //   _context = DataCaptureContext.forLicenseKey(scankey);
-
-  //   // Remove any previously attached modes (prevents Error 1028)
-  //   try {
-  //     _context.removeAllModes();
-  //   } catch (_) {}
-
-  //   // Setup camera
-  //   _camera = Camera.defaultCamera!;
-  //   _context.setFrameSource(_camera);
-  //   _camera.switchToDesiredState(FrameSourceState.on);
-
-  //   // Configure barcode settings
-  //   final settings = BarcodeCaptureSettings();
-  //   settings.enableSymbologies({
-  //     Symbology.ean13Upca,
-  //     Symbology.ean8,
-  //     Symbology.upce,
-  //     Symbology.code39,
-  //     Symbology.code128,
-  //     Symbology.interleavedTwoOfFive,
-  //   });
-
-  //   // Enable UPC-A → remove leading zero (ONLY for UPC-A inside EAN13)
-  //   final ean13UpcaSettings = settings.settingsForSymbology(
-  //     Symbology.ean13Upca,
-  //   );
-
-  //   // Enable extension
-  //   ean13UpcaSettings.setExtensionEnabled(
-  //     'remove_leading_upca_zero',
-  //     enabled: true,
-  //   );
-
-  //   // DON'T use non-existent setters (e.g. singleBarcodeAutoDetection)
-  //   _barcodeCapture = BarcodeCapture.forContext(_context, settings);
-  //   _barcodeCapture.addListener(this);
-  //   _barcodeCapture.isEnabled = true;
-
-  //   // Create native camera view and overlay
-  //   _captureView = DataCaptureView.forContext(_context);
-
-  //   final overlay = BarcodeCaptureOverlay.withBarcodeCapture(_barcodeCapture);
-  //   overlay.viewfinder = RectangularViewfinder();
-
-  //   // Use named parameters for Brush for clarity
-  //   overlay.brush = Brush(Colors.transparent, Colors.greenAccent, 4);
-
-  //   _captureView.addOverlay(overlay);
-  // }
 
   Future<void> _initScanner() async {
     try {
@@ -101,13 +44,19 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
         throw Exception('scandit-key not found in Firestore');
       }
       final String scankeyFromFs = data['scandit-key'] as String;
-      // 2. Create Scandit context with key from Firestore
-      _context = DataCaptureContext.forLicenseKey(scankeyFromFs);
-      // 3. Rest of your initState logic, moved here:
-      _context.removeAllModes();
+
+      // 2. Use ScanditManager to get shared context (prevents Error 1028)
+      _context = ScanditManager.getContext(scankeyFromFs);
+
+      // 3. Remove any existing modes to prevent conflicts
+      ScanditManager.removeAllModes();
+
+      // 4. Setup camera
       _camera = Camera.defaultCamera!;
       _context.setFrameSource(_camera);
       _camera.switchToDesiredState(FrameSourceState.on);
+
+      // 5. Configure barcode settings
       final settings = BarcodeCaptureSettings();
       settings.enableSymbologies({
         Symbology.ean13Upca,
@@ -124,14 +73,22 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
         'remove_leading_upca_zero',
         enabled: true,
       );
+
+      // 6. Create barcode capture with context
       _barcodeCapture = BarcodeCapture.forContext(_context, settings);
       _barcodeCapture.addListener(this);
       _barcodeCapture.isEnabled = true;
+
+      // Register with ScanditManager for proper cleanup
+      ScanditManager.registerMode(_barcodeCapture);
+
+      // 7. Create view and overlay
       _captureView = DataCaptureView.forContext(_context);
       final overlay = BarcodeCaptureOverlay.withBarcodeCapture(_barcodeCapture);
       overlay.viewfinder = RectangularViewfinder();
       overlay.brush = Brush(Colors.transparent, Colors.greenAccent, 4);
       _captureView.addOverlay(overlay);
+
       setState(() {
         _isLoading = false;
       });
@@ -248,8 +205,15 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
       _barcodeCapture.removeListener(this);
     } catch (_) {}
     try {
+      _barcodeCapture.isEnabled = false;
+    } catch (_) {}
+    try {
       _camera.switchToDesiredState(FrameSourceState.off);
     } catch (_) {}
+
+    // Unregister from ScanditManager for proper cleanup
+    ScanditManager.unregisterMode(_barcodeCapture);
+
     super.dispose();
   }
 

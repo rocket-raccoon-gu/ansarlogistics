@@ -104,7 +104,7 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
             height: screenSize.height * 0.1,
             child: Column(
               children: [
-                widget.orderResponseItem.status != "on_the_way"
+                widget.orderResponseItem.order.status != "on_the_way"
                     ? SizedBox(
                       width: MediaQuery.of(context).size.width,
                       child: Padding(
@@ -136,6 +136,7 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
                                       >(context).updateMainOrderStat(
                                         widget
                                             .orderResponseItem
+                                            .order
                                             .subgroupIdentifier,
                                         "on_the_way",
                                       );
@@ -147,10 +148,13 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
                     : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child:
-                          double.parse(widget.orderResponseItem.grandTotal) >=
+                          double.parse(
+                                        widget.orderResponseItem.order.total
+                                            .toString(),
+                                      ) >=
                                       500 ||
-                                  widget.orderResponseItem.type == "VPO" ||
-                                  widget.orderResponseItem.type == "SUP"
+                                  getType(widget.orderResponseItem) == "VPO" ||
+                                  getType(widget.orderResponseItem) == "SUP"
                               ? BasketButton(
                                 onpress: () {
                                   context.gNavigationService

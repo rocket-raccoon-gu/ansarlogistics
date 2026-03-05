@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:translator/translator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 final translator = GoogleTranslator();
 
@@ -277,6 +278,26 @@ Color getTypeColor(String type) {
 
     default:
       return customColors().fontPrimary;
+  }
+}
+
+String getType(DataItem orders) {
+  if (orders.order.subgroupIdentifier.startsWith("EXP")) {
+    return "EXP";
+  } else if (orders.order.subgroupIdentifier.startsWith("NOL")) {
+    return "NOL";
+  } else if (orders.order.subgroupIdentifier.startsWith("VPO")) {
+    return "VPO";
+  } else if (orders.order.subgroupIdentifier.startsWith("SUP")) {
+    return "SUP";
+  } else if (orders.order.subgroupIdentifier.startsWith("CAK")) {
+    return "CAK";
+  } else if (orders.order.subgroupIdentifier.startsWith("WAR")) {
+    return "WAR";
+  } else if (orders.order.subgroupIdentifier.startsWith("ABY")) {
+    return "Aby";
+  } else {
+    return "Unknown";
   }
 }
 

@@ -91,7 +91,7 @@ Widget dispatchSelector({
   // if (subgroupId.startsWith('EXP') &&
   //     paymentMethod.toLowerCase() == 'cashondelivery') {
   // Add Rafeeq Driver for EXP subgroups
-  options.add({'key': 'driver', 'label': 'Rafeeq Driver'});
+  // options.add({'key': 'driver', 'label': 'Rafeeq Driver'});
 
   // Add Snoonu Rider option only for specific postcodes in EXP subgroups
   // final postcodePrefix =
@@ -100,7 +100,7 @@ Widget dispatchSelector({
   //     ((postcodePrefix >= 42 && postcodePrefix <= 46) ||
   //         postcodePrefix == 50 ||
   //         (postcodePrefix >= 56 && postcodePrefix <= 58))) {
-  options.add({'key': 'rider', 'label': 'Snoonu'});
+  // options.add({'key': 'rider', 'label': 'Snoonu'});
   // }
   // }
 
@@ -140,37 +140,43 @@ Widget dispatchSelector({
                 _ => Icons.local_shipping_outlined,
               };
 
-              return ChoiceChip(
-                // small, neat chips
-                visualDensity: VisualDensity.comfortable,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                labelPadding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 2,
-                ),
-                label: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      icon,
-                      size: 16,
-                      color: selected ? customColors().backgroundPrimary : null,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      o['label']!,
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyL_SemiBold,
+              return Padding(
+                padding: const EdgeInsets.only(right: 32.0, left: 8),
+                child: ChoiceChip(
+                  // small, neat chips
+                  visualDensity: VisualDensity.comfortable,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  labelPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        icon,
+                        size: 16,
                         color:
-                            selected ? FontColor.White : FontColor.FontPrimary,
+                            selected ? customColors().backgroundPrimary : null,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Text(
+                        o['label']!,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_SemiBold,
+                          color:
+                              selected
+                                  ? FontColor.White
+                                  : FontColor.FontPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  selected: selected,
+                  onSelected: (_) => onChanged(key),
+                  selectedColor: selectedBg,
+                  backgroundColor: selectedBg,
                 ),
-                selected: selected,
-                onSelected: (_) => onChanged(key),
-                selectedColor: selectedBg,
-                backgroundColor: selectedBg,
               );
             }).toList(),
       ),

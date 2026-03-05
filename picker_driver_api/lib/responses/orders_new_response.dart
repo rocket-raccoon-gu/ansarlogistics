@@ -49,6 +49,7 @@ class OrderNew {
   String? status;
   String? statusText;
   String? deliveryNote;
+  String? preference;
   String? deliveryDate;
   String? timeRange;
   List<OrderItemNew> items;
@@ -65,6 +66,7 @@ class OrderNew {
     this.status,
     this.statusText,
     this.deliveryNote,
+    this.preference,
     this.deliveryDate,
     this.timeRange,
     this.items = const [],
@@ -82,6 +84,7 @@ class OrderNew {
     status: json['status']?.toString(),
     statusText: json['statusText']?.toString(),
     deliveryNote: json['deliveryNote']?.toString(),
+    preference: json['preference']?.toString(),
     deliveryDate: json['deliveryDate']?.toString(),
     timeRange: json['timeRange']?.toString(),
     items:

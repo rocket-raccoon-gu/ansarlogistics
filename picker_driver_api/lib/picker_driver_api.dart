@@ -337,15 +337,11 @@ extension PDGeneralApi on PickerDriverApi {
 
     if (status == "all") {
       urlorder = Uri.parse(
-        _endpointWithApplicationPathString(
-          'driver/orders?id=$id&page_size=$pagesize&current_page=$currentpage',
-        ),
+        _endpointWithApplicationPathString('driver/orders/$id'),
       );
     } else {
       urlorder = Uri.parse(
-        _endpointWithApplicationPathString(
-          'driver/orders?id=$id&page_size=$pagesize&current_page=$currentpage',
-        ),
+        _endpointWithApplicationPathString('driver/orders/$id'),
       );
     }
 
@@ -510,8 +506,12 @@ extension PDGeneralApi on PickerDriverApi {
     String? paymentMethod,
     required String token1,
   }) {
-    Uri url = _endpointWithApplicationPath(
-      'driver/orders/driver/status/$orderid',
+    // Uri url = _endpointWithApplicationPath(
+    //   'driver/orders/driver/status/$orderid',
+    // );
+
+    Uri url = Uri.parse(
+      'https://logistic.ansargallery.qa/api/driver/orders/driver/status/$orderid',
     );
 
     // Uri url = Uri.parse(
@@ -525,12 +525,6 @@ extension PDGeneralApi on PickerDriverApi {
 
     if (dispatchMethod != null) {
       switch (dispatchMethod) {
-        case 'driver':
-          dispatchMethod = 'rafeeq';
-          break;
-        case 'rider':
-          dispatchMethod = 'rider';
-          break;
         case 'shipbee':
           dispatchMethod = 'shipbee';
           break;

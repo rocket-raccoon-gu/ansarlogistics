@@ -13,9 +13,9 @@ class ContactCustomerSheet extends StatelessWidget {
 
   Future<void> handleCall() async {
     String contactsplit =
-        orderResponseItem.telephone.length < 8
-            ? "+974${orderResponseItem.telephone}"
-            : "${orderResponseItem.telephone}";
+        orderResponseItem.customer.mobileNumber.length < 8
+            ? "+974${orderResponseItem.customer.mobileNumber}"
+            : "${orderResponseItem.customer.mobileNumber}";
 
     try {
       c1.call(contactsplit, () async {});
@@ -76,12 +76,12 @@ class ContactCustomerSheet extends StatelessWidget {
                 Expanded(
                   child: InkWell(
                     onTap: () async {
-                      await whatsapp(
-                        '',
-                        orderResponseItem.telephone.trim(),
-                        context,
-                        orderResponseItem.subgroupIdentifier,
-                      );
+                      // await whatsapp(
+                      //   '',
+                      //   orderResponseItem.telephone.trim(),
+                      //   context,
+                      //   orderResponseItem.subgroupIdentifier,
+                      // );
                     },
                     child: Container(
                       child: Column(

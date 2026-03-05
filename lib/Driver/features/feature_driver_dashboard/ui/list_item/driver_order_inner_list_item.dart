@@ -33,14 +33,14 @@ class DriverOrderInnerListItem extends StatelessWidget {
                   top: 4.0,
                   bottom: 4.0,
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child:
-                      orderItem.imageUrl != null &&
-                              orderItem.imageUrl!.isNotEmpty
-                          ? ListImageWidget(imageurl: orderItem.imageUrl!)
-                          : Image.asset('assets/placeholder.png'),
-                ),
+                // child: ClipRRect(
+                //   borderRadius: BorderRadius.circular(10.0),
+                //   child:
+                //       orderItem.imageUrl != null &&
+                //               orderItem.imageUrl!.isNotEmpty
+                //           ? ListImageWidget(imageurl: orderItem.imageUrl!)
+                //           : Image.asset('assets/placeholder.png'),
+                // ),
               ),
             ],
           ),
@@ -101,7 +101,7 @@ class DriverOrderInnerListItem extends StatelessWidget {
                           ),
                           Text(
                             double.parse(
-                              orderItem.price.toString(),
+                              orderItem.amount.toString(),
                             ).toStringAsFixed(2),
                             style: customTextStyle(
                               fontStyle: FontStyle.Inter_SemiBold,
@@ -147,7 +147,9 @@ class DriverOrderInnerListItem extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            (double.parse(orderItem.qty.toString()).toInt())
+                            (double.parse(
+                                  orderItem.quantity.toString(),
+                                ).toInt())
                                 .toString(),
                             style: customTextStyle(
                               fontStyle: FontStyle.Inter_SemiBold,

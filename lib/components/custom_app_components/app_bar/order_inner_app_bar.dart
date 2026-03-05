@@ -48,56 +48,52 @@ class OrderInnerAppBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          Container(
-            height: 35.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: onTapBack,
-                  child: Icon(
-                    Icons.arrow_back,
-                    size: 25,
-                    color: HexColor("#A3A3A3"),
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        onTap: onTapinfo,
-                        child: Text(
-                          title ?? orderResponseItem.id.toString(),
-                          style: customTextStyle(
-                            fontStyle: FontStyle.Lato_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: onTapinfo,
-                        child: ImageIcon(
-                          AssetImage("assets/info.png"),
-                          color: HexColor('#A3A3A3'),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18.0,
-                          vertical: 5.0,
-                        ),
-                        child: Row(children: []),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+      child: Container(
+        height: 35.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+              onTap: onTapBack,
+              child: Icon(
+                Icons.arrow_back,
+                size: 25,
+                color: HexColor("#A3A3A3"),
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: onTapinfo,
+                    child: Text(
+                      title ?? orderResponseItem.id.toString(),
+                      style: customTextStyle(
+                        fontStyle: FontStyle.Lato_Bold,
+                        color: FontColor.FontPrimary,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: onTapinfo,
+                    child: ImageIcon(
+                      AssetImage("assets/info.png"),
+                      color: HexColor('#A3A3A3'),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18.0,
+                      vertical: 5.0,
+                    ),
+                    child: Row(children: []),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

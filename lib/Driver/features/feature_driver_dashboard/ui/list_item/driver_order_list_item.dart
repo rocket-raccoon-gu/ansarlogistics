@@ -78,19 +78,23 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
             ),
           ),
           confirmDismiss: (direction) async {
-            if (widget.orderResponseItem.type == "EXP") {
+            if (widget.orderResponseItem.order.subgroupIdentifier.startsWith(
+              'EXP',
+            )) {
               schedularBottomSheets(
                 context: context,
                 inputwidget: OrderSchedulerDateRange(
-                  orderid: widget.orderResponseItem.subgroupIdentifier,
+                  orderid: widget.orderResponseItem.order.subgroupIdentifier,
                   reschedulesuccess: widget.reschedulesuccess,
                 ),
               );
-            } else if (widget.orderResponseItem.type == "NOL") {
+            } else if (widget.orderResponseItem.order.subgroupIdentifier
+                .startsWith('NOL')) {
               schedularBottomSheets(
                 context: context,
                 inputwidget: OrderSchedulerNol(
-                  mainorderid: widget.orderResponseItem.subgroupIdentifier,
+                  mainorderid:
+                      widget.orderResponseItem.order.subgroupIdentifier,
                   reschedulesuccess: widget.reschedulesuccess,
                 ),
               );
@@ -99,7 +103,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: getTypeColor(widget.orderResponseItem.type),
+                color: getTypeColor(getType(widget.orderResponseItem)),
               ),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10.0),
@@ -120,7 +124,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        widget.orderResponseItem.subgroupIdentifier,
+                        widget.orderResponseItem.order.subgroupIdentifier,
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyL_Bold,
                           color: FontColor.FontPrimary,
@@ -138,7 +142,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                           SizedBox(width: 5.0),
                           Text(
                             getFormatedDate(
-                              widget.orderResponseItem.deliveryFrom.toString(),
+                              widget.orderResponseItem.order.deliveryFrom
+                                  .toString(),
                             ),
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyL_SemiBold,
@@ -206,7 +211,10 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                       vertical: 3.0,
                                     ),
                                     child: Text(
-                                      widget.orderResponseItem.city,
+                                      widget
+                                          .orderResponseItem
+                                          .address
+                                          .apartment,
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyL_Bold,
                                         color: FontColor.FontPrimary,
@@ -222,7 +230,8 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                         Text(
                                           widget
                                               .orderResponseItem
-                                              .billingStreet,
+                                              .address
+                                              .street,
                                           style: customTextStyle(
                                             fontStyle: FontStyle.BodyL_Bold,
                                             color: FontColor.FontPrimary,
@@ -236,7 +245,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                       vertical: 3.0,
                                     ),
                                     child: Text(
-                                      "  ${widget.orderResponseItem.buildingNumber}"
+                                      "  ${widget.orderResponseItem.address.building}"
                                           .toString(),
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyL_Bold,
@@ -253,7 +262,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                     ),
                     Row(
                       children: [
-                        widget.orderResponseItem.status == "on_the_way"
+                        widget.orderResponseItem.order.status == "on_the_way"
                             ? IconButton(
                               onPressed: () async {
                                 customShowModalBottomSheet(
@@ -289,9 +298,12 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                 ),
                                 child: ViewDirectionSheet(
                                   destinationlat:
-                                      widget.orderResponseItem.latitude,
+                                      widget.orderResponseItem.address.latitude,
                                   destinationlong:
-                                      widget.orderResponseItem.longitude,
+                                      widget
+                                          .orderResponseItem
+                                          .address
+                                          .longitude,
                                 ),
                               ),
                             );
@@ -327,7 +339,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                         style: customTextStyle(fontStyle: FontStyle.BodyM_Bold),
                       ),
                       TranslatedText(
-                        text: widget.orderResponseItem.paymentMethod,
+                        text: widget.orderResponseItem.order.paymentMode,
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyM_Bold,
                           color: FontColor.FontPrimary,
@@ -345,7 +357,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                     children: [
                       Expanded(
                         child: TranslatedTextSpan(
-                          text: widget.orderResponseItem.deliveryNote,
+                          text: widget.orderResponseItem.order.deliveryNote,
                         ),
                       ),
                     ],

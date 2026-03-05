@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:picker_driver_api/responses/cashier_order_response.dart';
+
 DriverBaseOrderResponse driverBaseOrderResponseFromJson(String str) =>
     DriverBaseOrderResponse.fromJson(json.decode(str));
 
@@ -12,203 +14,210 @@ String driverBaseOrderResponseToJson(DriverBaseOrderResponse data) =>
 
 class DriverBaseOrderResponse {
   bool success;
-  int count;
-  Data data;
+  DataItem data;
 
-  DriverBaseOrderResponse({
-    required this.success,
-    required this.count,
-    required this.data,
-  });
+  DriverBaseOrderResponse({required this.success, required this.data});
 
   factory DriverBaseOrderResponse.fromJson(Map<String, dynamic> json) =>
       DriverBaseOrderResponse(
         success: json["success"],
-        count: json["count"],
-        data: Data.fromJson(json["data"]),
+        data: DataItem.fromJson(json["data"]),
       );
 
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "count": count,
-    "data": data.toJson(),
-  };
-}
-
-class Data {
-  List<DataItem> items;
-
-  Data({required this.items});
-
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-    items: List<DataItem>.from(json["items"].map((x) => DataItem.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "items": List<dynamic>.from(items.map((x) => x.toJson())),
-  };
+  Map<String, dynamic> toJson() => {"success": success, "data": data.toJson()};
 }
 
 class DataItem {
-  int entityId;
-  String subgroupIdentifier;
-  String status;
-  String type;
-  DateTime deliveryFrom;
-  DateTime deliveryTo;
-  String grandTotal;
-  String shippedAmount;
-  dynamic statusType;
-  dynamic deliveryTimerange;
-  String customerFirstname;
-  dynamic customerLastname;
-  String billingStreet;
-  String customerEmail;
-  String postcode;
-  dynamic buildingNumber;
-  String telephone;
-  String latitude;
-  String longitude;
-  String paymentMethod;
-  String deliveryNote;
-  dynamic addressLabel;
-  dynamic buildingName;
-  dynamic flatNumber;
-  dynamic floorNumber;
-  String shippingCharge;
-  DateTime createdAt;
-  int driverId;
-  String city;
+  int locationId;
+  Order order;
+  Customer customer;
+  Address address;
   List<ItemItem> items;
 
   DataItem({
-    required this.entityId,
-    required this.subgroupIdentifier,
-    required this.status,
-    required this.type,
-    required this.deliveryFrom,
-    required this.deliveryTo,
-    required this.grandTotal,
-    required this.shippedAmount,
-    required this.statusType,
-    required this.deliveryTimerange,
-    required this.customerFirstname,
-    required this.customerLastname,
-    required this.billingStreet,
-    required this.customerEmail,
-    required this.postcode,
-    required this.buildingNumber,
-    required this.telephone,
-    required this.latitude,
-    required this.longitude,
-    required this.paymentMethod,
-    required this.deliveryNote,
-    required this.addressLabel,
-    required this.buildingName,
-    required this.flatNumber,
-    required this.floorNumber,
-    required this.shippingCharge,
-    required this.createdAt,
-    required this.driverId,
-    required this.city,
+    required this.locationId,
+    required this.order,
+    required this.customer,
+    required this.address,
     required this.items,
   });
 
   factory DataItem.fromJson(Map<String, dynamic> json) => DataItem(
+    locationId: json["location_id"],
+    order: Order.fromJson(json["order"]),
+    customer: Customer.fromJson(json["customer"]),
+    address: Address.fromJson(json["address"]),
+    items: List<ItemItem>.from(json["items"].map((x) => ItemItem.fromJson(x))),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "location_id": locationId,
+    "order": order.toJson(),
+    "customer": customer.toJson(),
+    "address": address.toJson(),
+    "items": List<dynamic>.from(items.map((x) => x.toJson())),
+  };
+}
+
+class Address {
+  String name;
+  String apartment;
+  String latitude;
+  String longitude;
+  String building;
+  String floor;
+  String zone;
+  String street;
+
+  Address({
+    required this.name,
+    required this.apartment,
+    required this.latitude,
+    required this.longitude,
+    required this.building,
+    required this.floor,
+    required this.zone,
+    required this.street,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> json) => Address(
+    name: json["name"],
+    apartment: json["apartment"],
+    latitude: json["latitude"],
+    longitude: json["longitude"],
+    building: json["building"],
+    floor: json["floor"],
+    zone: json["zone"],
+    street: json["street"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "name": name,
+    "apartment": apartment,
+    "latitude": latitude,
+    "longitude": longitude,
+    "building": building,
+    "floor": floor,
+    "zone": zone,
+    "street": street,
+  };
+}
+
+class Customer {
+  String name;
+  String mobileNumber;
+
+  Customer({required this.name, required this.mobileNumber});
+
+  factory Customer.fromJson(Map<String, dynamic> json) =>
+      Customer(name: json["name"], mobileNumber: json["mobile_number"]);
+
+  Map<String, dynamic> toJson() => {
+    "name": name,
+    "mobile_number": mobileNumber,
+  };
+}
+
+class ItemItem {
+  String name;
+  int quantity;
+  double amount;
+  double total;
+  String status;
+  String sku;
+
+  ItemItem({
+    required this.name,
+    required this.quantity,
+    required this.amount,
+    required this.total,
+    required this.status,
+    required this.sku,
+  });
+
+  factory ItemItem.fromJson(Map<String, dynamic> json) => ItemItem(
+    name: json["name"],
+    quantity: json["quantity"],
+    amount: json["amount"]?.toDouble(),
+    total: json["total"]?.toDouble(),
+    status: json["status"],
+    sku: json["sku"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "name": name,
+    "quantity": quantity,
+    "amount": amount,
+    "total": total,
+    "status": status,
+    "sku": sku,
+  };
+}
+
+class Order {
+  int entityId;
+  String subgroupIdentifier;
+  String status;
+  DateTime deliveryFrom;
+  DateTime deliveryTo;
+  double subTotal;
+  int delivery;
+  double total;
+  String deliveryNote;
+  String paymentMode;
+  int preOrder;
+  DateTime preOrderDate;
+  String vehicleChoice;
+  String merchantOrderId;
+
+  Order({
+    required this.entityId,
+    required this.subgroupIdentifier,
+    required this.status,
+    required this.deliveryFrom,
+    required this.deliveryTo,
+    required this.subTotal,
+    required this.delivery,
+    required this.total,
+    required this.deliveryNote,
+    required this.paymentMode,
+    required this.preOrder,
+    required this.preOrderDate,
+    required this.vehicleChoice,
+    required this.merchantOrderId,
+  });
+
+  factory Order.fromJson(Map<String, dynamic> json) => Order(
     entityId: json["entity_id"],
     subgroupIdentifier: json["subgroup_identifier"],
     status: json["status"],
-    type: json["type"],
-    deliveryFrom: DateTime.parse(json["delivery_from"]),
+    deliveryFrom: DateTime.parse(json["deliveryFrom"]),
     deliveryTo: DateTime.parse(json["delivery_to"]),
-    grandTotal: json["grand_total"],
-    shippedAmount: json["shipped_amount"],
-    statusType: json["status_type"],
-    deliveryTimerange: json["delivery_timerange"],
-    customerFirstname: json["customer_firstname"],
-    customerLastname: json["customer_lastname"],
-    billingStreet: json["billing_street"],
-    customerEmail: json["customer_email"],
-    postcode: json["postcode"],
-    buildingNumber: json["building_number"],
-    telephone: json["telephone"],
-    latitude: json["latitude"],
-    longitude: json["longitude"],
-    paymentMethod: json["payment_method"],
+    subTotal: json["sub_total"]?.toDouble(),
+    delivery: json["delivery"],
+    total: json["total"]?.toDouble(),
     deliveryNote: json["delivery_note"],
-    addressLabel: json["address_label"],
-    buildingName: json["building_name"],
-    flatNumber: json["flat_number"],
-    floorNumber: json["floor_number"],
-    shippingCharge: json["shipping_charge"],
-    createdAt: DateTime.parse(json["created_at"]),
-    driverId: json["driver_id"],
-    city: json["city"],
-    items: List<ItemItem>.from(json["items"].map((x) => ItemItem.fromJson(x))),
+    paymentMode: json["payment_mode"],
+    preOrder: json["pre_order"],
+    preOrderDate: DateTime.parse(json["pre_order_date"]),
+    vehicleChoice: json["vehicle_choice"],
+    merchantOrderId: json["merchant_order_id"],
   );
 
   Map<String, dynamic> toJson() => {
     "entity_id": entityId,
     "subgroup_identifier": subgroupIdentifier,
     "status": status,
-    "type": type,
-    "delivery_from": deliveryFrom.toIso8601String(),
+    "deliveryFrom": deliveryFrom.toIso8601String(),
     "delivery_to": deliveryTo.toIso8601String(),
-    "grand_total": grandTotal,
-    "shipped_amount": shippedAmount,
-    "status_type": statusType,
-    "delivery_timerange": deliveryTimerange,
-    "customer_firstname": customerFirstname,
-    "customer_lastname": customerLastname,
-    "billing_street": billingStreet,
-    "customer_email": customerEmail,
-    "postcode": postcode,
-    "building_number": buildingNumber,
-    "telephone": telephone,
-    "latitude": latitude,
-    "longitude": longitude,
-    "payment_method": paymentMethod,
+    "sub_total": subTotal,
+    "delivery": delivery,
+    "total": total,
     "delivery_note": deliveryNote,
-    "address_label": addressLabel,
-    "building_name": buildingName,
-    "flat_number": flatNumber,
-    "floor_number": floorNumber,
-    "shipping_charge": shippingCharge,
-    "created_at": createdAt.toIso8601String(),
-    "driver_id": driverId,
-    "city": city,
-    "items": List<dynamic>.from(items.map((x) => x.toJson())),
-  };
-}
-
-class ItemItem {
-  String name;
-  String sku;
-  int qty;
-  double price;
-  String? imageUrl;
-
-  ItemItem({
-    required this.name,
-    required this.sku,
-    required this.qty,
-    required this.price,
-    this.imageUrl,
-  });
-
-  factory ItemItem.fromJson(Map<String, dynamic> json) => ItemItem(
-    name: json["name"],
-    sku: json["sku"],
-    qty: json["qty"],
-    price: json["price"]?.toDouble(),
-    imageUrl: json["image"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "name": name,
-    "sku": sku,
-    "qty": qty,
-    "price": price,
-    "image": imageUrl,
+    "payment_mode": paymentMode,
+    "pre_order": preOrder,
+    "pre_order_date": preOrderDate.toIso8601String(),
+    "vehicle_choice": vehicleChoice,
+    "merchant_order_id": merchantOrderId,
   };
 }

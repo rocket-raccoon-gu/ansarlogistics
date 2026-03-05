@@ -46,7 +46,7 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
   uploadimage(File billfile) async {
     try {
       final response = await serviceLocator.tradingApi.pickerDriverApi
-          .uploadBillService(billfile, orderResponseItem!.subgroupIdentifier);
+          .uploadBillService(billfile, "");
 
       if (response.statusCode == 200) {
         log("success");
@@ -123,7 +123,7 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
       await PreferenceUtils.storeDataToShared("driverlong", long);
 
       final resp = await serviceLocator.tradingApi.updateMainOrderStat(
-        orderid: orderResponseItem!.subgroupIdentifier,
+        orderid: "12345",
         orderstatus: status,
         comment:
             "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order",

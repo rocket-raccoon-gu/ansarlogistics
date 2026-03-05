@@ -217,6 +217,38 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                   // });
                 },
               ),
+              widget.orderResponseItem.preference != null
+                  ? Container(
+                    decoration: BoxDecoration(
+                      color: customColors().pTokenBackground,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(8),
+                        bottomRight: Radius.circular(8),
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 16,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.info_outline, size: 18),
+                        Expanded(
+                          child: Text(
+                            "if item is not available customer preference :  ${widget.orderResponseItem.preference}"
+                                .toString(),
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.Danger,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  : Container(),
               Expanded(child: body),
             ],
           ),
