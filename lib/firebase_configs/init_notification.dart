@@ -99,14 +99,14 @@ Future<void> createNotificationChannel() async {
 
 // Modified showLocalNotification function
 void showLocalNotification(RemoteMessage message) {
-  if (message.notification == null) return;
+  if (message.notification == null || message.data.isNotEmpty) return;
 
   late OverlaySupportEntry entry;
 
   // Show overlay notification
   entry = showSimpleNotification(
     Text(
-      message.notification!.title ?? 'Notification Title',
+      message.notification!.title ?? message.data['title'] ?? 'Notification',
       style: customTextStyle(
         fontStyle: FontStyle.BodyL_Bold,
         color: FontColor.FontPrimary,
@@ -124,7 +124,9 @@ void showLocalNotification(RemoteMessage message) {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Text(
-                message.notification!.body ?? 'Notification Body',
+                message.notification!.body ??
+                    message.data['body'] ??
+                    'Notification Body',
                 textAlign: TextAlign.center,
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_Bold,
@@ -167,8 +169,8 @@ void showLocalNotification(RemoteMessage message) {
   // Show system notification
   flutterLocalNotificationsPlugin.show(
     message.data.hashCode,
-    message.notification?.title ?? 'Notification Title',
-    message.notification?.body ?? 'Notification Body',
+    message.notification?.title ?? message.data['title'] ?? 'Notification',
+    message.notification?.body ?? message.data['body'] ?? 'Notification',
     NotificationDetails(
       android: AndroidNotificationDetails(
         'channel_id_5', // Must match created channel
