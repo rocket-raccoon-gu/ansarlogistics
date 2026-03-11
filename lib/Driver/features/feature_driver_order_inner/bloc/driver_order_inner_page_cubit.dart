@@ -57,6 +57,8 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
 
   updateMainOrderStat(String orderid, String status) async {
     try {
+      String? token = await PreferenceUtils.getDataFromShared("usertoken");
+
       final resp = await serviceLocator.tradingApi.updateMainOrderStat(
         orderid: orderid,
         orderstatus: status,
@@ -65,53 +67,56 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
         userid: UserController().profile.id.toString(),
         latitude: UserController.userController.locationlatitude,
         longitude: UserController.userController.locationlongitude,
-        token1: UserController().profile.token.toString(),
+        token1: token!,
       );
 
+      log(UserController().profile.latitude);
+      log(UserController().profile.longitude);
+
       if (resp.statusCode == 200) {
-        await Permission.location.isGranted.then((value) async {
-          if (value) {
-            try {
-              Position position = await Geolocator.getCurrentPosition(
-                desiredAccuracy: LocationAccuracy.high,
-              );
+        // await Permission.location.isGranted.then((value) async {
+        //   if (value) {
+        //     try {
+        //       Position position = await Geolocator.getCurrentPosition(
+        //         desiredAccuracy: LocationAccuracy.high,
+        //       );
 
-              await PreferenceUtils.storeDataToShared(
-                "userlat",
-                position.latitude.toString(),
-              );
+        //       await PreferenceUtils.storeDataToShared(
+        //         "userlat",
+        //         position.latitude.toString(),
+        //       );
 
-              await PreferenceUtils.storeDataToShared(
-                "userlong",
-                position.longitude.toString(),
-              );
+        //       await PreferenceUtils.storeDataToShared(
+        //         "userlong",
+        //         position.longitude.toString(),
+        //       );
 
-              String? token = await PreferenceUtils.getDataFromShared(
-                "usertoken",
-              );
+        //       String? token = await PreferenceUtils.getDataFromShared(
+        //         "usertoken",
+        //       );
 
-              UserController.userController.locationlatitude =
-                  position.latitude.toString();
+        //       UserController.userController.locationlatitude =
+        //           position.latitude.toString();
 
-              UserController.userController.locationlongitude =
-                  position.longitude.toString();
+        //       UserController.userController.locationlongitude =
+        //           position.longitude.toString();
 
-              final resp1 = await serviceLocator.tradingApi
-                  .updateDriverLocationdetails(
-                    userId: UserController().profile.id,
-                    latitude: position.latitude.toString(),
-                    longitude: position.longitude.toString(),
-                    token: token!,
-                  );
+        //       final resp1 = await serviceLocator.tradingApi
+        //           .updateDriverLocationdetails(
+        //             userId: UserController().profile.id,
+        //             latitude: position.latitude.toString(),
+        //             longitude: position.longitude.toString(),
+        //             token: token!,
+        //           );
 
-              if (resp1.statusCode == 200) {
-                log("location updated");
-              }
-            } catch (e) {
-              log(e.toString());
-            }
-          }
-        });
+        //       if (resp1.statusCode == 200) {
+        //         log("location updated");
+        //       }
+        //     } catch (e) {
+        //       log(e.toString());
+        //     }
+        //   }
+        // });
 
         toastification.show(
           backgroundColor: customColors().secretGarden,

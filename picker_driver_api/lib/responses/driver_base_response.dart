@@ -125,6 +125,7 @@ class ItemItem {
   double total;
   String status;
   String sku;
+  String image;
 
   ItemItem({
     required this.name,
@@ -133,6 +134,7 @@ class ItemItem {
     required this.total,
     required this.status,
     required this.sku,
+    required this.image,
   });
 
   factory ItemItem.fromJson(Map<String, dynamic> json) => ItemItem(
@@ -142,6 +144,7 @@ class ItemItem {
     total: json["total"]?.toDouble(),
     status: json["status"],
     sku: json["sku"],
+    image: json["image"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -151,6 +154,7 @@ class ItemItem {
     "total": total,
     "status": status,
     "sku": sku,
+    "image": image,
   };
 }
 

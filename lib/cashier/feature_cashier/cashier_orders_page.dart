@@ -62,10 +62,18 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.assignment_ind),
+            onPressed:
+                () =>
+                    context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
+            tooltip: 'My Assigned Orders',
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed:
-                () => context.read<CashierOrdersPageCubit>().loadOrders(),
-            tooltip: 'Refresh',
+                () =>
+                    context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
+            tooltip: 'All Orders',
           ),
           IconButton(
             tooltip: 'Logout',
@@ -143,6 +151,15 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed:
+            () => context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
+        icon: const Icon(Icons.assignment_ind),
+        label: const Text('My Orders'),
+        backgroundColor: customColors().green4,
+        tooltip: 'View my assigned orders',
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -194,155 +211,224 @@ class OrderTile extends StatelessWidget {
 
   OrderTile({Key? key, required this.order}) : super(key: key);
 
+  bool _canNavigateToOrder() {
+    return order.orderStatus.toLowerCase() == 'start_punching';
+  }
+
+  void _handleSwipeToStart(BuildContext context) {
+    if (order.orderStatus.toLowerCase() != 'start_punching') {
+      context.read<CashierOrdersPageCubit>().updateOrderStatus(
+        orderId: order.subgroupIdentifier,
+        status: 'start_punching',
+        context: context,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(
-          'Order #${order.subgroupIdentifier}',
-          style: customTextStyle(
-            fontStyle: FontStyle.BodyL_Bold,
-            color: FontColor.FontPrimary,
+      child: Dismissible(
+        key: Key(order.subgroupIdentifier),
+        direction:
+            order.orderStatus.toLowerCase() == 'start_punching'
+                ? DismissDirection.none
+                : DismissDirection.startToEnd,
+        background: Container(
+          color: Colors.green,
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.only(left: 20),
+          child: const Row(
+            children: [
+              Icon(Icons.play_arrow, color: Colors.white, size: 30),
+              SizedBox(width: 10),
+              Text(
+                'Swipe to Start Punching',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-            Text(
-              'Customer: ${order.firstname ?? 'N/A'}',
-              style: customTextStyle(
-                fontStyle: FontStyle.BodyL_Regular,
-                color: FontColor.FontSecondary,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Amount: ${order.orderAmount ?? '0.00'}',
-              style: customTextStyle(
-                fontStyle: FontStyle.BodyL_SemiBold,
-                color: FontColor.FontPrimary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Delivery Date: ${getdateformatted(order.deliveryFrom!)}',
-              style: customTextStyle(
-                fontStyle: FontStyle.BodyL_Regular,
-                color: FontColor.FontSecondary,
-              ),
-            ),
-            const SizedBox(height: 4),
-            gettimeformatted(order) != ''
-                ? Text(
-                  'Time: ${gettimeformatted(order)}',
+        confirmDismiss: (direction) async {
+          if (direction == DismissDirection.startToEnd) {
+            _handleSwipeToStart(context);
+            return false; // Don't actually dismiss, just update status
+          }
+          return false;
+        },
+        child: InkWell(
+          onTap: () {
+            if (_canNavigateToOrder()) {
+              context.gNavigationService.openCashierOrderInnerPage(
+                context,
+                arg: {'order': order},
+              );
+            } else {
+              // Show message that user needs to swipe first
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Please swipe right to start punching before accessing order details',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(seconds: 3),
+                  action: SnackBarAction(
+                    label: 'Got it',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    },
+                  ),
+                ),
+              );
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Order #${order.subgroupIdentifier}',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Customer: ${order.firstname ?? 'N/A'}',
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyL_Regular,
                     color: FontColor.FontSecondary,
                   ),
-                )
-                : const SizedBox.shrink(),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // order.driverType != null &&
-                //         (order.driverType == 'rafeeq' ||
-                //             order.driverType == 'driver')
-                //     ? Container(
-                //       padding: const EdgeInsets.symmetric(
-                //         horizontal: 8,
-                //         vertical: 4,
-                //       ),
-                //       decoration: BoxDecoration(
-                //         color: Colors.purple,
-                //         borderRadius: BorderRadius.circular(4),
-                //       ),
-                //       child: Row(
-                //         children: [
-                //           Image.asset(
-                //             'assets/rafeeq_logo.png',
-                //             width: 24,
-                //             height: 24,
-                //           ),
-                //           const SizedBox(width: 8),
-                //           Text(
-                //             getDriverType(order.driverType!),
-                //             style: customTextStyle(
-                //               fontStyle: FontStyle.BodyL_SemiBold,
-                //               color: FontColor.White,
-                //             ),
-                //           ),
-                //         ],
-                //       ),
-                //     )
-                //     : const SizedBox.shrink(),
-                getDriverTypeWidget(
-                  order.driverType!,
-                  getDriverType(order.driverType!),
                 ),
-
-                order.isWhatsappOrder == 1
-                    ? const Icon(Icons.chat_bubble)
+                const SizedBox(height: 4),
+                Text(
+                  'Amount: ${order.orderAmount ?? '0.00'}',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_SemiBold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Delivery Date: ${getdateformatted(order.deliveryFrom!)}',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Regular,
+                    color: FontColor.FontSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                gettimeformatted(order) != ''
+                    ? Text(
+                      'Time: ${gettimeformatted(order)}',
+                      style: customTextStyle(
+                        fontStyle: FontStyle.BodyL_Regular,
+                        color: FontColor.FontSecondary,
+                      ),
+                    )
                     : const SizedBox.shrink(),
+                const SizedBox(height: 12),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: getStatusColor(order.orderStatus),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        getStatus(order.orderStatus),
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_SemiBold,
-                          color: FontColor.White,
-                        ),
-                      ),
+                    getDriverTypeWidget(
+                      order.driverType!,
+                      getDriverType(order.driverType!),
                     ),
-                    if (order.statusHistory != null &&
-                        DateUtils.isSameDay(
-                          order.statusHistory!.createdAt,
-                          DateTime.now(),
-                        )) ...[
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: customColors().islandAqua,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          'Ready to Dispatch',
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyS_Bold,
-                            color: FontColor.White,
+                    order.isWhatsappOrder == 1
+                        ? const Icon(Icons.chat_bubble)
+                        : const SizedBox.shrink(),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: getStatusColor(order.orderStatus),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            getStatus(order.orderStatus),
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyM_SemiBold,
+                              color: FontColor.White,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                        if (order.orderStatus.toLowerCase() !=
+                            'start_punching') ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.swipe,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Swipe to start',
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyS_SemiBold,
+                                    color: FontColor.White,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (order.statusHistory != null &&
+                            DateUtils.isSameDay(
+                              order.statusHistory!.createdAt,
+                              DateTime.now(),
+                            )) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: customColors().islandAqua,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'Ready to Dispatch',
+                              style: customTextStyle(
+                                fontStyle: FontStyle.BodyS_Bold,
+                                color: FontColor.White,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
-        onTap: () {
-          // TODO: Navigate to order details
-          context.gNavigationService.openCashierOrderInnerPage(
-            context,
-            arg: {'order': order},
-          );
-        },
       ),
     );
   }
@@ -384,6 +470,8 @@ class OrderTile extends StatelessWidget {
         return Colors.lightBlue;
       case 'ready_to_dispatch':
         return Colors.lightGreen;
+      case 'start_punching':
+        return Colors.purple;
       default:
         return Colors.grey;
     }

@@ -33,14 +33,13 @@ class DriverOrderInnerListItem extends StatelessWidget {
                   top: 4.0,
                   bottom: 4.0,
                 ),
-                // child: ClipRRect(
-                //   borderRadius: BorderRadius.circular(10.0),
-                //   child:
-                //       orderItem.imageUrl != null &&
-                //               orderItem.imageUrl!.isNotEmpty
-                //           ? ListImageWidget(imageurl: orderItem.imageUrl!)
-                //           : Image.asset('assets/placeholder.png'),
-                // ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child:
+                      orderItem.image != null && orderItem.image!.isNotEmpty
+                          ? ListImageWidget(imageurl: orderItem.image!)
+                          : Image.asset('assets/placeholder.png'),
+                ),
               ),
             ],
           ),

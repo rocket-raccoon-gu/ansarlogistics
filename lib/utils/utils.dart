@@ -81,11 +81,9 @@ Widget dispatchSelector({
   required String postcode,
   required String subgroupId,
   required String paymentMethod,
+  required String type,
 }) {
-  final colors = customColors();
-  final options = <Map<String, String>>[
-    {'key': 'normal', 'label': 'Normal'},
-  ];
+  final options = <Map<String, String>>[];
 
   // Check if subgroup ID starts with 'EXP'
   // if (subgroupId.startsWith('EXP') &&
@@ -104,7 +102,12 @@ Widget dispatchSelector({
   // }
   // }
 
-  options.add({'key': 'shipbee', 'label': 'Shipbee'});
+  if (type == "shipbee") {
+    options.add({'key': 'shipbee', 'label': 'Shipbee'});
+  } else {
+    options.add({'key': 'normal', 'label': 'Normal'});
+    options.add({'key': 'shipbee', 'label': 'Shipbee'});
+  }
 
   final Color selectedBg = switch (value) {
     'driver' => const Color(0xFF9729BA),

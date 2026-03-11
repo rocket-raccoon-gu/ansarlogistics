@@ -101,6 +101,8 @@ String getStatus(String? stat) {
       return "Delivered";
     case "start_picking":
       return "Start Picking";
+    case "start_punching":
+      return "Start Punching";
     case "holded":
       return "On Hold";
     case "on_the_way":
@@ -133,6 +135,10 @@ String getStatus(String? stat) {
       return "Cancel Request";
     case "ready_to_dispatch":
       return "Ready To Dispatch";
+    case "assigned_cashier":
+      return "Assigned Cashier";
+    case "start_punching":
+      return "Start Punching";
     default:
       return "";
   }
@@ -186,6 +192,8 @@ Color getOrderWidgetColor(String status) {
       return HexColor('#5e0e9f');
     case "order_collected":
       return HexColor('#7b98c9');
+    case "start_punching":
+      return HexColor('#ff9800');
     default:
       return customColors().accent;
   }

@@ -1697,7 +1697,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
       final token = await PreferenceUtils.getDataFromShared('usertoken');
 
-      final resp = await context.gTradingApiGateway.updateMainOrderStat(
+      final resp = await context.gTradingApiGateway.updateMainOrderStatCashier(
         orderid: order.subgroupIdentifier,
         // If your backend expects a different keyword, adjust here
         orderstatus: status,
@@ -1922,7 +1922,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               ),
             ),
             actions: [
-              if (order.orderStatus == 'end_picking')
+              if (order.orderStatus == 'end_picking' ||
+                  order.orderStatus == "assigned_cashier" ||
+                  order.orderStatus == "start_punching")
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: dispatchSelector(
@@ -1932,6 +1934,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     paymentMethod: order.paymentMethod!,
                     onChanged:
                         (value) => setState(() => dispatchMethod = value),
+                    type: order.driverType ?? '',
                   ),
                 ),
             ],
@@ -2581,10 +2584,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child:
-                  order.orderStatus.toString() == 'ready_to_dispatch' ||
-                          order.orderStatus.toString() != 'end_picking'
-                      ? const SizedBox.shrink()
-                      : SizedBox(
+                  order.orderStatus.toString() != 'ready_to_dispatch' ||
+                          order.orderStatus.toString() == 'end_picking' ||
+                          order.orderStatus.toString() == 'assigned_cashier' ||
+                          order.orderStatus.toString() == 'start_punching'
+                      ? SizedBox(
                         height: 48,
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -2629,7 +2633,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         ),
-                      ),
+                      )
+                      : const SizedBox.shrink(),
             ),
           ),
         );

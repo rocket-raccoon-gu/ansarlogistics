@@ -60,17 +60,18 @@ class OrderInnerAppBarDriver extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // InkWell(
-                      //   onTap: onTapinfo,
-                      //   child: Text(
-                      //     title ??
-                      //         orderResponseItem.subgroupIdentifier.toString(),
-                      //     style: customTextStyle(
-                      //       fontStyle: FontStyle.Lato_Bold,
-                      //       color: FontColor.FontPrimary,
-                      //     ),
-                      //   ),
-                      // ),
+                      InkWell(
+                        onTap: onTapinfo,
+                        child: Text(
+                          title ??
+                              orderResponseItem.order.subgroupIdentifier
+                                  .toString(),
+                          style: customTextStyle(
+                            fontStyle: FontStyle.Lato_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ),
                       InkWell(
                         onTap: onTapinfo,
                         child: ImageIcon(

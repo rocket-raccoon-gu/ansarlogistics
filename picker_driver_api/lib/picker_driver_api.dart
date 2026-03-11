@@ -506,13 +506,11 @@ extension PDGeneralApi on PickerDriverApi {
     String? paymentMethod,
     required String token1,
   }) {
-    // Uri url = _endpointWithApplicationPath(
-    //   'driver/orders/driver/status/$orderid',
-    // );
+    Uri url = _endpointWithApplicationPath('driver/orders/status/$orderid');
 
-    Uri url = Uri.parse(
-      'https://logistic.ansargallery.qa/api/driver/orders/driver/status/$orderid',
-    );
+    // Uri url = Uri.parse(
+    //   'https://logistic.ansargallery.qa/api/driver/orders/driver/status/$orderid',
+    // );
 
     // Uri url = Uri.parse(
     //   'https://pickerdriver.testuatah.com/v1/api/qatar/updateSubOrderV1.php',
@@ -534,16 +532,10 @@ extension PDGeneralApi on PickerDriverApi {
     }
 
     final Map<String, dynamic> body = {
-      "order_id": orderid,
-      "order_status": order_status,
+      "status": order_status,
       "comment": comment,
-      "user_id": userId,
       "latitude": latitude,
       "longitude": longitude,
-      "grand_total": grandTotal,
-      "due_amount": dueAmount,
-      "driver_type": dispatchMethod,
-      "payment_method": paymentMethod,
     };
 
     // print(url);
@@ -570,6 +562,58 @@ extension PDGeneralApi on PickerDriverApi {
         },
       );
       // return http.Response('success', 200);
+    } catch (e) {
+      serviceSendError("Order Error");
+      rethrow;
+    }
+  }
+
+  Future updateMainOrderStatCashier({
+    required String orderid,
+    required String orderstatus,
+    required String comment,
+    required String userid,
+    required String latitude,
+    required String longitude,
+    String? grandTotal,
+    String? dueAmount,
+    String? dispatchMethod,
+    String? paymentMethod,
+    required String token1,
+  }) {
+    Uri url = _endpointWithApplicationPath('cashier/orders/status/$orderid');
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token1',
+    };
+
+    final Map<String, dynamic> body = {
+      "order_id": orderid,
+      "order_status": orderstatus,
+      "comment": comment,
+      "user_id": userid,
+      "latitude": latitude,
+      "longitude": longitude,
+      "grand_total": grandTotal,
+      "due_amount": dueAmount,
+      "driver_type": dispatchMethod,
+      "payment_method": paymentMethod,
+    };
+
+    log("body  : $body");
+
+    try {
+      serviceSend("update main order stat cashier");
+      return _handleRequest(
+        onRequest:
+            () => _client.patch(url, body: jsonEncode(body), headers: headers),
+        onResponse: (response) {
+          log(DateTime.now().toString());
+
+          return response;
+        },
+      );
     } catch (e) {
       serviceSendError("Order Error");
       rethrow;
@@ -1527,6 +1571,33 @@ extension PDGeneralApi on PickerDriverApi {
     log(url.toString());
 
     serviceSend("get Cashier Orders Data...!");
+
+    return _handleRequest(
+      onRequest: () => _client.get(Uri.parse(url), headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
+  Future<http.Response> getCashierAssignedOrders({
+    required int userId,
+    required String token,
+  }) async {
+    final url = _endpointWithApplicationPathString(
+      'cashier/orders/assigned-orders/$userId',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationCharset,
+      'Authorization': 'Bearer $token',
+    };
+
+    log(url.toString());
+
+    log("token: $token");
+
+    serviceSend("get Cashier Assigned Orders Data...!");
 
     return _handleRequest(
       onRequest: () => _client.get(Uri.parse(url), headers: headers),

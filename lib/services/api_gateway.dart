@@ -423,6 +423,48 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
+  @override
+  Future updateMainOrderStatCashier({
+    required String orderid,
+    required String orderstatus,
+    required String comment,
+    required String userid,
+    required String latitude,
+    required String longitude,
+    String? grandTotal,
+    String? dueAmount,
+    String? dispatchMethod,
+    String? paymentMethod,
+    required String token1,
+  }) async {
+    try {
+      final responce = await pickerDriverApi
+          .updateMainOrderStatCashier(
+            orderid: orderid,
+            orderstatus: orderstatus,
+            comment: comment,
+            userid: userid,
+            latitude: latitude,
+            longitude: longitude,
+            grandTotal: grandTotal,
+            dueAmount: dueAmount,
+            dispatchMethod: dispatchMethod,
+            paymentMethod: paymentMethod,
+            token1: token1,
+          )
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          })
+          .timeout(Duration(seconds: 10));
+      return responce;
+    } catch (e) {
+      serviceSendError("Status Update Failed");
+
+      return "Retry";
+    }
+  }
+
   Future getSimiliarItemsRequest({required String productid}) async {
     try {
       final response = await pickerDriverApi
@@ -893,6 +935,7 @@ class PDApiGateway implements AuthenticationService {
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
+            throw e;
           });
 
       return response;
@@ -988,6 +1031,25 @@ class PDApiGateway implements AuthenticationService {
       return response;
     } catch (e) {
       serviceSendError("search Cashier Orders Api Error");
+
+      return "Retry";
+    }
+  }
+
+  Future getCashierAssignedOrders({
+    required int userId,
+    required String token,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .getCashierAssignedOrders(userId: userId, token: token)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+          });
+
+      return response;
+    } catch (e) {
+      serviceSendError("get Cashier Assigned Orders Api Error");
 
       return "Retry";
     }
