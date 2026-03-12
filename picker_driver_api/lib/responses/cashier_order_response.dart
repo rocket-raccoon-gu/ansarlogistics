@@ -95,6 +95,7 @@ class Datum {
   double? orderPlacedTotal;
   double? combinedOrderPlacedTotal;
   int? isProduce;
+  String? tracker_id;
 
   Datum({
     required this.subgroupIdentifier,
@@ -150,6 +151,7 @@ class Datum {
     required this.orderPlacedTotal,
     required this.combinedOrderPlacedTotal,
     required this.isProduce,
+    required this.tracker_id,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -218,6 +220,7 @@ class Datum {
     combinedOrderPlacedTotal:
         json["combined_order_placed_total"]?.toDouble() ?? 0,
     isProduce: json["is_produce"] ?? 0,
+    tracker_id: json["tracker_id"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -276,6 +279,7 @@ class Datum {
     "order_placed_total": orderPlacedTotal,
     "combined_order_placed_total": combinedOrderPlacedTotal,
     "is_produce": isProduce,
+    "tracker_id": tracker_id,
   };
 }
 

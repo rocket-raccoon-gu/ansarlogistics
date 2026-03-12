@@ -580,6 +580,7 @@ extension PDGeneralApi on PickerDriverApi {
     String? dispatchMethod,
     String? paymentMethod,
     required String token1,
+    int clubvalue = 0,
   }) {
     Uri url = _endpointWithApplicationPath('cashier/orders/status/$orderid');
 
@@ -599,6 +600,7 @@ extension PDGeneralApi on PickerDriverApi {
       "due_amount": dueAmount,
       "driver_type": dispatchMethod,
       "payment_method": paymentMethod,
+      "club_value": clubvalue,
     };
 
     log("body  : $body");

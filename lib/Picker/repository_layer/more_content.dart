@@ -5,26 +5,35 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 logout(BuildContext context) async {
-  // 1. Get the SharedPreferences instance
-  final prefs = await SharedPreferences.getInstance();
+  try {
+    // Clear UserController data first
+    UserController().translationCache.clear();
+    UserController().dispose();
 
-  // 2. Save the updates_history value
-  final String? updatesHistory = prefs.getString('updates_history');
+    // 1. Get the SharedPreferences instance
+    final prefs = await SharedPreferences.getInstance();
 
-  // 3. Clear all keys except updates_history
-  final keys = prefs.getKeys();
-  for (String key in keys) {
-    if (key != 'updates_history') {
-      await prefs.remove(key);
+    // 2. Save the updates_history value
+    final String? updatesHistory = prefs.getString('updates_history');
+
+    // 3. Clear all keys except updates_history
+    final keys = prefs.getKeys();
+    for (String key in keys) {
+      if (key != 'updates_history') {
+        await prefs.remove(key);
+      }
     }
+
+    // Additional clear for role "1" users
+    if (UserController.userController.profile.role == "1") {
+      await PreferenceUtils.clear();
+    }
+
+    // Restart app last
+    RestartWidget.restartApp(context);
+  } catch (e) {
+    debugPrint('Logout error: $e');
+    // Still try to restart even if there's an error
+    RestartWidget.restartApp(context);
   }
-
-  if (UserController.userController.profile.role == "1") {
-    await PreferenceUtils.clear();
-  }
-
-  RestartWidget.restartApp(context);
-
-  UserController().translationCache.clear();
-  UserController().dispose();
 }

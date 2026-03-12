@@ -1,12 +1,12 @@
 import 'package:ansarlogistics/cashier/feature_cashier/bloc/cashier_orders_page_cubit.dart';
 import 'package:ansarlogistics/cashier/feature_cashier/bloc/cashier_orders_page_state.dart';
 import 'package:ansarlogistics/constants/methods.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
-import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:picker_driver_api/responses/cashier_order_response.dart';
@@ -61,13 +61,13 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.assignment_ind),
-            onPressed:
-                () =>
-                    context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
-            tooltip: 'My Assigned Orders',
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.assignment_ind),
+          //   onPressed:
+          //       () =>
+          //           context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
+          //   tooltip: 'My Assigned Orders',
+          // ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed:
@@ -78,7 +78,11 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
           IconButton(
             tooltip: 'Logout',
             onPressed: () async {
-              await logout(context);
+              // Simple and reliable logout - navigate to splash and clear all routes
+              await PreferenceUtils.clear();
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/splash', (route) => false);
             },
             icon: const Icon(Icons.logout),
           ),
@@ -151,15 +155,15 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed:
-            () => context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
-        icon: const Icon(Icons.assignment_ind),
-        label: const Text('My Orders'),
-        backgroundColor: customColors().green4,
-        tooltip: 'View my assigned orders',
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      // floatingActionButton: FloatingActionButton.extended(
+      //   onPressed:
+      //       () => context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
+      //   icon: const Icon(Icons.assignment_ind),
+      //   label: const Text('My Orders'),
+      //   backgroundColor: customColors().green4,
+      //   tooltip: 'View my assigned orders',
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -282,7 +286,10 @@ class OrderTile extends StatelessWidget {
                     label: 'Got it',
                     textColor: Colors.white,
                     onPressed: () {
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      // Check if the context is still valid before using it
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      }
                     },
                   ),
                 ),
@@ -339,9 +346,23 @@ class OrderTile extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    getDriverTypeWidget(
-                      order.driverType!,
-                      getDriverType(order.driverType!),
+                    Row(
+                      children: [
+                        getDriverTypeWidget(
+                          order.driverType!,
+                          getDriverType(order.driverType!),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        Text(
+                          order.tracker_id?.toString() ?? '',
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                     order.isWhatsappOrder == 1
                         ? const Icon(Icons.chat_bubble)

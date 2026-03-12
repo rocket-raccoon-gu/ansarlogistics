@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:ansarlogistics/cashier/feature_cashier/cashier_orders_page.dart';
-import 'package:ansarlogistics/components/custom_app_components/image_widgets/list_image_widget.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -28,7 +27,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:ansarlogistics/utils/preference_utils.dart';
-import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/services.dart';
 
 class CashierOrderInnerPage extends StatefulWidget {
@@ -44,6 +42,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   late Datum order;
   bool _submitting = false;
   bool _uploading = false;
+  bool _isClubEnabled = false;
   String? _posBillUrl;
   XFile? _pickedImage;
   double? _uploadProgress; // 0.0 - 1.0
@@ -1657,6 +1656,50 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       await _addPendingBill(order.subgroupIdentifier);
     }
 
+    // Check if this is a club order and ask for club confirmation
+    final isClubOrder =
+        order.combinedSubgroupIdentifiers
+            .where((id) => id != order.subgroupIdentifier)
+            .isNotEmpty;
+
+    if (isClubOrder) {
+      final clubChoice = await showDialog<String>(
+        context: context,
+        builder:
+            (ctx) => AlertDialog(
+              title: const Text('Club Order'),
+              content: const Text(
+                'This is a club order. Do you want to process it as a club order or mark as ready to dispatch?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop('cancel'),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop('club'),
+                  child: const Text('Process as Club'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(ctx).pop('dispatch'),
+                  child: const Text('Ready to Dispatch'),
+                ),
+              ],
+            ),
+      );
+
+      if (clubChoice == 'cancel') {
+        return;
+      } else if (clubChoice == 'club') {
+        // Process as club order - you can add club-specific logic here
+        setState(() {
+          _isClubEnabled = true;
+        });
+        // For now, proceed with normal flow but with club enabled
+      }
+      // If 'dispatch', continue with normal flow
+    }
+
     final confirm = await showDialog<bool>(
       context: context,
       builder:
@@ -1724,6 +1767,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         dispatchMethod: dispatchMethod,
         paymentMethod: paymentMethodnew ?? order.paymentMethod,
         token1: token!,
+        clubvalue: isClubOrder ? 1 : 0,
       );
 
       if (mounted) {
@@ -1874,6 +1918,36 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                               )
                               .toList(),
                     ),
+
+                    if (order.combinedSubgroupIdentifiers
+                        .where((id) => id != order.subgroupIdentifier)
+                        .isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(width: 8),
+                            Text(
+                              'Club Both Orders',
+                              style: customTextStyle(
+                                fontStyle: FontStyle.BodyL_Bold,
+                                color: FontColor.FontPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Switch(
+                              value: _isClubEnabled,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isClubEnabled = value;
+                                });
+                              },
+                              activeColor: customColors().primary,
+                            ),
+                          ],
+                        ),
+                      ),
 
                     // order.driverType != null &&
                     //         (order.driverType == 'rider' ||

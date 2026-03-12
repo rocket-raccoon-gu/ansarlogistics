@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io'; // internet connectivity
+
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_login/bloc/login_cubit.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
@@ -15,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import '../../components/custom_app_components/textfields/custom_text_form_field.dart';
 
 class LoginPage extends StatefulWidget {
@@ -38,8 +39,7 @@ class _LoginPageState extends State<LoginPage> {
 
   String _currentRegion = '';
 
-  final Stream<NetworkStatus> _stream =
-      NetworkStatusService.networkStatusController.stream;
+  StreamSubscription<NetworkStatus>? _streamSubscription;
   var scrollcontroller = ScrollController();
   PackageInfo _packageInfo = PackageInfo(
     appName: 'Unknown',
@@ -54,17 +54,20 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement initState
     super.initState();
 
-    _stream.listen((NetworkStatus status) {
-      if (status == NetworkStatus.Online) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          showSuccessDialogue(message: "Inernet connection restored"),
-        );
-      } else if (status == NetworkStatus.Offline) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          showErrorDialogue(errorMessage: "Inernet connection lost"),
-        );
-      }
-    });
+    _streamSubscription = NetworkStatusService.networkStatusController.stream
+        .listen((NetworkStatus status) {
+          if (mounted) {
+            if (status == NetworkStatus.Online) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                showSuccessDialogue(message: "Inernet connection restored"),
+              );
+            } else if (status == NetworkStatus.Offline) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                showErrorDialogue(errorMessage: "Inernet connection lost"),
+              );
+            }
+          }
+        });
 
     checkInternetConnection(context);
     _initPackageInfo();
@@ -73,6 +76,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   dispose() {
+    _streamSubscription?.cancel();
     super.dispose();
   }
 

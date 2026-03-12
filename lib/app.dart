@@ -2,6 +2,8 @@ import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigat
     show NavigationCubit;
 import 'package:ansarlogistics/app_routes_factory.dart' show AppRoutesFactory;
 import 'package:ansarlogistics/app_theme.dart';
+import 'package:ansarlogistics/firebase_configs/init_notification.dart'
+    show navigatorKey;
 import 'package:ansarlogistics/navigations/navigation.dart'
     show onGenerateAppRoute;
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -34,8 +36,6 @@ class PDApp extends StatefulWidget {
 }
 
 class _PDAppState extends State<PDApp> with WidgetsBindingObserver {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
-
   CustomMode themeMode = CustomMode.Light;
 
   @override
@@ -106,19 +106,24 @@ class _PDAppState extends State<PDApp> with WidgetsBindingObserver {
           }
       }
     }
-    await Provider.of<CustomTheme>(
-      context,
-      listen: false,
-    ).toggleTheme(themeMode);
+    if (mounted) {
+      await Provider.of<CustomTheme>(
+        context,
+        listen: false,
+      ).toggleTheme(themeMode);
+    }
   }
 
   getUserCredentials() async {
     String? userCode = await PreferenceUtils.getDataFromShared("userCode");
-    if (userCode != null && userCode != "") {
+    if (userCode != null && userCode != "" && mounted) {
       String? userData = await PreferenceUtils.getDataFromShared(userCode);
-      UserSettings.userSettings.fromJsonString(userData!);
-      UserController().userName = UserSettings().userPersonalSettings.username;
-      UserController.userController.userName = userCode;
+      if (userData != null && mounted) {
+        UserSettings.userSettings.fromJsonString(userData);
+        UserController().userName =
+            UserSettings().userPersonalSettings.username;
+        UserController.userController.userName = userCode;
+      }
     }
   }
 
@@ -131,7 +136,7 @@ class _PDAppState extends State<PDApp> with WidgetsBindingObserver {
           create: (context) => NavigationCubit(),
           child: ToastificationWrapper(
             child: MaterialApp(
-              navigatorKey: _navigatorKey,
+              navigatorKey: navigatorKey,
               initialRoute: widget.initialRoute,
               onGenerateRoute: onGenerateAppRoute(
                 AppRoutesFactory(widget.serviceLocator),

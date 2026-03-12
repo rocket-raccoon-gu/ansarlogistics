@@ -4,6 +4,7 @@ import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/cashier/feature_cashier/bloc/cashier_orders_page_state.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/session_out_bottom_sheet.dart';
+import 'package:ansarlogistics/firebase_configs/init_notification.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
@@ -17,7 +18,18 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
   final BuildContext context;
   CashierOrdersPageCubit({required this.serviceLocator, required this.context})
     : super(CashierOrdersPageStateInitial()) {
+    log('CashierOrdersPageCubit created');
     loadAssignedOrders();
+    // Register the callback for notification refresh
+    registerCashierOrdersRefreshCallback(loadAssignedOrders);
+  }
+
+  @override
+  Future<void> close() {
+    log('CashierOrdersPageCubit disposed');
+    // Unregister the callback when cubit is disposed
+    unregisterCashierOrdersRefreshCallback();
+    return super.close();
   }
 
   loadOrders() async {

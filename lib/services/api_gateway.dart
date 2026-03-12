@@ -436,6 +436,7 @@ class PDApiGateway implements AuthenticationService {
     String? dispatchMethod,
     String? paymentMethod,
     required String token1,
+    int? clubvalue,
   }) async {
     try {
       final responce = await pickerDriverApi
@@ -451,6 +452,7 @@ class PDApiGateway implements AuthenticationService {
             dispatchMethod: dispatchMethod,
             paymentMethod: paymentMethod,
             token1: token1,
+            clubvalue: clubvalue!,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());

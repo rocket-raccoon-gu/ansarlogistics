@@ -2,14 +2,27 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
-import 'package:ansarlogistics/components/restart_widget.dart';
 import 'package:ansarlogistics/themes/style.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:overlay_support/overlay_support.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+// Global callback for refreshing cashier orders
+VoidCallback? _refreshCashierOrdersCallback;
+
+void registerCashierOrdersRefreshCallback(VoidCallback callback) {
+  _refreshCashierOrdersCallback = callback;
+  log('Cashier orders refresh callback registered');
+}
+
+void unregisterCashierOrdersRefreshCallback() {
+  _refreshCashierOrdersCallback = null;
+  log('Cashier orders refresh callback unregistered');
+}
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -99,14 +112,16 @@ Future<void> createNotificationChannel() async {
 
 // Modified showLocalNotification function
 void showLocalNotification(RemoteMessage message) {
-  if (message.notification == null || message.data.isNotEmpty) return;
+  if (message.data.isEmpty) return;
+
+  log(message.data.toString());
 
   late OverlaySupportEntry entry;
 
   // Show overlay notification
   entry = showSimpleNotification(
     Text(
-      message.notification!.title ?? message.data['title'] ?? 'Notification',
+      message.data['title'] ?? 'Notification',
       style: customTextStyle(
         fontStyle: FontStyle.BodyL_Bold,
         color: FontColor.FontPrimary,
@@ -124,9 +139,7 @@ void showLocalNotification(RemoteMessage message) {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Text(
-                message.notification!.body ??
-                    message.data['body'] ??
-                    'Notification Body',
+                message.data['body'] ?? 'Notification Body',
                 textAlign: TextAlign.center,
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_Bold,
@@ -143,7 +156,39 @@ void showLocalNotification(RemoteMessage message) {
                     child: BasketButton(
                       onpress: () {
                         entry.dismiss();
-                        // RestartWidget.restartApp(context);
+
+                        // Call the registered callback if it exists
+                        log('Attempting to refresh cashier orders...');
+                        if (_refreshCashierOrdersCallback != null) {
+                          log('Callback found, executing refresh...');
+                          try {
+                            _refreshCashierOrdersCallback!();
+                            log('Refresh callback executed successfully');
+                          } catch (e) {
+                            log('Error executing refresh callback: $e');
+                          }
+                        } else {
+                          log(
+                            'No refresh callback registered - checking current route',
+                          );
+                          // Check if we're already on the cashier dashboard
+                          final currentRoute =
+                              ModalRoute.of(
+                                navigatorKey.currentContext!,
+                              )?.settings.name;
+                          if (currentRoute ==
+                              '/cashierdashboardpageroutename') {
+                            log(
+                              'Already on cashier dashboard but no callback - cubit may not be active',
+                            );
+                          } else {
+                            log('Navigating to cashier orders page');
+                            // Navigate to cashier orders page if callback not available
+                            navigatorKey.currentState?.pushNamed(
+                              '/cashierdashboardpageroutename',
+                            );
+                          }
+                        }
                       },
                       text: "OK",
                       bgcolor: customColors().dodgerBlue,
