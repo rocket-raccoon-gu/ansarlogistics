@@ -221,6 +221,14 @@ class OrderTile extends StatelessWidget {
 
   void _handleSwipeToStart(BuildContext context) {
     if (order.orderStatus.toLowerCase() != 'start_punching') {
+      // Show immediate feedback that the action is in progress
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Updating order status...'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+
       context.read<CashierOrdersPageCubit>().updateOrderStatus(
         orderId: order.subgroupIdentifier,
         status: 'start_punching',

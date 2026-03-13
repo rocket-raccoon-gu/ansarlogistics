@@ -35,10 +35,12 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
   loadOrders() async {
     emit(CashierOrdersPageStateLoading());
     try {
+      final token = await PreferenceUtils.getDataFromShared("usertoken");
+
       final response = await serviceLocator.tradingApi.getCashierOrders(
         page: 1,
         limit: 10,
-        token: UserController.userController.app_token,
+        token: token!,
       );
 
       // Guard against non-http responses (e.g., "Retry")
@@ -83,9 +85,11 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
 
   searchcashierOrders(String search) async {
     try {
+      final token = await PreferenceUtils.getDataFromShared("usertoken");
+
       final response = await serviceLocator.tradingApi.getCashierOrdersSearch(
         key: search,
-        token: UserController.userController.app_token,
+        token: token!,
       );
 
       if (response == null || response.statusCode == null) {
@@ -138,7 +142,10 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
             inputWidget: SessionOutBottomSheet(
               onTap: () async {
                 await PreferenceUtils.removeDataFromShared("userCode");
-                await logout(context);
+                // await logout(context);
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/splash', (route) => false);
               },
             ),
           );
@@ -170,8 +177,6 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
     required BuildContext context,
   }) async {
     try {
-      emit(CashierOrdersPageStateLoading());
-
       final token = await PreferenceUtils.getDataFromShared("usertoken");
       final comment =
           'Order status updated to $status by ${UserController.userController.profile.name} (${UserController.userController.profile.empId})';
@@ -186,11 +191,13 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
             latitude: "",
             longitude: "",
             token1: token!,
+            clubvalue: 0,
+            tripid: "",
           );
 
       if (response.statusCode == 200) {
-        // Reload orders to get updated status
-        await loadAssignedOrders();
+        // Update only the specific order's status locally
+        _updateSingleOrderStatus(orderId, status);
 
         // Check if context is still valid before showing snackbar
         if (context.mounted) {
@@ -202,29 +209,57 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
           );
         }
       } else {
-        // Check if context is still valid before showing snackbar
+        // Handle error case
         if (context.mounted) {
           showSnackBar(
             context: context,
             snackBar: showErrorDialogue(
-              errorMessage: "Order Status Update Failed!",
+              errorMessage: "Failed to update order status",
             ),
           );
         }
       }
     } catch (e) {
-      emit(
-        CashierOrdersPageStateError(
-          message: 'Unexpected error: ${e.toString()}',
-        ),
-      );
-      // Check if context is still valid before showing snackbar
+      log('Error updating order status: $e');
+      // Handle error case
       if (context.mounted) {
         showSnackBar(
           context: context,
-          snackBar: showErrorDialogue(errorMessage: "Something went wrong!"),
+          snackBar: showErrorDialogue(
+            errorMessage: "Error updating order status",
+          ),
         );
       }
+    }
+  }
+
+  void _updateSingleOrderStatus(String orderId, String newStatus) {
+    final currentState = state;
+    if (currentState is CashierOrdersPageStateSuccess) {
+      // Find and update the specific order
+      final updatedOrders =
+          currentState.cashierOrders.data.map((order) {
+            if (order.subgroupIdentifier == orderId) {
+              // Update the order status by creating a new order with modified status
+              // We'll modify the order directly since there's no copyWith method
+              order.orderStatus = newStatus;
+              return order;
+            }
+            return order;
+          }).toList();
+
+      // Emit new state with updated orders, preserving all other fields
+      emit(
+        CashierOrdersPageStateSuccess(
+          cashierOrders: CashierOrders(
+            success: currentState.cashierOrders.success,
+            count: currentState.cashierOrders.count,
+            totalCount: currentState.cashierOrders.totalCount,
+            pagination: currentState.cashierOrders.pagination,
+            data: updatedOrders,
+          ),
+        ),
+      );
     }
   }
 }
