@@ -16,10 +16,16 @@ import 'package:picker_driver_api/responses/cashier_order_response.dart';
 class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
   final ServiceLocator serviceLocator;
   final BuildContext context;
+  int _orderCount = 0; // Private variable to store count
+
+  int get orderCount => _orderCount; // Public getter
+
   CashierOrdersPageCubit({required this.serviceLocator, required this.context})
     : super(CashierOrdersPageStateInitial()) {
     log('CashierOrdersPageCubit created');
-    loadAssignedOrders();
+    // loadAssignedOrders();
+    // Get initial order count
+    findordercount();
     // Register the callback for notification refresh
     registerCashierOrdersRefreshCallback(loadAssignedOrders);
   }
@@ -56,7 +62,11 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
             inputWidget: SessionOutBottomSheet(
               onTap: () async {
                 await PreferenceUtils.removeDataFromShared("userCode");
-                await logout(context);
+                // // await logout(context);
+                // Navigator.of(
+                //   context,
+                // ).pushNamedAndRemoveUntil('/splash', (route) => false);
+                logout(context);
               },
             ),
           );
@@ -114,6 +124,51 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
     }
   }
 
+  findordercount() async {
+    try {
+      final token1 = await PreferenceUtils.getDataFromShared("usertoken");
+
+      final userId = UserController.userController.profile.id;
+      final response = await serviceLocator.tradingApi.getCashierAssignedOrders(
+        userId: userId,
+        token: token1!,
+      );
+
+      // Guard against non-http responses (e.g., "Retry")
+      if (response == null || response.statusCode == null) {
+        return;
+      }
+
+      if (response.statusCode == 200) {
+        final CashierOrders cashierOrders = cashierOrdersFromJson(
+          response.body,
+        );
+        _orderCount = cashierOrders.data.length; // Use private variable
+        // Emit state to update the UI with the count
+        emit(
+          CashierOrdersPageStateSuccess(
+            cashierOrders: CashierOrders(
+              success: true,
+              count: _orderCount,
+              totalCount: _orderCount,
+              pagination: Pagination(
+                currentPage: 1,
+                totalPages: 1,
+                totalItems: _orderCount,
+                itemsPerPage: 10,
+                hasNext: false,
+                hasPrev: false,
+              ),
+              data: [], // Keep data empty since we only want count
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      log('Error finding order count: $e');
+    }
+  }
+
   Future<void> loadAssignedOrders() async {
     emit(CashierOrdersPageStateLoading());
     try {
@@ -142,10 +197,10 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
             inputWidget: SessionOutBottomSheet(
               onTap: () async {
                 await PreferenceUtils.removeDataFromShared("userCode");
-                // await logout(context);
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil('/splash', (route) => false);
+                await logout(context);
+                // Navigator.of(
+                //   context,
+                // ).pushNamedAndRemoveUntil('/splash', (route) => false);
               },
             ),
           );
@@ -261,5 +316,47 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
         ),
       );
     }
+  }
+
+  void clearOrders() async {
+    try {
+      final token1 = await PreferenceUtils.getDataFromShared("usertoken");
+
+      final userId = UserController.userController.profile.id;
+      final response = await serviceLocator.tradingApi.getCashierAssignedOrders(
+        userId: userId,
+        token: token1!,
+      );
+
+      // Update the count with current assigned orders
+      if (response != null && response.statusCode == 200) {
+        final CashierOrders cashierOrders = cashierOrdersFromJson(
+          response.body,
+        );
+        _orderCount = cashierOrders.data.length;
+      }
+    } catch (e) {
+      log('Error updating order count in clearOrders: $e');
+    }
+
+    // Emit state with updated count but empty list
+    emit(
+      CashierOrdersPageStateSuccess(
+        cashierOrders: CashierOrders(
+          success: true,
+          count: _orderCount,
+          totalCount: _orderCount,
+          pagination: Pagination(
+            currentPage: 1,
+            totalPages: 1,
+            totalItems: _orderCount,
+            itemsPerPage: 10,
+            hasNext: false,
+            hasPrev: false,
+          ),
+          data: [], // Empty list
+        ),
+      ),
+    );
   }
 }

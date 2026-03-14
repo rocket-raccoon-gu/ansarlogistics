@@ -89,8 +89,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   double _baseGrandTotal() {
     return _toDouble(
       order.endPickTotal != 0
-          ? double.parse(order.endPickTotal.toString()) +
-              double.parse(order.shippingCharge.toString())
+          ? _toDouble(order.endPickTotal.toString()) +
+              _toDouble(order.shippingCharge.toString())
           : order.grandTotal,
     );
   }
@@ -232,10 +232,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             ? _toDouble(order.posAmount!.toString())
             : _toDouble(
               order.endPickTotal != 0
-                  ? double.parse(order.endPickTotal.toString()) +
+                  ? _toDouble(order.endPickTotal.toString()) +
                       (order.combinedOrderPlacedTotal! > 99
                           ? 0
-                          : double.parse(order.shippingCharge.toString()))
+                          : _toDouble(order.shippingCharge.toString()))
                   : order.grandTotal,
             );
   }
@@ -351,7 +351,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           Expanded(
             child: TextFormField(
               initialValue: _fmtQar(value),
-              readOnly: !order.subgroupIdentifier.startsWith("EXP"),
+              // readOnly: !order.subgroupIdentifier.startsWith("EXP"),
               style: valueStyle,
               textAlign: TextAlign.right,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -1337,7 +1337,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         final webPrice = _toDouble(item.webprice);
         final unitPrice = pickerPrice != 0 ? pickerPrice : orderPrice;
 
-        final subtotal = double.parse(item.finalPrice.toString()) * qty;
+        final subtotal = _toDouble(item.finalPrice.toString()) * qty;
 
         // log("subtotal ${item.price} * Qty $qty");
 
@@ -1921,8 +1921,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     ),
 
                     if (order.combinedSubgroupIdentifiers
-                        .where((id) => id != order.subgroupIdentifier)
-                        .isNotEmpty)
+                            .where((id) => id != order.subgroupIdentifier)
+                            .isNotEmpty &&
+                        order.driverType == "shipbee")
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: Row(
@@ -2221,6 +2222,23 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                     ),
                                   ),
                                 ),
+
+                                order.cashierName != null &&
+                                        order.orderStatus == "start_punching"
+                                    ? Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 12.0,
+                                      ),
+                                      child: Text(
+                                        "Cashier: ${order.cashierName} started to Punch this order",
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyM_Bold,
+                                          color: FontColor.CarnationRed,
+                                        ),
+                                      ),
+                                    )
+                                    : SizedBox(),
+
                                 // Customer Information
                                 Padding(
                                   padding: const EdgeInsets.only(left: 12.0),
@@ -2462,7 +2480,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                             } else {
                                               grandTotal = _toDouble(
                                                 order.endPickTotal != 0
-                                                    ? double.parse(
+                                                    ? _toDouble(
                                                       order.endPickTotal
                                                           .toString(),
                                                     )

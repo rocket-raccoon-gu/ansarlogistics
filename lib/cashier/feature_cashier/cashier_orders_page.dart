@@ -1,7 +1,7 @@
+import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/cashier/feature_cashier/bloc/cashier_orders_page_cubit.dart';
 import 'package:ansarlogistics/cashier/feature_cashier/bloc/cashier_orders_page_state.dart';
 import 'package:ansarlogistics/constants/methods.dart';
-import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -28,6 +28,9 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
   }
 
   void _onSearch() async {
+    // Hide the keyboard
+    FocusScope.of(context).unfocus();
+
     final orderId = _searchController.text.trim();
     if (orderId.isEmpty) {
       // If search is empty, reload all orders
@@ -68,21 +71,22 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
           //           context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
           //   tooltip: 'My Assigned Orders',
           // ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed:
-                () =>
-                    context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
-            tooltip: 'All Orders',
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.refresh),
+          //   onPressed:
+          //       () =>
+          //           context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
+          //   tooltip: 'All Orders',
+          // ),
           IconButton(
             tooltip: 'Logout',
             onPressed: () async {
               // Simple and reliable logout - navigate to splash and clear all routes
-              await PreferenceUtils.clear();
-              Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil('/splash', (route) => false);
+              // await PreferenceUtils.clear();
+              // Navigator.of(
+              //   context,
+              // ).pushNamedAndRemoveUntil('/splash', (route) => false);
+              await logout(context);
             },
             icon: const Icon(Icons.logout),
           ),
@@ -108,6 +112,7 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
                   controller: _searchController,
                   textInputAction: TextInputAction.search,
                   onSubmitted: (_) => _onSearch(),
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     hintText: 'Enter Order ID',
                     prefixIcon: const Icon(Icons.search),
@@ -117,9 +122,10 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
                               icon: const Icon(Icons.clear, size: 20),
                               onPressed: () {
                                 _searchController.clear();
+                                // Just clear the list without reloading
                                 context
                                     .read<CashierOrdersPageCubit>()
-                                    .loadOrders();
+                                    .clearOrders();
                               },
                             )
                             : null,
@@ -155,15 +161,26 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
           );
         },
       ),
-      // floatingActionButton: FloatingActionButton.extended(
-      //   onPressed:
-      //       () => context.read<CashierOrdersPageCubit>().loadAssignedOrders(),
-      //   icon: const Icon(Icons.assignment_ind),
-      //   label: const Text('My Orders'),
-      //   backgroundColor: customColors().green4,
-      //   tooltip: 'View my assigned orders',
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton:
+          BlocBuilder<CashierOrdersPageCubit, CashierOrdersPageState>(
+            builder: (context, state) {
+              final cubit = context.read<CashierOrdersPageCubit>();
+              final orderCount = cubit.orderCount;
+
+              return FloatingActionButton.extended(
+                onPressed:
+                    () =>
+                        context
+                            .read<CashierOrdersPageCubit>()
+                            .loadAssignedOrders(),
+                icon: const Icon(Icons.assignment_ind),
+                label: Text('My Orders ($orderCount)'),
+                backgroundColor: customColors().green4,
+                tooltip: 'View my assigned orders',
+              );
+            },
+          ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -195,7 +212,7 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
       }
       return RefreshIndicator(
         onRefresh: () async {
-          context.read<CashierOrdersPageCubit>().loadOrders();
+          context.read<CashierOrdersPageCubit>().loadAssignedOrders();
         },
         child: ListView.builder(
           itemCount: orders.length,
@@ -216,7 +233,7 @@ class OrderTile extends StatelessWidget {
   OrderTile({Key? key, required this.order}) : super(key: key);
 
   bool _canNavigateToOrder() {
-    return order.orderStatus.toLowerCase() == 'start_punching';
+    return order.orderStatus.toLowerCase() != 'end_picking';
   }
 
   void _handleSwipeToStart(BuildContext context) {
@@ -366,8 +383,8 @@ class OrderTile extends StatelessWidget {
                         Text(
                           order.tracker_id?.toString() ?? '',
                           style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.FontPrimary,
+                            fontStyle: FontStyle.HeaderS_Bold,
+                            color: FontColor.Danger,
                           ),
                         ),
                       ],

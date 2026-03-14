@@ -1,7 +1,9 @@
 import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/common_features/feature_login/login_page.dart';
 import 'package:ansarlogistics/common_features/feature_profile/bloc/profile_page_cubit.dart';
 import 'package:ansarlogistics/common_features/feature_profile/bloc/profile_page_state.dart';
+import 'package:ansarlogistics/common_features/feature_splash/splash_page.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/components/custom_app_components/tile_card_widget.dart';
@@ -496,7 +498,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               BlocProvider.of<ProfilePageCubit>(
                                 context,
                               ).updateuserstat(0);
-                              await logout(context);
+                              // await logout(context);
+
+                              await PreferenceUtils.clear();
+                              // await logout(context);
+                              if (context.mounted) {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => SplashPage(),
+                                  ),
+                                );
+                              }
                             },
                             child: BasketButtonwithIcon(
                               bgcolor: customColors().dodgerBlue,

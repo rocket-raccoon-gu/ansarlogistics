@@ -22,6 +22,7 @@ import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
 import 'package:ansarlogistics/utils/permission_service.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +65,13 @@ class _PickerDashboardPageState extends State<PickerDashboardPage> {
               context: context,
               inputWidget: SessionOutBottomSheet(
                 onTap: () async {
-                  await logout(context);
+                  await PreferenceUtils.clear();
+                  // await logout(context);
+                  if (context.mounted) {
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil('/splash', (route) => false);
+                  }
                 },
               ),
             );
