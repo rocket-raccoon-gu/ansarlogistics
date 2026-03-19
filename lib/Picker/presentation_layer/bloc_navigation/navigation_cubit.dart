@@ -27,6 +27,13 @@ class NavigationCubit extends Cubit<NavigationState> {
     preIndex = index;
   }
 
+  // Reset navigation to index 0 (for logout/login)
+  resetToIndexZero() {
+    preIndex = -1;
+    emit(WatchlistIndexState(index: 0, args: {}));
+    adcontroller.add(NavIndex(prevIndex: -1, currIndex: 0));
+  }
+
   // updatestream() {
   //   timer.listen((event) {
   //     adcontroller.add(event);

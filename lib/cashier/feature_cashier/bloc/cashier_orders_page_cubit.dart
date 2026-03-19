@@ -230,6 +230,7 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
     required String orderId,
     required String status,
     required BuildContext context,
+    required String drivertype,
   }) async {
     try {
       final token = await PreferenceUtils.getDataFromShared("usertoken");
@@ -248,6 +249,7 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
             token1: token!,
             clubvalue: 0,
             tripid: "",
+            dispatchMethod: drivertype,
           );
 
       if (response.statusCode == 200) {

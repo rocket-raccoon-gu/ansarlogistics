@@ -70,8 +70,8 @@ class StatusHistory {
     statusType: json["status_type"],
     userId: json["user_id"],
     updatedBy: json["updated_by"],
-    latitude: json["latitude"],
-    longitude: json["longitude"],
+    latitude: json["latitude"] ?? "",
+    longitude: json["longitude"] ?? "",
     createdAt: DateTime.parse(json["created_at"]),
   );
 

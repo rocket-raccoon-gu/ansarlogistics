@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -121,7 +122,7 @@ void showLocalNotification(RemoteMessage message) {
   // Show overlay notification
   entry = showSimpleNotification(
     Text(
-      message.data['title'] ?? 'Notification',
+      message.data['title'] ?? message.notification?.title ?? '',
       style: customTextStyle(
         fontStyle: FontStyle.BodyL_Bold,
         color: FontColor.FontPrimary,
@@ -139,7 +140,7 @@ void showLocalNotification(RemoteMessage message) {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Text(
-                message.data['body'] ?? 'Notification Body',
+                message.data['body'] ?? message.notification?.body ?? '',
                 textAlign: TextAlign.center,
                 style: customTextStyle(
                   fontStyle: FontStyle.BodyL_Bold,
@@ -184,9 +185,10 @@ void showLocalNotification(RemoteMessage message) {
                           } else {
                             log('Navigating to cashier orders page');
                             // Navigate to cashier orders page if callback not available
-                            navigatorKey.currentState?.pushNamed(
-                              '/cashierdashboardpageroutename',
-                            );
+                            // navigatorKey.currentState?.pushNamed(
+                            //   '/cashierdashboardpageroutename',
+                            // );
+                            entry.dismiss();
                           }
                         }
                       },

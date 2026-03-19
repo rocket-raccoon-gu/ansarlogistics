@@ -2677,8 +2677,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child:
-                  order.orderStatus.toString() != 'ready_to_dispatch' ||
-                          order.orderStatus.toString() == 'end_picking' ||
+                  order.orderStatus.toString() == 'end_picking' ||
                           order.orderStatus.toString() == 'assigned_cashier' ||
                           order.orderStatus.toString() == 'start_punching'
                       ? SizedBox(

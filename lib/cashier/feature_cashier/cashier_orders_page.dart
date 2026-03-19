@@ -250,6 +250,7 @@ class OrderTile extends StatelessWidget {
         orderId: order.subgroupIdentifier,
         status: 'start_punching',
         context: context,
+        drivertype: order.driverType ?? '',
       );
     }
   }
@@ -261,7 +262,19 @@ class OrderTile extends StatelessWidget {
       child: Dismissible(
         key: Key(order.subgroupIdentifier),
         direction:
-            order.orderStatus.toLowerCase() == 'start_punching'
+            order.orderStatus.toLowerCase() == 'start_punching' ||
+                    order.orderStatus.toLowerCase() == 'start_picking' ||
+                    order.orderStatus.toLowerCase() == 'complete' ||
+                    order.orderStatus.toLowerCase() == 'on_the_way' ||
+                    order.orderStatus.toLowerCase() == 'assigned_picker' ||
+                    order.orderStatus.toLowerCase() == 'assigned_driver' ||
+                    order.orderStatus.toLowerCase() == 'pending' ||
+                    order.orderStatus.toLowerCase() == 'canceled' ||
+                    order.orderStatus.toLowerCase() == 'cancelled' ||
+                    order.orderStatus.toLowerCase() == 'cancel_request' ||
+                    order.orderStatus.toLowerCase() == 'canceled_by_team' ||
+                    order.orderStatus.toLowerCase() == 'note' ||
+                    order.orderStatus.toLowerCase() == 'ready_to_dispatch'
                 ? DismissDirection.none
                 : DismissDirection.startToEnd,
         background: Container(

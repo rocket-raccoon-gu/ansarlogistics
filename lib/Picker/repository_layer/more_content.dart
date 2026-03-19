@@ -1,12 +1,21 @@
-import 'package:ansarlogistics/components/restart_widget.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 logout(BuildContext context) async {
   debugPrint('Logout function called');
   try {
+    // Reset navigation index to 0 before logout
+    try {
+      BlocProvider.of<NavigationCubit>(context).resetToIndexZero();
+      debugPrint('Navigation index reset to 0');
+    } catch (e) {
+      debugPrint('Failed to reset navigation: $e');
+    }
+
     // Store user role before clearing UserController
     debugPrint('Storing user role...');
     final int userRole = UserController.userController.profile.role;
@@ -54,44 +63,22 @@ logout(BuildContext context) async {
 }
 
 void _restartApp(BuildContext context) {
-  debugPrint('Attempting to restart app...');
+  debugPrint('Clearing all routes and navigating to splash...');
   try {
-    // Method 1: Try direct RestartWidget
-    debugPrint('Trying RestartWidget.restartApp(context)');
-    // RestartWidget.restartApp(context);
+    // Clear all routes and navigate to splash
     Navigator.of(context).pushNamedAndRemoveUntil('/splash', (route) => false);
-    debugPrint('RestartWidget.restartApp(context) succeeded');
+    debugPrint('Successfully navigated to splash');
   } catch (e) {
-    debugPrint('RestartWidget failed: $e');
+    debugPrint('Navigation to splash failed: $e');
+    // Fallback: try root navigator
     try {
-      // Method 2: Navigate to splash screen
-      debugPrint('Trying navigation to splash');
       Navigator.of(
         context,
+        rootNavigator: true,
       ).pushNamedAndRemoveUntil('/splash', (route) => false);
-      debugPrint('Navigation to splash succeeded');
+      debugPrint('Root navigator to splash succeeded');
     } catch (e2) {
-      debugPrint('Navigation failed: $e2');
-      // Method 3: Last resort - try to find RestartWidget through navigator key
-      try {
-        debugPrint('Trying navigator context approach');
-        final navigatorContext = Navigator.of(context).context;
-        RestartWidget.restartApp(navigatorContext);
-        debugPrint('Navigator context approach succeeded');
-      } catch (e3) {
-        debugPrint('All restart methods failed: $e3');
-        // Method 4: Final fallback - try to use root navigator
-        try {
-          debugPrint('Trying root navigator');
-          Navigator.of(
-            context,
-            rootNavigator: true,
-          ).pushNamedAndRemoveUntil('/splash', (route) => false);
-          debugPrint('Root navigator succeeded');
-        } catch (e4) {
-          debugPrint('Even root navigator failed: $e4');
-        }
-      }
+      debugPrint('Root navigator also failed: $e2');
     }
   }
 }

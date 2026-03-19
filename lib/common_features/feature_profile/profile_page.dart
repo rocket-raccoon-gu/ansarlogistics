@@ -501,14 +501,14 @@ class _ProfilePageState extends State<ProfilePage> {
                               // await logout(context);
 
                               await PreferenceUtils.clear();
-                              // await logout(context);
-                              if (context.mounted) {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) => SplashPage(),
-                                  ),
-                                );
-                              }
+                              await logout(context);
+                              // if (context.mounted) {
+                              //   Navigator.of(context).pushReplacement(
+                              //     MaterialPageRoute(
+                              //       builder: (context) => SplashPage(),
+                              //     ),
+                              //   );
+                              // }
                             },
                             child: BasketButtonwithIcon(
                               bgcolor: customColors().dodgerBlue,
