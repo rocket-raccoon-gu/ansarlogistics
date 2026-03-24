@@ -1767,7 +1767,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         dispatchMethod: dispatchMethod,
         paymentMethod: paymentMethodnew ?? order.paymentMethod,
         token1: token!,
-        clubvalue: isClubOrder ? 1 : 0,
+        clubvalue: _isClubEnabled ? 1 : 0,
         tripid: order.tracker_id ?? "",
       );
 
