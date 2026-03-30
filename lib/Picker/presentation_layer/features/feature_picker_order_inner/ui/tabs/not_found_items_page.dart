@@ -48,7 +48,7 @@ class _NotFoundItemsPageState extends State<NotFoundItemsPage> {
               List<EndPicking> itemslist =
                   widget.notfounditems
                       .where(
-                        (element) => element.catename == widget.catlist[index],
+                        (element) => element.catname == widget.catlist[index],
                       )
                       .toList();
 

@@ -47,7 +47,7 @@ class OrderInnerAppBar extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            height: 35.0,
+            height: 50.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -63,29 +63,53 @@ class OrderInnerAppBar extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      InkWell(
-                        onTap: onTapinfo,
-                        child: Text(
-                          orderResponseItem.subgroupIdentifier,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.Lato_Bold,
-                            color: FontColor.FontPrimary,
+                      Expanded(
+                        child: InkWell(
+                          onTap: onTapinfo,
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: screenSize.width * 0.6,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Order ID',
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyS_Regular,
+                                    color: FontColor.FontSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        orderResponseItem.subgroupIdentifier
+                                            .toString(),
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.Lato_Bold,
+                                          color: FontColor.FontPrimary,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    ImageIcon(
+                                      AssetImage("assets/info.png"),
+                                      color: HexColor('#A3A3A3'),
+                                      size: 16,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      InkWell(
-                        onTap: onTapinfo,
-                        child: ImageIcon(
-                          AssetImage("assets/info.png"),
-                          color: HexColor('#A3A3A3'),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18.0,
-                          vertical: 5.0,
-                        ),
-                        child: Row(children: []),
                       ),
                     ],
                   ),
@@ -94,10 +118,11 @@ class OrderInnerAppBar extends StatelessWidget {
             ),
           ),
 
-          Positioned(
-            right: 10.0,
-            child: TranslateWidget(onTaptranslate: onTaptranslate),
-          ),
+          // Positioned(
+          //   right: 15.0,
+          //   bottom: 25.0,
+          //   child: TranslateWidget(onTaptranslate: onTaptranslate),
+          // ),
         ],
       ),
     );

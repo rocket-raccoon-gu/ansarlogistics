@@ -37,7 +37,7 @@ class _CanceledItemsPageState extends State<CanceledItemsPage> {
             List<EndPicking> itemslist =
                 widget.canceleditems
                     .where(
-                      (element) => element.catename == widget.catlist[index],
+                      (element) => element.catname == widget.catlist[index],
                     )
                     .toList();
 

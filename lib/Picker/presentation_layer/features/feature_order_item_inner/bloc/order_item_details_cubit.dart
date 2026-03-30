@@ -155,7 +155,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       // print("🔐 Retrieved Token: ${token != null ? 'Exists' : 'Null'}");
 
       Map<String, dynamic> body = {
-        "item_id": int.parse(orderItem!.itemId),
+        "item_id": int.parse(orderItem!.itemId.toString()),
         "scanned_sku":
             orderItem!.isproduce == "1" && !isSameDayOrder
                 ? orderItem!.productSku
@@ -187,7 +187,9 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         // print("✅ Item status updated successfully");
 
         UserController.userController.indexlist.add(orderItem!);
-        UserController.userController.pickerindexlist.add(orderItem!.itemId);
+        UserController.userController.pickerindexlist.add(
+          orderItem!.itemId.toString(),
+        );
 
         // print("📦 Item added to UserController lists");
         // print("💵 Price logged: $price");
@@ -291,7 +293,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         if (item_status == "item_not_available") {
           UserController.userController.itemnotavailablelist.add(orderItem!);
           UserController.userController.notavailableindexlist.add(
-            orderItem!.itemId,
+            orderItem!.itemId.toString(),
           );
         }
 

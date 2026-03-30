@@ -85,8 +85,8 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     catlist.clear(); // Optional: clear categories as well
 
     List.generate(itemslist!.assignedPicker!.length, (index) {
-      if (!catlist.contains(itemslist!.assignedPicker![index].catename)) {
-        catlist.add(itemslist!.assignedPicker![index].catename);
+      if (!catlist.contains(itemslist!.assignedPicker![index].catname)) {
+        catlist.add(itemslist!.assignedPicker![index].catname);
       }
 
       if ((UserController.userController.indexlist.isNotEmpty &&
@@ -114,48 +114,48 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     });
 
     List.generate(itemslist!.startPicking!.length, (index) {
-      if (!catlist.contains(itemslist!.startPicking![index].catename)) {
-        catlist.add(itemslist!.startPicking![index].catename);
+      if (!catlist.contains(itemslist!.startPicking![index].catname)) {
+        catlist.add(itemslist!.startPicking![index].catname);
       }
 
       topickitems.add(itemslist!.startPicking![index]);
     });
 
     List.generate(itemslist!.endPicking.length, (index) {
-      if (!catlist.contains(itemslist!.endPicking[index].catename)) {
-        catlist.add(itemslist!.endPicking[index].catename);
+      if (!catlist.contains(itemslist!.endPicking[index].catname)) {
+        catlist.add(itemslist!.endPicking[index].catname);
       }
 
       pickeditems.add(itemslist!.endPicking[index]);
     });
 
     List.generate(itemslist!.itemNotAvailable!.length, (index) {
-      if (!catlist.contains(itemslist!.itemNotAvailable![index].catename)) {
-        catlist.add(itemslist!.itemNotAvailable![index].catename);
+      if (!catlist.contains(itemslist!.itemNotAvailable![index].catname)) {
+        catlist.add(itemslist!.itemNotAvailable![index].catname);
       }
 
       notfounditems.add(itemslist!.itemNotAvailable![index]);
     });
 
     List.generate(itemslist!.canceled!.length, (index) {
-      if (!catlist.contains(itemslist!.canceled![index].catename)) {
-        catlist.add(itemslist!.canceled![index].catename);
+      if (!catlist.contains(itemslist!.canceled![index].catname)) {
+        catlist.add(itemslist!.canceled![index].catname);
       }
 
       canceleditems.add(itemslist!.canceled![index]);
     });
 
     List.generate(itemslist!.holded!.length, (index) {
-      if (!catlist.contains(itemslist!.holded![index].catename)) {
-        catlist.add(itemslist!.holded![index].catename);
+      if (!catlist.contains(itemslist!.holded![index].catname)) {
+        catlist.add(itemslist!.holded![index].catname);
       }
 
       topickitems.add(itemslist!.holded![index]);
     });
 
     List.generate(itemslist!.materialRequest!.length, (index) {
-      if (!catlist.contains(itemslist!.materialRequest![index].catename)) {
-        catlist.add(itemslist!.materialRequest![index].catename);
+      if (!catlist.contains(itemslist!.materialRequest![index].catname)) {
+        catlist.add(itemslist!.materialRequest![index].catname);
       }
 
       topickitems.add(itemslist!.materialRequest![index]);
@@ -484,7 +484,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
     Map<String, dynamic> body = {};
 
     body = {
-      "item_id": int.parse(endpicking.itemId),
+      "item_id": int.parse(endpicking.itemId.toString()),
       "item_status": item_status,
       "shipping": "0",
       "price":
@@ -506,11 +506,13 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
 
       if (item_status == "end_picking") {
         UserController.userController.indexlist.add(endpicking);
-        UserController.userController.pickerindexlist.add(endpicking.itemId);
+        UserController.userController.pickerindexlist.add(
+          endpicking.itemId.toString(),
+        );
       } else if (item_status == "item_not_available") {
         UserController.userController.itemnotavailablelist.add(endpicking);
         UserController.userController.notavailableindexlist.add(
-          endpicking.itemId,
+          endpicking.itemId.toString(),
         );
       }
 

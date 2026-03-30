@@ -195,6 +195,30 @@ class DeliveryTypeTile extends StatelessWidget {
             ],
           ),
         );
+      case "EXP/NOL":
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 3.0),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(8.0),
+              topRight: Radius.circular(8.0),
+            ),
+            color: HexColor('#04a6c7'),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TranslatedText(
+                text: "EXP-NOL Paired",
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyL_SemiBold,
+                  color: FontColor.White,
+                ),
+              ),
+              OrderStatusWidget(status: orderResponseItem.status),
+            ],
+          ),
+        );
       default:
         return Container();
     }

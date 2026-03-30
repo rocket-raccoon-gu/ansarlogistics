@@ -356,7 +356,7 @@ extension PDGeneralApi on PickerDriverApi {
     //     'custom-api/api/qatar/updateSubOrder.php'));
 
     Uri url = Uri.parse(
-      _endpointWithApplicationPathString('updateSubOrderV1.php'),
+      _endpointWithApplicationPathString('updateSubOrder.php'),
     );
 
     final Map<String, String> headers = {
@@ -385,6 +385,8 @@ extension PDGeneralApi on PickerDriverApi {
             () => _client.put(url, body: jsonEncode(body), headers: headers),
         onResponse: (response) {
           log(DateTime.now().toString());
+
+          log(response.toString());
 
           return response;
         },

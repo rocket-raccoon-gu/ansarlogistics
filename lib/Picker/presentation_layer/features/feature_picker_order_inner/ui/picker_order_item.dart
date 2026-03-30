@@ -99,7 +99,7 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
     String cat,
   ) {
     List<EndPicking> itemslistbackcategories =
-        items.where((element) => element.catename == cat).toList();
+        items.where((element) => element.catname == cat).toList();
 
     // print("${jsonEncode(itemslistbackcategories)} itemslistbackcategories");
 
@@ -130,7 +130,7 @@ class _PickerOrderItemState extends State<PickerOrderItem> {
             );
           },
           child: Dismissible(
-            key: Key(itemslistbackcategories[index].itemId),
+            key: Key(itemslistbackcategories[index].itemId.toString()),
             // direction:
             //     itemslistbackcategories[index].itemStatus == "end_picking"
             //         ? DismissDirection.none

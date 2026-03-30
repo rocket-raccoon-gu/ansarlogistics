@@ -48,7 +48,7 @@ class _PickedItemsPageState extends State<PickedItemsPage> {
               List<EndPicking> itemslist =
                   widget.pickeditems
                       .where(
-                        (element) => element.catename == widget.catlist[index],
+                        (element) => element.catname == widget.catlist[index],
                       )
                       .toList();
 

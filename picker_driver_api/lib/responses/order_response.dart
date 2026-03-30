@@ -1,37 +1,25 @@
 // To parse this JSON data, do
 //
-//     final itemListResponse = itemListResponseFromJson(jsonString);
+//     final orderResponse = orderResponseFromJson(jsonString);
 
 import 'dart:convert';
 
-OrderResponse itemListResponseFromJson(String str) =>
+OrderResponse orderResponseFromJson(String str) =>
     OrderResponse.fromJson(json.decode(str));
 
-String itemListResponseToJson(OrderResponse data) => json.encode(data.toJson());
+String orderResponseToJson(OrderResponse data) => json.encode(data.toJson());
 
 class OrderResponse {
   List<Order> items;
 
   OrderResponse({required this.items});
 
-  factory OrderResponse.fromJson(Map<String, dynamic> json) {
-    // print("🔍 Parsing OrderResponse.fromJson...");
-    final itemsJson = json["items"] ?? [];
-    // print("🔢 items count: ${itemsJson.length}");
+  OrderResponse copyWith({List<Order>? items}) =>
+      OrderResponse(items: items ?? this.items);
 
-    return OrderResponse(
-      items: List<Order>.from(
-        itemsJson.map((x) {
-          try {
-            return Order.fromJson(x);
-          } catch (e) {
-            // print("❌ Failed to parse Order item: $e");
-            // return Order(); // Provide default or empty Order
-          }
-        }),
-      ),
-    );
-  }
+  factory OrderResponse.fromJson(Map<String, dynamic> json) => OrderResponse(
+    items: List<Order>.from(json["items"].map((x) => Order.fromJson(x))),
+  );
 
   Map<String, dynamic> toJson() => {
     "items": List<dynamic>.from(items.map((x) => x.toJson())),
@@ -39,16 +27,16 @@ class OrderResponse {
 }
 
 class Order {
-  String entityId;
+  int entityId;
   String subgroupIdentifier;
   String status;
   String type;
   DateTime deliveryFrom;
   DateTime deliveryTo;
   String grandTotal;
-  String shippedAmount;
-  String? statusType;
-  String deliveryTimerange;
+  dynamic shippedAmount;
+  dynamic statusType;
+  String? deliveryTimerange;
   String customerFirstname;
   dynamic customerLastname;
   String billingStreet;
@@ -68,7 +56,6 @@ class Order {
   int itemCount;
   String shippingCharges;
   DateTime createdAt;
-  // String weightUnit;
 
   Order({
     required this.entityId,
@@ -100,19 +87,18 @@ class Order {
     required this.itemCount,
     required this.shippingCharges,
     required this.createdAt,
-    // required this.weightUnit,
   });
 
   Order copyWith({
-    String? entityId,
+    int? entityId,
     String? subgroupIdentifier,
     String? status,
     String? type,
     DateTime? deliveryFrom,
     DateTime? deliveryTo,
     String? grandTotal,
-    String? shippedAmount,
-    String? statusType,
+    dynamic shippedAmount,
+    dynamic statusType,
     String? deliveryTimerange,
     String? customerFirstname,
     dynamic customerLastname,
@@ -131,6 +117,8 @@ class Order {
     dynamic floorNumber,
     Items? items,
     int? itemCount,
+    String? shippingCharges,
+    DateTime? createdAt,
   }) => Order(
     entityId: entityId ?? this.entityId,
     subgroupIdentifier: subgroupIdentifier ?? this.subgroupIdentifier,
@@ -161,27 +149,22 @@ class Order {
     itemCount: itemCount ?? this.itemCount,
     shippingCharges: shippingCharges ?? this.shippingCharges,
     createdAt: createdAt ?? this.createdAt,
-    // weightUnit: weightUnit ?? this.weightUnit,
   );
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
-    entityId: json["entity_id"].toString() ?? "",
-    subgroupIdentifier: json["subgroup_identifier"] ?? "",
-    status: json["status"] ?? "",
-    type: json["type"] ?? "",
-    deliveryFrom: DateTime.parse(
-      json["delivery_from"] ?? DateTime.now().toString(),
-    ),
-    deliveryTo: DateTime.parse(
-      json["delivery_to"] ?? DateTime.now().toString(),
-    ),
-    grandTotal: json["grand_total"] ?? "",
-    shippedAmount: json["shipped_amount"] ?? "",
-    statusType: json["status_type"] ?? "",
-    deliveryTimerange: json["delivery_timerange"] ?? "",
-    customerFirstname: json["customer_firstname"] ?? "",
-    customerLastname: json["customer_lastname"] ?? "",
-    billingStreet: json["billing_street"] ?? "",
+    entityId: json["entity_id"],
+    subgroupIdentifier: json["subgroup_identifier"],
+    status: json["status"],
+    type: json["type"],
+    deliveryFrom: DateTime.parse(json["delivery_from"]),
+    deliveryTo: DateTime.parse(json["delivery_to"]),
+    grandTotal: json["grand_total"].toString(),
+    shippedAmount: json["shipped_amount"],
+    statusType: json["status_type"],
+    deliveryTimerange: json["delivery_timerange"],
+    customerFirstname: json["customer_firstname"],
+    customerLastname: json["customer_lastname"],
+    billingStreet: json["billing_street"],
     customerEmail: json["customer_email"] ?? "",
     postcode: json["postcode"] ?? "",
     buildingNumber: json["building_number"] ?? "",
@@ -194,11 +177,10 @@ class Order {
     buildingName: json["building_name"] ?? "",
     flatNumber: json["flat_number"] ?? "",
     floorNumber: json["floor_number"] ?? "",
-    items: Items.fromJson(json["items"].length == 0 ? {} : json["items"]),
-    itemCount: json["item_count"] ?? "",
-    shippingCharges: json['shipping_charge'] ?? "",
-    createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toString()),
-    // weightUnit: json['weight_unit'] ?? "",
+    items: Items.fromJson(json["items"]),
+    itemCount: json["item_count"],
+    shippingCharges: json["shipping_charge"] ?? "0",
+    createdAt: DateTime.parse(json["created_at"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -229,8 +211,8 @@ class Order {
     "floor_number": floorNumber,
     "items": items.toJson(),
     "item_count": itemCount,
-    "shipping_charge": shippingCharges,
-    // "weight_unit": weightUnit,
+    "shipping_charges": shippingCharges,
+    "created_at": createdAt.toIso8601String(),
   };
 }
 
@@ -374,8 +356,8 @@ class Items {
 }
 
 class EndPicking {
-  String itemId;
-  String productId;
+  int itemId;
+  int productId;
   String productSku;
   String productName;
   String itemStatus;
@@ -387,15 +369,15 @@ class EndPicking {
   String finalPrice;
   String discountPercent;
   String discountAmount;
+  String weight;
   String subtotal;
-  String isproduce;
-  String categoryid;
-  String catename;
-  String itemWeight;
-  String weightUnit;
-
+  String isProduce;
+  int categoryId;
+  String catname;
   List<String> productImages;
-  // List<String> categoryListId;
+  String weightUnit;
+  String isproduce;
+  String itemWeight;
 
   EndPicking({
     required this.itemId,
@@ -409,21 +391,22 @@ class EndPicking {
     required this.qtyShipped,
     required this.price,
     required this.finalPrice,
-    required this.itemWeight,
     required this.discountPercent,
     required this.discountAmount,
+    required this.weight,
     required this.subtotal,
-    required this.isproduce,
-    required this.categoryid,
-    required this.catename,
+    required this.isProduce,
+    required this.categoryId,
+    required this.catname,
     required this.productImages,
     required this.weightUnit,
-    // required this.categoryListId,
+    required this.isproduce,
+    required this.itemWeight,
   });
 
   EndPicking copyWith({
-    String? itemId,
-    String? productId,
+    int? itemId,
+    int? productId,
     String? productSku,
     String? productName,
     String? itemStatus,
@@ -433,16 +416,16 @@ class EndPicking {
     String? qtyShipped,
     String? price,
     String? finalPrice,
-    String? itemWeight,
-    String? weightUnit,
     String? discountPercent,
     String? discountAmount,
+    String? weight,
     String? subtotal,
-    String? isproduce,
-    String? categoryid,
-    String? catename,
+    String? isProduce,
+    int? categoryId,
+    String? catname,
     List<String>? productImages,
-    // List<String>? categoryListId,
+    String? weightUnit,
+    String? isproduce,
   }) => EndPicking(
     itemId: itemId ?? this.itemId,
     productId: productId ?? this.productId,
@@ -455,43 +438,45 @@ class EndPicking {
     qtyShipped: qtyShipped ?? this.qtyShipped,
     price: price ?? this.price,
     finalPrice: finalPrice ?? this.finalPrice,
-    itemWeight: itemWeight ?? this.itemWeight,
-    weightUnit: weightUnit ?? this.weightUnit,
     discountPercent: discountPercent ?? this.discountPercent,
     discountAmount: discountAmount ?? this.discountAmount,
+    weight: weight ?? this.weight,
     subtotal: subtotal ?? this.subtotal,
-    isproduce: isproduce ?? this.isproduce,
-    categoryid: categoryid ?? this.categoryid,
-    catename: catename ?? this.catename,
+    isProduce: isProduce ?? this.isProduce,
+    categoryId: categoryId ?? this.categoryId,
+    catname: catname ?? this.catname,
     productImages: productImages ?? this.productImages,
-    // categoryListId: categoryListId ?? this.categoryListId,
+    weightUnit: weightUnit ?? this.weightUnit,
+    isproduce: isproduce ?? this.isproduce,
+    itemWeight: itemWeight ?? this.itemWeight,
   );
 
   factory EndPicking.fromJson(Map<String, dynamic> json) => EndPicking(
-    itemId: json["item_id"].toString(),
-    productId: json["product_id"].toString(),
-    productSku: json["product_sku"],
-    productName: json["product_name"],
-    itemStatus: json["item_status"],
+    itemId: json["item_id"] ?? 0,
+    productId: json["product_id"] ?? 0,
+    productSku: json["product_sku"] ?? "",
+    productName: json["product_name"] ?? "",
+    itemStatus: json["item_status"] ?? "",
     productOptions: jsonDecode(json["product_options"] ?? "{}"),
-    qtyOrdered: json["qty_ordered"],
-    qtyCanceled: json["qty_canceled"],
-    qtyShipped: json["qty_shipped"],
-    price: json["price"],
-    finalPrice: json["final_price"],
-    itemWeight: json["weight"],
-    weightUnit: json["weight_unit"],
-    discountPercent: json["discount_percent"],
+    qtyOrdered: json["qty_ordered"] ?? 0,
+    qtyCanceled: json["qty_canceled"] ?? 0,
+    qtyShipped: json["qty_shipped"] ?? 0,
+    price: json["price"] ?? 0,
+    finalPrice: json["final_price"] ?? 0,
+    discountPercent: json["discount_percent"] ?? 0,
     discountAmount: json["discount_amount"],
-    subtotal: json["subtotal"] ?? "",
-    isproduce: json["is_produce"] != null ? json["is_produce"].toString() : "0",
-    categoryid:
-        json["category_id"] == null ? "2" : json["category_id"].toString(),
-    catename: json["catname"] ?? "",
+    weight: json["weight"],
+    subtotal: json["subtotal"],
+    isProduce: json["is_produce"],
+    categoryId:
+        json["category_id"] == null
+            ? 2
+            : int.parse(json["category_id"].toString()),
+    catname: json["catname"] ?? "",
     productImages: List<String>.from(json["product_images"].map((x) => x)),
-    // categoryListId:
-    //     List<String>.from(json["category_list_id"].map((x) => x)
-    //     ),
+    weightUnit: json["weight_unit"],
+    isproduce: json["is_produce"] != null ? json["is_produce"].toString() : "0",
+    itemWeight: json["weight"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -506,15 +491,16 @@ class EndPicking {
     "qty_shipped": qtyShipped,
     "price": price,
     "final_price": finalPrice,
-    "weight": itemWeight,
-    "weight_unit": weightUnit,
     "discount_percent": discountPercent,
     "discount_amount": discountAmount,
+    "weight": weight,
     "subtotal": subtotal,
-    "is_produce": isproduce,
-    "category_id": categoryid,
-    "catname": catename,
+    "is_produce": isProduce,
+    "category_id": categoryId,
+    "catname": catname,
     "product_images": List<dynamic>.from(productImages.map((x) => x)),
-    // "category_list_id": List<dynamic>.from(categoryListId.map((x) => x)),
+    "weight_unit": weightUnit,
+    "isproduce": isproduce,
+    "item_weight": itemWeight,
   };
 }

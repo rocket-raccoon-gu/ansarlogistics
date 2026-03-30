@@ -82,7 +82,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
     try {
       final responce = await serviceLocator.tradingApi.getSimiliarItemsRequest(
-        productid: itemdata!.productId,
+        productid: itemdata!.productId.toString(),
       );
 
       if (responce.statusCode == 200) {
@@ -231,7 +231,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
           loading = false;
 
           UserController.userController.notavailableindexlist.add(
-            itemdata!.itemId,
+            itemdata!.itemId.toString(),
           );
 
           showSnackBar(
