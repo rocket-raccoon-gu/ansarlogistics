@@ -113,8 +113,7 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
 
         if ((UserController().profile.branchCode == "Q015" ||
                 UserController().profile.branchCode == "Q008") &&
-            (UserController().profile.empId == "veg_rayyan" ||
-                UserController().profile.empId == "veg_rawdah")) {
+            (UserController().profile.empId == "veg_rayyan")) {
           BranchSectionDataResponse branchSectionDataResponse =
               BranchSectionDataResponse.fromJson(dataMap);
           branchdata = branchSectionDataResponse.data;
