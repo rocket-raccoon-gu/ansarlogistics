@@ -465,8 +465,8 @@ class EndPicking {
     finalPrice: json["final_price"] ?? 0,
     discountPercent: json["discount_percent"] ?? 0,
     discountAmount: json["discount_amount"],
-    weight: json["weight"],
-    subtotal: json["subtotal"],
+    weight: json["weight"] ?? "",
+    subtotal: json["subtotal"] ?? "",
     isProduce: json["is_produce"],
     categoryId:
         json["category_id"] == null
