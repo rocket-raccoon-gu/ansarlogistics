@@ -1802,6 +1802,144 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     }
   }
 
+  Future<void> _submitWarOrder() async {
+    // TODO: Implement WAR order action
+
+    // Require selection of dispatch type before proceeding
+    if (dispatchMethod == null || dispatchMethod!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please select dispatch type (Normal / Driver / Rider)',
+          ),
+        ),
+      );
+      return;
+    }
+
+    log(dispatchMethod.toString());
+
+    if (_posBillUrl == null) {
+      final choice = await showDialog<String>(
+        context: context,
+        builder:
+            (ctx) => AlertDialog(
+              title: const Text('POS Bill'),
+              content: const Text(
+                'No POS bill attached. Would you like to upload it now or upload later? You can still mark the order Ready to Dispatch.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop('cancel'),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop('later'),
+                  child: const Text('Upload Later'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(ctx).pop('now'),
+                  child: const Text('Upload Now'),
+                ),
+              ],
+            ),
+      );
+
+      if (choice == 'now') {
+        await _openUploadPosBillSheet();
+        if (_posBillUrl == null) {
+          // user cancelled upload; stop here
+          return;
+        }
+        // continue to confirm block below with bill present
+      } else if (choice == 'later') {
+        await _addPendingBill(order.subgroupIdentifier);
+        // proceed to mark ready with a note
+      } else {
+        // cancel
+        return;
+      }
+    }
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirm'),
+            content: Text(
+              _posBillUrl == null
+                  ? 'Mark this order as Ready to Dispatch without a POS bill? You selected Upload Later.'
+                  : 'Mark this order as Ready to Dispatch? POS bill will be attached.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: customColors().accent,
+                ),
+                child: const Text('Yes, Mark Ready'),
+              ),
+            ],
+          ),
+    );
+    if (confirm != true) return;
+
+    setState(() => _submitting = true);
+
+    try {
+      final name = UserController().profile.name.toString();
+      final empId = UserController().profile.empId;
+      final userId = UserController().profile.id.toString();
+      final lat = UserController.userController.locationlatitude;
+      final lng = UserController.userController.locationlongitude;
+
+      final grandTotal = _toDouble(_grandTotalOverride ?? _baseGrandTotal());
+      // Use onlinePaidAmount as paid
+      final paid = _toDouble(order.orderAmount);
+      final due = grandTotal - paid;
+
+      final token = await PreferenceUtils.getDataFromShared('usertoken');
+
+      final resp = await context.gTradingApiGateway.updateMainOrderStatCashier(
+        orderid: order.subgroupIdentifier,
+        // If your backend expects a different keyword, adjust here
+        orderstatus: 'submit_do',
+        comment: '$name ($empId) marked order sumitted',
+        userid: userId,
+        latitude: lat,
+        longitude: lng,
+        // grandTotal:
+        //     _toDouble(
+        //       order.endPickTotal != 0
+        //           ? double.parse(order.endPickTotal.toString()) +
+        //               (order.combinedOrderPlacedTotal! > 99
+        //                   ? 0
+        //                   : double.parse(order.shippingCharge.toString()))
+        //           : order.grandTotal,
+        //     ).toString(),
+        grandTotal: _editableGrandTotal.toString(),
+        dueAmount: ((due < 0 ? 0 : due).toStringAsFixed(2)),
+        dispatchMethod: dispatchMethod,
+        paymentMethod: paymentMethodnew ?? order.paymentMethod,
+        token1: token!,
+        clubvalue: _isClubEnabled ? 1 : 0,
+        tripid: order.tracker_id ?? "",
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = customColors();
@@ -2573,18 +2711,35 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                         //   ),
                                         //   bold: true,
                                         // ),
-                                        _editableKvMoney(
-                                          'Grand Total',
-                                          _editableGrandTotal,
-                                          onChanged: (newValue) {
-                                            setState(() {
-                                              _editableGrandTotal = newValue;
-                                            });
-                                            // If you need to update the order's grand total:
-                                            // widget.order.grandTotal = newValue;
-                                          },
-                                          bold: true,
-                                        ),
+                                        order.subgroupIdentifier
+                                                .trim()
+                                                .startsWith('WAR')
+                                            ? _editableKvMoney(
+                                              'Grand Total',
+                                              _toDouble(order.orderAmount),
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  _editableGrandTotal =
+                                                      newValue;
+                                                });
+                                                // If you need to update the order's grand total:
+                                                // widget.order.grandTotal = newValue;
+                                              },
+                                              bold: true,
+                                            )
+                                            : _editableKvMoney(
+                                              'Grand Total',
+                                              _editableGrandTotal,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  _editableGrandTotal =
+                                                      newValue;
+                                                });
+                                                // If you need to update the order's grand total:
+                                                // widget.order.grandTotal = newValue;
+                                              },
+                                              bold: true,
+                                            ),
 
                                         // Editable Grand Total
                                         // Padding(
@@ -2674,60 +2829,98 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           ),
           bottomNavigationBar: SafeArea(
             top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child:
-                  order.orderStatus.toString() == 'end_picking' ||
-                          order.orderStatus.toString() == 'assigned_cashier' ||
-                          order.orderStatus.toString() == 'start_punching'
-                      ? SizedBox(
+            child:
+                order.subgroupIdentifier.startsWith('WAR')
+                    ? Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child: SizedBox(
                         height: 48,
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.islandAqua,
+                            backgroundColor: colors.peachBackgrond,
                           ),
-                          onPressed:
-                              _submitting
-                                  ? null
-                                  : () {
-                                    if (_posBillUrl == null) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Please upload POS bill before proceeding',
-                                          ),
-                                        ),
-                                      );
-                                      // _openUploadPosBillSheet();
-                                      // return;
-                                    } else {
-                                      _confirmAndMarkReady();
-                                    }
-                                  },
-                          icon:
-                              _submitting
-                                  ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                  : const Icon(
-                                    Icons.check_circle_outline,
-                                    color: Colors.white,
+                          onPressed: () {
+                            // TODO: Implement WAR order action
+
+                            if (_posBillUrl == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please upload POS bill before proceeding',
                                   ),
-                          label: const Text(
-                            'Mark Ready to Dispatch',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
+                                ),
+                              );
+                              // _openUploadPosBillSheet();
+                              // return;
+                            } else {
+                              _submitWarOrder();
+                            }
+                          },
+                          icon: const Icon(Icons.check),
+                          label: const Text('Submit To DO'),
                         ),
-                      )
-                      : const SizedBox.shrink(),
-            ),
+                      ),
+                    )
+                    : Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child:
+                          order.orderStatus.toString() == 'end_picking' ||
+                                  order.orderStatus.toString() ==
+                                      'assigned_cashier' ||
+                                  order.orderStatus.toString() ==
+                                      'start_punching'
+                              ? SizedBox(
+                                height: 48,
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colors.islandAqua,
+                                  ),
+                                  onPressed:
+                                      _submitting
+                                          ? null
+                                          : () {
+                                            if (_posBillUrl == null) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Please upload POS bill before proceeding',
+                                                  ),
+                                                ),
+                                              );
+                                              // _openUploadPosBillSheet();
+                                              // return;
+                                            } else {
+                                              _confirmAndMarkReady();
+                                            }
+                                          },
+                                  icon:
+                                      _submitting
+                                          ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                          : const Icon(
+                                            Icons.check_circle_outline,
+                                            color: Colors.white,
+                                          ),
+                                  label: const Text(
+                                    'Mark Ready to Dispatch',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              : const SizedBox.shrink(),
+                    ),
           ),
         );
       },
