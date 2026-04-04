@@ -1929,6 +1929,25 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         clubvalue: _isClubEnabled ? 1 : 0,
         tripid: order.tracker_id ?? "",
       );
+
+      if (mounted) {
+        if (resp != null && resp.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Order submitted to DO')),
+          );
+          // Remove from pending list only if a bill is attached (i.e., uploaded now)
+
+          // Go back to Cashier dashboard/orders and refresh list (constructor loads on open)
+          final locator = context.read<CubitsLocator>();
+          await context.gNavigationService.openCashierDashboardPage(context);
+        } else {
+          final Map<String, dynamic> data = jsonDecode(resp.body);
+          final String message = data['message'] ?? 'Something went wrong';
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed: $message')));
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
