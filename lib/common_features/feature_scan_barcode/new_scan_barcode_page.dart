@@ -5,7 +5,6 @@ import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/bloc/new_scan_barcode_page_cubit.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/bloc/new_scan_barcode_page_state.dart';
 import 'package:ansarlogistics/components/custom_app_components/app_bar/custom_app_bar.dart';
-import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -16,11 +15,11 @@ import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_p
 import 'package:camera/camera.dart';
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
@@ -39,8 +38,11 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
   bool stock_stat = false;
   late CarouselSliderController _sliderController;
   ProductResponse? _productResponse;
+  String _dynamicImageUrl =
+      mainimageurl; // Default to mainimageurl, will be updated from Firestore
 
   List<String> barcodelist = [];
+  List<CameraDescription> cameras = [];
 
   late CameraController _cameraController;
 
@@ -48,10 +50,63 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _sliderController = CarouselSliderController();
+    _fetchImageUrlFromFirestore();
+    _initializeCameras();
+    // TODO: implement initState
     WidgetsBinding.instance.addObserver(this);
+    _sliderController = CarouselSliderController();
+    barcodelist = [];
+    isScan = false;
+  }
+
+  // Initialize cameras
+  Future<void> _initializeCameras() async {
+    try {
+      cameras = await availableCameras();
+      if (cameras.isNotEmpty) {
+        // Use front camera if available (index 1), otherwise use back camera (index 0)
+        int cameraIndex = cameras.length > 1 ? 1 : 0;
+        _cameraController = CameraController(
+          cameras[cameraIndex],
+          ResolutionPreset.high,
+          enableAudio: false,
+        );
+        await _cameraController.initialize();
+        if (mounted) setState(() {});
+      } else {
+        debugPrint('No cameras available');
+      }
+    } catch (e) {
+      debugPrint('Error initializing cameras: $e');
+    }
+  }
+
+  // Method to fetch image URL from Firestore
+  Future<void> _fetchImageUrlFromFirestore() async {
+    try {
+      // Replace 'your_collection_name' and 'your_document_id' with actual values
+      DocumentSnapshot doc =
+          await FirebaseFirestore.instance
+              .collection('base_path')
+              .doc('7F32CBHMHACadSeNRWsY')
+              .get();
+
+      if (doc.exists && doc.data() != null) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        String? imagePath = data['imagePath'] as String?;
+
+        if (imagePath != null && imagePath.isNotEmpty) {
+          setState(() {
+            _dynamicImageUrl = imagePath;
+          });
+          debugPrint('Updated image URL from Firestore: $_dynamicImageUrl');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching image URL from Firestore: $e');
+      // Keep using $_dynamicImageUrl as fallback
+    }
   }
 
   Future<void> requestCameraPermission() async {
@@ -300,7 +355,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                                             );
                                           },
                                           child: Image.network(
-                                            "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+                                            "$_dynamicImageUrl${_productResponse!.mediaGalleryEntries[0].file}",
                                             fit: BoxFit.contain,
                                           ),
                                         ),
@@ -398,9 +453,9 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                                 onTap: () {
                                   ctx.read<NewScanBarcodePageCubit>().addtolist(
                                     _productResponse!.sku,
+                                    _productResponse!.name,
                                     "",
-                                    "",
-                                    "",
+                                    _productResponse!.price,
                                   );
 
                                   Navigator.pop(context);
@@ -1030,7 +1085,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
       //                                         );
       //                                       },
       //                                       child: Image.network(
-      //                                         "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+      //                                         "${$_dynamicImageUrl}${_productResponse!.mediaGalleryEntries[0].file}",
       //                                         fit: BoxFit.contain,
       //                                       ),
       //                                     ),
@@ -1227,7 +1282,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
       //                                         );
       //                                       },
       //                                       child: Image.network(
-      //                                         "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+      //                                         "${$_dynamicImageUrl}${_productResponse!.mediaGalleryEntries[0].file}",
       //                                         fit: BoxFit.contain,
       //                                       ),
       //                                     ),
@@ -2058,7 +2113,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                                     color: Colors.amber,
                                   ),
                                   child: Image.network(
-                                    "${mainimageurl}${mediaGalleryEntries[itemIndex].file.toString()}",
+                                    "$_dynamicImageUrl${mediaGalleryEntries[itemIndex].file.toString()}",
                                     fit: BoxFit.fill,
                                   ),
                                 ),

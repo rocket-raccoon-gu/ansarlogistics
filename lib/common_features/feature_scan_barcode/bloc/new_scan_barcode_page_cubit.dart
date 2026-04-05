@@ -56,9 +56,9 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
     // if (!isMapAlreadyExist(sku)) {
     Map<String, dynamic> newdata = {
       'sku': sku,
-      'title': "",
+      'title': title,
       'price': "",
-      'qty': "",
+      'qty': price,
       'user_id': UserController().profile.id,
     };
 

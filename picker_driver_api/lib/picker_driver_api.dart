@@ -1409,6 +1409,8 @@ extension PDGeneralApi on PickerDriverApi {
 
     final Map<String, dynamic> body = {"items": dynamiclist};
 
+    log("items : $dynamiclist");
+
     serviceSend("add to product list service full");
     log(DateTime.now().toString());
 
