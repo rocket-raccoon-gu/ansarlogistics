@@ -36,6 +36,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
     with WidgetsBindingObserver {
   String _scanBarcode = 'Unknown';
   bool stock_stat = false;
+  bool producebarcode = false;
   late CarouselSliderController _sliderController;
   ProductResponse? _productResponse;
   String _dynamicImageUrl =
@@ -207,15 +208,119 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
 
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
-      String response = await widget.serviceLocator.tradingApi
-          .checkbarcodeavailablity(sku: barcodescanRes!);
+      // String response = await widget.serviceLocator.tradingApi
+      //     .checkbarcodeavailablity(sku: barcodescanRes!);
 
-      log(response);
+      // log(response);
 
-      Map<String, dynamic> mdata = jsonDecode(response);
+      // Map<String, dynamic> mdata = jsonDecode(response);
 
-      if (mdata['success'] == 1) {
+      // if (mdata['success'] == 1) {
+      //   Navigator.pop(context);
+
+      //   showGeneralDialog(
+      //     context: context,
+      //     pageBuilder: (context, animation, secondaryanimation) {
+      //       return Container();
+      //     },
+      //     transitionBuilder: (context, animation, secondaryAnimation, child) {
+      //       var curves = Curves.easeInOut.transform(animation.value);
+
+      //       return Transform.scale(
+      //         scale: curves,
+      //         child: AlertDialog(
+      //           shape: RoundedRectangleBorder(
+      //             borderRadius: BorderRadius.circular(8.0),
+      //           ),
+      //           content: Column(
+      //             mainAxisAlignment: MainAxisAlignment.center,
+      //             mainAxisSize: MainAxisSize.min,
+      //             children: [
+      //               // Lottie.asset(
+      //               //   'assets/animation_list.json',
+      //               //   height: 100.0,
+      //               // ),
+      //               Text(
+      //                 barcodescanRes!.toString(),
+      //                 style: customTextStyle(
+      //                   fontStyle: FontStyle.BodyM_Bold,
+      //                   color: FontColor.FontPrimary,
+      //                 ),
+      //               ),
+      //               Text(
+      //                 "Barcode Already Scanned on ${mdata['data']['date']}",
+      //                 style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+      //                 textAlign: TextAlign.center,
+      //               ),
+      //               Text(
+      //                 "Product Upload in Processing...",
+      //                 style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+      //                 textAlign: TextAlign.center,
+      //               ),
+      //               Padding(
+      //                 padding: const EdgeInsets.only(top: 12.0),
+      //                 child: Row(
+      //                   mainAxisAlignment: MainAxisAlignment.center,
+      //                   children: [
+      //                     InkWell(
+      //                       onTap: () {
+      //                         Navigator.pop(context);
+      //                       },
+      //                       child: Container(
+      //                         padding: EdgeInsets.symmetric(
+      //                           horizontal: 50,
+      //                           vertical: 10.0,
+      //                         ),
+      //                         decoration: BoxDecoration(
+      //                           color: customColors().carnationRed,
+      //                           borderRadius: BorderRadius.circular(5.0),
+      //                         ),
+      //                         child: Center(
+      //                           child: Text(
+      //                             "OK",
+      //                             style: customTextStyle(
+      //                               fontStyle: FontStyle.BodyM_Bold,
+      //                               color: FontColor.White,
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       );
+      //     },
+      //   );
+      // } else {
+
+      if (producebarcode) {
+        // Replace the last 4 digits with '0'
+        barcodescanRes =
+            '${barcodescanRes!.substring(0, barcodescanRes!.length - 6)}000000';
+
+        log("sku $barcodescanRes");
+
+        // getProduct(updatedBarcode);
+        // produceprice = double.parse(getPriceFromBarcode(barcodescanRes!));
+      }
+
+      final productresponse = await widget.serviceLocator.tradingApi
+          .generalProductServiceGet(endpoint: barcodescanRes!, token11: token!);
+
+      Map<String, dynamic> data = jsonDecode(productresponse.body);
+
+      if (!data.containsKey('message')) {
         Navigator.pop(context);
+
+        log(productresponse.body);
+
+        setState(() {
+          _productResponse = ProductResponse.fromJson(data);
+        });
 
         showGeneralDialog(
           context: context,
@@ -235,51 +340,155 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Lottie.asset(
-                    //   'assets/animation_list.json',
-                    //   height: 100.0,
-                    // ),
-                    Text(
-                      barcodescanRes!.toString(),
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyM_Bold,
-                        color: FontColor.FontPrimary,
+                    // Lottie.asset('assets/animation_list.json', height: 100.0),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Container(
+                              height: 90.0,
+                              width: 90.0,
+                              child:
+                                  _productResponse!.mediaGalleryEntries.isEmpty
+                                      ? Image.asset('assets/placeholder.png')
+                                      : InkWell(
+                                        onTap: () {
+                                          getImageViewver(
+                                            _productResponse!
+                                                .mediaGalleryEntries,
+                                            context,
+                                            _sliderController,
+                                          );
+                                        },
+                                        child: Image.network(
+                                          "$_dynamicImageUrl${_productResponse!.mediaGalleryEntries[0].file}",
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: Text(
+                                      _productResponse!.name,
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.FontPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 3.0,
+                                    ),
+                                    child: Text(
+                                      "SKU: ${_productResponse!.sku}",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.FontPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+
+                    // Text(
+                    //   barcodescanRes!.toString(),
+                    //   style: customTextStyle(
+                    //       fontStyle: FontStyle.BodyM_Bold,
+                    //       color: FontColor.FontPrimary),
+                    // ),
+                    // Text(
+                    //   "Barcode Already Scanned on ${mdata['data']['date']}",
+                    //   style: customTextStyle(
+                    //     fontStyle: FontStyle.BodyL_Bold,
+                    //   ),
+                    //   textAlign: TextAlign.center,
+                    // ),
                     Text(
-                      "Barcode Already Scanned on ${mdata['data']['date']}",
-                      style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      "Product Upload in Processing...",
+                      "Do you want to add ...?",
                       style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
                       textAlign: TextAlign.center,
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
+                      padding: const EdgeInsets.only(top: 10.0),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 50,
-                                vertical: 10.0,
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                  horizontal: 8.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: customColors().carnationRed,
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Cancel",
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_Bold,
+                                      color: FontColor.White,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              decoration: BoxDecoration(
-                                color: customColors().carnationRed,
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "OK",
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyM_Bold,
-                                    color: FontColor.White,
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                ctx.read<NewScanBarcodePageCubit>().addtolist(
+                                  _productResponse!.sku,
+                                  _productResponse!.name,
+                                  "",
+                                  _productResponse!.price,
+                                  "Image Not Same",
+                                  produce: producebarcode,
+                                );
+
+                                Navigator.pop(context);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                    vertical: 8.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: customColors().islandAqua,
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Image Not Same",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -295,23 +504,13 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
           },
         );
       } else {
-        final productresponse = await widget.serviceLocator.tradingApi
-            .generalProductServiceGet(
-              endpoint: barcodescanRes!,
-              token11: token!,
-            );
+        Navigator.pop(context); // Close the "Fetching data....!" dialog
 
-        Map<String, dynamic> data = jsonDecode(productresponse.body);
-
-        if (!data.containsKey('message')) {
-          Navigator.pop(context);
-
-          log(productresponse.body);
-
-          setState(() {
-            _productResponse = ProductResponse.fromJson(data);
-          });
-
+        if (context
+            .read<NewScanBarcodePageCubit>()
+            .skulist
+            .where((element) => element.containsValue(barcodescanRes))
+            .isEmpty) {
           showGeneralDialog(
             context: context,
             pageBuilder: (context, animation, secondaryanimation) {
@@ -330,97 +529,18 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Lottie.asset('assets/animation_list.json', height: 100.0),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: Container(
-                                height: 90.0,
-                                width: 90.0,
-                                child:
-                                    _productResponse!
-                                            .mediaGalleryEntries
-                                            .isEmpty
-                                        ? Image.asset('assets/placeholder.png')
-                                        : InkWell(
-                                          onTap: () {
-                                            getImageViewver(
-                                              _productResponse!
-                                                  .mediaGalleryEntries,
-                                              context,
-                                              _sliderController,
-                                            );
-                                          },
-                                          child: Image.network(
-                                            "$_dynamicImageUrl${_productResponse!.mediaGalleryEntries[0].file}",
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                      ),
-                                      child: Text(
-                                        _productResponse!.name,
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.BodyM_Bold,
-                                          color: FontColor.FontPrimary,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 3.0,
-                                      ),
-                                      child: Text(
-                                        "SKU: ${_productResponse!.sku}",
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.BodyM_Bold,
-                                          color: FontColor.FontPrimary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+                      Text(
+                        "Item not available in website",
+                        textAlign: TextAlign.center,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontPrimary,
                         ),
                       ),
-
-                      // Text(
-                      //   barcodescanRes!.toString(),
-                      //   style: customTextStyle(
-                      //       fontStyle: FontStyle.BodyM_Bold,
-                      //       color: FontColor.FontPrimary),
-                      // ),
-                      // Text(
-                      //   "Barcode Already Scanned on ${mdata['data']['date']}",
-                      //   style: customTextStyle(
-                      //     fontStyle: FontStyle.BodyL_Bold,
-                      //   ),
-                      //   textAlign: TextAlign.center,
-                      // ),
-                      Text(
-                        "Do you want to add ...?",
-                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-                        textAlign: TextAlign.center,
-                      ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 10.0),
+                        padding: const EdgeInsets.only(top: 15.0),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: InkWell(
@@ -429,19 +549,20 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 8.0,
                                     horizontal: 8.0,
+                                    vertical: 8.0,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: customColors().secretGarden,
-                                    borderRadius: BorderRadius.circular(5.0),
+                                    color: customColors().carnationRed,
                                   ),
                                   child: Center(
-                                    child: Text(
-                                      "Ok",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyM_Bold,
-                                        color: FontColor.White,
+                                    child: Center(
+                                      child: Text(
+                                        "Cancel",
+                                        style: customTextStyle(
+                                          fontStyle: FontStyle.BodyM_Bold,
+                                          color: FontColor.White,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -452,10 +573,12 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                               child: InkWell(
                                 onTap: () {
                                   ctx.read<NewScanBarcodePageCubit>().addtolist(
-                                    _productResponse!.sku,
-                                    _productResponse!.name,
+                                    barcodescanRes!,
                                     "",
-                                    _productResponse!.price,
+                                    "",
+                                    "",
+                                    "item not available",
+                                    produce: producebarcode,
                                   );
 
                                   Navigator.pop(context);
@@ -468,12 +591,11 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                                       vertical: 8.0,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: customColors().islandAqua,
-                                      borderRadius: BorderRadius.circular(5.0),
+                                      color: customColors().secretGarden,
                                     ),
                                     child: Center(
                                       child: Text(
-                                        "Add This Item",
+                                        "Add",
                                         style: customTextStyle(
                                           fontStyle: FontStyle.BodyM_Bold,
                                           color: FontColor.White,
@@ -494,210 +616,84 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
             },
           );
         } else {
-          if (context
-              .read<NewScanBarcodePageCubit>()
-              .skulist
-              .where((element) => element.containsValue(barcodescanRes))
-              .isEmpty) {
-            // ignore: use_build_context_synchronously
-            ctx.read<NewScanBarcodePageCubit>().addtolist(
-              barcodescanRes!,
-              "",
-              "",
-              "",
-            );
+          showGeneralDialog(
+            context: context,
+            pageBuilder: (context, animation, secondaryanimation) {
+              return Container();
+            },
+            transitionBuilder: (context, animation, secondaryAnimation, child) {
+              var curves = Curves.easeInOut.transform(animation.value);
 
-            // ignore: use_build_context_synchronously
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
-
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Do you Want to Add More...?",
-                          textAlign: TextAlign.center,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                      vertical: 8.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: customColors().carnationRed,
-                                    ),
-                                    child: Center(
-                                      child: Center(
-                                        child: Text(
-                                          "No",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.White,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    // ctx
-                                    //     .read<NewScanBarcodePageCubit>()
-                                    //     .addtolist(barcodescanRes);
-
-                                    scanBarcodeNormal(ctx);
-
-                                    Navigator.pop(context);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 8.0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: customColors().secretGarden,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Yes",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.White,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+              return Transform.scale(
+                scale: curves,
+                child: AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                );
-              },
-            );
-          } else {
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
-
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          barcodescanRes.toString(),
+                  content: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        barcodescanRes.toString(),
+                        textAlign: TextAlign.center,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          "You Already Added This Barcode in List...!",
                           textAlign: TextAlign.center,
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyL_Bold,
                             color: FontColor.FontPrimary,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            "You Already Added This Barcode in List...!",
-                            textAlign: TextAlign.center,
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.FontPrimary,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                context.gNavigationService.back(context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 35.0,
+                                  vertical: 8.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: customColors().carnationRed,
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "OK",
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_Bold,
+                                      color: FontColor.White,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  context.gNavigationService.back(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 35.0,
-                                    vertical: 8.0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: customColors().carnationRed,
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "OK",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyM_Bold,
-                                        color: FontColor.White,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                );
-              },
-            );
-          }
+                ),
+              );
+            },
+          );
         }
       }
+      // }
 
       // final productresponse = await widget.serviceLocator.tradingApi
       //     .getProductServiceGet(endpoint: barcodescanRes!, token11: token!);
@@ -1592,24 +1588,48 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                     child: Padding(
                       padding: EdgeInsets.only(top: mheight * .012),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16.0),
-                            child: InkWell(
-                              onTap: () {
-                                context.gNavigationService.back(context);
-                              },
-                              child: Icon(Icons.arrow_back_ios, size: 17.0),
-                            ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: InkWell(
+                                  onTap: () {
+                                    context.gNavigationService.back(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, size: 17.0),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 6.0),
+                                child: Text(
+                                  "Scan & Report",
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyL_Bold,
+                                    color: FontColor.FontSecondary,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 6.0),
-                            child: Text(
-                              "Report Missing Products",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.FontSecondary,
-                              ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5.0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text("Is Produce"),
+                                Switch(
+                                  value: producebarcode,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      producebarcode = value;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
                           ),
                         ],

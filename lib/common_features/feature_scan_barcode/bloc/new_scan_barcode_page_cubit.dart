@@ -51,15 +51,37 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
     emit(NewScanBarcodeInitialState());
   }
 
-  addtolist(String sku, String title, String qty, String price) {
+  addtolist(
+    String sku,
+    String title,
+    String qty,
+    String price,
+    String reason, {
+    bool produce = false,
+  }) {
     // Check if the map already exists before adding
     // if (!isMapAlreadyExist(sku)) {
+    String processedSku = sku;
+    String processedPrice = price;
+
+    if (produce) {
+      // Replace the last 6 digits with '000000'
+      processedSku = sku.substring(0, sku.length - 6) + '000000';
+
+      log("Processed SKU for produce: $processedSku");
+
+      // Get price from barcode
+      processedPrice = getPriceFromBarcode(sku);
+    }
+
     Map<String, dynamic> newdata = {
-      'sku': sku,
+      'sku': processedSku,
       'title': title,
-      'price': "",
-      'qty': price,
+      'price': price,
+      'qty': qty,
       'user_id': UserController().profile.id,
+      'produce': produce,
+      'reason': reason,
     };
 
     if (skulist.where((element) => element.containsValue(sku)).isEmpty) {
@@ -139,218 +161,218 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
         if (data.containsKey('message')) {
           // check in scanned sku list db
 
-          String response = await serviceLocator.tradingApi
-              .checkbarcodeavailablity(sku: sku);
+          // String response = await serviceLocator.tradingApi
+          //     .checkbarcodeavailablity(sku: sku);
 
-          log(response);
+          // log(response);
 
-          Map<String, dynamic> mdata = jsonDecode(response);
+          // Map<String, dynamic> mdata = jsonDecode(response);
 
-          // available in scanned sku list db
+          // // available in scanned sku list db
 
-          if (mdata['success'] == 1) {
-            // ignore: use_build_context_synchronously
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
+          // if (mdata['success'] == 1) {
+          //   // ignore: use_build_context_synchronously
+          //   showGeneralDialog(
+          //     context: context,
+          //     pageBuilder: (context, animation, secondaryanimation) {
+          //       return Container();
+          //     },
+          //     transitionBuilder: (
+          //       context,
+          //       animation,
+          //       secondaryAnimation,
+          //       child,
+          //     ) {
+          //       var curves = Curves.easeInOut.transform(animation.value);
 
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Lottie.asset(
-                        //   'assets/animation_list.json',
-                        //   height: 100.0,
-                        // ),
-                        Text(
-                          sku.toString(),
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyM_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                        Text(
-                          "Barcode Already Scanned on ${mdata['data']['date']}",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Text(
-                          "Product Upload in Processing...",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 50,
-                                    vertical: 10.0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: customColors().carnationRed,
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "OK",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyM_Bold,
-                                        color: FontColor.White,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
+          //       return Transform.scale(
+          //         scale: curves,
+          //         child: AlertDialog(
+          //           shape: RoundedRectangleBorder(
+          //             borderRadius: BorderRadius.circular(8.0),
+          //           ),
+          //           content: Column(
+          //             mainAxisAlignment: MainAxisAlignment.center,
+          //             mainAxisSize: MainAxisSize.min,
+          //             children: [
+          //               // Lottie.asset(
+          //               //   'assets/animation_list.json',
+          //               //   height: 100.0,
+          //               // ),
+          //               Text(
+          //                 sku.toString(),
+          //                 style: customTextStyle(
+          //                   fontStyle: FontStyle.BodyM_Bold,
+          //                   color: FontColor.FontPrimary,
+          //                 ),
+          //               ),
+          //               Text(
+          //                 "Barcode Already Scanned on ${mdata['data']['date']}",
+          //                 style: customTextStyle(
+          //                   fontStyle: FontStyle.BodyL_Bold,
+          //                 ),
+          //                 textAlign: TextAlign.center,
+          //               ),
+          //               Text(
+          //                 "Product Upload in Processing...",
+          //                 style: customTextStyle(
+          //                   fontStyle: FontStyle.BodyL_Bold,
+          //                 ),
+          //                 textAlign: TextAlign.center,
+          //               ),
+          //               Padding(
+          //                 padding: const EdgeInsets.only(top: 12.0),
+          //                 child: Row(
+          //                   mainAxisAlignment: MainAxisAlignment.center,
+          //                   children: [
+          //                     InkWell(
+          //                       onTap: () {
+          //                         Navigator.pop(context);
+          //                       },
+          //                       child: Container(
+          //                         padding: const EdgeInsets.symmetric(
+          //                           horizontal: 50,
+          //                           vertical: 10.0,
+          //                         ),
+          //                         decoration: BoxDecoration(
+          //                           color: customColors().carnationRed,
+          //                           borderRadius: BorderRadius.circular(5.0),
+          //                         ),
+          //                         child: Center(
+          //                           child: Text(
+          //                             "OK",
+          //                             style: customTextStyle(
+          //                               fontStyle: FontStyle.BodyM_Bold,
+          //                               color: FontColor.White,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       );
+          //     },
+          //   );
 
-            // allready in list
-            //
-          } else {
-            // check in current list
+          //   // allready in list
+          //   //
+          // } else {
+          //   // check in current list
 
-            if (skulist
-                .where((element) => element.containsValue(sku))
-                .isEmpty) {
-              // not available in current list
+          //   if (skulist
+          //       .where((element) => element.containsValue(sku))
+          //       .isEmpty) {
+          //     // not available in current list
 
-              skulist[index]['sku'] = sku;
-              skulist[index]['title'] = title;
-              skulist[index]['price'] = price;
-              skulist[index]['qty'] = qty;
-              skulist[index]['user_id'] = UserController().profile.id;
+          //     skulist[index]['sku'] = sku;
+          //     skulist[index]['title'] = title;
+          //     skulist[index]['price'] = price;
+          //     skulist[index]['qty'] = qty;
+          //     skulist[index]['user_id'] = UserController().profile.id;
 
-              // print(skulist);
-              alwaysopenpanel = false;
+          //     // print(skulist);
+          //     alwaysopenpanel = false;
 
-              //  int index1 = skulist.indexWhere((element) => element['sku'] == prevsku);
+          //     //  int index1 = skulist.indexWhere((element) => element['sku'] == prevsku);
 
-              //  if (index1 != -1) {
-              //    skulist[index1]
-              //  }
+          //     //  if (index1 != -1) {
+          //     //    skulist[index1]
+          //     //  }
 
-              PreferenceUtils.storeListmap('productlist', skulist);
+          //     PreferenceUtils.storeListmap('productlist', skulist);
 
-              emit(NewScanBarcodeInitialState());
-            } else {
-              // available in current list
+          //     emit(NewScanBarcodeInitialState());
+          //   } else {
+          //     // available in current list
 
-              // ignore: use_build_context_synchronously
-              showGeneralDialog(
-                context: context,
-                pageBuilder: (context, animation, secondaryanimation) {
-                  return Container();
-                },
-                transitionBuilder: (
-                  context,
-                  animation,
-                  secondaryAnimation,
-                  child,
-                ) {
-                  var curves = Curves.easeInOut.transform(animation.value);
+          //     // ignore: use_build_context_synchronously
+          //     showGeneralDialog(
+          //       context: context,
+          //       pageBuilder: (context, animation, secondaryanimation) {
+          //         return Container();
+          //       },
+          //       transitionBuilder: (
+          //         context,
+          //         animation,
+          //         secondaryAnimation,
+          //         child,
+          //       ) {
+          //         var curves = Curves.easeInOut.transform(animation.value);
 
-                  return Transform.scale(
-                    scale: curves,
-                    child: AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      content: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            sku.toString(),
-                            textAlign: TextAlign.center,
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.FontPrimary,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              "You Already Added This Barcode in List...!",
-                              textAlign: TextAlign.center,
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.FontPrimary,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    context.gNavigationService.back(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 35.0,
-                                      vertical: 8.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: customColors().carnationRed,
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "OK",
-                                        style: customTextStyle(
-                                          fontStyle: FontStyle.BodyM_Bold,
-                                          color: FontColor.White,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            }
-          }
+          //         return Transform.scale(
+          //           scale: curves,
+          //           child: AlertDialog(
+          //             shape: RoundedRectangleBorder(
+          //               borderRadius: BorderRadius.circular(8.0),
+          //             ),
+          //             content: Column(
+          //               mainAxisAlignment: MainAxisAlignment.center,
+          //               mainAxisSize: MainAxisSize.min,
+          //               children: [
+          //                 Text(
+          //                   sku.toString(),
+          //                   textAlign: TextAlign.center,
+          //                   style: customTextStyle(
+          //                     fontStyle: FontStyle.BodyL_Bold,
+          //                     color: FontColor.FontPrimary,
+          //                   ),
+          //                 ),
+          //                 Padding(
+          //                   padding: const EdgeInsets.only(top: 8.0),
+          //                   child: Text(
+          //                     "You Already Added This Barcode in List...!",
+          //                     textAlign: TextAlign.center,
+          //                     style: customTextStyle(
+          //                       fontStyle: FontStyle.BodyL_Bold,
+          //                       color: FontColor.FontPrimary,
+          //                     ),
+          //                   ),
+          //                 ),
+          //                 Padding(
+          //                   padding: EdgeInsets.only(top: 10.0),
+          //                   child: Row(
+          //                     mainAxisAlignment: MainAxisAlignment.center,
+          //                     children: [
+          //                       InkWell(
+          //                         onTap: () {
+          //                           context.gNavigationService.back(context);
+          //                         },
+          //                         child: Container(
+          //                           padding: const EdgeInsets.symmetric(
+          //                             horizontal: 35.0,
+          //                             vertical: 8.0,
+          //                           ),
+          //                           decoration: BoxDecoration(
+          //                             color: customColors().carnationRed,
+          //                             borderRadius: BorderRadius.circular(5.0),
+          //                           ),
+          //                           child: Center(
+          //                             child: Text(
+          //                               "OK",
+          //                               style: customTextStyle(
+          //                                 fontStyle: FontStyle.BodyM_Bold,
+          //                                 color: FontColor.White,
+          //                               ),
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                 ),
+          //               ],
+          //             ),
+          //           ),
+          //         );
+          //       },
+          //     );
+          //   }
+          // }
         } else {
           // available in products magento db
 
@@ -1212,5 +1234,32 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
         );
       },
     );
+  }
+
+  String getPriceFromBarcode(String code) {
+    String last = code;
+    String price = "00";
+
+    // Check if code starts with '00'
+    if (code.startsWith('00')) {
+      last = code.substring(2);
+    }
+
+    // Convert to price value (divide by 1000)
+    double parsedValue = double.parse(last) / 1000;
+
+    // Format the price string
+    String priceString = parsedValue.toString();
+    int dotIndex = priceString.indexOf('.');
+
+    if (dotIndex != -1 && dotIndex < priceString.length - 2) {
+      // Decimal part is not zero - include up to two decimal places
+      price = priceString.substring(0, dotIndex + 3);
+    } else {
+      // Decimal part is zero
+      price = priceString;
+    }
+
+    return price;
   }
 }
