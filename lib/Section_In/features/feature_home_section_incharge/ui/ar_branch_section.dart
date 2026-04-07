@@ -6,6 +6,7 @@ import 'package:ansarlogistics/components/custom_app_components/textfields/custo
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,6 +25,8 @@ class _ArBranchSectionState extends State<ArBranchSection> {
   bool searchactive = false;
 
   final _searchcontroller = TextEditingController();
+
+  bool _isSyncDisabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +58,92 @@ class _ArBranchSectionState extends State<ArBranchSection> {
               },
               controller: _searchcontroller,
             ),
+          ),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap:
+                      _isSyncDisabled
+                          ? null
+                          : () async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder:
+                                  (ctx) => AlertDialog(
+                                    title: Text('Sync Data'),
+                                    content: Text(
+                                      'Are you sure you want to sync data?\n'
+                                      'This will send your latest stock changes to the server.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.of(ctx).pop(false),
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.of(ctx).pop(true),
+                                        child: Text('Yes, Sync'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+
+                            if (confirmed != true) return;
+
+                            setState(() {
+                              _isSyncDisabled = true;
+                            });
+
+                            showSnackBar(
+                              context: context,
+                              snackBar: SnackBar(
+                                content: Text("Syncing data..."),
+                              ),
+                            );
+                            try {
+                              await context
+                                  .read<HomeSectionInchargeCubit>()
+                                  .syncData();
+                            } finally {
+                              if (!mounted) return;
+                              setState(() {
+                                _isSyncDisabled = false;
+                              });
+                            }
+                          },
+                  child: Container(
+                    height: 40.0,
+                    decoration: BoxDecoration(
+                      color:
+                          _isSyncDisabled
+                              ? customColors().islandAqua.withOpacity(0.5)
+                              : customColors().islandAqua,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.sync, color: customColors().fontPrimary),
+                        Text(
+                          "Sync Data",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
 
