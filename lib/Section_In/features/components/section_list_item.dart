@@ -203,7 +203,7 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                                 widget.sectionitem.imageUrl.isNotEmpty
                                     ? CachedNetworkImage(
                                       imageUrl:
-                                          "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
+                                          "https://media-qatar.ansargallery.com/catalog/product/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
                                       imageBuilder: (context, imageProvider) {
                                         return Container(
                                           decoration: BoxDecoration(

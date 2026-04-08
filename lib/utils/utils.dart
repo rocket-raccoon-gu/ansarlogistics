@@ -923,11 +923,12 @@ Widget getSection(String branchCode, HomeSectionInchargeState state) {
       return OtherBranchSection(state: state);
 
     case 'Q008':
-      if (UserController.userController.profile.empId == "veg_rayyan") {
-        return ArBranchSection(state: state);
-      } else {
-        return OtherBranchSection(state: state);
-      }
+      // if (UserController.userController.profile.empId == "veg_rayyan") {
+      //   return ArBranchSection(state: state);
+      // } else {
+      //   return OtherBranchSection(state: state);
+      // }
+      return HomeSection(state: state);
 
     default:
       return OtherBranchSection(state: state);

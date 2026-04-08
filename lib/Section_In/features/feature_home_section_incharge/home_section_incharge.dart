@@ -85,7 +85,7 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
                                       .profile
                                       .branchCode !=
                                   'Q013' &&
-                              (UserController.userController.profile.empId ==
+                              (UserController.userController.profile.empId !=
                                   "veg_rayyan"))
                             InkWell(
                               onTap: () {
