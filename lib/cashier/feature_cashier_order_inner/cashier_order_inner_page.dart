@@ -1420,6 +1420,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                 ),
               ),
               DataCell(SizedBox(width: 120, child: Text(item.sku))),
+              DataCell(Text("")),
               DataCell(Text(webPrice.toStringAsFixed(2))),
               DataCell(Text(orderPrice.toStringAsFixed(2))),
               DataCell(Text(pickerPrice.toStringAsFixed(2))),
@@ -2849,7 +2850,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           bottomNavigationBar: SafeArea(
             top: false,
             child:
-                order.subgroupIdentifier.startsWith('WAR')
+                order.subgroupIdentifier.startsWith('WAR') &&
+                        order.orderStatus != "assigned_cashier"
                     ? Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: SizedBox(
@@ -2884,11 +2886,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     : Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child:
-                          order.orderStatus.toString() == 'end_picking' ||
-                                  order.orderStatus.toString() ==
-                                      'assigned_cashier' ||
-                                  order.orderStatus.toString() ==
-                                      'start_punching'
+                          (order.orderStatus.toString() == 'end_picking' ||
+                                      order.orderStatus.toString() ==
+                                          'assigned_cashier' ||
+                                      order.orderStatus.toString() ==
+                                          'start_punching') &&
+                                  (!order.subgroupIdentifier.startsWith('WAR'))
                               ? SizedBox(
                                 height: 48,
                                 width: double.infinity,

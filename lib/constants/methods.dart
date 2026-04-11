@@ -139,6 +139,8 @@ String getStatus(String? stat) {
       return "Assigned Cashier";
     case "start_punching":
       return "Start Punching";
+    case "assigned_customer_service":
+      return "Assigned Customer Service";
     default:
       return "";
   }
@@ -193,6 +195,8 @@ Color getOrderWidgetColor(String status) {
     case "order_collected":
       return HexColor('#7b98c9');
     case "start_punching":
+      return HexColor('#ff9800');
+    case "assigned_customer_service":
       return HexColor('#ff9800');
     default:
       return customColors().accent;

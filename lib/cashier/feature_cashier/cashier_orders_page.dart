@@ -274,7 +274,9 @@ class OrderTile extends StatelessWidget {
                     order.orderStatus.toLowerCase() == 'cancel_request' ||
                     order.orderStatus.toLowerCase() == 'canceled_by_team' ||
                     order.orderStatus.toLowerCase() == 'note' ||
-                    order.orderStatus.toLowerCase() == 'ready_to_dispatch'
+                    order.orderStatus.toLowerCase() == 'ready_to_dispatch' ||
+                    order.orderStatus.toLowerCase() ==
+                        'assigned_customer_service'
                 ? DismissDirection.none
                 : DismissDirection.startToEnd,
         background: Container(

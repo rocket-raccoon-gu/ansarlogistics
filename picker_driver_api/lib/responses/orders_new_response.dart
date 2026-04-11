@@ -60,6 +60,7 @@ class OrderNew {
   String? subgroupIdentifier;
   String? orderAmount;
   Map<String, dynamic>? suborderStatuses;
+  String? branchCode;
 
   OrderNew({
     this.id,
@@ -77,6 +78,7 @@ class OrderNew {
     this.subgroupIdentifier,
     required this.orderAmount,
     this.suborderStatuses,
+    this.branchCode,
   });
 
   factory OrderNew.fromJson(Map<String, dynamic> json) => OrderNew(
@@ -153,6 +155,7 @@ class OrderNew {
         (json['suborderStatuses'] is Map)
             ? Map<String, dynamic>.from(json['suborderStatuses'] as Map)
             : null,
+    branchCode: json['branchCode'] ?? "",
   );
 }
 
@@ -175,6 +178,7 @@ class OrderItemNew {
   final String? subgroupIdentifier;
   final String? productOptions;
   final String? finalPrice;
+  final String? branchname;
 
   OrderItemNew({
     this.id,
@@ -195,6 +199,7 @@ class OrderItemNew {
     this.subgroupIdentifier,
     this.productOptions,
     this.finalPrice,
+    this.branchname,
   });
 
   factory OrderItemNew.fromJson(Map<String, dynamic> json) => OrderItemNew(
@@ -234,6 +239,7 @@ class OrderItemNew {
             ? ""
             : json['product_options']?.toString(),
     finalPrice: json['final_price']?.toString(),
+    branchname: json['branch_name']?.toString(),
   );
 }
 

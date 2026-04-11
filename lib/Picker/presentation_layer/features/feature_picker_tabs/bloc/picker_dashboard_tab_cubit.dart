@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/bloc/picker_dashboard_tab_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
@@ -35,6 +36,8 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
           allItems
               .where((e) => (e.deliveryType ?? '').toLowerCase() == suborderId)
               .toList();
+
+      log(UserController().profile.branchCode);
 
       // Buckets by status
       final toPick =
