@@ -34,7 +34,7 @@ class _CashierOrdersPageState extends State<CashierOrdersPage> {
     final orderId = _searchController.text.trim();
     if (orderId.isEmpty) {
       // If search is empty, reload all orders
-      context.read<CashierOrdersPageCubit>().loadOrders();
+      // context.read<CashierOrdersPageCubit>().loadOrders();
       return;
     }
 
@@ -276,25 +276,45 @@ class OrderTile extends StatelessWidget {
                     order.orderStatus.toLowerCase() == 'note' ||
                     order.orderStatus.toLowerCase() == 'ready_to_dispatch' ||
                     order.orderStatus.toLowerCase() ==
-                        'assigned_customer_service'
+                        'assigned_customer_service' ||
+                    order.orderStatus.toLowerCase() == 'submit_do'
                 ? DismissDirection.none
                 : DismissDirection.startToEnd,
         background: Container(
           color: Colors.green,
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.only(left: 20),
-          child: const Row(
+          child: Row(
             children: [
               Icon(Icons.play_arrow, color: Colors.white, size: 30),
               SizedBox(width: 10),
-              Text(
-                'Swipe to Start Punching',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+
+              if (order.orderStatus.toLowerCase() == 'start_punching' ||
+                  order.orderStatus.toLowerCase() == 'start_picking' ||
+                  order.orderStatus.toLowerCase() == 'complete' ||
+                  order.orderStatus.toLowerCase() == 'on_the_way' ||
+                  order.orderStatus.toLowerCase() == 'assigned_picker' ||
+                  order.orderStatus.toLowerCase() == 'assigned_driver' ||
+                  order.orderStatus.toLowerCase() == 'pending' ||
+                  order.orderStatus.toLowerCase() == 'canceled' ||
+                  order.orderStatus.toLowerCase() == 'cancelled' ||
+                  order.orderStatus.toLowerCase() == 'cancel_request' ||
+                  order.orderStatus.toLowerCase() == 'canceled_by_team' ||
+                  order.orderStatus.toLowerCase() == 'note' ||
+                  order.orderStatus.toLowerCase() == 'ready_to_dispatch' ||
+                  order.orderStatus.toLowerCase() ==
+                      'assigned_customer_service' ||
+                  order.orderStatus.toLowerCase() == 'submit_do')
+                SizedBox()
+              else
+                Text(
+                  'Swipe to Start Punching',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -350,7 +370,15 @@ class OrderTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Customer: ${order.firstname ?? 'N/A'}',
+                  'Branch: ${order.branchcode}',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyL_Bold,
+                    color: FontColor.Success,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Customer: ${order.firstname}',
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyL_Regular,
                     color: FontColor.FontSecondary,
@@ -395,13 +423,29 @@ class OrderTile extends StatelessWidget {
 
                         const SizedBox(width: 8),
 
-                        Text(
-                          order.tracker_id?.toString() ?? '',
-                          style: customTextStyle(
-                            fontStyle: FontStyle.HeaderS_Bold,
-                            color: FontColor.Danger,
-                          ),
-                        ),
+                        order.customer_id == 164509 && order.postcode == "50"
+                            ? Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 5.0,
+                                horizontal: 8.0,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: customColors().accent,
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(5.0),
+                                ),
+                              ),
+                              child: Text(
+                                "Thumama Charity Order",
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyL_Bold,
+                                  color: FontColor.Purple,
+                                ),
+                              ),
+                            )
+                            : const SizedBox.shrink(),
                       ],
                     ),
                     order.isWhatsappOrder == 1

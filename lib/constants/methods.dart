@@ -141,6 +141,8 @@ String getStatus(String? stat) {
       return "Start Punching";
     case "assigned_customer_service":
       return "Assigned Customer Service";
+    case "submit_do":
+      return "Submitted To Do";
     default:
       return "";
   }

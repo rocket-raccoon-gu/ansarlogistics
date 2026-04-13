@@ -97,6 +97,8 @@ class Datum {
   int? isProduce;
   String? tracker_id;
   String? cashierName;
+  int? customer_id;
+  String? branchcode;
 
   Datum({
     required this.subgroupIdentifier,
@@ -154,6 +156,8 @@ class Datum {
     required this.isProduce,
     required this.tracker_id,
     required this.cashierName,
+    required this.customer_id,
+    required this.branchcode,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -224,6 +228,8 @@ class Datum {
     isProduce: json["is_produce"] ?? 0,
     tracker_id: json["tracker_id"] ?? "",
     cashierName: json["cashier_name"] ?? "",
+    customer_id: json["customer_id"] ?? 0,
+    branchcode: json["branch_code"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -284,6 +290,8 @@ class Datum {
     "is_produce": isProduce,
     "tracker_id": tracker_id,
     "cashier_name": cashierName,
+    "customer_id": customer_id,
+    "branch_code": branchcode,
   };
 }
 
@@ -312,6 +320,7 @@ class Item {
   String? imageurl;
   String? productName;
   String? isProduce;
+  String? branchName;
 
   Item({
     required this.itemId,
@@ -330,6 +339,7 @@ class Item {
     required this.imageurl,
     required this.productName,
     required this.isProduce,
+    required this.branchName,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
@@ -349,6 +359,7 @@ class Item {
     imageurl: json["image_url"] ?? "",
     productName: json["product_name"] ?? "",
     isProduce: json["is_produce"] ?? "0",
+    branchName: json["branch_name"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -368,6 +379,7 @@ class Item {
     "image_url": imageurl,
     "product_name": productName,
     "is_produce": isProduce,
+    "branch_name": branchName,
   };
 }
 

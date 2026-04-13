@@ -37,11 +37,14 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
               .where((e) => (e.deliveryType ?? '').toLowerCase() == suborderId)
               .toList();
 
+      final subfilter =
+          filtered.where((e) => e.branchname?.toLowerCase() != "q019").toList();
+
       log(UserController().profile.branchCode);
 
       // Buckets by status
       final toPick =
-          filtered.where((e) {
+          subfilter.where((e) {
             final st = (e.itemStatus ?? '').toLowerCase();
             return st == 'assigned_picker' ||
                 st == 'start_picking' ||
@@ -50,17 +53,17 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
           }).toList();
 
       final picked =
-          filtered
+          subfilter
               .where((e) => (e.itemStatus ?? '').toLowerCase() == 'end_picking')
               .toList();
 
       final holded =
-          filtered
+          subfilter
               .where((e) => (e.itemStatus ?? '').toLowerCase() == 'holded')
               .toList();
 
       final notAvailable =
-          filtered.where((e) {
+          subfilter.where((e) {
             final st = (e.itemStatus ?? '').toLowerCase();
             return st == 'item_not_available' || st == 'canceled';
           }).toList();

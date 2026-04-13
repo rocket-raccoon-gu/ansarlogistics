@@ -1335,6 +1335,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         final orderPrice = _toDouble(item.price);
         final pickerPrice = _toDouble(item.finalPrice);
         final webPrice = _toDouble(item.webprice);
+        final branchName = item.branchName ?? "";
         final unitPrice = pickerPrice != 0 ? pickerPrice : orderPrice;
 
         final subtotal = _toDouble(item.finalPrice.toString()) * qty;
@@ -1419,8 +1420,26 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                   ),
                 ),
               ),
-              DataCell(SizedBox(width: 120, child: Text(item.sku))),
-              DataCell(Text("")),
+              DataCell(
+                SizedBox(
+                  width: 120,
+                  child: Text(
+                    item.sku,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              DataCell(
+                SizedBox(
+                  width: 140,
+                  child: Text(
+                    branchName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
               DataCell(Text(webPrice.toStringAsFixed(2))),
               DataCell(Text(orderPrice.toStringAsFixed(2))),
               DataCell(Text(pickerPrice.toStringAsFixed(2))),
@@ -1471,6 +1490,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           const DataColumn(label: Text('Image')),
           const DataColumn(label: Text('Product')),
           const DataColumn(label: Text('SKU')),
+          const DataColumn(label: Text('Branch')),
           const DataColumn(label: Text('Web.Price'), numeric: true),
           const DataColumn(label: Text('Price'), numeric: true),
           const DataColumn(label: Text('Picker Price (QAR)'), numeric: true),
@@ -2374,6 +2394,40 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                 ),
                                               ),
                                             ],
+                                            if (order.customer_id == 164509 &&
+                                                order.postcode == "50")
+                                              const SizedBox(width: 8),
+                                            if (order.customer_id == 164509 &&
+                                                order.postcode == "50")
+                                              Padding(
+                                                padding: const EdgeInsets.all(
+                                                  8.0,
+                                                ),
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    vertical: 5.0,
+                                                    horizontal: 8.0,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color:
+                                                          customColors().accent,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                          Radius.circular(5.0),
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    "Thumama Charity Order",
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle.BodyL_Bold,
+                                                      color: FontColor.Purple,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                           ],
                                         ),
                                       ],

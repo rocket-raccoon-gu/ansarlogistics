@@ -153,6 +153,7 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
                 ),
               ],
             ),
+
             const SizedBox(height: 10),
             // Bottom Banner
             if (widget.orderResponseItem.status == "assigned_picker")
@@ -160,6 +161,20 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
 
             if (widget.orderResponseItem.deliveryNote != null)
               CustomerBottomBanner(order: widget.orderResponseItem),
+
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                Text(
+                  widget.orderResponseItem.branchCode ?? '',
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
