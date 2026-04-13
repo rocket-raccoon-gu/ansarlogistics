@@ -15,3 +15,7 @@ class DeliveryBillUpdateErrorState extends DeliveryUpdatePageState {
 class DeliveryStatusUpdateState extends DeliveryUpdatePageState {
   DeliveryStatusUpdateState();
 }
+
+class DeliveryUpdatePageLoading extends DeliveryUpdatePageState {
+  DeliveryUpdatePageLoading();
+}

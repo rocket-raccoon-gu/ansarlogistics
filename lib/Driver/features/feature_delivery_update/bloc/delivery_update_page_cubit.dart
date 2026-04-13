@@ -13,6 +13,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:picker_driver_api/picker_driver_api.dart';
 import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:toastification/toastification.dart';
@@ -42,6 +43,66 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
   double uploadprogress = 0.0;
 
   bool updatestat = false;
+
+  Future<void> updateLocation(double latitude, double longitude) async {
+    try {
+      emit(DeliveryUpdatePageLoading());
+
+      // Here you would make an API call to update the location
+      // For now, I'll show a success message
+
+      log("Updating location: $latitude, $longitude");
+
+      final response = await serviceLocator.tradingApi
+          .updateDriverDeliveryLocation(
+            orderid: orderResponseItem!.subgroupIdentifier.toString(),
+            latitude: latitude.toString(),
+            longitude: longitude.toString(),
+          );
+
+      if (response.statusCode == 200) {
+        toastification.show(
+          backgroundColor: customColors().green600,
+          title: TranslatedText(
+            text: "Location updated successfully!",
+            style: customTextStyle(
+              fontStyle: FontStyle.BodyL_Bold,
+              color: FontColor.White,
+            ),
+          ),
+          autoCloseDuration: const Duration(seconds: 2),
+        );
+      } else {
+        toastification.show(
+          backgroundColor: customColors().warning,
+          title: TranslatedText(
+            text: "Failed to update location",
+            style: customTextStyle(
+              fontStyle: FontStyle.BodyL_Bold,
+              color: FontColor.White,
+            ),
+          ),
+          autoCloseDuration: const Duration(seconds: 2),
+        );
+      }
+
+      emit(DeliveryUpdatePageInitial());
+    } catch (e) {
+      toastification.show(
+        backgroundColor: customColors().warning,
+        title: TranslatedText(
+          text: "Failed to update location: ${e.toString()}",
+          style: customTextStyle(
+            fontStyle: FontStyle.BodyL_Bold,
+            color: FontColor.White,
+          ),
+        ),
+        autoCloseDuration: const Duration(seconds: 3),
+      );
+
+      emit(DeliveryUpdatePageInitial());
+    }
+  }
 
   uploadimage(File billfile) async {
     try {
@@ -112,6 +173,8 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
 
   updateMainOrderStat(String status) async {
     try {
+      emit(DeliveryUpdatePageLoading());
+
       // Step 1: Get current position
       Position position = await Geolocator.getCurrentPosition();
 
@@ -142,10 +205,12 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
       //   longitude: '51.49574356933962',
       // );
 
-      if (resp.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(resp.body);
+      Map<String, dynamic> data = jsonDecode(resp.body);
 
-        if (data['message'] == "Please mark order from delivered location") {
+      if (data['status'] == 200) {
+        if (data['message'].toString().contains(
+          "Please mark order from delivered location",
+        )) {
           toastification.show(
             backgroundColor: customColors().warning,
             title: TranslatedText(
@@ -183,7 +248,8 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         toastification.show(
           backgroundColor: customColors().warning,
           title: TranslatedText(
-            text: "Status Update Failed Please Try Again..!.",
+            text:
+                data['message'] ?? "Status Update Failed Please Try Again..!.",
             style: customTextStyle(
               fontStyle: FontStyle.BodyL_Bold,
               color: FontColor.White,
@@ -207,6 +273,18 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         autoCloseDuration: const Duration(seconds: 5),
       );
       emit(DeliveryStatusUpdateState());
+    }
+  }
+
+  Future<void> updateDeliveryLocation(LatLng location, String orderId) async {
+    try {
+      // TODO: Implement API call to update delivery location
+      print(
+        "Updating delivery location for order $orderId to ${location.latitude}, ${location.longitude}",
+      );
+    } catch (e) {
+      print("Error updating delivery location: $e");
+      rethrow;
     }
   }
 }

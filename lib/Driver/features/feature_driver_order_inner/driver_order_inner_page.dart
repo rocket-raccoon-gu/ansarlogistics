@@ -147,44 +147,42 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
                     : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child:
-                          double.parse(widget.orderResponseItem.grandTotal) >=
-                                      500 ||
-                                  widget.orderResponseItem.type == "VPO" ||
-                                  widget.orderResponseItem.type == "SUP"
-                              ? BasketButton(
-                                onpress: () {
-                                  context.gNavigationService
-                                      .openDocumentUpdatePage(
-                                        context,
-                                        arg: {
-                                          'order': widget.orderResponseItem,
-                                        },
-                                      );
-                                },
-                                text: "Upload Documents",
-                                bgcolor: customColors().wTokenFontColor,
-                                textStyle: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
-                                  color: FontColor.White,
-                                ),
-                              )
-                              : BasketButton(
-                                onpress: () {
-                                  context.gNavigationService
-                                      .openDeliveryUpdatePage(
-                                        context,
-                                        arg: {
-                                          'order': widget.orderResponseItem,
-                                        },
-                                      );
-                                },
-                                text: "Upload Bill",
-                                bgcolor: customColors().green600,
-                                textStyle: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
-                                  color: FontColor.White,
-                                ),
-                              ),
+                      // double.parse(widget.orderResponseItem.grandTotal) >=
+                      //             500 ||
+                      //         widget.orderResponseItem.type == "VPO" ||
+                      //         widget.orderResponseItem.type == "SUP"
+                      //     ? BasketButton(
+                      //       onpress: () {
+                      //         context.gNavigationService
+                      //             .openDocumentUpdatePage(
+                      //               context,
+                      //               arg: {
+                      //                 'order': widget.orderResponseItem,
+                      //               },
+                      //             );
+                      //       },
+                      //       text: "Upload Documents",
+                      //       bgcolor: customColors().wTokenFontColor,
+                      //       textStyle: customTextStyle(
+                      //         fontStyle: FontStyle.BodyL_Bold,
+                      //         color: FontColor.White,
+                      //       ),
+                      //     )
+                      //     :
+                      BasketButton(
+                        onpress: () {
+                          context.gNavigationService.openDeliveryUpdatePage(
+                            context,
+                            arg: {'order': widget.orderResponseItem},
+                          );
+                        },
+                        text: "Upload Bill",
+                        bgcolor: customColors().green600,
+                        textStyle: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.White,
+                        ),
+                      ),
                     ),
               ],
             ),

@@ -458,6 +458,39 @@ extension PDGeneralApi on PickerDriverApi {
     }
   }
 
+  Future<http.Response> updateDriverDeliveryLocation({
+    required String orderid,
+    required String latitude,
+    required String longitude,
+  }) async {
+    final url = Uri.parse(
+      _endpointWithApplicationPathString('update_driver_location.php'),
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+    };
+
+    final Map<String, String> body = {
+      'subgroup_identifier': orderid,
+      'coordinates': '$latitude,$longitude',
+    };
+
+    serviceSend("update driver location request");
+
+    serviceSend(url.toString());
+
+    log(body.toString());
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, headers: headers, body: jsonEncode(body)),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
   Future<http.Response> getsimilarProducts({required String product_id}) async {
     // final url = Uri.parse(
     //     'https://admin-qatar.testuatah.com/rest/V1/ahmarket-recommendation/related-product/' +

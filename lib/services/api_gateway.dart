@@ -298,6 +298,32 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
+  @override
+  Future updateDriverDeliveryLocation({
+    required String orderid,
+    required String latitude,
+    required String longitude,
+  }) async {
+    try {
+      final responce = await pickerDriverApi
+          .updateDriverDeliveryLocation(
+            orderid: orderid,
+            latitude: latitude,
+            longitude: longitude,
+          )
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          })
+          .timeout(Duration(seconds: 10));
+      return responce;
+    } catch (e) {
+      serviceSendError("Status Update Failed");
+
+      return "Retry";
+    }
+  }
+
   Future getSimiliarItemsRequest({required String productid}) async {
     try {
       final response = await pickerDriverApi

@@ -373,6 +373,7 @@ class EndPicking {
   String subtotal;
   String isProduce;
   int categoryId;
+  String branchName;
   String catname;
   List<String> productImages;
   String weightUnit;
@@ -397,6 +398,7 @@ class EndPicking {
     required this.subtotal,
     required this.isProduce,
     required this.categoryId,
+    required this.branchName,
     required this.catname,
     required this.productImages,
     required this.weightUnit,
@@ -449,6 +451,7 @@ class EndPicking {
     weightUnit: weightUnit ?? this.weightUnit,
     isproduce: isproduce ?? this.isproduce,
     itemWeight: itemWeight ?? this.itemWeight,
+    branchName: branchName ?? this.branchName,
   );
 
   factory EndPicking.fromJson(Map<String, dynamic> json) => EndPicking(
@@ -472,6 +475,7 @@ class EndPicking {
         json["category_id"] == null
             ? 2
             : int.parse(json["category_id"].toString()),
+    branchName: json["branch_name"] ?? "",
     catname: json["catname"] ?? "",
     productImages: List<String>.from(json["product_images"].map((x) => x)),
     weightUnit: json["weight_unit"],
@@ -497,6 +501,7 @@ class EndPicking {
     "subtotal": subtotal,
     "is_produce": isProduce,
     "category_id": categoryId,
+    "branch_name": branchName,
     "catname": catname,
     "product_images": List<dynamic>.from(productImages.map((x) => x)),
     "weight_unit": weightUnit,
