@@ -36,6 +36,8 @@ List<Map<String, dynamic>> statuslist = [
   {"index": 3, "name": "End Pick", "status": "end_picking"},
   {"index": 4, "name": "On Hold", "status": "holded"},
   {"index": 5, "name": "Material Request", "status": "material_request"},
+  {"index": 6, "name": "Start Punching", "status": "start_punching"},
+  {"index": 7, "name": "Partial End Picked", "status": "partial_endpick"},
 ];
 
 List<Map<String, dynamic>> driverstatuslist = [

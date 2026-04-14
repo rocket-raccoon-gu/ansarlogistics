@@ -28,9 +28,13 @@ class PDApiGateway implements AuthenticationService {
   }
 
   // Non-paginated orders + categories endpoint
-  Future ordersNewRequestService({required String token}) async {
+  Future ordersNewRequestService({
+    required String token,
+    required String branchCode,
+  }) async {
     try {
-      final response = await pickerDriverApi.OrdersNewService(token: token)
+      final response = await pickerDriverApi
+          .ordersNewService(token: token, branch: branchCode)
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
             throw e;
@@ -358,8 +362,12 @@ class PDApiGateway implements AuthenticationService {
     required String comment,
     required String orderNumber,
     required String token,
+    required String branchCode,
   }) async {
     try {
+      // Remove commas from branchCode if multiple branches are combined
+      final cleanBranchCode = branchCode.toString().replaceAll(',', '');
+
       final responce = await pickerDriverApi
           .updatemainorderstatNew(
             preparationId: preparationId,
@@ -367,6 +375,7 @@ class PDApiGateway implements AuthenticationService {
             comment: comment,
             orderNumber: orderNumber,
             token: token,
+            branchCode: cleanBranchCode,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());

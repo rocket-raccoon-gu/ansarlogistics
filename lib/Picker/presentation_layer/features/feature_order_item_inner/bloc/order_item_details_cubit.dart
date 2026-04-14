@@ -678,12 +678,88 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
             //     // orderResponseItem: cubit.orderResponseItem,
             //   );
             // }
-            showSnackBar(
-              context: context,
-              snackBar: showErrorDialogue(
-                errorMessage: "Barcode Not Matched....",
-              ),
+
+            // Debug: Print the values to see what's happening
+            print("🔍 Scanned SKU: '$scannedSku'");
+            print("📋 Barcodes from API: '${data['barcodes']}'");
+            print(
+              "🔧 Split barcodes: ${data['barcodes'].toString().split(',')}",
             );
+            print("🧹 Trimmed scanned SKU: '${scannedSku.trim()}'");
+
+            final List<String> barcodeList =
+                data['barcodes']
+                    .toString()
+                    .split(',')
+                    .map((e) => e.trim())
+                    .toList();
+            final String trimmedScannedSku = scannedSku.trim();
+
+            print("🧹 Trimmed barcode list: $barcodeList");
+            print(
+              "✅ Contains check: ${barcodeList.contains(trimmedScannedSku)}",
+            );
+
+            if (barcodeList.contains(trimmedScannedSku)) {
+              print("✅ Barcode matched in barcodes list");
+              showPickConfirmBottomSheet(
+                name: data['sku_name']!,
+                sku: data['sku']!,
+                oldPrice: orderItem.price?.toString(),
+                imageUrl: orderItem.productImage?.split(',').first,
+                newPrice:
+                    orderItem.isProduce == true
+                        ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                        : double.parse(
+                          data['special_price'] != "" &&
+                                  data['special_price'] != null
+                              ? data['special_price']
+                              : data['regular_price'],
+                        ).toStringAsFixed(2),
+                weight:
+                    orderItem.isProduce == true
+                        ? getWeightFromBarcode(
+                          getLastSixDigits(scannedSku),
+                          orderItem.price?.toString() ?? '0',
+                        )
+                        : (data['special_price'] ?? data['regular_price']),
+                isproduce: orderItem.isProduce ?? false,
+                regularPrice: data['regular_price'],
+                barcodeType: 'EAN-13',
+                onConfirm: () {
+                  final calculatedPrice =
+                      orderItem.isProduce == true
+                          ? getPriceFromBarcode(getLastSixDigits(scannedSku))
+                          : data['special_price'] != "" &&
+                              data['special_price'] != null
+                          ? data['special_price']
+                          : data['regular_price'];
+                  updateitemstatuspick(
+                    // orderItem.isProduce == true
+                    //     ? getWeightFromBarcode(
+                    //       getLastSixDigits(scannedSku),
+                    //       orderItem.price?.toString() ?? '0',
+                    //     )
+                    //     :
+                    qty,
+                    scannedSku,
+                    calculatedPrice,
+                    preparationLabel11,
+                  );
+                },
+                onClose: () {
+                  // context.gNavigationService.back(context);
+                  povisvible = false;
+                },
+              );
+            } else {
+              showSnackBar(
+                context: context,
+                snackBar: showErrorDialogue(
+                  errorMessage: "Barcode Not Matched....",
+                ),
+              );
+            }
           }
         } else {
           String mainMessage = data["message"] + data["suggestion"];

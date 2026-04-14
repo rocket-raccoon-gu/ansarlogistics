@@ -13,6 +13,8 @@ class PickerTabDashboardRootBuilder {
   Widget call(BuildContext context) {
     final suborderId = (_data['suborder_id'] ?? '').toString();
 
+    final branchCode = (_data['branchCode'] ?? '').toString();
+
     // We prefer 'order'
     final dynamic itemsArg = _data['order'];
     final List<OrderItemNew> items =
@@ -47,6 +49,7 @@ class PickerTabDashboardRootBuilder {
               preparationLabel: prepLabel,
               orderId: orderId,
               serviceLocator: _serviceLocator,
+              branchCode: branchCode,
             ),
         child: PickerTabDashboard(
           orderResponseItem: itemsArg,

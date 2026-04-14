@@ -110,6 +110,7 @@ class PostService {
       final response =
           await _serviceLocator.tradingApi.ordersNewRequestService(
                 token: token ?? "",
+                branchCode: UserController().profile.branchCode ?? "",
               )
               as dynamic;
 

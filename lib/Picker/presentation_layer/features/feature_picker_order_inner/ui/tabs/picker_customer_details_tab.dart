@@ -300,6 +300,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                                 "${UserController().profile.name.toString()} (${UserController().profile.empId}) was holded the order for ${UserController().cancelreason.toString()}",
                             orderNumber: widget.suborderId,
                             token: token!,
+                            branchCode:
+                                widget.orderResponseItem!.branchCode ?? '',
                           );
 
                       if (resp.statusCode == 200) {
@@ -407,6 +409,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                                 "${UserController().profile.name.toString()} (${UserController().profile.empId}) was cancelled the order for ${UserController().cancelreason.toString()}",
                             orderNumber: widget.suborderId,
                             token: token!,
+                            branchCode:
+                                widget.orderResponseItem!.branchCode ?? '',
                           );
 
                       if (resp.statusCode == 200) {

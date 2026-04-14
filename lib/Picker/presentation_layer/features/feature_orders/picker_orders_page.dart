@@ -452,6 +452,10 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
         return customColors().warning; // yellow
       case 'material_request':
         return customColors().danger; // red
+      case 'start_punching':
+        return customColors().islandAqua; // blue
+      case 'partial_endpick':
+        return customColors().wTokenFontColor;
       case 'all':
       default:
         return customColors().fontPrimary; // dark for All
@@ -918,6 +922,10 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                                           orderitems![index]
                                                               .id!,
                                                       token: token,
+                                                      branchCode:
+                                                          orderitems![index]
+                                                              .branchCode ??
+                                                          '',
                                                     );
 
                                                 if (response.statusCode ==

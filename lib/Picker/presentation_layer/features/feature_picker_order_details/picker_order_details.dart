@@ -662,6 +662,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
             comment: comment,
             orderNumber: "",
             token: token!,
+            branchCode: widget.orderDetails.branchCode ?? '',
           );
 
       if (resp.statusCode == 200) {

@@ -47,8 +47,25 @@ class PickedTab extends StatelessWidget {
       },
     );
 
-    if (!showFinishButton || orderResponseItem.status == 'end_picking')
+    // Debug: Check the status values
+    print("🔍 PickedTab - showFinishButton: $showFinishButton");
+    print(
+      "🔍 PickedTab - orderResponseItem.status: '${orderResponseItem.status}'",
+    );
+
+    // Hide finish button if:
+    // 1. showFinishButton is false, OR
+    // 2. status is already 'end_picking', OR
+    // 3. status is 'partial_endpick'
+    if (!showFinishButton ||
+        orderResponseItem.status == 'end_picking' ||
+        orderResponseItem.status == 'partial_endpick' ||
+        orderResponseItem.status == "start_punching") {
+      print("🚫 PickedTab - Hiding finish button");
       return list;
+    }
+
+    print("✅ PickedTab - Showing finish button");
 
     return Column(
       children: [

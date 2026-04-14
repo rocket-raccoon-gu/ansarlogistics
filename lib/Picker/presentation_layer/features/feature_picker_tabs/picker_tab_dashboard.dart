@@ -133,6 +133,9 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
               showFinishButton: toPickCount == 0,
               onFinishPick: () {
                 if (s.orderId!.startsWith('PREN')) {
+                  // if (s.branchCode == "Q013,Q019") {
+                  // } else {}
+
                   // Navigate back to order details to finalize
                   context.read<PickerDashboardTabCubit>().updateOrderStatus(
                     suborderId: widget.orderResponseItem.id!,
@@ -141,6 +144,7 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                         'Order End Picked By ${UserController().profile.name} (${UserController().profile.empId})',
                     status: 'end_picking',
                     context: context,
+                    branchcode: s.branchCode!,
                   );
                 } else {
                   // Navigate back to order details to finalize
@@ -151,6 +155,7 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
                         'Order End Picked By ${UserController().profile.name} (${UserController().profile.empId})',
                     status: 'end_picking',
                     context: context,
+                    branchcode: s.branchCode!,
                   );
                 }
               },

@@ -113,13 +113,26 @@ class PickerDriverApi {
   }
 
   // New orders (non-paginated) endpoint for picker with categories + orders
-  Future<http.Response> OrdersNewService({required String token}) async {
+  Future<http.Response> ordersNewService({
+    required String token,
+    required String branch,
+  }) async {
     // Direct API host for new picker endpoint
     // final Uri url = _endpointWithApplicationPath("picker/ordersnew");
 
-    final url = Uri.parse(
+    Uri url = Uri.parse(
       _endpointWithApplicationPathString('picker/ordersnewsuborders'),
     );
+
+    if (branch == "Q019") {
+      url = Uri.parse(
+        _endpointWithApplicationPathString('picker/ordersnewsuborderswarhouse'),
+      );
+    } else {
+      url = Uri.parse(
+        _endpointWithApplicationPathString('picker/ordersnewsuborders'),
+      );
+    }
 
     log(url.toString());
     final Map<String, String> headers = {
@@ -450,6 +463,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String comment,
     String? orderNumber,
     required String token,
+    required String? branchCode,
   }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
@@ -461,6 +475,7 @@ extension PDGeneralApi on PickerDriverApi {
       "status": orderStatus,
       "comment": comment,
       "order_number": orderNumber,
+      "branchCode": branchCode,
     };
 
     final Map<String, String> headers = {

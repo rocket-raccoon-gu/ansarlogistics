@@ -59,6 +59,7 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
               "order_id": widget.orderResponseItem.id,
               "preparation_label": widget.orderResponseItem.subgroupIdentifier,
               "order": widget.orderResponseItem, // let root builder use this
+              "branchCode": widget.orderResponseItem.branchCode,
             },
           );
         }
@@ -222,6 +223,16 @@ class _StatusChip extends StatelessWidget {
       case 'Customer Not Answer':
         bg = colors.danger;
         label = 'Customer Not Answer';
+        break;
+      case 'partial_endpick':
+      case 'Partial End Pick':
+        bg = colors.wTokenFontColor;
+        label = 'Partial End Pick';
+        break;
+      case 'start_punching':
+      case 'Start Punching':
+        bg = colors.islandAqua;
+        label = 'Start Punching';
         break;
       default:
         bg = colors.fontPrimary;

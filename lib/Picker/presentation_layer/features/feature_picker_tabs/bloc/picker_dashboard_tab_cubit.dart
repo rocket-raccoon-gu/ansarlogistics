@@ -17,6 +17,7 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
   final String? preparationLabel; // e.g., PRNOL000098645
   final String? orderId; // fallback number for title
   final ServiceLocator serviceLocator;
+  final String? branchCode;
 
   PickerDashboardTabCubit({
     required this.suborderId,
@@ -24,6 +25,7 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
     this.preparationLabel,
     this.orderId,
     required this.serviceLocator,
+    required this.branchCode,
   }) : super(PickerDashboardTabInitial()) {
     _load();
   }
@@ -32,15 +34,29 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
     emit(PickerDashboardTabLoading());
     try {
       // Filter items for selected delivery type
-      final filtered =
-          allItems
-              .where((e) => (e.deliveryType ?? '').toLowerCase() == suborderId)
-              .toList();
+      // final filtered =
+      //     allItems
+      //         .where((e) => (e.deliveryType ?? '').toLowerCase() == suborderId)
+      //         .toList();
 
-      final subfilter =
-          filtered.where((e) => e.branchname?.toLowerCase() != "q019").toList();
+      // log("Filtered items: ${filtered.length}");
 
-      log(UserController().profile.branchCode);
+      List<OrderItemNew> subfilter = [];
+
+      if (UserController().profile.branchCode == "Q019") {
+        subfilter =
+            allItems
+                .where((e) => e.branchname == "Q019 (ONLINE WAREHOUSE STOCK)")
+                .toList();
+      } else {
+        subfilter =
+            allItems
+                .where((e) => e.branchname != "Q019 (ONLINE WAREHOUSE STOCK)")
+                .toList();
+      }
+
+      log("Subfilter items: ${subfilter.length}");
+      log("Branch code: ${UserController().profile.branchCode}");
 
       // Buckets by status
       final toPick =
@@ -77,6 +93,7 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
           pickedByCategory: _groupByCategory(picked),
           holdedByCategory: _groupByCategory(holded),
           notAvailableByCategory: _groupByCategory(notAvailable),
+          branchCode: branchCode,
         ),
       );
     } catch (_) {
@@ -184,6 +201,7 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
     required String comment,
     required String status,
     required BuildContext context,
+    required String branchcode,
   }) async {
     try {
       emit(PickerDashboardTabLoading());
@@ -196,6 +214,7 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
         comment: comment,
         orderNumber: suborderId,
         token: token!,
+        branchCode: branchcode,
       );
 
       if (response.statusCode == 200) {

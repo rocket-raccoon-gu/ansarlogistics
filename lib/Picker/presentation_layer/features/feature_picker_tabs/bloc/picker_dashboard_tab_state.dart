@@ -14,6 +14,7 @@ class PickerDashboardTabLoadedState extends PickerDashboardTabState {
   final Map<String, List<OrderItemNew>> pickedByCategory;
   final Map<String, List<OrderItemNew>> holdedByCategory;
   final Map<String, List<OrderItemNew>> notAvailableByCategory;
+  final String? branchCode;
 
   PickerDashboardTabLoadedState({
     required this.suborderId,
@@ -23,6 +24,7 @@ class PickerDashboardTabLoadedState extends PickerDashboardTabState {
     required this.pickedByCategory,
     required this.holdedByCategory,
     required this.notAvailableByCategory,
+    required this.branchCode,
   });
 }
 
