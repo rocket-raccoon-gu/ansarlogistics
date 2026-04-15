@@ -37,11 +37,13 @@ class ItemStatusUpdatedEvent {
   final String newStatus; // e.g., 'end_picking'
   final String? newPrice; // optional updated unit price as string
   final int? newQty; // optional picked qty (units)
+  final String? branchname;
   ItemStatusUpdatedEvent({
     required this.itemId,
     required this.newStatus,
     this.newPrice,
     this.newQty,
+    required this.branchname,
   });
 }
 

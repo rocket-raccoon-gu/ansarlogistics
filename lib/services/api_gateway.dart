@@ -363,6 +363,7 @@ class PDApiGateway implements AuthenticationService {
     required String orderNumber,
     required String token,
     required String branchCode,
+    required String userbranchCode,
   }) async {
     try {
       // Remove commas from branchCode if multiple branches are combined
@@ -376,6 +377,7 @@ class PDApiGateway implements AuthenticationService {
             orderNumber: orderNumber,
             token: token,
             branchCode: cleanBranchCode,
+            userbranchCode: userbranchCode,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());

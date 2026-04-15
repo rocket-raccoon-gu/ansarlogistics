@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/bloc/picker_dashboard_tab_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/bloc/picker_dashboard_tab_state.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_tabs/tabs/not_available_tab.dart';
@@ -75,12 +77,17 @@ class _PickerTabDashboardState extends State<PickerTabDashboard>
     _statusSub = eventBus.on<ItemStatusUpdatedEvent>().listen((evt) {
       if (!mounted) return;
 
+      log(
+        "📡 Received ItemStatusUpdatedEvent: itemId=${evt.itemId}, status=${evt.newStatus}, branchname=${evt.branchname}",
+      );
+
       // Only update lists; do NOT change _currentIndex
       context.read<PickerDashboardTabCubit>().setItemStatusAndData(
         evt.itemId,
         evt.newStatus,
         newPrice: evt.newPrice,
         pickedQty: evt.newQty,
+        branchname: evt.branchname,
       );
     });
   }

@@ -663,6 +663,7 @@ class _PickerOrderDetailsPageState extends State<PickerOrderDetailsPage> {
             orderNumber: "",
             token: token!,
             branchCode: widget.orderDetails.branchCode ?? '',
+            userbranchCode: UserController().profile.branchCode ?? '',
           );
 
       if (resp.statusCode == 200) {

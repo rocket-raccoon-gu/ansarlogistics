@@ -302,6 +302,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                             token: token!,
                             branchCode:
                                 widget.orderResponseItem!.branchCode ?? '',
+                            userbranchCode:
+                                UserController().profile.branchCode ?? '',
                           );
 
                       if (resp.statusCode == 200) {
@@ -411,6 +413,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                             token: token!,
                             branchCode:
                                 widget.orderResponseItem!.branchCode ?? '',
+                            userbranchCode:
+                                UserController().profile.branchCode ?? '',
                           );
 
                       if (resp.statusCode == 200) {

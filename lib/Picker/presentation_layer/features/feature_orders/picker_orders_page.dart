@@ -926,6 +926,11 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                                           orderitems![index]
                                                               .branchCode ??
                                                           '',
+                                                      userbranchCode:
+                                                          UserController()
+                                                              .profile
+                                                              .branchCode ??
+                                                          '',
                                                     );
 
                                                 if (response.statusCode ==

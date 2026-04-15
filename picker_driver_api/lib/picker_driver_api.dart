@@ -464,11 +464,20 @@ extension PDGeneralApi on PickerDriverApi {
     String? orderNumber,
     required String token,
     required String? branchCode,
+    required String? userbranchCode,
   }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
 
     Uri url = _endpointWithApplicationPath('picker/orders/status');
+
+    log('userbranchCode: $userbranchCode');
+
+    log('branchcode: $branchCode');
+
+    if (userbranchCode == "Q019" && branchCode.toString().contains('Q019')) {
+      url = _endpointWithApplicationPath('picker/orders/warehousestatus');
+    }
 
     final Map<String, dynamic> body = {
       "preparation_id": preparationId,

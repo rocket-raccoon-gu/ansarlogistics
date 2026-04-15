@@ -45,14 +45,18 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
 
       if (UserController().profile.branchCode == "Q019") {
         subfilter =
-            allItems
-                .where((e) => e.branchname == "Q019 (ONLINE WAREHOUSE STOCK)")
-                .toList();
+            allItems.where((e) {
+              log("🔍 Checking item ${e.name} - branchname: ${e.branchname}");
+              return e.branchname == "Q019 (ONLINE WAREHOUSE STOCK)" ||
+                  e.branchname.toString().contains("Q019");
+            }).toList();
       } else {
         subfilter =
-            allItems
-                .where((e) => e.branchname != "Q019 (ONLINE WAREHOUSE STOCK)")
-                .toList();
+            allItems.where((e) {
+              log("🔍 Checking item ${e.name} - branchname: ${e.branchname}");
+              return e.branchname != "Q019 (ONLINE WAREHOUSE STOCK)" &&
+                  !e.branchname.toString().contains("Q019");
+            }).toList();
       }
 
       log("Subfilter items: ${subfilter.length}");
@@ -122,17 +126,27 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
     String newStatus, {
     String? newPrice,
     int? pickedQty,
+    String? branchname,
   }) {
+    log(
+      "🔧 setItemStatusAndData called: itemId=$itemId, newStatus=$newStatus, branchname=$branchname",
+    );
     final idx = allItems.indexWhere((e) => (e.id ?? '') == itemId);
+    log("🔍 Found item at index: $idx");
     if (idx != -1) {
       final current = allItems[idx];
+      log("📦 Current item status before update: ${current.itemStatus}");
       allItems[idx] = _cloneWithUpdates(
         current,
         status: newStatus,
         price: newPrice,
         qtyShipped: pickedQty,
+        branchname: branchname,
       );
+      log("✅ Item updated, calling _load()");
       _load();
+    } else {
+      log("❌ Item not found with ID: $itemId");
     }
   }
 
@@ -163,6 +177,7 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
     String? status,
     String? price,
     int? qtyShipped,
+    String? branchname,
   }) {
     return OrderItemNew(
       id: src.id,
@@ -182,6 +197,7 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
       productImage: src.productImage,
       isProduce: src.isProduce,
       subgroupIdentifier: src.subgroupIdentifier,
+      branchname: branchname ?? src.branchname,
     );
   }
 
@@ -215,6 +231,7 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
         orderNumber: suborderId,
         token: token!,
         branchCode: branchcode,
+        userbranchCode: UserController().profile.branchCode,
       );
 
       if (response.statusCode == 200) {

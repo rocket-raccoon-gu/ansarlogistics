@@ -240,6 +240,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                 newStatus: 'end_picking',
                 newPrice: price,
                 newQty: pickedQty,
+                branchname: orderItemNew?.branchname ?? '',
               ),
             );
           }
@@ -354,7 +355,11 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
             final String? itemId = orderItemNew?.id ?? orderItem?.itemId;
             if (itemId != null && itemId.isNotEmpty) {
               eventBus.fire(
-                ItemStatusUpdatedEvent(itemId: itemId, newStatus: item_status),
+                ItemStatusUpdatedEvent(
+                  itemId: itemId,
+                  newStatus: item_status,
+                  branchname: orderItemNew?.branchname ?? '',
+                ),
               );
             }
           } catch (_) {}
