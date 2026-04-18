@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/new_scan_barcode_page.dart';
 import 'package:ansarlogistics/components/custom_app_components/app_bar/custom_app_bar.dart';
+import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/custom_text_form_field.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/photography/feature_photography/bloc/photography_dashboard_cubit.dart';
 import 'package:ansarlogistics/photography/feature_photography/bloc/photography_dashboard_state.dart';
@@ -38,12 +40,15 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
   bool stock_stat = false;
   late CarouselSliderController _sliderController;
   ProductResponse? _productResponse;
+  bool producebarcode = false;
+  bool manual = false;
 
   List<String> barcodelist = [];
 
   late CameraController _cameraController;
 
   bool isScan = false;
+  TextEditingController barcodeController = new TextEditingController();
 
   @override
   void initState() {
@@ -136,6 +141,17 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
       );
 
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
+
+      if (producebarcode) {
+        // Replace the last 6 digits with '000000'
+        barcodescanRes =
+            '${barcodescanRes?.substring(0, barcodescanRes!.length - 6)}000000';
+
+        log("Processed SKU for produce: $barcodescanRes");
+
+        // Get price from barcode
+        // processedPrice = getPriceFromBarcode(barcodescanRes!);
+      }
 
       final productresponse = await widget.serviceLocator.tradingApi
           .generalProductServiceGet(endpoint: barcodescanRes!, token11: token!);
@@ -746,6 +762,620 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
     }
   }
 
+  Future<void> scanBarcodeManuall(BuildContext ctx, String barcode) async {
+    try {
+      String? token = await PreferenceUtils.getDataFromShared("usertoken");
+
+      final productresponse = await widget.serviceLocator.tradingApi
+          .generalProductServiceGet(endpoint: barcode, token11: token!);
+
+      Map<String, dynamic> data = jsonDecode(productresponse.body);
+
+      if (!data.containsKey('message')) {
+        // Navigator.pop(context);
+        Map<String, dynamic> data = jsonDecode(productresponse.body);
+
+        log(productresponse.body);
+
+        setState(() {
+          _productResponse = ProductResponse.fromJson(data);
+        });
+
+        showGeneralDialog(
+          context: context,
+          pageBuilder: (context, animation, secondaryanimation) {
+            return Container();
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            var curves = Curves.easeInOut.transform(animation.value);
+
+            return Transform.scale(
+              scale: curves,
+              child: AlertDialog(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                content: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Lottie.asset('assets/animation_list.json', height: 100.0),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Container(
+                              height: 90.0,
+                              width: 90.0,
+                              child:
+                                  _productResponse!.mediaGalleryEntries.isEmpty
+                                      ? Image.asset('assets/placeholder.png')
+                                      : InkWell(
+                                        onTap: () {
+                                          getImageViewver(
+                                            _productResponse!
+                                                .mediaGalleryEntries,
+                                            context,
+                                            _sliderController,
+                                          );
+                                        },
+                                        child: Image.network(
+                                          "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: Text(
+                                      _productResponse!.name,
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.FontPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 3.0,
+                                    ),
+                                    child: Text(
+                                      "SKU: ${_productResponse!.sku}",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.FontPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Text(
+                      "Do you want to add ...?",
+                      style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                  horizontal: 8.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: customColors().secretGarden,
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Ok",
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_Bold,
+                                      color: FontColor.White,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                String response = await widget
+                                    .serviceLocator
+                                    .tradingApi
+                                    .checkbarcodeavailablity(
+                                      sku: _productResponse!.sku,
+                                    );
+
+                                Map<String, dynamic> mdata = jsonDecode(
+                                  response,
+                                );
+
+                                if (mdata['success'] == 1) {
+                                  // Navigator.pop(context);
+
+                                  showGeneralDialog(
+                                    context: context,
+                                    pageBuilder: (
+                                      context,
+                                      animation,
+                                      secondaryanimation,
+                                    ) {
+                                      return Container();
+                                    },
+                                    transitionBuilder: (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) {
+                                      var curves = Curves.easeInOut.transform(
+                                        animation.value,
+                                      );
+
+                                      return Transform.scale(
+                                        scale: curves,
+                                        child: AlertDialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8.0,
+                                            ),
+                                          ),
+                                          content: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                _productResponse!.sku,
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyM_Bold,
+                                                  color: FontColor.FontPrimary,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Barcode Already Scanned on ${mdata['data']['date']}",
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyL_Bold,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              Text(
+                                                "Product Upload in Processing...",
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.BodyL_Bold,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 12.0,
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              horizontal: 50,
+                                                              vertical: 10.0,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color:
+                                                              customColors()
+                                                                  .carnationRed,
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                5.0,
+                                                              ),
+                                                        ),
+                                                        child: Center(
+                                                          child: Text(
+                                                            "OK",
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyM_Bold,
+                                                              color:
+                                                                  FontColor
+                                                                      .White,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  ctx
+                                      .read<PhotographyDashboardCubit>()
+                                      .addtolist(
+                                        _productResponse!.sku,
+                                        "",
+                                        "",
+                                        "",
+                                      );
+
+                                  Navigator.pop(context);
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                    vertical: 8.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: customColors().islandAqua,
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Add This Item",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      } else {
+        String response = await widget.serviceLocator.tradingApi
+            .checkbarcodeavailablity(sku: barcode);
+
+        log(response);
+
+        Map<String, dynamic> mdata = jsonDecode(response);
+
+        if (mdata['success'] == 1) {
+          // Navigator.pop(context);
+
+          showGeneralDialog(
+            context: context,
+            pageBuilder: (context, animation, secondaryanimation) {
+              return Container();
+            },
+            transitionBuilder: (context, animation, secondaryAnimation, child) {
+              var curves = Curves.easeInOut.transform(animation.value);
+
+              return Transform.scale(
+                scale: curves,
+                child: AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  content: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        barcode.toString(),
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                      Text(
+                        "Barcode Already Scanned on ${mdata['data']['date']}",
+                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        "Product Upload in Processing...",
+                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 50,
+                                  vertical: 10.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: customColors().carnationRed,
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "OK",
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_Bold,
+                                      color: FontColor.White,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        } else {
+          // Navigator.pop(context);
+
+          if (mounted &&
+              context
+                  .read<PhotographyDashboardCubit>()
+                  .skulist
+                  .where((element) => element.containsValue(barcode))
+                  .isEmpty) {
+            // ignore: use_build_context_synchronously
+            ctx.read<PhotographyDashboardCubit>().addtolist(
+              barcode,
+              "",
+              "",
+              "",
+            );
+
+            // ignore: use_build_context_synchronously
+            showGeneralDialog(
+              context: context,
+              pageBuilder: (context, animation, secondaryanimation) {
+                return Container();
+              },
+              transitionBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) {
+                var curves = Curves.easeInOut.transform(animation.value);
+
+                return Transform.scale(
+                  scale: curves,
+                  child: AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    content: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Do you Want to Add More...?",
+                          textAlign: TextAlign.center,
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 8.0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: customColors().carnationRed,
+                                    ),
+                                    child: Center(
+                                      child: Center(
+                                        child: Text(
+                                          "No",
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyM_Bold,
+                                            color: FontColor.White,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    // ctx
+                                    //     .read<NewScanBarcodePageCubit>()
+                                    //     .addtolist(barcodescanRes);
+
+                                    scanBarcodeNormal(ctx);
+
+                                    Navigator.pop(context);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                        vertical: 8.0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: customColors().secretGarden,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Yes",
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyM_Bold,
+                                            color: FontColor.White,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          } else {
+            showGeneralDialog(
+              context: context,
+              pageBuilder: (context, animation, secondaryanimation) {
+                return Container();
+              },
+              transitionBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) {
+                var curves = Curves.easeInOut.transform(animation.value);
+
+                return Transform.scale(
+                  scale: curves,
+                  child: AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    content: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          barcode.toString(),
+                          textAlign: TextAlign.center,
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "You Already Added This Barcode in List...!",
+                            textAlign: TextAlign.center,
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  context.gNavigationService.back(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 35.0,
+                                    vertical: 8.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: customColors().carnationRed,
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "OK",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+        }
+      }
+    } catch (e) {
+      //   // log(e.toString(), stackTrace: StackTrace.current);
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(
+          errorMessage: "Item Not Scanned Properly Retry...!",
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -768,241 +1398,325 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               CustomAppBar(onpressfind: () {}, ispicker: true, isphoto: true),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.keyboard),
+                      onPressed: () {
+                        // Handle keyboard button press
+                        setState(() {
+                          manual = !manual;
+                          barcodeController.clear();
+                        });
+                      },
+                    ),
+                    Row(
+                      children: [
+                        Text("Is Produce"),
+                        Switch(
+                          value: producebarcode,
+                          onChanged: (value) {
+                            setState(() {
+                              producebarcode = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
 
-              Expanded(
-                child:
-                    context.read<PhotographyDashboardCubit>().skulist.isEmpty
-                        ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Stack(
-                              children: [
-                                Center(
-                                  child: Image.asset(
-                                    'assets/barcode_scan.png',
-                                    height: 120.0,
-                                  ),
+              manual
+                  ? Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text("Manual Entry"),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: CustomTextFormField(
+                                  keyboardType: TextInputType.number,
+                                  bordercolor: customColors().fontTertiary,
+                                  context: context,
+                                  controller: barcodeController,
+                                  fieldName: "",
+                                  hintText: "Type here...",
                                 ),
-                                Positioned(
-                                  child: Center(
-                                    child: Container(
-                                      height: 120,
-                                      width: 120,
-                                      decoration: BoxDecoration(
-                                        color: customColors().backgroundPrimary
-                                            .withOpacity(0.8),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 8.0,
+                          ),
+                          child: BasketButton(
+                            onpress: () {
+                              // TODO: Implement manual entry logic
+                              scanBarcodeManuall(
+                                context,
+                                barcodeController.text,
+                              );
+                            },
+                            bgcolor: customColors().dodgerBlue,
+                            text: "Enter",
+                            textStyle: customTextStyle(
+                              fontStyle: FontStyle.HeaderXS_Bold,
+                              color: FontColor.White,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  : Expanded(
+                    child:
+                        context
+                                .read<PhotographyDashboardCubit>()
+                                .skulist
+                                .isEmpty
+                            ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Stack(
+                                  children: [
+                                    Center(
+                                      child: Image.asset(
+                                        'assets/barcode_scan.png',
+                                        height: 120.0,
                                       ),
+                                    ),
+                                    Positioned(
+                                      child: Center(
+                                        child: Container(
+                                          height: 120,
+                                          width: 120,
+                                          decoration: BoxDecoration(
+                                            color: customColors()
+                                                .backgroundPrimary
+                                                .withOpacity(0.8),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 20.0),
+                                  child: Text(
+                                    "Tap To Scan For Add Barcodes...",
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_Bold,
+                                      color: FontColor.FontTertiary,
                                     ),
                                   ),
                                 ),
                               ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Text(
-                                "Tap To Scan For Add Barcodes...",
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyM_Bold,
-                                  color: FontColor.FontTertiary,
-                                ),
+                            )
+                            : Padding(
+                              padding: const EdgeInsets.only(
+                                top: 18.0,
+                                bottom: 8.0,
                               ),
-                            ),
-                          ],
-                        )
-                        : Padding(
-                          padding: const EdgeInsets.only(
-                            top: 18.0,
-                            bottom: 8.0,
-                          ),
-                          child: ListView.builder(
-                            itemCount:
-                                context
-                                    .read<PhotographyDashboardCubit>()
-                                    .skulist
-                                    .length,
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                  vertical: 5.0,
-                                ),
-                                child: ExpandableNotifier(
-                                  // initialExpanded: context
-                                  //     .read<NewScanBarcodePageCubit>()
-                                  //     .alwaysopenpanel,
-                                  child: ScrollOnExpand(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 16.0,
-                                        horizontal: 3.0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: customColors().grey,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          5.0,
-                                        ),
-                                      ),
-                                      child: Builder(
-                                        builder: (context) {
-                                          var controller =
-                                              ExpandableController.of(
-                                                context,
-                                                required: true,
-                                              );
+                              child: ListView.builder(
+                                itemCount:
+                                    context
+                                        .read<PhotographyDashboardCubit>()
+                                        .skulist
+                                        .length,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 5.0,
+                                    ),
+                                    child: ExpandableNotifier(
+                                      // initialExpanded: context
+                                      //     .read<NewScanBarcodePageCubit>()
+                                      //     .alwaysopenpanel,
+                                      child: ScrollOnExpand(
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16.0,
+                                            horizontal: 3.0,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: customColors().grey,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              5.0,
+                                            ),
+                                          ),
+                                          child: Builder(
+                                            builder: (context) {
+                                              var controller =
+                                                  ExpandableController.of(
+                                                    context,
+                                                    required: true,
+                                                  );
 
-                                          return InkWell(
-                                            onTap: () {
-                                              controller!.toggle();
-                                            },
-                                            child: Column(
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 8.0,
-                                                      ),
-                                                  child: Container(
-                                                    child: Column(
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
+                                              return InkWell(
+                                                onTap: () {
+                                                  controller!.toggle();
+                                                },
+                                                child: Column(
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8.0,
+                                                          ),
+                                                      child: Container(
+                                                        child: Column(
                                                           children: [
-                                                            Expanded(
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                      left: 8.0,
-                                                                    ),
-                                                                child:
-                                                                // SizedBox(
-                                                                //   child:
-                                                                //       TextFormField(
-                                                                //     initialValue: context
-                                                                //             .read<
-                                                                //                 NewScanBarcodePageCubit>()
-                                                                //             .skulist[
-                                                                //         index]['sku'],
-                                                                //     onChanged:
-                                                                //         (value) {
-                                                                //       setState(
-                                                                //           () {
-                                                                //         context
-                                                                //             .read<
-                                                                //                 NewScanBarcodePageCubit>()
-                                                                //             .skulist[index]['sku'] = value;
-                                                                //       });
-                                                                //     },
-                                                                //   ),
-                                                                // )
-                                                                Text(
-                                                                  context
-                                                                      .read<
-                                                                        PhotographyDashboardCubit
-                                                                      >()
-                                                                      .skulist[index]['sku'],
-                                                                  style: customTextStyle(
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .BodyL_Bold,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
                                                             Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
                                                               children: [
-                                                                InkWell(
-                                                                  onTap: () {
-                                                                    controller!
-                                                                        .toggle();
-                                                                  },
+                                                                Expanded(
                                                                   child: Padding(
                                                                     padding:
                                                                         const EdgeInsets.only(
-                                                                          right:
+                                                                          left:
                                                                               8.0,
                                                                         ),
-                                                                    child: Image.asset(
-                                                                      'assets/edit.png',
-                                                                      height:
-                                                                          21.0,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                InkWell(
-                                                                  onTap: () {
-                                                                    BlocProvider.of<
-                                                                      PhotographyDashboardCubit
-                                                                    >(
-                                                                      context,
-                                                                    ).removefromlist(
+                                                                    child:
+                                                                    // SizedBox(
+                                                                    //   child:
+                                                                    //       TextFormField(
+                                                                    //     initialValue: context
+                                                                    //             .read<
+                                                                    //                 NewScanBarcodePageCubit>()
+                                                                    //             .skulist[
+                                                                    //         index]['sku'],
+                                                                    //     onChanged:
+                                                                    //         (value) {
+                                                                    //       setState(
+                                                                    //           () {
+                                                                    //         context
+                                                                    //             .read<
+                                                                    //                 NewScanBarcodePageCubit>()
+                                                                    //             .skulist[index]['sku'] = value;
+                                                                    //       });
+                                                                    //     },
+                                                                    //   ),
+                                                                    // )
+                                                                    Text(
                                                                       context
                                                                           .read<
                                                                             PhotographyDashboardCubit
                                                                           >()
                                                                           .skulist[index]['sku'],
-                                                                    );
-                                                                  },
-                                                                  child: Icon(
-                                                                    Icons
-                                                                        .delete_sharp,
-                                                                    size: 20.0,
-                                                                    color:
-                                                                        customColors()
-                                                                            .carnationRed,
+                                                                      style: customTextStyle(
+                                                                        fontStyle:
+                                                                            FontStyle.BodyL_Bold,
+                                                                      ),
+                                                                    ),
                                                                   ),
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    InkWell(
+                                                                      onTap: () {
+                                                                        controller!
+                                                                            .toggle();
+                                                                      },
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.only(
+                                                                          right:
+                                                                              8.0,
+                                                                        ),
+                                                                        child: Image.asset(
+                                                                          'assets/edit.png',
+                                                                          height:
+                                                                              21.0,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    InkWell(
+                                                                      onTap: () {
+                                                                        BlocProvider.of<
+                                                                          PhotographyDashboardCubit
+                                                                        >(
+                                                                          context,
+                                                                        ).removefromlist(
+                                                                          context
+                                                                              .read<
+                                                                                PhotographyDashboardCubit
+                                                                              >()
+                                                                              .skulist[index]['sku'],
+                                                                        );
+                                                                      },
+                                                                      child: Icon(
+                                                                        Icons
+                                                                            .delete_sharp,
+                                                                        size:
+                                                                            20.0,
+                                                                        color:
+                                                                            customColors().carnationRed,
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
                                                               ],
                                                             ),
                                                           ],
                                                         ),
-                                                      ],
+                                                      ),
                                                     ),
-                                                  ),
+                                                    ExpandableSection(
+                                                      index: index,
+                                                      skulist:
+                                                          context
+                                                              .read<
+                                                                PhotographyDashboardCubit
+                                                              >()
+                                                              .skulist,
+                                                      trigger: () {
+                                                        controller!.toggle();
+                                                      },
+                                                      removetrigger: () {
+                                                        BlocProvider.of<
+                                                          PhotographyDashboardCubit
+                                                        >(
+                                                          context,
+                                                        ).removefromlist(
+                                                          context
+                                                              .read<
+                                                                PhotographyDashboardCubit
+                                                              >()
+                                                              .skulist[index]['sku'],
+                                                        );
+                                                      },
+                                                      sliderController:
+                                                          _sliderController,
+                                                    ),
+                                                  ],
                                                 ),
-                                                ExpandableSection(
-                                                  index: index,
-                                                  skulist:
-                                                      context
-                                                          .read<
-                                                            PhotographyDashboardCubit
-                                                          >()
-                                                          .skulist,
-                                                  trigger: () {
-                                                    controller!.toggle();
-                                                  },
-                                                  removetrigger: () {
-                                                    BlocProvider.of<
-                                                      PhotographyDashboardCubit
-                                                    >(context).removefromlist(
-                                                      context
-                                                          .read<
-                                                            PhotographyDashboardCubit
-                                                          >()
-                                                          .skulist[index]['sku'],
-                                                    );
-                                                  },
-                                                  sliderController:
-                                                      _sliderController,
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
+                                              );
+                                            },
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-              ),
+                                  );
+                                },
+                              ),
+                            ),
+                  ),
             ],
           );
         },
