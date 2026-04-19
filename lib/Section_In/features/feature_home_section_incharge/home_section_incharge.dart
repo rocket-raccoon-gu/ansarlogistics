@@ -9,6 +9,7 @@ import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeSectionIncharge extends StatefulWidget {
   const HomeSectionIncharge({super.key});
@@ -32,11 +33,27 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
 
   final Set<String> updatingSkus = Set<String>();
 
+  Future<void> requestPermissions() async {
+    // await Permission.location.request();
+    // await Permission.locationWhenInUse.request();
+    // await Permission.locationAlways.request();
+    if (!await Permission.notification.isGranted) {
+      await Permission.notification.request();
+    }
+    // if (!await Permission.microphone.isGranted) {
+    //   await Permission.microphone.request();
+    // }
+    if (!await Permission.storage.isGranted) {
+      await Permission.storage.request();
+    }
+    // await Permission.phone.request();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    requestPermissions();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // _loadInitialData();
     });

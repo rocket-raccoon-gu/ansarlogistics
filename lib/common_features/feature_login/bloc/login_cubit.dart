@@ -111,7 +111,7 @@ class LoginCubit extends Cubit<LoginState> {
 
       await FirebaseMessaging.instance.getToken().then((value) async {
         UserController.userController.devicetoken = value!;
-        // print("devicetoken =" + value);
+        log("devicetoken = $value");
         DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
         // print('Running on ${androidInfo.model}');
@@ -122,6 +122,7 @@ class LoginCubit extends Cubit<LoginState> {
         final info = await PackageInfo.fromPlatform();
 
         final String serverkey = await getAccessToken();
+        log("ServerKey = $serverkey");
 
         await PreferenceUtils.storeDataToShared("devicetoken", value);
 
