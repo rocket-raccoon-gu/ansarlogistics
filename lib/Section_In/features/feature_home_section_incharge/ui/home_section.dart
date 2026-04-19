@@ -1,10 +1,9 @@
-import 'package:ansarlogistics/Picker/repository_layer/pdf_service.dart';
 import 'package:ansarlogistics/Section_In/features/components/section_list_item.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_cubit.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/animation_switch.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
-import 'package:ansarlogistics/components/custom_app_components/textfields/custom_search_field.dart';
+import 'package:ansarlogistics/components/custom_app_components/textfields/custom_text_form_field.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -21,19 +20,83 @@ class HomeSection extends StatefulWidget {
 }
 
 class _HomeSectionState extends State<HomeSection> {
-  GlobalKey<FormFieldState<String>> _ordersearchFormKey =
-      GlobalKey<FormFieldState<String>>();
-
-  bool searchactive = false;
-
   bool _isSyncDisabled = false;
-
   final _searchcontroller = TextEditingController();
 
-  int _selectedCategoryIndex = 0;
+  Widget _buildCategoryChip(String label, bool isSelected) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        selectedColor: customColors().islandAqua,
+        backgroundColor: Colors.grey[200],
+        onSelected: (selected) {
+          // Handle category selection
+        },
+      ),
+    );
+  }
 
-  final _barcodeController = TextEditingController();
-  final _nameController = TextEditingController();
+  Widget _buildItemCard(String name, String description, String price) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: customColors().fontTertiary.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(Icons.image, color: Colors.grey[400]),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_SemiBold,
+                    color: FontColor.FontPrimary,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyS_Regular,
+                    color: FontColor.FontSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            price,
+            style: customTextStyle(
+              fontStyle: FontStyle.BodyM_Bold,
+              color: FontColor.FontPrimary,
+            ),
+          ),
+          SizedBox(width: 8),
+          Checkbox(
+            value: false,
+            onChanged: (value) {
+              // Handle item selection
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -45,77 +108,432 @@ class _HomeSectionState extends State<HomeSection> {
     });
   }
 
-  // Get categories based on employee ID
-  List<Map<String, dynamic>> _getCategories() {
-    final empId = UserController().profile.empId?.toLowerCase() ?? '';
-
-    if (empId == 'ahqa_veg') {
-      return producecats;
-    } else if (empId == 'ahqa_butch') {
-      return butchcats;
-    } else if (empId == 'ahqa_fish') {
-      return fishcats;
-    }
-
-    // Default to produce categories if no match found
-    return producecats;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final categories = _getCategories();
-    // print("home section");
-    return Stack(
-      children: [
-        Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 15.0,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: customColors().fontTertiary),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: CustomSearchField(
-                  searchFormKey: _ordersearchFormKey,
-                  keyboardType: TextInputType.text,
-                  focus:
-                      BlocProvider.of<HomeSectionInchargeCubit>(
-                        context,
-                      ).searchactive,
-                  onFilter: () {},
-                  onSearch: (p0) {
-                    BlocProvider.of<HomeSectionInchargeCubit>(
-                      context,
-                    ).updatesearchorder(
-                      UserController().sectionitems,
-                      p0.toString(),
-                    );
-                    // if (p0 != '') {
-                    //   setState(() {
-                    //     searchactive = true;
-                    //   });
-                    // } else {
-                    //   setState(() {
-                    //     searchactive = false;
-                    //   });
-                    // }
-                  },
-                  controller: _searchcontroller,
-                ),
-              ),
-            ),
+    final userProfile = UserController().profile;
+    // final sectionName =
+    //     userProfile.empId.contains("fish")
+    //         ? "fish section"
+    //         : userProfile.empId.contains("veg")
+    //         ? "vegetable section"
+    //         : userProfile.empId.contains("butch")
+    //         ? "butcher section"
+    //         : "section";
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                children: [
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                // Header with greeting, logout and PDF buttons
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.account_circle,
+                        size: 40,
+                        color: customColors().islandAqua,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Hi, ${userProfile.name}",
+                              style: customTextStyle(
+                                fontStyle: FontStyle.HeaderM_SemiBold,
+                                color: FontColor.FontPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // PDF Button
+                      InkWell(
+                        onTap: () async {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder:
+                                (context) => AlertDialog(
+                                  content: Row(
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(width: 16),
+                                      Text('Generating report...'),
+                                    ],
+                                  ),
+                                ),
+                          );
+
+                          // Simulate PDF generation
+                          await Future.delayed(Duration(seconds: 2));
+                          Navigator.pop(context);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'PDF report generated successfully!',
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: customColors().primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.picture_as_pdf,
+                            color: customColors().backgroundPrimary,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      // Logout Button
+                      IconButton(
+                        onPressed: () {
+                          // Add logout functionality here
+                          showDialog(
+                            context: context,
+                            builder:
+                                (ctx) => AlertDialog(
+                                  title: Text('Logout'),
+                                  content: Text(
+                                    'Are you sure you want to logout?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(ctx).pop(false),
+                                      child: Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(ctx).pop(true),
+                                      child: Text('Logout'),
+                                    ),
+                                  ],
+                                ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.logout,
+                          color: customColors().islandAqua,
+                          size: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Search Bar with Add Button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: customColors().fontTertiary,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: TextField(
+                            controller: _searchcontroller,
+                            decoration: InputDecoration(
+                              hintText: "Search Orderid",
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: customColors().fontSecondary,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                            ),
+                            onChanged: (value) {
+                              BlocProvider.of<HomeSectionInchargeCubit>(
+                                context,
+                              ).updatesearchorder(
+                                UserController().sectionitems,
+                                value,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      // Add Button
+                      InkWell(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (ctx) {
+                              return StatefulBuilder(
+                                builder: (context, setState) {
+                                  return Container(
+                                    height:
+                                        MediaQuery.of(ctx).size.height * 0.45,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(20),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        // Handle Bar
+                                        Container(
+                                          margin: EdgeInsets.only(top: 8),
+                                          width: 40,
+                                          height: 4,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(
+                                              2,
+                                            ),
+                                          ),
+                                        ),
+
+                                        // Header
+                                        Padding(
+                                          padding: EdgeInsets.all(16),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'Add New Item',
+                                                style: customTextStyle(
+                                                  fontStyle:
+                                                      FontStyle.HeaderM_Bold,
+                                                ),
+                                              ),
+                                              IconButton(
+                                                onPressed:
+                                                    () => Navigator.pop(ctx),
+                                                icon: Icon(Icons.close),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                          ),
+                                          child: CustomTextFormField(
+                                            hintText: 'Enter item name',
+                                            context: context,
+                                            controller: TextEditingController(),
+                                            fieldName: 'Item Name',
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: CustomTextFormField(
+                                            hintText: 'Enter item SKU',
+                                            context: context,
+                                            controller: TextEditingController(),
+                                            fieldName: 'Item SKU',
+                                          ),
+                                        ),
+
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                          ),
+                                          child: BasketButton(
+                                            text: "Add Item",
+                                            textStyle: customTextStyle(
+                                              fontStyle: FontStyle.BodyM_Bold,
+                                            ),
+                                            bgcolor: customColors().accent,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: customColors().accent,
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            color: customColors().backgroundPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                if (widget.state is HomeSectionInchargeLoading)
                   Expanded(
-                    child: InkWell(
-                      onTap:
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [loadingindecator()],
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: MediaQuery.removePadding(
+                      removeTop: true,
+                      context: context,
+                      child: ListView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        children: [
+                          if (BlocProvider.of<HomeSectionInchargeCubit>(
+                                context,
+                              ).searchactive &&
+                              BlocProvider.of<HomeSectionInchargeCubit>(
+                                context,
+                              ).searchresult.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18.0,
+                                vertical: 10.0,
+                              ),
+                              child: ListView.builder(
+                                itemCount:
+                                    BlocProvider.of<HomeSectionInchargeCubit>(
+                                      context,
+                                    ).searchresult.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return SectionProductListItem(
+                                    sectionitem:
+                                        BlocProvider.of<
+                                          HomeSectionInchargeCubit
+                                        >(context).searchresult[index],
+                                    existingUpdates:
+                                        BlocProvider.of<
+                                          HomeSectionInchargeCubit
+                                        >(context).updateHistory,
+                                    statusHistory:
+                                        BlocProvider.of<
+                                          HomeSectionInchargeCubit
+                                        >(context).statusHistories,
+                                    onSectionChanged: (p0, p1, p2) {
+                                      context
+                                          .read<HomeSectionInchargeCubit>()
+                                          .addToStockStatusList(
+                                            p0,
+                                            p1,
+                                            p2,
+                                            BlocProvider.of<
+                                              HomeSectionInchargeCubit
+                                            >(
+                                              context,
+                                            ).searchresult[index].imageUrl,
+                                          );
+                                    },
+                                  );
+                                },
+                              ),
+                            )
+                          else if (BlocProvider.of<HomeSectionInchargeCubit>(
+                                context,
+                              ).searchactive &&
+                              BlocProvider.of<HomeSectionInchargeCubit>(
+                                context,
+                              ).searchresult.isEmpty)
+                            Column(
+                              children: [
+                                Image.network(
+                                  '${noimageurl}',
+                                  height: 180.0,
+                                  width: 180.0,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    "No Products Found..!",
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.HeaderXS_SemiBold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          else
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18.0,
+                              ),
+                              child: ListView.builder(
+                                itemCount:
+                                    BlocProvider.of<HomeSectionInchargeCubit>(
+                                      context,
+                                    ).sectionitems.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return SectionProductListItem(
+                                    sectionitem:
+                                        BlocProvider.of<
+                                          HomeSectionInchargeCubit
+                                        >(context).sectionitems[index],
+                                    existingUpdates:
+                                        BlocProvider.of<
+                                          HomeSectionInchargeCubit
+                                        >(context).updateHistory,
+                                    statusHistory:
+                                        BlocProvider.of<
+                                          HomeSectionInchargeCubit
+                                        >(context).statusHistories,
+                                    onSectionChanged: (p0, p1, p2) {
+                                      context
+                                          .read<HomeSectionInchargeCubit>()
+                                          .addToStockStatusList(
+                                            p0,
+                                            p1,
+                                            p2,
+                                            BlocProvider.of<
+                                              HomeSectionInchargeCubit
+                                            >(
+                                              context,
+                                            ).sectionitems[index].imageUrl,
+                                          );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+
+                          SizedBox(height: 80.0),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // Sync Data Button at bottom
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed:
                           _isSyncDisabled
                               ? null
                               : () async {
@@ -158,6 +576,7 @@ class _HomeSectionState extends State<HomeSection> {
                                     content: Text("Syncing data..."),
                                   ),
                                 );
+
                                 try {
                                   await context
                                       .read<HomeSectionInchargeCubit>()
@@ -169,550 +588,37 @@ class _HomeSectionState extends State<HomeSection> {
                                   });
                                 }
                               },
-                      child: Container(
-                        height: 40.0,
-                        decoration: BoxDecoration(
-                          color:
-                              _isSyncDisabled
-                                  ? customColors().islandAqua.withOpacity(0.5)
-                                  : customColors().islandAqua,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: customColors().islandAqua,
+                        disabledBackgroundColor: customColors().islandAqua
+                            .withOpacity(0.5),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.sync, color: customColors().fontPrimary),
-                            Text(
-                              "Sync Data",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.FontPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(
-              height: 50,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: ChoiceChip(
-                      label: Text(category['name']),
-                      selected: _selectedCategoryIndex == index,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedCategoryIndex = index;
-                        });
-                        // Handle category selection
-                        // You can add your filtering logic here
-                        final cubit = BlocProvider.of<HomeSectionInchargeCubit>(
-                          context,
-                        );
-                        if (category['id'] == 0) {
-                          // Show all items
-                          cubit.loadProducts();
-                        } else {
-                          cubit.updateloadProducts(category['id']);
-                          // Filter by category
-                          // You'll need to implement the filtering logic based on your data structure
-                          // For example:
-                          // final filteredItems = UserController().sectionitems.where((item) => item.categoryId == category['id']).toList();
-                          // cubit.updatesearchorder(filteredItems, _searchcontroller.text);
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            if (widget.state is HomeSectionInchargeLoading)
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [loadingindecator()],
-                ),
-              )
-            else
-              Expanded(
-                child: MediaQuery.removePadding(
-                  removeTop: true,
-                  context: context,
-                  child: ListView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    children: [
-                      if (BlocProvider.of<HomeSectionInchargeCubit>(
-                            context,
-                          ).searchactive &&
-                          BlocProvider.of<HomeSectionInchargeCubit>(
-                            context,
-                          ).searchresult.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18.0,
-                            vertical: 10.0,
-                          ),
-                          child: ListView.builder(
-                            itemCount:
-                                BlocProvider.of<HomeSectionInchargeCubit>(
-                                  context,
-                                ).searchresult.length,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return SectionProductListItem(
-                                sectionitem:
-                                    BlocProvider.of<HomeSectionInchargeCubit>(
-                                      context,
-                                    ).searchresult[index],
-                                existingUpdates:
-                                    BlocProvider.of<HomeSectionInchargeCubit>(
-                                      context,
-                                    ).updateHistory,
-                                statusHistory:
-                                    BlocProvider.of<HomeSectionInchargeCubit>(
-                                      context,
-                                    ).statusHistories,
-                                onSectionChanged: (p0, p1, p2) {
-                                  context
-                                      .read<HomeSectionInchargeCubit>()
-                                      .addToStockStatusList(
-                                        p0,
-                                        p1,
-                                        p2,
-                                        BlocProvider.of<
-                                          HomeSectionInchargeCubit
-                                        >(context).searchresult[index].imageUrl,
-                                      );
-                                },
-                              );
-                            },
-                          ),
-                        )
-                      else if (BlocProvider.of<HomeSectionInchargeCubit>(
-                            context,
-                          ).searchactive &&
-                          BlocProvider.of<HomeSectionInchargeCubit>(
-                            context,
-                          ).searchresult.isEmpty)
-                        Column(
-                          children: [
-                            Image.network(
-                              '${noimageurl}',
-                              height: 180.0,
-                              width: 180.0,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                "No Products Found..!",
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.HeaderXS_SemiBold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                          child: ListView.builder(
-                            itemCount:
-                                BlocProvider.of<HomeSectionInchargeCubit>(
-                                  context,
-                                ).sectionitems.length,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return SectionProductListItem(
-                                sectionitem:
-                                    BlocProvider.of<HomeSectionInchargeCubit>(
-                                      context,
-                                    ).sectionitems[index],
-                                existingUpdates:
-                                    BlocProvider.of<HomeSectionInchargeCubit>(
-                                      context,
-                                    ).updateHistory,
-                                statusHistory:
-                                    BlocProvider.of<HomeSectionInchargeCubit>(
-                                      context,
-                                    ).statusHistories,
-                                onSectionChanged: (p0, p1, p2) {
-                                  context
-                                      .read<HomeSectionInchargeCubit>()
-                                      .addToStockStatusList(
-                                        p0,
-                                        p1,
-                                        p2,
-                                        BlocProvider.of<
-                                          HomeSectionInchargeCubit
-                                        >(context).sectionitems[index].imageUrl,
-                                      );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-
-                      SizedBox(height: 60.0),
-                    ],
-                  ),
-                ),
-              ),
-
-            // Add PDF Report Button here
-          ],
-        ),
-
-        // Item counts display
-        if (context.read<HomeSectionInchargeCubit>().stockUpdates.isNotEmpty ||
-            UserController().sectionitems.isNotEmpty)
-          // Positioned(
-          //   bottom: 95.0,
-          //   left: 15.0,
-          //   right: 15.0,
-          //   child: Container(
-          //     padding: EdgeInsets.all(12),
-          //     decoration: BoxDecoration(
-          //       color: customColors().backgroundPrimary,
-          //       borderRadius: BorderRadius.circular(12),
-          //       boxShadow: [
-          //         BoxShadow(
-          //           color: Colors.black.withOpacity(0.1),
-          //           blurRadius: 8,
-          //           offset: Offset(0, 2),
-          //         ),
-          //       ],
-          //       border: Border.all(
-          //         color: customColors().fontTertiary.withOpacity(0.3),
-          //       ),
-          //     ),
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //       children: [
-          //         if (context
-          //             .read<HomeSectionInchargeCubit>()
-          //             .stockUpdates
-          //             .isNotEmpty)
-          //           Expanded(
-          //             child: Column(
-          //               children: [
-          //                 Text(
-          //                   '${context.read<HomeSectionInchargeCubit>().stockUpdates.length}',
-          //                   style: TextStyle(
-          //                     fontSize: 20,
-          //                     fontWeight: FontWeight.bold,
-          //                     color: customColors().red1,
-          //                   ),
-          //                 ),
-          //                 SizedBox(height: 4),
-          //                 Text(
-          //                   'Stock Updates',
-          //                   style: TextStyle(
-          //                     fontSize: 12,
-          //                     color: customColors().fontSecondary,
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //           ),
-          //         // if (context
-          //         //         .read<HomeSectionInchargeCubit>()
-          //         //         .stockUpdates
-          //         //         .isNotEmpty &&
-          //         //     UserController().sectionitems.isNotEmpty)
-          //         // Container(
-          //         //   width: 1,
-          //         //   height: 40,
-          //         //   color: customColors().fontTertiary.withOpacity(0.3),
-          //         // ),
-          //         // if (UserController().sectionitems.isNotEmpty)
-          //         //   Expanded(
-          //         //     child: Column(
-          //         //       children: [
-          //         //         Text(
-          //         //           '${UserController().sectionitems.length}',
-          //         //           style: TextStyle(
-          //         //             fontSize: 20,
-          //         //             fontWeight: FontWeight.bold,
-          //         //             color: customColors().primary,
-          //         //           ),
-          //         //         ),
-          //         //         SizedBox(height: 4),
-          //         //         Text(
-          //         //           'Section Items',
-          //         //           style: TextStyle(
-          //         //             fontSize: 12,
-          //         //             color: customColors().fontSecondary,
-          //         //           ),
-          //         //         ),
-          //         //       ],
-          //         //     ),
-          //         //   ),
-          //         // if (context
-          //         //         .read<HomeSectionInchargeCubit>()
-          //         //         .stockUpdates
-          //         //         .isNotEmpty &&
-          //         //     UserController().sectionitems.isNotEmpty)
-          //         //   Container(
-          //         //     width: 1,
-          //         //     height: 40,
-          //         //     color: customColors().fontTertiary.withOpacity(0.3),
-          //         //   ),
-          //         // if (context
-          //         //         .read<HomeSectionInchargeCubit>()
-          //         //         .stockUpdates
-          //         //         .isNotEmpty &&
-          //         //     UserController().sectionitems.isNotEmpty)
-          //         //   Expanded(
-          //         //     child: Column(
-          //         //       children: [
-          //         //         Text(
-          //         //           '${context.read<HomeSectionInchargeCubit>().stockUpdates.length + UserController().sectionitems.length}',
-          //         //           style: TextStyle(
-          //         //             fontSize: 20,
-          //         //             fontWeight: FontWeight.bold,
-          //         //             color: customColors().accent,
-          //         //           ),
-          //         //         ),
-          //         //         SizedBox(height: 4),
-          //         //         Text(
-          //         //           'Total Items',
-          //         //           style: TextStyle(
-          //         //             fontSize: 12,
-          //         //             color: customColors().fontSecondary,
-          //         //           ),
-          //         //         ),
-          //         //       ],
-          //         //     ),
-          //         //   ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-          // Single comprehensive report button - show if there's any data to report
-          // Existing PDF button stays as is...
-          // New: Add Item button - opens bottom sheet
-          Positioned(
-            bottom: 25.0,
-            left: 15.0,
-            child: InkWell(
-              onTap: () {
-                _barcodeController.clear();
-                _nameController.clear();
-
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(16),
-                    ),
-                  ),
-                  builder: (ctx) {
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
-                        top: 16,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          Icon(Icons.sync, color: customColors().fontPrimary),
+                          const SizedBox(width: 8),
                           Text(
-                            'Add New Item',
+                            "Sync Data",
                             style: customTextStyle(
-                              fontStyle: FontStyle.HeaderXS_Bold,
-                            ),
-                          ),
-                          SizedBox(height: 12),
-                          TextField(
-                            controller: _barcodeController,
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                              labelText: 'Barcode / SKU',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          SizedBox(height: 12),
-                          TextField(
-                            controller: _nameController,
-                            decoration: InputDecoration(
-                              labelText: 'Product Name',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                final sku = _barcodeController.text.trim();
-                                final name = _nameController.text.trim();
-
-                                if (sku.isEmpty || name.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Please enter barcode and name',
-                                      ),
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                await context
-                                    .read<HomeSectionInchargeCubit>()
-                                    .addNewTempItem(sku: sku, name: name);
-
-                                Navigator.pop(ctx);
-                              },
-                              child: Text('Submit'),
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.FontPrimary,
                             ),
                           ),
                         ],
                       ),
-                    );
-                  },
-                );
-              },
-              child: Container(
-                height: 60.0,
-                width: 60.0,
-                decoration: BoxDecoration(
-                  color: customColors().accent,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.add,
-                    color: customColors().backgroundPrimary,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ),
-
-        if (context.read<HomeSectionInchargeCubit>().stockUpdates.isNotEmpty ||
-            UserController().sectionitems.isNotEmpty)
-          Positioned(
-            bottom: 25.0,
-            right: 15.0,
-            child: InkWell(
-              onTap: () async {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder:
-                      (context) => AlertDialog(
-                        content: Row(
-                          children: [
-                            CircularProgressIndicator(),
-                            SizedBox(width: 16),
-                            Text('Generating report...'),
-                          ],
-                        ),
-                      ),
-                );
-
-                // try {
-                //   final file = await PdfService.generateComprehensivePdf(
-                //     context.read<HomeSectionInchargeCubit>().stockUpdates,
-                //     UserController().sectionitems,
-                //     context.read<HomeSectionInchargeCubit>().statusHistories,
-                //   );
-                //   Navigator.pop(context);
-                //   await PdfService.shareComprehensivePdf(file);
-                // } catch (e) {
-                //   Navigator.pop(context);
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(content: Text('Error generating report: $e')),
-                //   );
-                // }
-              },
-              child: Container(
-                height: 60.0,
-                width: 60.0,
-                decoration: BoxDecoration(
-                  color: customColors().primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.picture_as_pdf,
-                    color: customColors().backgroundPrimary,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 }
-        //           ? Padding(
-        //             padding: const EdgeInsets.symmetric(
-        //               horizontal: 20.0,
-        //               vertical: 8.0,
-        //             ),
-        //             child: ElevatedButton.icon(
-        //               onPressed: () async {
-        //                 final cubit = context.read<HomeSectionInchargeCubit>();
-        //                 final loading = showDialog(
-        //                   context: context,
-        //                   barrierDismissible: false,
-        //                   builder:
-        //                       (context) => AlertDialog(
-        //                         content: Row(
-        //                           children: [
-        //                             CircularProgressIndicator(),
-        //                             SizedBox(width: 16),
-        //                             Text('Generating report...'),
-        //                           ],
-        //                         ),
-        //                       ),
-        //                 );
-
-        //                 try {
-        //                   final file = await PdfService.generatePdf(
-        //                     context
-        //                         .read<HomeSectionInchargeCubit>()
-        //                         .stockUpdates,
-        //                   );
-        //                   Navigator.pop(context);
-        //                   await PdfService.sharePdf(file);
-        //                 } catch (e) {
-        //                   Navigator.pop(context);
-        //                   ScaffoldMessenger.of(context).showSnackBar(
-        //                     SnackBar(
-        //                       content: Text('Error generating report: $e'),
-        //                     ),
-        //                   );
-        //                 }
-        //               },
-        //               icon: Icon(Icons.picture_as_pdf),
-        //               label: Text('Generate PDF Report'),
-        //               style: ElevatedButton.styleFrom(
-        //                 backgroundColor: customColors().primary,
-        //                 foregroundColor: customColors().fontPrimary,
-        //                 minimumSize: Size(double.infinity, 48),
-        //               ),
-        //             ),
-        //           )
-        //           : SizedBox(),
-        // ),
-      
