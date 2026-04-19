@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/check_section_status_list.dart';
 import 'package:picker_driver_api/responses/section_item_response.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class SectionProductListItem extends StatefulWidget {
   Sectionitem sectionitem;
@@ -204,29 +205,65 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                                     ? CachedNetworkImage(
                                       imageUrl:
                                           "https://media-qatar.ansargallery.com/catalog/product/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
+                                      cacheKey:
+                                          "product_${widget.sectionitem.sku}",
+                                      maxWidthDiskCache: 200,
+                                      maxHeightDiskCache: 200,
+                                      memCacheWidth: 100,
+                                      memCacheHeight: 100,
+                                      fadeInDuration: Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      fadeOutDuration: Duration(
+                                        milliseconds: 100,
+                                      ),
+                                      cacheManager: DefaultCacheManager(),
                                       imageBuilder: (context, imageProvider) {
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.cover,
-                                            ),
+                                        return SizedBox(
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          child: Image(
+                                            image: imageProvider,
+                                            fit: BoxFit.cover,
                                           ),
                                         );
                                       },
                                       placeholder:
-                                          (context, url) => Center(
-                                            child: Image.asset(
-                                              'assets/Iphone_spinner.gif',
+                                          (context, url) => Container(
+                                            color: Colors.grey[100],
+                                            child: Center(
+                                              child: Container(
+                                                width: 16,
+                                                height: 16,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 1.5,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                        Color
+                                                      >(Colors.grey[400]!),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                       errorWidget: (context, url, error) {
-                                        return Image.asset(
-                                          'assets/placeholder.png',
+                                        return Container(
+                                          color: Colors.grey[100],
+                                          child: Icon(
+                                            Icons.image_not_supported,
+                                            color: Colors.grey[400],
+                                            size: 32,
+                                          ),
                                         );
                                       },
                                     )
-                                    : Image.asset('assets/placeholder.png'),
+                                    : Container(
+                                      color: Colors.grey[100],
+                                      child: Icon(
+                                        Icons.image,
+                                        color: Colors.grey[400],
+                                        size: 32,
+                                      ),
+                                    ),
                           ),
                         ),
                       ),

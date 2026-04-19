@@ -1,3 +1,4 @@
+import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/Section_In/features/components/section_list_item.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_cubit.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_state.dart';
@@ -7,6 +8,7 @@ import 'package:ansarlogistics/components/custom_app_components/textfields/custo
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -129,15 +131,15 @@ class _HomeSectionState extends State<HomeSection> {
               children: [
                 // Header with greeting, logout and PDF buttons
                 Container(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(6.0),
                   child: Row(
                     children: [
                       Icon(
                         Icons.account_circle,
-                        size: 40,
+                        size: 35,
                         color: customColors().islandAqua,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 5),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +147,7 @@ class _HomeSectionState extends State<HomeSection> {
                             Text(
                               "Hi, ${userProfile.name}",
                               style: customTextStyle(
-                                fontStyle: FontStyle.HeaderM_SemiBold,
+                                fontStyle: FontStyle.HeaderS_SemiBold,
                                 color: FontColor.FontPrimary,
                               ),
                             ),
@@ -215,8 +217,18 @@ class _HomeSectionState extends State<HomeSection> {
                                       child: Text('Cancel'),
                                     ),
                                     TextButton(
-                                      onPressed:
-                                          () => Navigator.of(ctx).pop(true),
+                                      onPressed: () async {
+                                        Navigator.of(ctx).pop(true);
+
+                                        await PreferenceUtils.removeDataFromShared(
+                                          "userCode",
+                                        );
+                                        await PreferenceUtils.removeDataFromShared(
+                                          "profiledetails",
+                                        );
+
+                                        await logout(context);
+                                      },
                                       child: Text('Logout'),
                                     ),
                                   ],
