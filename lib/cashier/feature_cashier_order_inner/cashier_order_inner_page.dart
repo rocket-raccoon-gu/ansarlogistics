@@ -2940,9 +2940,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     : Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child:
-                          (order.orderStatus.toString() == 'end_picking' ||
-                                      order.orderStatus.toString() ==
-                                          'assigned_cashier' ||
+                          (order.orderStatus.toString() == 'assigned_cashier' ||
                                       order.orderStatus.toString() ==
                                           'start_punching') &&
                                   (!order.subgroupIdentifier.startsWith('WAR'))

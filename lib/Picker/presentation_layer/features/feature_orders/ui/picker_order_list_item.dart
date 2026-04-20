@@ -11,10 +11,12 @@ import 'package:picker_driver_api/responses/orders_new_response.dart';
 class PickerOrderListItem extends StatefulWidget {
   OrderNew orderResponseItem;
   int index;
+  void Function()? onTapDispatch;
   PickerOrderListItem({
     super.key,
     required this.orderResponseItem,
     required this.index,
+    required this.onTapDispatch,
   });
 
   @override
@@ -174,6 +176,36 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
                     color: FontColor.FontPrimary,
                   ),
                 ),
+              ],
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (widget.orderResponseItem.status == "end_picking" &&
+                    UserController().profile.branchCode == "Q019")
+                  InkWell(
+                    onTap: widget.onTapDispatch,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: customColors().carnationRed,
+                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Dispatch Items",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyM_Bold,
+                            color: FontColor.White,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ],

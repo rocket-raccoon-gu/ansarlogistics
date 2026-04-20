@@ -327,34 +327,35 @@ class OrderTile extends StatelessWidget {
         },
         child: InkWell(
           onTap: () {
-            if (_canNavigateToOrder()) {
-              context.gNavigationService.openCashierOrderInnerPage(
-                context,
-                arg: {'order': order},
-              );
-            } else {
-              // Show message that user needs to swipe first
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Please swipe right to start punching before accessing order details',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.orange,
-                  duration: Duration(seconds: 3),
-                  action: SnackBarAction(
-                    label: 'Got it',
-                    textColor: Colors.white,
-                    onPressed: () {
-                      // Check if the context is still valid before using it
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      }
-                    },
-                  ),
-                ),
-              );
-            }
+            // if (_canNavigateToOrder()) {
+            context.gNavigationService.openCashierOrderInnerPage(
+              context,
+              arg: {'order': order},
+            );
+            // } else {
+            //   // Show message that user needs to swipe first
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     SnackBar(
+            //       content: Text(
+            //         'Please swipe right to start punching before accessing order details',
+            //         style: TextStyle(color: Colors.white),
+            //       ),
+            //       backgroundColor: Colors.orange,
+            //       duration: Duration(seconds: 3),
+            //       action: SnackBarAction(
+            //         label: 'Got it',
+            //         textColor: Colors.white,
+            //         onPressed: () {
+            //           // Check if the context is still valid before using it
+            //           if (context.mounted) {
+            //             ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            //           }
+            //         },
+            //       ),
+            //     ),
+            //   );
+
+            // }
           },
           child: Padding(
             padding: const EdgeInsets.all(16),

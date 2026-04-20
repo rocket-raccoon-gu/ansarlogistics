@@ -971,6 +971,55 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                             orderResponseItem:
                                                 orderitems![index],
                                             index: index,
+                                            onTapDispatch: () async {
+                                              // TODO: Implement dispatch items functionality
+                                              print("Dispatch items tapped");
+
+                                              final token =
+                                                  await PreferenceUtils.getDataFromShared(
+                                                    'usertoken',
+                                                  );
+
+                                              final response = await context
+                                                  .gTradingApiGateway
+                                                  .updateMainOrderStatNew(
+                                                    preparationId:
+                                                        orderitems![index].id!,
+                                                    orderStatus:
+                                                        "items_dispatched",
+                                                    comment:
+                                                        "${UserController().profile.name} (${UserController().profile.empId}) Items Dispatched ",
+                                                    orderNumber:
+                                                        orderitems![index].id!,
+                                                    token: token!,
+                                                    branchCode:
+                                                        orderitems![index]
+                                                            .branchCode ??
+                                                        '',
+                                                    userbranchCode:
+                                                        UserController()
+                                                            .profile
+                                                            .branchCode ??
+                                                        '',
+                                                  );
+
+                                              if (response.statusCode == 200 &&
+                                                  mounted) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Order Dispatched',
+                                                    ),
+                                                  ),
+                                                );
+                                                setState(() {
+                                                  orderitems![index].status =
+                                                      "items_dispatched";
+                                                });
+                                              }
+                                            },
                                           ),
                                         ),
                                       );
