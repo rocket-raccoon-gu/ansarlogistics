@@ -71,7 +71,12 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
             return st == 'assigned_picker' ||
                 st == 'start_picking' ||
                 st == 'material_request' ||
-                st == 'start_punching';
+                st == 'start_punching' ||
+                st == 'assigned_driver' ||
+                st == 'on_the_way' ||
+                st == 'note' ||
+                st == 'material_request' ||
+                st == '';
           }).toList();
 
       final picked =
