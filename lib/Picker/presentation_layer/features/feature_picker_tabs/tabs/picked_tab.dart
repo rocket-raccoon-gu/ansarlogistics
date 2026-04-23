@@ -1,6 +1,7 @@
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -57,10 +58,12 @@ class PickedTab extends StatelessWidget {
     // 1. showFinishButton is false, OR
     // 2. status is already 'end_picking', OR
     // 3. status is 'partial_endpick'
-    if (!showFinishButton ||
-        orderResponseItem.status == 'end_picking' ||
-        orderResponseItem.status == 'partial_endpick' ||
-        orderResponseItem.status == "start_punching") {
+    // UNLESS branch code is Q019 (always show button for Q019)
+    if (UserController().profile.branchCode != "Q019" &&
+        (!showFinishButton ||
+            orderResponseItem.status == 'end_picking' ||
+            orderResponseItem.status == 'partial_endpick' ||
+            orderResponseItem.status == "start_punching")) {
       print("🚫 PickedTab - Hiding finish button");
       return list;
     }
