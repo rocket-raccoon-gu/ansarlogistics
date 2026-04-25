@@ -76,8 +76,10 @@ class DriverOrderInnerListItem extends StatelessWidget {
                   const SizedBox(height: 6),
                   _buildQuantityRow(),
                   const SizedBox(height: 8),
-                  _buildPickupRow(),
-                  const SizedBox(height: 12),
+                  if (orderItem.branchName.isNotEmpty) ...[
+                    _buildPickupRow(),
+                    const SizedBox(height: 12),
+                  ],
                 ],
               ),
             ),
