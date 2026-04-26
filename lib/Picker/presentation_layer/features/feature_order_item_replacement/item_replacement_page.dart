@@ -63,6 +63,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
   late final ScanKit scanKit;
 
+  bool leadingZero = false;
+
   String result = '';
 
   Future<void> requestCameraPermission() async {
@@ -120,7 +122,9 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
       String action = "replace";
 
       final result = await Navigator.of(context).push<String>(
-        MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+        MaterialPageRoute(
+          builder: (_) => ScanditBarcodeScannerPage(leadingZero: leadingZero),
+        ),
       );
 
       log("${result} barcodeScanRes");
@@ -231,6 +235,22 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                               fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.FontPrimary,
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text("Leading 0"),
+                          Switch(
+                            value: leadingZero,
+                            onChanged: (value) {
+                              setState(() {
+                                leadingZero = value;
+                              });
+                            },
                           ),
                         ],
                       ),

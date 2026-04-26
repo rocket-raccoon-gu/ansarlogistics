@@ -7,7 +7,8 @@ import 'package:scandit_flutter_datacapture_core/scandit_flutter_datacapture_cor
 import 'package:ansarlogistics/services/scandit_manager.dart';
 
 class ScanditBarcodeScannerPage extends StatefulWidget {
-  const ScanditBarcodeScannerPage({super.key});
+  final bool? leadingZero;
+  const ScanditBarcodeScannerPage({super.key, this.leadingZero});
 
   @override
   State<ScanditBarcodeScannerPage> createState() =>
@@ -124,7 +125,9 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
     String code = extractBarcodeValue(barcode);
 
     // Custom post-processing logic for UPC-A barcodes with leading zeros
-    code = _processBarcode(code);
+    if (widget.leadingZero == true) {
+      code = _processBarcode(code);
+    }
 
     if (code.isEmpty) return;
 
@@ -148,19 +151,19 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
   // Custom post-processing logic for UPC-A barcodes with leading zeros
   String _processBarcode(String code) {
     // For 12-digit codes (UPC-A) that might need leading zero
-    if (code.length == 12) {
-      // Check if this should be a 13-digit EAN-13 with leading zero
-      if (_shouldAddLeadingZero(code)) {
-        return '0$code';
-      }
-    }
+    // if (code.length == 12) {
+    // Check if this should be a 13-digit EAN-13 with leading zero
+    // if (_shouldAddLeadingZero(code)) {
+    return '0$code';
+    // }
+    // }
 
     // For 13-digit codes, validate and potentially correct checksum
-    if (code.length == 13) {
-      code = _validateAndCorrectChecksum(code);
-    }
+    // if (code.length == 13) {
+    //   code = _validateAndCorrectChecksum(code);
+    // }
 
-    return code;
+    // return code;
   }
 
   // Validate and potentially correct EAN-13 checksum

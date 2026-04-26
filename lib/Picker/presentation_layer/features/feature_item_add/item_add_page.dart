@@ -62,6 +62,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
   // MobileScannerController cameraController = MobileScannerController();
 
   bool producebarcode = false;
+  bool leadingZero = false;
 
   // @override
   // void initState() {
@@ -91,7 +92,9 @@ class _ItemAddPageState extends State<ItemAddPage> {
 
   Future<void> scanBarcodeNormal() async {
     final result = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+      MaterialPageRoute(
+        builder: (_) => ScanditBarcodeScannerPage(leadingZero: leadingZero),
+      ),
     );
 
     log(result.toString());
@@ -186,7 +189,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                             child: Row(
                               children: [
                                 Text(
-                                  "Add New Item",
+                                  "Add Item",
                                   style: customTextStyle(
                                     fontStyle: FontStyle.BodyL_SemiBold,
                                     color: FontColor.FontPrimary,
@@ -195,7 +198,20 @@ class _ItemAddPageState extends State<ItemAddPage> {
                               ],
                             ),
                           ),
-                          SizedBox(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text("Leading 0"),
+                              Switch(
+                                value: leadingZero,
+                                onChanged: (value) {
+                                  setState(() {
+                                    leadingZero = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -220,6 +236,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                             ),
                           ],
                         ),
+
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
                           child: Column(

@@ -43,6 +43,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
   TextEditingController barcodeController = new TextEditingController();
 
+  bool leadingZero = false;
+
   // MobileScannerController cameraController = MobileScannerController();
 
   // late final ScanKit scanKit;
@@ -155,7 +157,9 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
   scanBarcodeNormal() async {
     try {
       final result = await Navigator.of(context).push<String>(
-        MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+        MaterialPageRoute(
+          builder: (_) => ScanditBarcodeScannerPage(leadingZero: leadingZero),
+        ),
       );
 
       if (result != null && result != "") {
@@ -1180,6 +1184,27 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                               ),
                                             ),
                                       ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Is Produce switch
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text("Leading 0"),
+                                    Switch(
+                                      value: leadingZero,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          leadingZero = value;
+                                        });
+                                      },
                                     ),
                                   ],
                                 ),
