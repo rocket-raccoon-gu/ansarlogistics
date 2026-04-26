@@ -111,18 +111,19 @@ class HomeSectionInchargeCubit extends Cubit<HomeSectionInchargeState> {
       if (dataMap["data"].isNotEmpty) {
         // print("📦 Section data received, parsing...");
 
-        if (UserController().profile.branchCode == "Q015") {
-          BranchSectionDataResponse branchSectionDataResponse =
-              BranchSectionDataResponse.fromJson(dataMap);
-          branchdata = branchSectionDataResponse.data;
+        // if (UserController().profile.branchCode == "Q015") {
+        //   BranchSectionDataResponse branchSectionDataResponse =
+        //       BranchSectionDataResponse.fromJson(dataMap);
+        //   branchdata = branchSectionDataResponse.data;
 
-          UserController().branchdata = branchdata;
-        } else {
-          SectionItemResponse sectionItemResponse =
-              SectionItemResponse.fromJson(dataMap);
-          sectionitems = sectionItemResponse.data;
-          UserController().sectionitems = sectionitems;
-        }
+        //   UserController().branchdata = branchdata;
+        // } else {
+        SectionItemResponse sectionItemResponse = SectionItemResponse.fromJson(
+          dataMap,
+        );
+        sectionitems = sectionItemResponse.data;
+        UserController().sectionitems = sectionitems;
+        // }
 
         // print("✅ Section items loaded: ${sectionitems.length}");
       } else {

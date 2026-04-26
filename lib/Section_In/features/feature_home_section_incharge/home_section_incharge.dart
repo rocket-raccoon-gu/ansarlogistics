@@ -70,96 +70,96 @@ class _HomeSectionInchargeState extends State<HomeSectionIncharge> {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Padding(
-              //   padding: EdgeInsets.only(top: mheight * .062),
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //     children: [
-              //       Flexible(
-              //         child: Padding(
-              //           padding: const EdgeInsets.only(left: 20.0),
-              //           child: Text(
-              //             "Hi, ${UserController.userController.profile.name}",
-              //             style: customTextStyle(
-              //               fontStyle: FontStyle.BodyL_SemiBold_lato,
-              //               color: FontColor.FontPrimary,
-              //             ),
-              //             maxLines:
-              //                 2, // Allow the text to be displayed in up to 2 lines
-              //             softWrap: true, // Enable text wrapping
-              //             overflow:
-              //                 TextOverflow
-              //                     .ellipsis, // Handle overflow with ellipsis
-              //           ),
-              //         ),
-              //       ),
-              //       Flexible(
-              //         child: Row(
-              //           mainAxisAlignment: MainAxisAlignment.end,
-              //           children: [
-              //             if (UserController
-              //                         .userController
-              //                         .profile
-              //                         .branchCode !=
-              //                     'Q013' &&
-              //                 UserController
-              //                         .userController
-              //                         .profile
-              //                         .branchCode !=
-              //                     'Q008')
-              //               InkWell(
-              //                 onTap: () {
-              //                   context
-              //                       .read<HomeSectionInchargeCubit>()
-              //                       .clearSectionData();
-              //                 },
-              //                 child: Container(
-              //                   padding: const EdgeInsets.symmetric(
-              //                     horizontal: 8.0,
-              //                     vertical: 8.0,
-              //                   ),
-              //                   decoration: BoxDecoration(
-              //                     color: customColors().islandAqua,
-              //                     borderRadius: BorderRadius.circular(5.0),
-              //                   ),
-              //                   child: Center(
-              //                     child: Text(
-              //                       "Clear All",
-              //                       style: customTextStyle(
-              //                         fontStyle: FontStyle.BodyL_Bold,
-              //                         color: FontColor.White,
-              //                       ),
-              //                     ),
-              //                   ),
-              //                 ),
-              //               )
-              //             else
-              //               SizedBox(),
-              //             Padding(
-              //               padding: EdgeInsets.symmetric(horizontal: 16.0),
-              //               child: InkWell(
-              //                 onTap: () async {
-              //                   await PreferenceUtils.removeDataFromShared(
-              //                     "userCode",
-              //                   );
-              //                   await PreferenceUtils.removeDataFromShared(
-              //                     "profiledetails",
-              //                   );
+              Padding(
+                padding: EdgeInsets.only(top: mheight * .062),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: Text(
+                          "Hi, ${UserController.userController.profile.name}",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_SemiBold_lato,
+                            color: FontColor.FontPrimary,
+                          ),
+                          maxLines:
+                              2, // Allow the text to be displayed in up to 2 lines
+                          softWrap: true, // Enable text wrapping
+                          overflow:
+                              TextOverflow
+                                  .ellipsis, // Handle overflow with ellipsis
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // if (UserController
+                          //             .userController
+                          //             .profile
+                          //             .branchCode !=
+                          //         'Q013' &&
+                          //     UserController
+                          //             .userController
+                          //             .profile
+                          //             .branchCode !=
+                          //         'Q008')
+                          //   InkWell(
+                          //     onTap: () {
+                          //       context
+                          //           .read<HomeSectionInchargeCubit>()
+                          //           .clearSectionData();
+                          //     },
+                          //     child: Container(
+                          //       padding: const EdgeInsets.symmetric(
+                          //         horizontal: 8.0,
+                          //         vertical: 8.0,
+                          //       ),
+                          //       decoration: BoxDecoration(
+                          //         color: customColors().islandAqua,
+                          //         borderRadius: BorderRadius.circular(5.0),
+                          //       ),
+                          //       child: Center(
+                          //         child: Text(
+                          //           "Clear All",
+                          //           style: customTextStyle(
+                          //             fontStyle: FontStyle.BodyL_Bold,
+                          //             color: FontColor.White,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   )
+                          // else
+                          //   SizedBox(),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.0),
+                            child: InkWell(
+                              onTap: () async {
+                                await PreferenceUtils.removeDataFromShared(
+                                  "userCode",
+                                );
+                                await PreferenceUtils.removeDataFromShared(
+                                  "profiledetails",
+                                );
 
-              //                   await logout(context);
-              //                 },
-              //                 child: Image.asset(
-              //                   'assets/logout.png',
-              //                   height: 28,
-              //                 ),
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+                                await logout(context);
+                              },
+                              child: Image.asset(
+                                'assets/logout.png',
+                                height: 28,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {

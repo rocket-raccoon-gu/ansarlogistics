@@ -130,120 +130,120 @@ class _HomeSectionState extends State<HomeSection> {
             Column(
               children: [
                 // Header with greeting, logout and PDF buttons
-                Container(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.account_circle,
-                        size: 35,
-                        color: customColors().islandAqua,
-                      ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Hi, ${userProfile.name}",
-                              style: customTextStyle(
-                                fontStyle: FontStyle.HeaderS_SemiBold,
-                                color: FontColor.FontPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // PDF Button
-                      InkWell(
-                        onTap: () async {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder:
-                                (context) => AlertDialog(
-                                  content: Row(
-                                    children: [
-                                      CircularProgressIndicator(),
-                                      SizedBox(width: 16),
-                                      Text('Generating report...'),
-                                    ],
-                                  ),
-                                ),
-                          );
+                // Container(
+                //   padding: const EdgeInsets.all(6.0),
+                //   child: Row(
+                //     children: [
+                //       Icon(
+                //         Icons.account_circle,
+                //         size: 35,
+                //         color: customColors().islandAqua,
+                //       ),
+                //       const SizedBox(width: 5),
+                //       Expanded(
+                //         child: Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: [
+                //             Text(
+                //               "Hi, ${userProfile.name}",
+                //               style: customTextStyle(
+                //                 fontStyle: FontStyle.HeaderS_SemiBold,
+                //                 color: FontColor.FontPrimary,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //       // PDF Button
+                //       InkWell(
+                //         onTap: () async {
+                //           showDialog(
+                //             context: context,
+                //             barrierDismissible: false,
+                //             builder:
+                //                 (context) => AlertDialog(
+                //                   content: Row(
+                //                     children: [
+                //                       CircularProgressIndicator(),
+                //                       SizedBox(width: 16),
+                //                       Text('Generating report...'),
+                //                     ],
+                //                   ),
+                //                 ),
+                //           );
 
-                          // Simulate PDF generation
-                          await Future.delayed(Duration(seconds: 2));
-                          Navigator.pop(context);
+                //           // Simulate PDF generation
+                //           await Future.delayed(Duration(seconds: 2));
+                //           Navigator.pop(context);
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'PDF report generated successfully!',
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: customColors().primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.picture_as_pdf,
-                            color: customColors().backgroundPrimary,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      // Logout Button
-                      IconButton(
-                        onPressed: () {
-                          // Add logout functionality here
-                          showDialog(
-                            context: context,
-                            builder:
-                                (ctx) => AlertDialog(
-                                  title: Text('Logout'),
-                                  content: Text(
-                                    'Are you sure you want to logout?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(ctx).pop(false),
-                                      child: Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        Navigator.of(ctx).pop(true);
+                //           ScaffoldMessenger.of(context).showSnackBar(
+                //             SnackBar(
+                //               content: Text(
+                //                 'PDF report generated successfully!',
+                //               ),
+                //             ),
+                //           );
+                //         },
+                //         child: Container(
+                //           padding: EdgeInsets.all(8),
+                //           decoration: BoxDecoration(
+                //             color: customColors().primary,
+                //             shape: BoxShape.circle,
+                //           ),
+                //           child: Icon(
+                //             Icons.picture_as_pdf,
+                //             color: customColors().backgroundPrimary,
+                //             size: 20,
+                //           ),
+                //         ),
+                //       ),
+                //       SizedBox(width: 8),
+                //       // Logout Button
+                //       IconButton(
+                //         onPressed: () {
+                //           // Add logout functionality here
+                //           showDialog(
+                //             context: context,
+                //             builder:
+                //                 (ctx) => AlertDialog(
+                //                   title: Text('Logout'),
+                //                   content: Text(
+                //                     'Are you sure you want to logout?',
+                //                   ),
+                //                   actions: [
+                //                     TextButton(
+                //                       onPressed:
+                //                           () => Navigator.of(ctx).pop(false),
+                //                       child: Text('Cancel'),
+                //                     ),
+                //                     TextButton(
+                //                       onPressed: () async {
+                //                         Navigator.of(ctx).pop(true);
 
-                                        await PreferenceUtils.removeDataFromShared(
-                                          "userCode",
-                                        );
-                                        await PreferenceUtils.removeDataFromShared(
-                                          "profiledetails",
-                                        );
+                //                         await PreferenceUtils.removeDataFromShared(
+                //                           "userCode",
+                //                         );
+                //                         await PreferenceUtils.removeDataFromShared(
+                //                           "profiledetails",
+                //                         );
 
-                                        await logout(context);
-                                      },
-                                      child: Text('Logout'),
-                                    ),
-                                  ],
-                                ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.logout,
-                          color: customColors().islandAqua,
-                          size: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                //                         await logout(context);
+                //                       },
+                //                       child: Text('Logout'),
+                //                     ),
+                //                   ],
+                //                 ),
+                //           );
+                //         },
+                //         icon: Icon(
+                //           Icons.logout,
+                //           color: customColors().islandAqua,
+                //           size: 24,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
 
                 // Search Bar with Add Button
                 Padding(
