@@ -461,295 +461,315 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
           },
         );
       } else {
-        String response = await widget.serviceLocator.tradingApi
-            .checkbarcodeavailablity(sku: barcodescanRes!);
-
-        log(response);
-
-        Map<String, dynamic> mdata = jsonDecode(response);
-
-        if (mdata['success'] == 1) {
+        if (context.mounted) {
           Navigator.pop(context);
-
-          showGeneralDialog(
-            context: context,
-            pageBuilder: (context, animation, secondaryanimation) {
-              return Container();
-            },
-            transitionBuilder: (context, animation, secondaryAnimation, child) {
-              var curves = Curves.easeInOut.transform(animation.value);
-
-              return Transform.scale(
-                scale: curves,
-                child: AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  content: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        barcodescanRes!.toString(),
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_Bold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
-                      Text(
-                        "Barcode Already Scanned on ${mdata['data']['date']}",
-                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        "Product Upload in Processing...",
-                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-                        textAlign: TextAlign.center,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 50,
-                                  vertical: 10.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: customColors().carnationRed,
-                                  borderRadius: BorderRadius.circular(5.0),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "OK",
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyM_Bold,
-                                      color: FontColor.White,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        } else {
-          Navigator.pop(context);
-
-          if (context
-              .read<PhotographyDashboardCubit>()
-              .skulist
-              .where((element) => element.containsValue(barcodescanRes))
-              .isEmpty) {
-            // ignore: use_build_context_synchronously
-            ctx.read<PhotographyDashboardCubit>().addtolist(
-              barcodescanRes!,
-              "",
-              "",
-              "",
-            );
-
-            // ignore: use_build_context_synchronously
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
-
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Do you Want to Add More...?",
-                          textAlign: TextAlign.center,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                      vertical: 8.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: customColors().carnationRed,
-                                    ),
-                                    child: Center(
-                                      child: Center(
-                                        child: Text(
-                                          "No",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.White,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    // ctx
-                                    //     .read<NewScanBarcodePageCubit>()
-                                    //     .addtolist(barcodescanRes);
-
-                                    scanBarcodeNormal(ctx);
-
-                                    Navigator.pop(context);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 8.0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: customColors().secretGarden,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Yes",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.White,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          } else {
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
-
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          barcodescanRes.toString(),
-                          textAlign: TextAlign.center,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            "You Already Added This Barcode in List...!",
-                            textAlign: TextAlign.center,
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.FontPrimary,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  context.gNavigationService.back(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 35.0,
-                                    vertical: 8.0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: customColors().carnationRed,
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "OK",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyM_Bold,
-                                        color: FontColor.White,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          }
         }
+        // String response = await widget.serviceLocator.tradingApi
+        //     .checkbarcodeavailablity(sku: barcodescanRes!);
+
+        // log(response);
+
+        // Map<String, dynamic> mdata = jsonDecode(response);
+
+        // if (mdata['success'] == 1) {
+        //   Navigator.pop(context);
+
+        showGeneralDialog(
+          context: context,
+          pageBuilder: (context, animation, secondaryanimation) {
+            return Container();
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            var curves = Curves.easeInOut.transform(animation.value);
+
+            return Transform.scale(
+              scale: curves,
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                content: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      barcodescanRes!.toString(),
+                      style: customTextStyle(
+                        fontStyle: FontStyle.BodyM_Bold,
+                        color: FontColor.FontPrimary,
+                      ),
+                    ),
+                    Text(
+                      "${data['message']}",
+                      style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    // Text(
+                    //   "Product Upload in Processing...",
+                    //   style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                    //   textAlign: TextAlign.center,
+                    // ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              ctx.read<PhotographyDashboardCubit>().addtolist(
+                                barcodescanRes!.toString(),
+                                "",
+                                "",
+                                "",
+                              );
+
+                              // if (ctx
+                              //     .read<PhotographyDashboardCubit>()
+                              //     .skulist
+                              //     .isNotEmpty) {
+                              //   ctx
+                              //       .read<PhotographyDashboardCubit>()
+                              //       .updatetoproductList();
+                              // }
+
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 50,
+                                vertical: 10.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: customColors().carnationRed,
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "OK",
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyM_Bold,
+                                    color: FontColor.White,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+
+        // } else {
+        //   Navigator.pop(context);
+
+        //   if (context
+        //       .read<PhotographyDashboardCubit>()
+        //       .skulist
+        //       .where((element) => element.containsValue(barcodescanRes))
+        //       .isEmpty) {
+        //     // ignore: use_build_context_synchronously
+        //     ctx.read<PhotographyDashboardCubit>().addtolist(
+        //       barcodescanRes!,
+        //       "",
+        //       "",
+        //       "",
+        //     );
+
+        //     // ignore: use_build_context_synchronously
+        //     showGeneralDialog(
+        //       context: context,
+        //       pageBuilder: (context, animation, secondaryanimation) {
+        //         return Container();
+        //       },
+        //       transitionBuilder: (
+        //         context,
+        //         animation,
+        //         secondaryAnimation,
+        //         child,
+        //       ) {
+        //         var curves = Curves.easeInOut.transform(animation.value);
+
+        //         return Transform.scale(
+        //           scale: curves,
+        //           child: AlertDialog(
+        //             shape: RoundedRectangleBorder(
+        //               borderRadius: BorderRadius.circular(8.0),
+        //             ),
+        //             content: Column(
+        //               mainAxisAlignment: MainAxisAlignment.center,
+        //               mainAxisSize: MainAxisSize.min,
+        //               children: [
+        //                 Text(
+        //                   "Do you Want to Add More...?",
+        //                   textAlign: TextAlign.center,
+        //                   style: customTextStyle(
+        //                     fontStyle: FontStyle.BodyL_Bold,
+        //                     color: FontColor.FontPrimary,
+        //                   ),
+        //                 ),
+        //                 Padding(
+        //                   padding: const EdgeInsets.only(top: 15.0),
+        //                   child: Row(
+        //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                     children: [
+        //                       Expanded(
+        //                         child: InkWell(
+        //                           onTap: () {
+        //                             Navigator.pop(context);
+        //                           },
+        //                           child: Container(
+        //                             padding: const EdgeInsets.symmetric(
+        //                               horizontal: 8.0,
+        //                               vertical: 8.0,
+        //                             ),
+        //                             decoration: BoxDecoration(
+        //                               color: customColors().carnationRed,
+        //                             ),
+        //                             child: Center(
+        //                               child: Center(
+        //                                 child: Text(
+        //                                   "No",
+        //                                   style: customTextStyle(
+        //                                     fontStyle: FontStyle.BodyM_Bold,
+        //                                     color: FontColor.White,
+        //                                   ),
+        //                                 ),
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                       Expanded(
+        //                         child: InkWell(
+        //                           onTap: () {
+        //                             // ctx
+        //                             //     .read<NewScanBarcodePageCubit>()
+        //                             //     .addtolist(barcodescanRes);
+
+        //                             scanBarcodeNormal(ctx);
+
+        //                             Navigator.pop(context);
+        //                           },
+        //                           child: Padding(
+        //                             padding: const EdgeInsets.only(left: 8.0),
+        //                             child: Container(
+        //                               padding: const EdgeInsets.symmetric(
+        //                                 horizontal: 8.0,
+        //                                 vertical: 8.0,
+        //                               ),
+        //                               decoration: BoxDecoration(
+        //                                 color: customColors().secretGarden,
+        //                               ),
+        //                               child: Center(
+        //                                 child: Text(
+        //                                   "Yes",
+        //                                   style: customTextStyle(
+        //                                     fontStyle: FontStyle.BodyM_Bold,
+        //                                     color: FontColor.White,
+        //                                   ),
+        //                                 ),
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ],
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+        //           ),
+        //         );
+        //       },
+        //     );
+        //   } else {
+        //     showGeneralDialog(
+        //       context: context,
+        //       pageBuilder: (context, animation, secondaryanimation) {
+        //         return Container();
+        //       },
+        //       transitionBuilder: (
+        //         context,
+        //         animation,
+        //         secondaryAnimation,
+        //         child,
+        //       ) {
+        //         var curves = Curves.easeInOut.transform(animation.value);
+
+        //         return Transform.scale(
+        //           scale: curves,
+        //           child: AlertDialog(
+        //             shape: RoundedRectangleBorder(
+        //               borderRadius: BorderRadius.circular(8.0),
+        //             ),
+        //             content: Column(
+        //               mainAxisAlignment: MainAxisAlignment.center,
+        //               mainAxisSize: MainAxisSize.min,
+        //               children: [
+        //                 Text(
+        //                   barcodescanRes.toString(),
+        //                   textAlign: TextAlign.center,
+        //                   style: customTextStyle(
+        //                     fontStyle: FontStyle.BodyL_Bold,
+        //                     color: FontColor.FontPrimary,
+        //                   ),
+        //                 ),
+        //                 Padding(
+        //                   padding: const EdgeInsets.only(top: 8.0),
+        //                   child: Text(
+        //                     "You Already Added This Barcode in List...!",
+        //                     textAlign: TextAlign.center,
+        //                     style: customTextStyle(
+        //                       fontStyle: FontStyle.BodyL_Bold,
+        //                       color: FontColor.FontPrimary,
+        //                     ),
+        //                   ),
+        //                 ),
+        //                 Padding(
+        //                   padding: EdgeInsets.only(top: 10.0),
+        //                   child: Row(
+        //                     mainAxisAlignment: MainAxisAlignment.center,
+        //                     children: [
+        //                       InkWell(
+        //                         onTap: () {
+        //                           context.gNavigationService.back(context);
+        //                         },
+        //                         child: Container(
+        //                           padding: const EdgeInsets.symmetric(
+        //                             horizontal: 35.0,
+        //                             vertical: 8.0,
+        //                           ),
+        //                           decoration: BoxDecoration(
+        //                             color: customColors().carnationRed,
+        //                             borderRadius: BorderRadius.circular(5.0),
+        //                           ),
+        //                           child: Center(
+        //                             child: Text(
+        //                               "OK",
+        //                               style: customTextStyle(
+        //                                 fontStyle: FontStyle.BodyM_Bold,
+        //                                 color: FontColor.White,
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ],
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+        //           ),
+        //         );
+        //       },
+        //     );
+        //   }
+        // }
       }
     } catch (e) {
       //   // log(e.toString(), stackTrace: StackTrace.current);
@@ -1074,296 +1094,389 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
           },
         );
       } else {
-        String response = await widget.serviceLocator.tradingApi
-            .checkbarcodeavailablity(sku: barcode);
+        showGeneralDialog(
+          context: context,
+          pageBuilder: (context, animation, secondaryanimation) {
+            return Container();
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            var curves = Curves.easeInOut.transform(animation.value);
 
-        log(response);
-
-        Map<String, dynamic> mdata = jsonDecode(response);
-
-        if (mdata['success'] == 1) {
-          // Navigator.pop(context);
-
-          showGeneralDialog(
-            context: context,
-            pageBuilder: (context, animation, secondaryanimation) {
-              return Container();
-            },
-            transitionBuilder: (context, animation, secondaryAnimation, child) {
-              var curves = Curves.easeInOut.transform(animation.value);
-
-              return Transform.scale(
-                scale: curves,
-                child: AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  content: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        barcode.toString(),
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_Bold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
-                      Text(
-                        "Barcode Already Scanned on ${mdata['data']['date']}",
-                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        "Product Upload in Processing...",
-                        style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-                        textAlign: TextAlign.center,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 50,
-                                  vertical: 10.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: customColors().carnationRed,
-                                  borderRadius: BorderRadius.circular(5.0),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "OK",
-                                    style: customTextStyle(
-                                      fontStyle: FontStyle.BodyM_Bold,
-                                      color: FontColor.White,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+            return Transform.scale(
+              scale: curves,
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-              );
-            },
-          );
-        } else {
-          // Navigator.pop(context);
-
-          if (mounted &&
-              context
-                  .read<PhotographyDashboardCubit>()
-                  .skulist
-                  .where((element) => element.containsValue(barcode))
-                  .isEmpty) {
-            // ignore: use_build_context_synchronously
-            ctx.read<PhotographyDashboardCubit>().addtolist(
-              barcode,
-              "",
-              "",
-              "",
-            );
-
-            // ignore: use_build_context_synchronously
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
-
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                content: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      barcode.toString(),
+                      style: customTextStyle(
+                        fontStyle: FontStyle.BodyM_Bold,
+                        color: FontColor.FontPrimary,
+                      ),
                     ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Do you Want to Add More...?",
-                          textAlign: TextAlign.center,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                      vertical: 8.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: customColors().carnationRed,
-                                    ),
-                                    child: Center(
-                                      child: Center(
-                                        child: Text(
-                                          "No",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.White,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                    Text(
+                      "${data['message']}",
+                      style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    // Text(
+                    //   "Product Upload in Processing...",
+                    //   style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+                    //   textAlign: TextAlign.center,
+                    // ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              ctx.read<PhotographyDashboardCubit>().addtolist(
+                                barcode.toString(),
+                                "",
+                                "",
+                                "",
+                              );
+
+                              // if (ctx
+                              //     .read<PhotographyDashboardCubit>()
+                              //     .skulist
+                              //     .isNotEmpty) {
+                              //   ctx
+                              //       .read<PhotographyDashboardCubit>()
+                              //       .updatetoproductList();
+                              // }
+                              setState(() {
+                                manual = !manual;
+                              });
+
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 50,
+                                vertical: 10.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: customColors().carnationRed,
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "OK",
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyM_Bold,
+                                    color: FontColor.White,
                                   ),
                                 ),
                               ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    // ctx
-                                    //     .read<NewScanBarcodePageCubit>()
-                                    //     .addtolist(barcodescanRes);
-
-                                    scanBarcodeNormal(ctx);
-
-                                    Navigator.pop(context);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 8.0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: customColors().secretGarden,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Yes",
-                                          style: customTextStyle(
-                                            fontStyle: FontStyle.BodyM_Bold,
-                                            color: FontColor.White,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          } else {
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (context, animation, secondaryanimation) {
-                return Container();
-              },
-              transitionBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                var curves = Curves.easeInOut.transform(animation.value);
-
-                return Transform.scale(
-                  scale: curves,
-                  child: AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          barcode.toString(),
-                          textAlign: TextAlign.center,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            "You Already Added This Barcode in List...!",
-                            textAlign: TextAlign.center,
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.FontPrimary,
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  context.gNavigationService.back(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 35.0,
-                                    vertical: 8.0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: customColors().carnationRed,
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "OK",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyM_Bold,
-                                        color: FontColor.White,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
+                  ],
+                ),
+              ),
             );
-          }
-        }
+          },
+        );
+
+        // String response = await widget.serviceLocator.tradingApi
+        //     .checkbarcodeavailablity(sku: barcode);
+
+        // log(response);
+
+        // Map<String, dynamic> mdata = jsonDecode(response);
+
+        // if (mdata['success'] == 1) {
+        //   // Navigator.pop(context);
+
+        //   showGeneralDialog(
+        //     context: context,
+        //     pageBuilder: (context, animation, secondaryanimation) {
+        //       return Container();
+        //     },
+        //     transitionBuilder: (context, animation, secondaryAnimation, child) {
+        //       var curves = Curves.easeInOut.transform(animation.value);
+
+        //       return Transform.scale(
+        //         scale: curves,
+        //         child: AlertDialog(
+        //           shape: RoundedRectangleBorder(
+        //             borderRadius: BorderRadius.circular(8.0),
+        //           ),
+        //           content: Column(
+        //             mainAxisAlignment: MainAxisAlignment.center,
+        //             mainAxisSize: MainAxisSize.min,
+        //             children: [
+        //               Text(
+        //                 barcode.toString(),
+        //                 style: customTextStyle(
+        //                   fontStyle: FontStyle.BodyM_Bold,
+        //                   color: FontColor.FontPrimary,
+        //                 ),
+        //               ),
+        //               Text(
+        //                 "Barcode Already Scanned on ${mdata['data']['date']}",
+        //                 style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+        //                 textAlign: TextAlign.center,
+        //               ),
+        //               Text(
+        //                 "Product Upload in Processing...",
+        //                 style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
+        //                 textAlign: TextAlign.center,
+        //               ),
+        //               Padding(
+        //                 padding: const EdgeInsets.only(top: 12.0),
+        //                 child: Row(
+        //                   mainAxisAlignment: MainAxisAlignment.center,
+        //                   children: [
+        //                     InkWell(
+        //                       onTap: () {
+        //                         Navigator.pop(context);
+        //                       },
+        //                       child: Container(
+        //                         padding: EdgeInsets.symmetric(
+        //                           horizontal: 50,
+        //                           vertical: 10.0,
+        //                         ),
+        //                         decoration: BoxDecoration(
+        //                           color: customColors().carnationRed,
+        //                           borderRadius: BorderRadius.circular(5.0),
+        //                         ),
+        //                         child: Center(
+        //                           child: Text(
+        //                             "OK",
+        //                             style: customTextStyle(
+        //                               fontStyle: FontStyle.BodyM_Bold,
+        //                               color: FontColor.White,
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               ),
+        //             ],
+        //           ),
+        //         ),
+        //       );
+        //     },
+        //   );
+        // } else {
+        //   // Navigator.pop(context);
+
+        //   if (mounted &&
+        //       context
+        //           .read<PhotographyDashboardCubit>()
+        //           .skulist
+        //           .where((element) => element.containsValue(barcode))
+        //           .isEmpty) {
+        //     // ignore: use_build_context_synchronously
+        //     ctx.read<PhotographyDashboardCubit>().addtolist(
+        //       barcode,
+        //       "",
+        //       "",
+        //       "",
+        //     );
+
+        //     // ignore: use_build_context_synchronously
+        //     showGeneralDialog(
+        //       context: context,
+        //       pageBuilder: (context, animation, secondaryanimation) {
+        //         return Container();
+        //       },
+        //       transitionBuilder: (
+        //         context,
+        //         animation,
+        //         secondaryAnimation,
+        //         child,
+        //       ) {
+        //         var curves = Curves.easeInOut.transform(animation.value);
+
+        //         return Transform.scale(
+        //           scale: curves,
+        //           child: AlertDialog(
+        //             shape: RoundedRectangleBorder(
+        //               borderRadius: BorderRadius.circular(8.0),
+        //             ),
+        //             content: Column(
+        //               mainAxisAlignment: MainAxisAlignment.center,
+        //               mainAxisSize: MainAxisSize.min,
+        //               children: [
+        //                 Text(
+        //                   "Do you Want to Add More...?",
+        //                   textAlign: TextAlign.center,
+        //                   style: customTextStyle(
+        //                     fontStyle: FontStyle.BodyL_Bold,
+        //                     color: FontColor.FontPrimary,
+        //                   ),
+        //                 ),
+        //                 Padding(
+        //                   padding: const EdgeInsets.only(top: 15.0),
+        //                   child: Row(
+        //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                     children: [
+        //                       Expanded(
+        //                         child: InkWell(
+        //                           onTap: () {
+        //                             Navigator.pop(context);
+        //                           },
+        //                           child: Container(
+        //                             padding: const EdgeInsets.symmetric(
+        //                               horizontal: 8.0,
+        //                               vertical: 8.0,
+        //                             ),
+        //                             decoration: BoxDecoration(
+        //                               color: customColors().carnationRed,
+        //                             ),
+        //                             child: Center(
+        //                               child: Center(
+        //                                 child: Text(
+        //                                   "No",
+        //                                   style: customTextStyle(
+        //                                     fontStyle: FontStyle.BodyM_Bold,
+        //                                     color: FontColor.White,
+        //                                   ),
+        //                                 ),
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                       Expanded(
+        //                         child: InkWell(
+        //                           onTap: () {
+        //                             // ctx
+        //                             //     .read<NewScanBarcodePageCubit>()
+        //                             //     .addtolist(barcodescanRes);
+
+        //                             scanBarcodeNormal(ctx);
+
+        //                             Navigator.pop(context);
+        //                           },
+        //                           child: Padding(
+        //                             padding: const EdgeInsets.only(left: 8.0),
+        //                             child: Container(
+        //                               padding: const EdgeInsets.symmetric(
+        //                                 horizontal: 8.0,
+        //                                 vertical: 8.0,
+        //                               ),
+        //                               decoration: BoxDecoration(
+        //                                 color: customColors().secretGarden,
+        //                               ),
+        //                               child: Center(
+        //                                 child: Text(
+        //                                   "Yes",
+        //                                   style: customTextStyle(
+        //                                     fontStyle: FontStyle.BodyM_Bold,
+        //                                     color: FontColor.White,
+        //                                   ),
+        //                                 ),
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ],
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+        //           ),
+        //         );
+        //       },
+        //     );
+        //   } else {
+        //     showGeneralDialog(
+        //       context: context,
+        //       pageBuilder: (context, animation, secondaryanimation) {
+        //         return Container();
+        //       },
+        //       transitionBuilder: (
+        //         context,
+        //         animation,
+        //         secondaryAnimation,
+        //         child,
+        //       ) {
+        //         var curves = Curves.easeInOut.transform(animation.value);
+
+        //         return Transform.scale(
+        //           scale: curves,
+        //           child: AlertDialog(
+        //             shape: RoundedRectangleBorder(
+        //               borderRadius: BorderRadius.circular(8.0),
+        //             ),
+        //             content: Column(
+        //               mainAxisAlignment: MainAxisAlignment.center,
+        //               mainAxisSize: MainAxisSize.min,
+        //               children: [
+        //                 Text(
+        //                   barcode.toString(),
+        //                   textAlign: TextAlign.center,
+        //                   style: customTextStyle(
+        //                     fontStyle: FontStyle.BodyL_Bold,
+        //                     color: FontColor.FontPrimary,
+        //                   ),
+        //                 ),
+        //                 Padding(
+        //                   padding: const EdgeInsets.only(top: 8.0),
+        //                   child: Text(
+        //                     "You Already Added This Barcode in List...!",
+        //                     textAlign: TextAlign.center,
+        //                     style: customTextStyle(
+        //                       fontStyle: FontStyle.BodyL_Bold,
+        //                       color: FontColor.FontPrimary,
+        //                     ),
+        //                   ),
+        //                 ),
+        //                 Padding(
+        //                   padding: EdgeInsets.only(top: 10.0),
+        //                   child: Row(
+        //                     mainAxisAlignment: MainAxisAlignment.center,
+        //                     children: [
+        //                       InkWell(
+        //                         onTap: () {
+        //                           context.gNavigationService.back(context);
+        //                         },
+        //                         child: Container(
+        //                           padding: const EdgeInsets.symmetric(
+        //                             horizontal: 35.0,
+        //                             vertical: 8.0,
+        //                           ),
+        //                           decoration: BoxDecoration(
+        //                             color: customColors().carnationRed,
+        //                             borderRadius: BorderRadius.circular(5.0),
+        //                           ),
+        //                           child: Center(
+        //                             child: Text(
+        //                               "OK",
+        //                               style: customTextStyle(
+        //                                 fontStyle: FontStyle.BodyM_Bold,
+        //                                 color: FontColor.White,
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ],
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+        //           ),
+        //         );
+        //       },
+        //     );
+        //   }
+        // }
       }
     } catch (e) {
       //   // log(e.toString(), stackTrace: StackTrace.current);
