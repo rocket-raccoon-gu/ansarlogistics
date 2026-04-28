@@ -123,6 +123,13 @@ class _HomeSectionState extends State<HomeSection> {
     //         : "section";
 
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0.0),
+        child: AppBar(
+          elevation: 0,
+          backgroundColor: customColors().backgroundPrimary,
+        ),
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
