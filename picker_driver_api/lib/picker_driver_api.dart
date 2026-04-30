@@ -475,7 +475,7 @@ extension PDGeneralApi on PickerDriverApi {
 
     log('branchcode: $branchCode');
 
-    if (userbranchCode == "Q019" && branchCode.toString().contains('Q019')) {
+    if (userbranchCode == "Q019" && branchCode.toString().contains('QCWH09')) {
       if (orderStatus == "cancel_request") {
         orderStatus = "canceled";
       }

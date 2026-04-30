@@ -47,17 +47,17 @@ class PickerDashboardTabCubit extends Cubit<PickerDashboardTabState> {
         subfilter =
             allItems.where((e) {
               log("🔍 Checking item ${e.name} - branchname: ${e.branchname}");
-              return e.branchname == "Q019 (ONLINE WAREHOUSE STOCK)" ||
-                  e.branchname.toString().contains("Q019") ||
-                  e.branchname == "Q019";
+              return e.branchname == "QCWH09 (ONLINE WAREHOUSE STOCK)" ||
+                  e.branchname.toString().contains("QCWH09") ||
+                  e.branchname == "QCWH09";
             }).toList();
       } else {
         subfilter =
             allItems.where((e) {
               log("🔍 Checking item ${e.name} - branchname: ${e.branchname}");
-              return e.branchname != "Q019 (ONLINE WAREHOUSE STOCK)" &&
-                  !e.branchname.toString().contains("Q019") &&
-                  e.branchname != "Q019";
+              return e.branchname != "QCWH09 (ONLINE WAREHOUSE STOCK)" &&
+                  !e.branchname.toString().contains("QCWH09") &&
+                  e.branchname != "QCWH09";
             }).toList();
       }
 
