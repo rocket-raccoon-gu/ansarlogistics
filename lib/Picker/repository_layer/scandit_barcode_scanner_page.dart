@@ -5,6 +5,7 @@ import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode_capture.dart';
 import 'package:scandit_flutter_datacapture_core/scandit_flutter_datacapture_core.dart';
 import 'package:ansarlogistics/services/scandit_manager.dart';
+import 'package:ansarlogistics/main.dart' show scanditAvailable;
 
 class ScanditBarcodeScannerPage extends StatefulWidget {
   final bool? leadingZero;
@@ -33,6 +34,14 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
   }
 
   Future<void> _initScanner() async {
+    if (!scanditAvailable) {
+      setState(() {
+        _error = "Scandit barcode scanning is not available";
+        _isLoading = false;
+      });
+      return;
+    }
+
     try {
       // 1. Read document from Firestore
       final doc =

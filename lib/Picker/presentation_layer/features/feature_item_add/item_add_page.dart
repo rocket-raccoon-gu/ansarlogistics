@@ -7,6 +7,7 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/db_data_container.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/ui/erp_data_container.dart';
 import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
+import 'package:ansarlogistics/main.dart' show scanditAvailable;
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/counter_button.dart';
@@ -91,6 +92,16 @@ class _ItemAddPageState extends State<ItemAddPage> {
   // }
 
   Future<void> scanBarcodeNormal() async {
+    if (!scanditAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Barcode scanning is not available'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final result = await Navigator.of(context).push<String>(
       MaterialPageRoute(
         builder: (_) => ScanditBarcodeScannerPage(leadingZero: leadingZero),

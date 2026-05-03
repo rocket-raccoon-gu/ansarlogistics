@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:ansarlogistics/app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ansarlogistics/common_features/force_update_screen.dart';
 import 'package:ansarlogistics/common_features/update_checker.dart';
 import 'package:ansarlogistics/components/restart_widget.dart';
@@ -9,7 +10,6 @@ import 'package:ansarlogistics/firebase_configs/init_notification.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/custom_theme.dart';
-import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
-import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode.dart';
 
 //################## DEVELOPMENT ###########################
 // const baseUrl = String.fromEnvironment(
@@ -57,13 +56,23 @@ const debuggable = bool.fromEnvironment('DEBUGGABLE', defaultValue: true);
 const loggable = bool.fromEnvironment('LOGGABLE', defaultValue: true);
 
 bool unsolicitedResponse = false;
+bool sharedPreferencesAvailable = false;
+bool scanditAvailable = false;
 
 Future<void> main() async {
   runZonedGuarded<void>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
-      await ScanditFlutterDataCaptureBarcode.initialize();
+      // try {
+      //   await ScanditFlutterDataCaptureBarcode.initialize();
+      //   scanditAvailable = true;
+      //   log("✅ Scandit initialized successfully");
+      // } catch (e) {
+      //   scanditAvailable = false;
+      //   log("❌ Scandit initialization failed: $e");
+      //   log("⚠️ App will continue without Scandit barcode scanning");
+      // }
       // First check if update is required
 
       // Continue with your existing initialization
@@ -71,8 +80,18 @@ Future<void> main() async {
         await initializeFirebase();
       }
 
-      final savedBaseUrl =
-          await PreferenceUtils.getDataFromShared("mainbaseurl") as String?;
+      String? savedBaseUrl;
+      // try {
+      //   SharedPreferences prefs = await SharedPreferences.getInstance();
+      //   savedBaseUrl = prefs.getString("mainbaseurl");
+      //   sharedPreferencesAvailable = true;
+      //   log("✅ SharedPreferences initialized successfully");
+      // } catch (e) {
+      //   sharedPreferencesAvailable = false;
+      //   log("❌ SharedPreferences initialization failed: $e");
+      //   log("⚠️ Using default base URL");
+      //   savedBaseUrl = null;
+      // }
 
       // Initialize notifications plugin
       const AndroidInitializationSettings initializationSettingsAndroid =

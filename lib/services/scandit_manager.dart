@@ -1,6 +1,9 @@
 import 'package:scandit_flutter_datacapture_core/scandit_flutter_datacapture_core.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode_capture.dart';
 
+// Import the global flag from main.dart
+import 'package:ansarlogistics/main.dart' show scanditAvailable;
+
 /// Global manager for Scandit DataCaptureContext to prevent Error 1028
 class ScanditManager {
   static DataCaptureContext? _sharedContext;
@@ -9,6 +12,11 @@ class ScanditManager {
 
   /// Get or create a shared context for the given license key
   static DataCaptureContext getContext(String licenseKey) {
+    if (!scanditAvailable) {
+      throw Exception(
+        "Scandit is not available - plugin initialization failed",
+      );
+    }
     if (_sharedContext == null || _currentLicenseKey != licenseKey) {
       // Clean up existing context if license key changed
       dispose();

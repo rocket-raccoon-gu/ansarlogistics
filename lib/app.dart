@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart'
     show NavigationCubit;
 import 'package:ansarlogistics/app_routes_factory.dart' show AppRoutesFactory;
@@ -19,6 +21,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -46,6 +50,22 @@ class _PDAppState extends State<PDApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
     NetworkStatusService();
+  }
+
+  Future<void> _initScandit() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      print("✅ SharedPreferences working");
+    } catch (e) {
+      print("❌ SharedPreferences error: $e");
+    }
+
+    try {
+      await ScanditFlutterDataCaptureBarcode.initialize();
+      log("✅ Scandit initialized successfully");
+    } catch (e) {
+      log("❌ Scandit initialization failed: $e");
+    }
   }
 
   @override

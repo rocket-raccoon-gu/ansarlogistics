@@ -122,10 +122,10 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                               );
 
                               // await logout(context);
-                              if (!context.mounted) return;
-                              widget.serviceLocator.updateBaseUrl(
-                                UserController.userController.mainbaseUrl,
-                              );
+                              // if (!context.mounted) return;
+                              // widget.serviceLocator.updateBaseUrl(
+                              //   UserController.userController.mainbaseUrl,
+                              // );
 
                               context.gNavigationService.openLoginPage(context);
                             },
