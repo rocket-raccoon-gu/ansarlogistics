@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:ansarlogistics/app.dart';
+import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ansarlogistics/common_features/force_update_screen.dart';
 import 'package:ansarlogistics/common_features/update_checker.dart';
@@ -30,7 +31,8 @@ import 'package:provider/provider.dart';
 //################## DEVELOPMENT NEW ###########################
 
 // keep these as default constants if you want
-const defaultBaseUrl = "https://logistic.ansargallery.qa";
+// const defaultBaseUrl = "https://logistic.ansargallery.qa";
+const defaultBaseUrl = "https://pickerdriver-api.testuatah.com";
 const defaultApplicationPath = "/api/";
 const defaultProductUrl = "https://www.ansargallery.com/rest/V1/";
 
@@ -64,15 +66,15 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
-      // try {
-      //   await ScanditFlutterDataCaptureBarcode.initialize();
-      //   scanditAvailable = true;
-      //   log("✅ Scandit initialized successfully");
-      // } catch (e) {
-      //   scanditAvailable = false;
-      //   log("❌ Scandit initialization failed: $e");
-      //   log("⚠️ App will continue without Scandit barcode scanning");
-      // }
+      try {
+        await ScanditFlutterDataCaptureBarcode.initialize();
+        scanditAvailable = true;
+        log("✅ Scandit initialized successfully");
+      } catch (e) {
+        scanditAvailable = false;
+        log("❌ Scandit initialization failed: $e");
+        log("⚠️ App will continue without Scandit barcode scanning");
+      }
       // First check if update is required
 
       // Continue with your existing initialization
@@ -81,17 +83,17 @@ Future<void> main() async {
       }
 
       String? savedBaseUrl;
-      // try {
-      //   SharedPreferences prefs = await SharedPreferences.getInstance();
-      //   savedBaseUrl = prefs.getString("mainbaseurl");
-      //   sharedPreferencesAvailable = true;
-      //   log("✅ SharedPreferences initialized successfully");
-      // } catch (e) {
-      //   sharedPreferencesAvailable = false;
-      //   log("❌ SharedPreferences initialization failed: $e");
-      //   log("⚠️ Using default base URL");
-      //   savedBaseUrl = null;
-      // }
+      try {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        savedBaseUrl = prefs.getString("mainbaseurl");
+        sharedPreferencesAvailable = true;
+        log("✅ SharedPreferences initialized successfully");
+      } catch (e) {
+        sharedPreferencesAvailable = false;
+        log("❌ SharedPreferences initialization failed: $e");
+        log("⚠️ Using default base URL");
+        savedBaseUrl = null;
+      }
 
       // Initialize notifications plugin
       const AndroidInitializationSettings initializationSettingsAndroid =

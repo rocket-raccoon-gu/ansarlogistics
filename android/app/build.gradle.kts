@@ -27,8 +27,8 @@ android {
         applicationId = "com.ansar.ansarlogistics"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
-        versionCode = 52
-        versionName = "2.0.52"
+        versionCode = 53
+        versionName = "2.0.53"
         multiDexEnabled = true
     }
 
