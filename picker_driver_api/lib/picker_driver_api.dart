@@ -281,7 +281,7 @@ extension PDGeneralApi on PickerDriverApi {
       empId: userId,
       password: password,
       token: token,
-      bearertoken: bearertoken,
+      bearertoken: "bearertoken",
       os: 'Android',
       version: appversion,
     );
