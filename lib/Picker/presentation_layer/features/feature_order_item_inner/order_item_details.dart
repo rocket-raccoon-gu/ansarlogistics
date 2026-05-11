@@ -10,6 +10,7 @@ import 'package:ansarlogistics/components/custom_app_components/buttons/counter_
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
@@ -152,6 +153,11 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
     } catch (e) {
       log(e.toString(), stackTrace: StackTrace.current);
     }
+  }
+
+  warehouseItemPickup(String barcode) async {
+    // TODO: Implement warehouse item pickup logic
+    print('Warehouse item pickup for barcode: $barcode');
   }
 
   scanBarcodeNormal() async {
@@ -1302,7 +1308,17 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                   //   isScanner = !isScanner;
                                                   // });
                                                   // _startScan();
-                                                  scanBarcodeNormal();
+                                                  if (UserController()
+                                                          .profile
+                                                          .branchCode ==
+                                                      "Q019") {
+                                                    // Handle item pickup logic here
+                                                    print(
+                                                      "Item pickup triggered",
+                                                    );
+                                                  } else {
+                                                    scanBarcodeNormal();
+                                                  }
                                                 },
                                                 child: Container(
                                                   height: 44,
@@ -1315,32 +1331,65 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                           8,
                                                         ),
                                                   ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Image.asset(
-                                                        'assets/barcode_scan.png',
-                                                        height: 18,
-                                                        color: Colors.white,
-                                                        errorBuilder:
-                                                            (_, __, ___) =>
-                                                                const SizedBox(),
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Text(
-                                                        'Scan Barcode',
-                                                        style: customTextStyle(
-                                                          fontStyle:
-                                                              FontStyle
-                                                                  .BodyM_Bold,
-                                                          color:
-                                                              FontColor.White,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                  child:
+                                                      UserController()
+                                                                  .profile
+                                                                  .branchCode ==
+                                                              "Q019"
+                                                          ? Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Text(
+                                                                'Item Pickup',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          )
+                                                          : Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Image.asset(
+                                                                'assets/barcode_scan.png',
+                                                                height: 18,
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                errorBuilder:
+                                                                    (
+                                                                      _,
+                                                                      __,
+                                                                      ___,
+                                                                    ) =>
+                                                                        const SizedBox(),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 8,
+                                                              ),
+                                                              Text(
+                                                                'Scan Barcode',
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .BodyM_Bold,
+                                                                  color:
+                                                                      FontColor
+                                                                          .White,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
                                                 ),
                                               ),
                                             )
