@@ -15,7 +15,7 @@ class ContactCustomerSheet extends StatelessWidget {
     String contactsplit =
         orderResponseItem.telephone.length < 8
             ? "+974${orderResponseItem.telephone}"
-            : "${orderResponseItem.telephone}";
+            : "+${orderResponseItem.telephone}";
 
     try {
       c1.call(contactsplit, () async {});

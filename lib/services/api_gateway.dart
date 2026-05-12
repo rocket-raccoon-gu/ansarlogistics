@@ -114,7 +114,7 @@ class PDApiGateway implements AuthenticationService {
             networkStreamController.sink.add(e.toString());
             throw e;
           })
-          .timeout(Duration(seconds: 15));
+          .timeout(Duration(seconds: 45));
 
       return response;
     } catch (e) {
