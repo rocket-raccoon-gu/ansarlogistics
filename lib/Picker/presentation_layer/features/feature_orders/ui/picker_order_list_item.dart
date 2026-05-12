@@ -159,7 +159,8 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
 
             const SizedBox(height: 10),
             // Bottom Banner
-            if (widget.orderResponseItem.status == "assigned_picker")
+            if (widget.orderResponseItem.status == "assigned_picker" ||
+                widget.orderResponseItem.status == "end_picking")
               _BottomBanner(order: widget.orderResponseItem),
 
             if (widget.orderResponseItem.deliveryNote != null)
@@ -176,36 +177,6 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
                     color: FontColor.FontPrimary,
                   ),
                 ),
-              ],
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (widget.orderResponseItem.status == "end_picking" &&
-                    UserController().profile.branchCode == "Q019")
-                  InkWell(
-                    onTap: widget.onTapDispatch,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: customColors().carnationRed,
-                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Dispatch Items",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyM_Bold,
-                            color: FontColor.White,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
           ],
@@ -295,6 +266,7 @@ class _BottomBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = customColors();
     final isStarted = order.status != 'assigned_picker';
+    final isEndPicking = order.status == 'end_picking';
     return Container(
       decoration: BoxDecoration(
         color: colors.adBackground,
@@ -311,7 +283,11 @@ class _BottomBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isStarted ? 'Orders being picked' : 'Ready to Start',
+                  isEndPicking
+                      ? 'Ready to Dispatch'
+                      : isStarted
+                      ? 'Orders being picked'
+                      : 'Ready to Start',
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyS_Bold,
                     color: FontColor.FontPrimary,
@@ -319,7 +295,9 @@ class _BottomBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  isStarted
+                  isEndPicking
+                      ? 'Swipe left to dispatch items.'
+                      : isStarted
                       ? 'Complete picking on time'
                       : 'Swipe left to start picking.',
                   style: customTextStyle(
@@ -331,7 +309,7 @@ class _BottomBanner extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          if (isStarted)
+          if (isStarted && !isEndPicking)
             // ElevatedButton(
             //   onPressed: () {
             //     // Navigate to status/details if needed

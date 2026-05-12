@@ -158,6 +158,30 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
   warehouseItemPickup(String barcode) async {
     // TODO: Implement warehouse item pickup logic
     print('Warehouse item pickup for barcode: $barcode');
+
+    try {
+      // Your warehouse pickup logic here
+
+      final orderItem =
+          BlocProvider.of<OrderItemDetailsCubit>(context).orderItemNew;
+      final productSku = orderItem?.sku;
+
+      final quantityToCheck =
+          editquantity != 0 ? editquantity.toString() : orderItem!.qtyOrdered;
+
+      String action = "pick";
+
+      await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
+        quantityToCheck!,
+        barcode,
+        orderItem!,
+        productSku!,
+        action,
+        widget.data['preparationLabel'],
+      );
+    } catch (e) {
+      log(e.toString(), stackTrace: StackTrace.current);
+    }
   }
 
   scanBarcodeNormal() async {
@@ -1315,6 +1339,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                     // Handle item pickup logic here
                                                     print(
                                                       "Item pickup triggered",
+                                                    );
+
+                                                    warehouseItemPickup(
+                                                      item.sku!,
                                                     );
                                                   } else {
                                                     scanBarcodeNormal();

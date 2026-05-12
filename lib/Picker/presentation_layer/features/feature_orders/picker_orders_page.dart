@@ -894,8 +894,11 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                         child: Dismissible(
                                           key: ValueKey(orderitems![index].id),
                                           direction:
-                                              orderitems![index].status ==
-                                                      "assigned_picker"
+                                              (orderitems![index].status ==
+                                                          "assigned_picker" ||
+                                                      orderitems![index]
+                                                              .status ==
+                                                          "end_picking")
                                                   ? DismissDirection.endToStart
                                                   : DismissDirection.none,
 
@@ -924,13 +927,11 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                                       token: token,
                                                       branchCode:
                                                           orderitems![index]
-                                                              .branchCode ??
-                                                          '',
+                                                              .branchCode!,
                                                       userbranchCode:
                                                           UserController()
                                                               .profile
-                                                              .branchCode ??
-                                                          '',
+                                                              .branchCode,
                                                     );
 
                                                 if (response.statusCode ==
@@ -948,6 +949,70 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                                   setState(() {
                                                     orderitems![index].status =
                                                         "start_picking";
+                                                  });
+                                                }
+                                              } catch (e) {
+                                                if (mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Error: ${e.toString()}',
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                            } else if (orderitems![index]
+                                                    .status ==
+                                                "end_picking") {
+                                              try {
+                                                final token =
+                                                    await PreferenceUtils.getDataFromShared(
+                                                      'usertoken',
+                                                    );
+                                                log(token!);
+                                                final response = await context
+                                                    .gTradingApiGateway
+                                                    .updateMainOrderStatNew(
+                                                      preparationId:
+                                                          orderitems![index]
+                                                              .id!,
+                                                      orderStatus:
+                                                          "items_dispatched",
+                                                      comment:
+                                                          "${UserController().profile.name} (${UserController().profile.empId}) Items Dispatched ",
+                                                      orderNumber:
+                                                          orderitems![index]
+                                                              .id!,
+                                                      token: token,
+                                                      branchCode:
+                                                          orderitems![index]
+                                                              .branchCode ??
+                                                          '',
+                                                      userbranchCode:
+                                                          UserController()
+                                                              .profile
+                                                              .branchCode ??
+                                                          '',
+                                                    );
+
+                                                if (response.statusCode ==
+                                                        200 &&
+                                                    mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Items dispatched',
+                                                      ),
+                                                    ),
+                                                  );
+                                                  setState(() {
+                                                    orderitems![index].status =
+                                                        "items_dispatched";
                                                   });
                                                 }
                                               } catch (e) {

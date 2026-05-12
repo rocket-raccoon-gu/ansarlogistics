@@ -451,12 +451,36 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
       // print("➡️ Using barcode for API call: [$usedBarcode]");
       final token = await PreferenceUtils.getDataFromShared("usertoken");
 
+      // Show loading dialog while checking database
+      loading = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Checking in database..."),
+              ],
+            ),
+          );
+        },
+      );
+
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
         endpoint: usedBarcode,
         productSku: productSku,
         action: action,
         token1: token!,
       );
+
+      // Hide loading dialog after database check completes
+      loading = false;
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
 
       // print("📡 API Response Status: ${response.statusCode}");
 
@@ -784,6 +808,11 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         );
       }
     } catch (e, stacktrace) {
+      // Hide loading dialog in case of error
+      loading = false;
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
       // print("🔥 Exception in checkitemdb(): ${e.toString()}");
       // print("📉 StackTrace: $stacktrace");
       showSnackBar(
