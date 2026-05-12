@@ -293,139 +293,137 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                           Expanded(
                             child: InkWell(
                               onTap: () async {
-                                String response = await widget
-                                    .serviceLocator
-                                    .tradingApi
-                                    .checkbarcodeavailablity(
-                                      sku: _productResponse!.sku,
-                                    );
+                                // String response = await widget
+                                //     .serviceLocator
+                                //     .tradingApi
+                                //     .checkbarcodeavailablity(
+                                //       sku: _productResponse!.sku,
+                                //     );
 
-                                Map<String, dynamic> mdata = jsonDecode(
-                                  response,
+                                // Map<String, dynamic> mdata = jsonDecode(
+                                //   response,
+                                // );
+
+                                // if (mdata['success'] == 1) {
+                                //   Navigator.pop(context);
+
+                                //   showGeneralDialog(
+                                //     context: context,
+                                //     pageBuilder: (
+                                //       context,
+                                //       animation,
+                                //       secondaryanimation,
+                                //     ) {
+                                //       return Container();
+                                //     },
+                                //     transitionBuilder: (
+                                //       context,
+                                //       animation,
+                                //       secondaryAnimation,
+                                //       child,
+                                //     ) {
+                                //       var curves = Curves.easeInOut.transform(
+                                //         animation.value,
+                                //       );
+
+                                //       return Transform.scale(
+                                //         scale: curves,
+                                //         child: AlertDialog(
+                                //           shape: RoundedRectangleBorder(
+                                //             borderRadius: BorderRadius.circular(
+                                //               8.0,
+                                //             ),
+                                //           ),
+                                //           content: Column(
+                                //             mainAxisAlignment:
+                                //                 MainAxisAlignment.center,
+                                //             mainAxisSize: MainAxisSize.min,
+                                //             children: [
+                                //               Text(
+                                //                 _productResponse!.sku,
+                                //                 style: customTextStyle(
+                                //                   fontStyle:
+                                //                       FontStyle.BodyM_Bold,
+                                //                   color: FontColor.FontPrimary,
+                                //                 ),
+                                //               ),
+                                //               Text(
+                                //                 "Barcode Already Scanned on ${mdata['data']['date']}",
+                                //                 style: customTextStyle(
+                                //                   fontStyle:
+                                //                       FontStyle.BodyL_Bold,
+                                //                 ),
+                                //                 textAlign: TextAlign.center,
+                                //               ),
+                                //               Text(
+                                //                 "Product Upload in Processing...",
+                                //                 style: customTextStyle(
+                                //                   fontStyle:
+                                //                       FontStyle.BodyL_Bold,
+                                //                 ),
+                                //                 textAlign: TextAlign.center,
+                                //               ),
+                                //               Padding(
+                                //                 padding: const EdgeInsets.only(
+                                //                   top: 12.0,
+                                //                 ),
+                                //                 child: Row(
+                                //                   mainAxisAlignment:
+                                //                       MainAxisAlignment.center,
+                                //                   children: [
+                                //                     InkWell(
+                                //                       onTap: () {
+                                //                         Navigator.pop(context);
+                                //                       },
+                                //                       child: Container(
+                                //                         padding:
+                                //                             EdgeInsets.symmetric(
+                                //                               horizontal: 50,
+                                //                               vertical: 10.0,
+                                //                             ),
+                                //                         decoration: BoxDecoration(
+                                //                           color:
+                                //                               customColors()
+                                //                                   .carnationRed,
+                                //                           borderRadius:
+                                //                               BorderRadius.circular(
+                                //                                 5.0,
+                                //                               ),
+                                //                         ),
+                                //                         child: Center(
+                                //                           child: Text(
+                                //                             "OK",
+                                //                             style: customTextStyle(
+                                //                               fontStyle:
+                                //                                   FontStyle
+                                //                                       .BodyM_Bold,
+                                //                               color:
+                                //                                   FontColor
+                                //                                       .White,
+                                //                             ),
+                                //                           ),
+                                //                         ),
+                                //                       ),
+                                //                     ),
+                                //                   ],
+                                //                 ),
+                                //               ),
+                                //             ],
+                                //           ),
+                                //         ),
+                                //       );
+                                //     },
+                                //   );
+                                // } else {
+                                ctx.read<PhotographyDashboardCubit>().addtolist(
+                                  _productResponse!.sku,
+                                  "",
+                                  "",
+                                  "",
                                 );
 
-                                if (mdata['success'] == 1) {
-                                  Navigator.pop(context);
-
-                                  showGeneralDialog(
-                                    context: context,
-                                    pageBuilder: (
-                                      context,
-                                      animation,
-                                      secondaryanimation,
-                                    ) {
-                                      return Container();
-                                    },
-                                    transitionBuilder: (
-                                      context,
-                                      animation,
-                                      secondaryAnimation,
-                                      child,
-                                    ) {
-                                      var curves = Curves.easeInOut.transform(
-                                        animation.value,
-                                      );
-
-                                      return Transform.scale(
-                                        scale: curves,
-                                        child: AlertDialog(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8.0,
-                                            ),
-                                          ),
-                                          content: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                _productResponse!.sku,
-                                                style: customTextStyle(
-                                                  fontStyle:
-                                                      FontStyle.BodyM_Bold,
-                                                  color: FontColor.FontPrimary,
-                                                ),
-                                              ),
-                                              Text(
-                                                "Barcode Already Scanned on ${mdata['data']['date']}",
-                                                style: customTextStyle(
-                                                  fontStyle:
-                                                      FontStyle.BodyL_Bold,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              Text(
-                                                "Product Upload in Processing...",
-                                                style: customTextStyle(
-                                                  fontStyle:
-                                                      FontStyle.BodyL_Bold,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 12.0,
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Container(
-                                                        padding:
-                                                            EdgeInsets.symmetric(
-                                                              horizontal: 50,
-                                                              vertical: 10.0,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              customColors()
-                                                                  .carnationRed,
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                5.0,
-                                                              ),
-                                                        ),
-                                                        child: Center(
-                                                          child: Text(
-                                                            "OK",
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyM_Bold,
-                                                              color:
-                                                                  FontColor
-                                                                      .White,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  ctx
-                                      .read<PhotographyDashboardCubit>()
-                                      .addtolist(
-                                        _productResponse!.sku,
-                                        "",
-                                        "",
-                                        "",
-                                      );
-
-                                  Navigator.pop(context);
-                                }
+                                Navigator.pop(context);
+                                // }
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 8.0),
