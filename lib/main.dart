@@ -31,8 +31,8 @@ import 'package:provider/provider.dart';
 //################## DEVELOPMENT NEW ###########################
 
 // keep these as default constants if you want
-// const defaultBaseUrl = "https://logistic.ansargallery.qa";
-const defaultBaseUrl = "https://pickerdriver-api.testuatah.com";
+const defaultBaseUrl = "https://logh.ansargallery.qa";
+// const defaultBaseUrl = "https://pickerdriver-api.testuatah.com";
 const defaultApplicationPath = "/api/";
 const defaultProductUrl = "https://www.ansargallery.com/rest/V1/";
 
