@@ -71,7 +71,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
       log(status);
 
       // if (!searchvisible) {
-      postRepositories.fetchposts(page, 6, status).then((newpost) {
+      postRepositories.fetchposts(page, 8, status).then((newpost) {
         page++;
         List<Order> posts = (state as DriverPageLoadingState).oldpost;
 

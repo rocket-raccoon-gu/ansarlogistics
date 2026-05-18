@@ -351,7 +351,9 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                                 horizontal: 12.0,
                               ),
                               child: ListView.builder(
-                                itemCount: items.length,
+                                controller: scrollController,
+                                itemCount:
+                                    orderitems!.length + (isloading ? 1 : 0),
                                 itemBuilder: (context, index) {
                                   if (index < orderitems!.length) {
                                     return DriverOrderListItem(

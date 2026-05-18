@@ -702,9 +702,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String latitude,
     required String longitude,
   }) async {
-    final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/pd_driverstatus.php',
-    );
+    final url = _endpointWithApplicationPath('pd_driverstatus.php');
 
     log(url.toString());
 
