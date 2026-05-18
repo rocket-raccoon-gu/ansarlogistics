@@ -12,10 +12,7 @@ class ContactCustomerSheet extends StatelessWidget {
   CallLogs c1 = CallLogs();
 
   Future<void> handleCall() async {
-    String contactsplit =
-        orderResponseItem.telephone.length < 8
-            ? "+974${orderResponseItem.telephone}"
-            : "+${orderResponseItem.telephone}";
+    String contactsplit = orderResponseItem.telephone;
 
     try {
       c1.call(contactsplit, () async {});

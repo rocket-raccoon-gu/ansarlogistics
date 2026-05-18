@@ -785,16 +785,18 @@ extension PDGeneralApi on PickerDriverApi {
 
     log(DateTime.now().toString() + ".....time started");
 
-    Uri url = Uri.parse(_endpointWithApplicationPathString("upload-bill.php"));
+    Uri url = Uri.parse(
+      _endpointWithApplicationPathString("upload_bill_s3.php"),
+    );
 
     log(url.toString());
 
     Uint8List imagebytes = await bill.readAsBytes();
     var request = await http.MultipartRequest('POST', url);
     final httpimage = http.MultipartFile.fromBytes(
-      'bill',
+      'image',
       imagebytes,
-      filename: 'billimage.jpg',
+      filename: 'image.jpg',
     );
     request.files.add(httpimage);
     request.fields['order_number'] = ordernumber;
