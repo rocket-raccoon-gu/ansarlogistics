@@ -27,15 +27,15 @@ import 'package:provider/provider.dart';
 // );
 //################## DEVELOPMENT NEW ###########################
 
-// const baseUrl = String.fromEnvironment(
-//   'BASE_URL',
-//   defaultValue: "https://pickerdriver.testuatah.com",
-// );
-
 const baseUrl = String.fromEnvironment(
   'BASE_URL',
-  defaultValue: "https://driver.ansargallery.qa/driver",
+  defaultValue: "https://pickerdriver.testuatah.com",
 );
+
+// const baseUrl = String.fromEnvironment(
+//   'BASE_URL',
+//   defaultValue: "https://driver.ansargallery.qa/driver",
+// );
 
 const productUrl = String.fromEnvironment(
   'PRODUCT_URL',
