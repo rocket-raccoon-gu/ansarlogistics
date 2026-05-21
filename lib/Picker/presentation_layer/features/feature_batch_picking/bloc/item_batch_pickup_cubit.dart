@@ -50,11 +50,16 @@ class ItemBatchPickupCubit extends Cubit<ItemBatchPickupState> {
     try {
       final token = await PreferenceUtils.getDataFromShared("usertoken");
 
+      String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+        "qa_check_barcode_path",
+      );
+
       final response = await serviceLocator.tradingApi.checkBarcodeDBService(
         endpoint: scannedSku,
         productSku: productSku,
         action: action,
         token1: token!,
+        scanbarcodeurl: barcodescanurl!,
       );
 
       log(response.body);

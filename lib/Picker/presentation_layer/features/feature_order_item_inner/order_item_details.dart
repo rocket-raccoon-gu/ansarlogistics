@@ -112,6 +112,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
         String action = "pick";
 
+        String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+          "qa_check_barcode_path",
+        );
+
         await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
           quantityToCheck!,
           result,
@@ -119,6 +123,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
           productSku!,
           action,
           widget.data['preparationLabel'],
+          barcodescanurl!,
         );
 
         // print('✅ checkitemdb completed for barcode: $barcodeScanRes');
@@ -171,6 +176,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
 
       String action = "pick";
 
+      String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+        "qa_check_barcode_path",
+      );
+
       await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
         quantityToCheck!,
         barcode,
@@ -178,6 +187,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
         productSku!,
         action,
         widget.data['preparationLabel'],
+        barcodescanurl!,
       );
     } catch (e) {
       log(e.toString(), stackTrace: StackTrace.current);
@@ -190,6 +200,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
         MaterialPageRoute(
           builder: (_) => ScanditBarcodeScannerPage(leadingZero: leadingZero),
         ),
+      );
+
+      String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+        "qa_check_barcode_path",
       );
 
       if (result != null && result != "") {
@@ -220,6 +234,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
           productSku!,
           action,
           widget.data['preparationLabel'],
+          barcodescanurl!,
         );
 
         // print('✅ checkitemdb completed for barcode: $barcodeScanRes');
@@ -267,6 +282,10 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
         ).updateBarcodeLog(productSku!, barcode);
         String action = "pick";
 
+        String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+          "qa_check_barcode_path",
+        );
+
         await BlocProvider.of<OrderItemDetailsCubit>(context).checkitemdb(
           editquantity != 0
               ? editquantity.toString()
@@ -278,6 +297,7 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
           productSku!,
           action,
           widget.data['preparationLabel'],
+          barcodescanurl!,
         );
       }
     } catch (e) {}

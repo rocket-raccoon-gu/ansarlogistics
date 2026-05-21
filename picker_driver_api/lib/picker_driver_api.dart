@@ -47,6 +47,10 @@ class PickerDriverApi {
   final Uri productUrl;
   final http.Client _client;
 
+  /// Base URL for barcode/legacy PHP endpoints.
+  /// Fetched from Firestore `_barcode_path` collection via RemoteConfigService.
+  String barcodeBaseUrl;
+
   String cookie = "";
   String fullcookie = "";
   String token = "";
@@ -57,20 +61,23 @@ class PickerDriverApi {
     this.baseUrl,
     this.productUrl,
     this.applicationPath,
-    this._client,
-  );
+    this._client, {
+    this.barcodeBaseUrl = 'https://pickerdriver.testuatah.com',
+  });
 
   factory PickerDriverApi.create({
     required String baseUrl,
     required String productUrl,
     required String applicationPath,
+    String barcodeBaseUrl = 'https://pickerdriver.testuatah.com',
     Duration connectionTimeout = timeoutDuration,
   }) {
     return PickerDriverApi(
       Uri.parse(baseUrl),
-      Uri.parse(productUrl), //'xlrds/webresources/SearchSymbol',
+      Uri.parse(productUrl),
       applicationPath,
       IOClient(HttpClient()),
+      barcodeBaseUrl: barcodeBaseUrl,
     );
   }
 
@@ -78,15 +85,17 @@ class PickerDriverApi {
     required String baseUrl,
     required String productUrl,
     required String applicationPath,
+    String barcodeBaseUrl = 'https://pickerdriver.testuatah.com',
     Duration connectionTimeout = timeoutDuration,
   }) {
     HttpClient httpClient = HttpClient();
     httpClient.connectionTimeout = connectionTimeout;
     return PickerDriverApi(
-      Uri.parse(baseUrl), //'xlrds/webresources/SearchSymbol',
+      Uri.parse(baseUrl),
       Uri.parse(productUrl),
       applicationPath,
       _DebuggableClient(IOClient(HttpClient())),
+      barcodeBaseUrl: barcodeBaseUrl,
     );
   }
 
@@ -743,16 +752,17 @@ extension PDGeneralApi on PickerDriverApi {
   Future<http.Response> generalProductService({
     required String endpoint,
     required String token,
+    required String scanbarcodeurl,
   }) async {
     log("endpoint.........${endpoint}");
 
-    final url = Uri.parse(
-      'https://www.ansargallery.com/rest/V1/products/${endpoint.trim()}',
-    );
-
-    // final url = _endpointWithApplicationPathString(
-    //   'getProductdata_new.php?sku=${endpoint.trim()}',
+    // final url = Uri.parse(
+    //   'https://www.ansargallery.com/rest/V1/products/${endpoint.trim()}',
     // );
+
+    final url = Uri.parse(
+      '${scanbarcodeurl}v1/api/qatar/getProductdata_for_section.php?sku=${endpoint.trim()}&ordersku=${endpoint.trim()}&action=pick',
+    );
 
     log(url.toString());
 
@@ -779,8 +789,12 @@ extension PDGeneralApi on PickerDriverApi {
     //     'https://admin-qatar.testuatah.com/custom-api/api/qatar/getProductdata_new.php?sku=' +
     //         endpoint.trim());
 
+    // final url = Uri.parse(
+    //   'https://www.ansargallery.com/rest/V1/products/${endpoint}',
+    // );
+
     final url = Uri.parse(
-      'https://www.ansargallery.com/rest/V1/products/${endpoint}',
+      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_for_section.php?sku=${endpoint.trim()}&ordersku=${endpoint.trim()}&action=pick',
     );
 
     log(url.toString());
@@ -1264,6 +1278,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String productSku,
     required String action,
     required String token1,
+    required String scanbarcodeurl,
   }) async {
     // print("${endpoint} endpoint");
     // print("${productSku} productSku");
@@ -1276,7 +1291,7 @@ extension PDGeneralApi on PickerDriverApi {
     };
 
     final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
+      '${scanbarcodeurl}v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
     );
 
     // final url = _endpointWithApplicationPath('picker/orders/check-sku');

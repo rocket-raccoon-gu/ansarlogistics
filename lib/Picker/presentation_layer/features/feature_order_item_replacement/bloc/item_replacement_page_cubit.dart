@@ -354,6 +354,10 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
 
     final token = await PreferenceUtils.getDataFromShared("usertoken");
 
+    String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+      "qa_check_barcode_path",
+    );
+
     try {
       final productresponse = await serviceLocator.tradingApi
           .checkBarcodeDBService(
@@ -361,6 +365,7 @@ class ItemReplacementPageCubit extends Cubit<ItemReplacementPageState> {
             productSku: productSku,
             action: action,
             token1: token!,
+            scanbarcodeurl: barcodescanurl!,
           );
 
       // print('📡 [DEBUG] HTTP Status: ${productresponse.statusCode}');

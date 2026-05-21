@@ -146,8 +146,16 @@ class NewScanBarcodePageCubit extends Cubit<NewScanBarcodePageState> {
 
       // check in products magento db
 
+      String? scanbarcodeurl = await PreferenceUtils.getDataFromShared(
+        "qa_check_barcode_path",
+      );
+
       final productresponse = await serviceLocator.tradingApi
-          .generalProductServiceGet(endpoint: sku, token11: token!);
+          .generalProductServiceGet(
+            endpoint: sku,
+            token11: token!,
+            scanbarcodeurl: scanbarcodeurl!,
+          );
 
       if (productresponse.statusCode == 200) {
         //

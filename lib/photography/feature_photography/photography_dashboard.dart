@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 import 'package:provider/provider.dart';
 
@@ -39,7 +40,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
   String _scanBarcode = 'Unknown';
   bool stock_stat = false;
   late CarouselSliderController _sliderController;
-  ProductResponse? _productResponse;
+  ProductDBdata? _productResponse;
   bool producebarcode = false;
   bool manual = false;
 
@@ -142,6 +143,10 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
 
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
+      String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+        "qa_check_barcode_path",
+      );
+
       if (producebarcode) {
         // Replace the last 6 digits with '000000'
         barcodescanRes =
@@ -154,7 +159,11 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
       }
 
       final productresponse = await widget.serviceLocator.tradingApi
-          .generalProductServiceGet(endpoint: barcodescanRes!, token11: token!);
+          .generalProductServiceGet(
+            endpoint: barcodescanRes!,
+            token11: token!,
+            scanbarcodeurl: barcodescanurl!,
+          );
 
       Map<String, dynamic> data = jsonDecode(productresponse.body);
 
@@ -165,7 +174,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
         log(productresponse.body);
 
         setState(() {
-          _productResponse = ProductResponse.fromJson(data);
+          _productResponse = ProductDBdata.fromJson(data);
         });
 
         showGeneralDialog(
@@ -198,19 +207,18 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                               height: 90.0,
                               width: 90.0,
                               child:
-                                  _productResponse!.mediaGalleryEntries.isEmpty
+                                  _productResponse!.imagesList.isEmpty
                                       ? Image.asset('assets/placeholder.png')
                                       : InkWell(
                                         onTap: () {
                                           getImageViewver(
-                                            _productResponse!
-                                                .mediaGalleryEntries,
+                                            _productResponse!.imagesList,
                                             context,
                                             _sliderController,
                                           );
                                         },
                                         child: Image.network(
-                                          "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+                                          "${mainimageurl}${_productResponse!.imagesList[0]}",
                                           fit: BoxFit.contain,
                                         ),
                                       ),
@@ -227,7 +235,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       horizontal: 8.0,
                                     ),
                                     child: Text(
-                                      _productResponse!.name,
+                                      _productResponse!.skuName,
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.FontPrimary,
@@ -784,8 +792,16 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
+      String? scanbarcodeurl = await PreferenceUtils.getDataFromShared(
+        "qa_check_barcode_path",
+      );
+
       final productresponse = await widget.serviceLocator.tradingApi
-          .generalProductServiceGet(endpoint: barcode, token11: token!);
+          .generalProductServiceGet(
+            endpoint: barcode,
+            token11: token!,
+            scanbarcodeurl: scanbarcodeurl!,
+          );
 
       Map<String, dynamic> data = jsonDecode(productresponse.body);
 
@@ -796,7 +812,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
         log(productresponse.body);
 
         setState(() {
-          _productResponse = ProductResponse.fromJson(data);
+          _productResponse = ProductDBdata.fromJson(data);
         });
 
         showGeneralDialog(
@@ -829,19 +845,18 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                               height: 90.0,
                               width: 90.0,
                               child:
-                                  _productResponse!.mediaGalleryEntries.isEmpty
+                                  _productResponse!.imagesList.isEmpty
                                       ? Image.asset('assets/placeholder.png')
                                       : InkWell(
                                         onTap: () {
                                           getImageViewver(
-                                            _productResponse!
-                                                .mediaGalleryEntries,
+                                            _productResponse!.imagesList,
                                             context,
                                             _sliderController,
                                           );
                                         },
                                         child: Image.network(
-                                          "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+                                          "${mainimageurl}${_productResponse!.imagesList[0]}",
                                           fit: BoxFit.contain,
                                         ),
                                       ),
@@ -858,7 +873,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       horizontal: 8.0,
                                     ),
                                     child: Text(
-                                      _productResponse!.name,
+                                      _productResponse!.skuName,
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.FontPrimary,
@@ -2009,7 +2024,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
   }
 
   getImageViewver(
-    List<MediaGalleryEntry1> mediaGalleryEntries,
+    List<String> imageList,
     context,
     CarouselSliderController sliderController,
   ) {
@@ -2066,21 +2081,17 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                           height: 250,
                           width: 300,
                           child: CarouselSlider.builder(
-                            itemCount: mediaGalleryEntries.length,
+                            itemCount: imageList.length,
                             options: CarouselOptions(height: 400.0),
                             itemBuilder:
-                                (
-                                  BuildContext context,
-                                  int itemIndex,
-                                  int pageViewIndex,
-                                ) => Container(
+                                (context, itemIndex, _) => Container(
                                   width: MediaQuery.of(context).size.width,
                                   margin: EdgeInsets.symmetric(horizontal: 5.0),
                                   decoration: BoxDecoration(
                                     color: Colors.amber,
                                   ),
                                   child: Image.network(
-                                    "${mainimageurl}${mediaGalleryEntries[itemIndex].file.toString()}",
+                                    "${mainimageurl}${imageList[itemIndex].toString()}",
                                     fit: BoxFit.fill,
                                   ),
                                 ),

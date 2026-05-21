@@ -16,6 +16,16 @@ class ProductDBdata {
   String deliveryType;
   String currentPromotionPrice;
   String images;
+
+  /// Convenience getter: splits the comma-separated [images] string into a list.
+  List<String> get imagesList =>
+      images.isEmpty
+          ? []
+          : images
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
   int priority;
   String barcodes;
   String isProduce;
@@ -97,7 +107,14 @@ class ProductDBdata {
     "erp_current_price": erpCurrentPrice,
     "delivery_type": deliveryType,
     "current_promotion_price": currentPromotionPrice,
-    "images": images,
+    "images":
+        images.isEmpty
+            ? <String>[]
+            : images
+                .split(',')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList(),
     "priority": priority,
     "barcodes": barcodes,
     "is_produce": isProduce,

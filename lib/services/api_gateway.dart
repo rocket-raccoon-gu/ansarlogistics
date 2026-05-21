@@ -497,10 +497,18 @@ class PDApiGateway implements AuthenticationService {
   }
 
   @override
-  Future getProductdata({required String product_id, required token}) async {
+  Future getProductdata({
+    required String product_id,
+    required String token,
+    required String scanbarcodeurl,
+  }) async {
     try {
       final response = await pickerDriverApi
-          .generalProductService(endpoint: product_id, token: token)
+          .generalProductService(
+            endpoint: product_id,
+            token: token,
+            scanbarcodeurl: scanbarcodeurl,
+          )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
             throw e;
@@ -771,12 +779,17 @@ class PDApiGateway implements AuthenticationService {
   Future generalProductServiceGet({
     required String endpoint,
     required String token11,
+    required String scanbarcodeurl,
   }) async {
     try {
       // String? token11 = await PreferenceUtils.getDataFromShared("usertoken");
 
       final responce = await pickerDriverApi
-          .generalProductService(endpoint: endpoint, token: token11)
+          .generalProductService(
+            endpoint: endpoint,
+            token: token11,
+            scanbarcodeurl: scanbarcodeurl,
+          )
           .catchError((e) {
             networkStreamController.sink.add(e.toString());
             // throw e;
@@ -865,12 +878,13 @@ class PDApiGateway implements AuthenticationService {
     required String productSku,
     required String action,
     required String token1,
+    required String scanbarcodeurl,
   }) async {
     try {
       log("🌐 API Call Started: checkBarcodeDB with endpoint -> $endpoint");
       log("🌐 API Call Started:  productSku -> $productSku");
       log("🌐 API Call Started:  action -> $action");
-
+      log("🌐 API Call Started:  scanbarcodeurl -> $scanbarcodeurl");
       // print("🌐 API Call Started: checkBarcodeDB with endpoint -> $endpoint");
 
       final response = await pickerDriverApi
@@ -879,6 +893,7 @@ class PDApiGateway implements AuthenticationService {
             productSku: productSku,
             action: action,
             token1: token1,
+            scanbarcodeurl: scanbarcodeurl,
           )
           .catchError((e) {
             FirebaseApiLogger.logApiError(

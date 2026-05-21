@@ -297,6 +297,10 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
       //   );
       // } else {
 
+      String? scanbarcodeurl = await PreferenceUtils.getDataFromShared(
+        "qa_check_barcode_path",
+      );
+
       if (producebarcode) {
         // Replace the last 4 digits with '0'
         barcodescanRes =
@@ -309,7 +313,11 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
       }
 
       final productresponse = await widget.serviceLocator.tradingApi
-          .generalProductServiceGet(endpoint: barcodescanRes!, token11: token!);
+          .generalProductServiceGet(
+            endpoint: barcodescanRes!,
+            token11: token!,
+            scanbarcodeurl: scanbarcodeurl!,
+          );
 
       Map<String, dynamic> data = jsonDecode(productresponse.body);
 

@@ -113,12 +113,17 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
 
       final token = await PreferenceUtils.getDataFromShared("usertoken");
 
+      String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+        "qa_check_barcode_path",
+      );
+
       final productresponse = await serviceLocator.tradingApi
           .checkBarcodeDBService(
             endpoint: sku,
             productSku: productSku,
             action: action,
             token1: token!,
+            scanbarcodeurl: barcodescanurl!,
           );
 
       if (productresponse.statusCode == 200) {

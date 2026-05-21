@@ -428,6 +428,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     String productSku,
     String action,
     String preparationLabel11,
+    String barcodescanurl,
   ) async {
     // print("🔍 checkitemdb() called");
     // print("📦 Qty: $qty");
@@ -474,6 +475,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
         productSku: productSku,
         action: action,
         token1: token!,
+        scanbarcodeurl: barcodescanurl,
       );
 
       // Hide loading dialog after database check completes
