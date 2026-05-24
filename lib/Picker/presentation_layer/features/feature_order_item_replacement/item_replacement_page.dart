@@ -67,6 +67,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
 
   String result = '';
 
+  String? scannedBarcode;
+
   Future<void> requestCameraPermission() async {
     var status = await Permission.camera.request();
     if (status.isDenied || status.isPermanentlyDenied) {
@@ -127,7 +129,8 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
         ),
       );
 
-      log("${result} barcodeScanRes");
+      scannedBarcode = result;
+      log("${scannedBarcode} barcodeScanRes");
 
       if (result != null && result != "") {
         // get scanned barcode data
@@ -557,6 +560,10 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                             .read<ItemReplacementPageCubit>()
                                             .productDBdata !=
                                         null) {
+                                      log(
+                                        'Using productDBdata for replacement update ${scannedBarcode}',
+                                      );
+
                                       final product =
                                           context
                                               .read<ItemReplacementPageCubit>()
@@ -579,7 +586,9 @@ class _ItemReplacementPageState extends State<ItemReplacementPage> {
                                             product.erpCurrentPrice,
                                             product.regularPrice,
                                             product.sku.toString(),
-                                            barcodeController.text,
+                                            barcodeController.text == ""
+                                                ? scannedBarcode ?? ''
+                                                : barcodeController.text,
                                             product.isProduce.toString(),
                                             product.productId.toString(),
                                             widget.itemdata!.sku.toString(),

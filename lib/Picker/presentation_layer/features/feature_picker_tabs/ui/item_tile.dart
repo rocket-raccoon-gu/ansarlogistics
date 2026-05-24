@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:flutter/material.dart';
@@ -79,6 +81,7 @@ class ItemTile extends StatelessWidget {
                         return const Center(child: CircularProgressIndicator());
                       }
                       final resolved = snapshot.data!;
+                      log('Resolved image URL: $resolved');
                       return CachedNetworkImage(
                         imageUrl: resolved,
                         imageBuilder:

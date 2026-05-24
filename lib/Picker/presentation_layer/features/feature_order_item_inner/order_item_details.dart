@@ -490,100 +490,6 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                           color: Colors.white,
                           child: Column(
                             children: [
-                              // Main image
-                              // Padding(
-                              //   padding: const EdgeInsets.only(top: 6.0),
-
-                              //   child: FutureBuilder<Map<String, dynamic>>(
-                              //     future: getData(),
-                              //     builder: (context, snapshot) {
-                              //       final String base =
-                              //           snapshot.data != null
-                              //               ? (snapshot.data!['mediapath'] ??
-                              //                       '')
-                              //                   .toString()
-                              //               : '';
-                              //       // Build images list from imageUrl or productImage (comma separated)
-                              //       final List<String> images =
-                              //           (() {
-                              //             final List<String> acc = [];
-                              //             if ((item.imageUrl ?? '')
-                              //                 .isNotEmpty) {
-                              //               acc.add(item.imageUrl!);
-                              //             }
-                              //             if ((item.productImage ?? '')
-                              //                 .isNotEmpty) {
-                              //               acc.addAll(
-                              //                 item.productImage!
-                              //                     .split(',')
-                              //                     .map((e) => e.trim())
-                              //                     .where((e) => e.isNotEmpty),
-                              //               );
-                              //             }
-                              //             return acc.isEmpty
-                              //                 ? [noimageurl]
-                              //                 : acc;
-                              //           })();
-                              //       String resolve(String p) {
-                              //         if (p.startsWith('http')) return p;
-                              //         return '$base$p';
-                              //       }
-
-                              //       final String mainUrl = resolve(
-                              //         images[selectedindex.clamp(
-                              //           0,
-                              //           images.length - 1,
-                              //         )],
-                              //       );
-
-                              //       final bool hasValidMainUrl =
-                              //           mainUrl.isNotEmpty &&
-                              //           mainUrl.startsWith('http');
-
-                              //       return SizedBox(
-                              //         height: 275.0,
-                              //         width: 275.0,
-                              //         child: Center(
-                              //           child:
-                              //               hasValidMainUrl
-                              //                   ? CachedNetworkImage(
-                              //                     imageUrl: mainUrl,
-                              //                     imageBuilder: (
-                              //                       context,
-                              //                       imageProvider,
-                              //                     ) {
-                              //                       return Container(
-                              //                         decoration: BoxDecoration(
-                              //                           image: DecorationImage(
-                              //                             image: imageProvider,
-                              //                             fit: BoxFit.cover,
-                              //                           ),
-                              //                         ),
-                              //                       );
-                              //                     },
-                              //                     placeholder:
-                              //                         (context, url) => Center(
-                              //                           child: Image.asset(
-                              //                             'assets/Iphone_spinner.gif',
-                              //                           ),
-                              //                         ),
-                              //                     errorWidget: (
-                              //                       context,
-                              //                       url,
-                              //                       error,
-                              //                     ) {
-                              //                       return Image.network(
-                              //                         noimageurl,
-                              //                       );
-                              //                     },
-                              //                   )
-                              //                   : Image.network(noimageurl),
-                              //         ),
-                              //       );
-                              //     },
-                              //   ),
-
-                              // ),
                               FutureBuilder<List<dynamic>>(
                                 future: Future.wait([
                                   getData(), // Firestore document
@@ -608,13 +514,19 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                       snapshot.data![0] as Map<String, dynamic>;
                                   final region = snapshot.data![1] as String?;
 
-                                  // choose mediapath key based on region
-                                  final baseKey =
-                                      region == 'UAE'
-                                          ? 'imagepathuae'
-                                          : 'mediapath';
+                                  // choose base path based on region, with fallbacks
                                   final String base =
-                                      (data[baseKey] ?? '').toString();
+                                      (() {
+                                        if (region == 'UAE') {
+                                          return (data['imagepathuae'] ??
+                                                  data['imagepath'] ??
+                                                  data['mediapath'] ??
+                                                  '')
+                                              .toString();
+                                        } else {
+                                          return (data['imagepath']).toString();
+                                        }
+                                      })();
 
                                   log(base.toString());
 
@@ -651,6 +563,8 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                   final bool hasValidMainUrl =
                                       mainUrl.isNotEmpty &&
                                       mainUrl.startsWith('http');
+
+                                  log("Main image URL: $mainUrl");
 
                                   return SizedBox(
                                     height: 275.0,
@@ -715,13 +629,23 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                             as Map<String, dynamic>;
                                     final region = snapshot.data![1] as String?;
 
-                                    // choose base key based on region (same as main image)
-                                    final baseKey =
-                                        region == 'UAE'
-                                            ? 'imagepathuae'
-                                            : 'mediapath';
+                                    // choose base path based on region, with fallbacks
                                     final String base =
-                                        (data[baseKey] ?? '').toString();
+                                        (() {
+                                          if (region == 'UAE') {
+                                            return (data['imagepathuae'] ??
+                                                    data['imagepath'] ??
+                                                    data['mediapath'] ??
+                                                    '')
+                                                .toString();
+                                          } else {
+                                            return (data['mediapath'] ??
+                                                    data['imagepath'] ??
+                                                    data['imagepathuae'] ??
+                                                    '')
+                                                .toString();
+                                          }
+                                        })();
 
                                     final List<String> images =
                                         (() {

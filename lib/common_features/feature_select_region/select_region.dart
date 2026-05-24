@@ -161,13 +161,16 @@ class _SelectRegionPageState extends State<SelectRegionPage> {
                                           // Fetch base URL and check_barcode_path live from Firestore
                                           final paths =
                                               await _fetchQAPathsFromFirestore();
-                                          final baseUrl = paths['baseurl']!;
+                                          // final baseUrl = paths['baseurl']!;
+                                          final baseUrl =
+                                              'https://logh.ansargallery.qa';
                                           final checkBarcodePath =
                                               paths['check_barcode_path']!;
 
                                           UserController
-                                              .userController
-                                              .mainbaseUrl = baseUrl;
+                                                  .userController
+                                                  .mainbaseUrl =
+                                              'https://logh.ansargallery.qa';
 
                                           await PreferenceUtils.storeDataToShared(
                                             "region",
