@@ -152,13 +152,14 @@ class Order {
   );
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
-    entityId: json["entity_id"],
+    entityId: json["entity_id"] == "" ? 0 : json["entity_id"],
     subgroupIdentifier: json["subgroup_identifier"],
     status: json["status"],
     type: json["type"],
     deliveryFrom: DateTime.parse(json["delivery_from"]),
     deliveryTo: DateTime.parse(json["delivery_to"]),
-    grandTotal: json["grand_total"].toString(),
+    grandTotal:
+        json["grand_total"] == "" ? "0" : json["grand_total"].toString(),
     shippedAmount: json["shipped_amount"],
     statusType: json["status_type"],
     deliveryTimerange: json["delivery_timerange"],
