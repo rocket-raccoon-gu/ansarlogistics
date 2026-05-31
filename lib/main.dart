@@ -34,7 +34,7 @@ import 'package:provider/provider.dart';
 
 const baseUrl = String.fromEnvironment(
   'BASE_URL',
-  defaultValue: "https://driver.ansargallery.qa/driver",
+  defaultValue: "https://pickerdriver.ansargallery.qa",
 );
 
 const productUrl = String.fromEnvironment(

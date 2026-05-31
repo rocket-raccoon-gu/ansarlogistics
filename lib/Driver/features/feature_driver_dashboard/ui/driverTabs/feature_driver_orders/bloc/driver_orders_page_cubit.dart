@@ -41,7 +41,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
 
   bool searchvisible = false;
 
-  void loadPosts(int count, String status) {
+  Future<void> loadPosts(int count, String status) async {
     try {
       if (state is DriverPageLoadingState) return;
 
@@ -71,7 +71,7 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
       log(status);
 
       // if (!searchvisible) {
-      postRepositories.fetchposts(page, 8, status).then((newpost) {
+      return postRepositories.fetchposts(page, 8, status).then((newpost) {
         page++;
         List<Order> posts = (state as DriverPageLoadingState).oldpost;
 

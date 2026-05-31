@@ -312,7 +312,7 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      BlocProvider.of<DriverOrdersPageCubit>(
+                      return BlocProvider.of<DriverOrdersPageCubit>(
                         context,
                       ).loadPosts(0, "");
                     },
@@ -352,6 +352,7 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                               ),
                               child: ListView.builder(
                                 controller: scrollController,
+                                physics: const AlwaysScrollableScrollPhysics(),
                                 itemCount:
                                     orderitems!.length + (isloading ? 1 : 0),
                                 itemBuilder: (context, index) {
