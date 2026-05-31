@@ -31,10 +31,17 @@ class PDApiGateway implements AuthenticationService {
   Future ordersNewRequestService({
     required String token,
     required String branchCode,
+    int? page,
+    int? limit,
   }) async {
     try {
       final response = await pickerDriverApi
-          .ordersNewService(token: token, branch: branchCode)
+          .ordersNewService(
+            token: token,
+            branch: branchCode,
+            page: page,
+            limit: limit,
+          )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
             throw e;

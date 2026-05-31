@@ -100,7 +100,10 @@ class PostService {
   }
 
   // New non-paginated endpoint: /api/picker/ordersnew
-  Future<OrdersNewResponse?> fetchOrdersNew() async {
+  Future<OrdersNewResponse?> fetchOrdersNew({
+    int page = 1,
+    int limit = 20,
+  }) async {
     // Do not assume the JSON root is a Map; backend might return a List
     try {
       final String? token = await PreferenceUtils.getDataFromShared(
@@ -111,13 +114,14 @@ class PostService {
           await _serviceLocator.tradingApi.ordersNewRequestService(
                 token: token ?? "",
                 branchCode: UserController().profile.branchCode ?? "",
+                page: page,
+                limit: limit,
               )
               as dynamic;
 
       if (response?.statusCode == 200) {
         final dynamic decoded = jsonDecode(response.body);
 
-        // if (decoded is Map<String, dynamic>) {
         OrdersNewResponse ordersNewResponse = OrdersNewResponse.fromJson(
           decoded,
         );

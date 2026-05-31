@@ -26,16 +26,60 @@ class PickerOrdersCubit extends Cubit<PickerOrdersState> {
 
   List<OrderNew> ordersNew = [];
   List<CategoryGroup> categoriesNew = [];
-  // New: load from /api/picker/ordersnew (non-paginated)
-  Future<void> loadOrdersNew() async {
-    try {
-      if (!isClosed) emit(PickerOrdersNewLoadingState());
+  int page = 1;
+  int limit = 20;
+  bool hasMore = true;
+  bool isLoadingMore = false;
 
-      final resp = await postRepositories.fetchOrdersNew();
+  Future<void> loadOrdersNew({bool refresh = false}) async {
+    if (refresh) {
+      page = 1;
+      hasMore = true;
+      ordersNew = [];
+      categoriesNew = [];
+    }
+
+    if (!hasMore && page > 1) {
+      return;
+    }
+
+    try {
+      if (!isClosed && page == 1) {
+        emit(PickerOrdersNewLoadingState());
+      }
+
+      if (page > 1) {
+        isLoadingMore = true;
+      }
+
+      final resp = await postRepositories.fetchOrdersNew(
+        page: page,
+        limit: limit,
+      );
+
+      isLoadingMore = false;
 
       if (resp != null && (resp.success ?? true)) {
-        ordersNew = resp.data?.orders ?? [];
-        categoriesNew = resp.data?.categories ?? [];
+        final newOrders = resp.data?.orders ?? [];
+        if (page == 1) {
+          ordersNew = newOrders;
+        } else {
+          ordersNew = [...ordersNew, ...newOrders];
+          final uniqueOrders = <String, OrderNew>{};
+          for (final order in ordersNew) {
+            if (order.id != null) {
+              uniqueOrders[order.id!] = order;
+            }
+          }
+          ordersNew = uniqueOrders.values.toList();
+        }
+
+        if (page == 1 || categoriesNew.isEmpty) {
+          categoriesNew = resp.data?.categories ?? categoriesNew;
+        }
+
+        hasMore = newOrders.length >= limit;
+        page++;
 
         if (!isClosed) {
           emit(
@@ -46,10 +90,16 @@ class PickerOrdersCubit extends Cubit<PickerOrdersState> {
           );
         }
       } else {
-        if (!isClosed)
-          emit(
-            PickerOrdersNewErrorState(resp?.message ?? 'Failed to load orders'),
-          );
+        isLoadingMore = false;
+        if (!isClosed) {
+          if (page == 1) {
+            emit(
+              PickerOrdersNewErrorState(
+                resp?.message ?? 'Failed to load orders',
+              ),
+            );
+          }
+        }
         if (!isClosed && resp?.message == "Expired token") {
           sessionTimeOutBottomSheet(
             context: context,
@@ -63,15 +113,14 @@ class PickerOrdersCubit extends Cubit<PickerOrdersState> {
         }
       }
     } catch (e) {
+      isLoadingMore = false;
       if (!isClosed) emit(PickerOrdersNewErrorState('Error: $e'));
     }
   }
 
-  int page = 1;
-
-  bool isLoadingMore = false;
-
   int currentval = -1;
+
+  // int currentval = -1;
 
   final PostRepositories postRepositories;
 

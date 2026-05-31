@@ -125,22 +125,22 @@ class PickerDriverApi {
   Future<http.Response> ordersNewService({
     required String token,
     required String branch,
+    int? page,
+    int? limit,
   }) async {
-    // Direct API host for new picker endpoint
-    // final Uri url = _endpointWithApplicationPath("picker/ordersnew");
-
     Uri url = Uri.parse(
-      _endpointWithApplicationPathString('picker/ordersnewsuborders'),
+      _endpointWithApplicationPathString(
+        branch == "Q019"
+            ? 'picker/ordersnewsuborderswarhouse'
+            : 'picker/ordersnewsuborders',
+      ),
     );
 
-    if (branch == "Q019") {
-      url = Uri.parse(
-        _endpointWithApplicationPathString('picker/ordersnewsuborderswarhouse'),
-      );
-    } else {
-      url = Uri.parse(
-        _endpointWithApplicationPathString('picker/ordersnewsuborders'),
-      );
+    if (page != null || limit != null) {
+      final queryParameters = <String, String>{};
+      if (page != null) queryParameters['page'] = page.toString();
+      if (limit != null) queryParameters['limit'] = limit.toString();
+      url = url.replace(queryParameters: queryParameters);
     }
 
     log(url.toString());

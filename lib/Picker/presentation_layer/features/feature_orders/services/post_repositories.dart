@@ -20,8 +20,11 @@ class PostRepositories {
   }
 
   // New: non-paginated orders + categories
-  Future<OrdersNewResponse> fetchOrdersNew() async {
-    final resp = await postService.fetchOrdersNew();
+  Future<OrdersNewResponse> fetchOrdersNew({
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final resp = await postService.fetchOrdersNew(page: page, limit: limit);
     return resp!;
   }
 }

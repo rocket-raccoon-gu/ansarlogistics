@@ -557,10 +557,12 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
     // TODO: implement initState
     super.initState();
     scrollController.addListener(() {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) {
-        // BlocProvider.of<PickerOrdersCubit>(context)
-        //     .loadPosts(1, statuslist[UserController().selectedindex]['status']);
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent - 24) {
+        final cubit = context.read<PickerOrdersCubit>();
+        if (!cubit.isLoadingMore && cubit.hasMore) {
+          cubit.loadOrdersNew();
+        }
       }
     });
 
@@ -738,6 +740,7 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
         //   _statusChips(context.read<PickerOrdersCubit>().ordersNew),
         BlocBuilder<PickerOrdersCubit, PickerOrdersState>(
           builder: (context, state) {
+            final cubit = context.read<PickerOrdersCubit>();
             // If new data loaded but user is on 'All Orders' and list is empty, kick legacy load
             if (state is PickerOrdersNewLoadedState) {
               // WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -855,9 +858,7 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: () async {
-                          BlocProvider.of<PickerOrdersCubit>(
-                            context,
-                          ).loadOrdersNew();
+                          cubit.loadOrdersNew(refresh: true);
                         },
                         child:
                             orderitems!.isEmpty
@@ -868,7 +869,8 @@ class _PickerOrdersPageState extends State<PickerOrdersPage>
                                 : ListView.builder(
                                   controller: scrollController,
                                   itemCount:
-                                      orderitems!.length + (isloading ? 1 : 0),
+                                      orderitems!.length +
+                                      (cubit.isLoadingMore ? 1 : 0),
                                   physics: AlwaysScrollableScrollPhysics(),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12.0,
