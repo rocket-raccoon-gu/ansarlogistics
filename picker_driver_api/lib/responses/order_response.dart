@@ -215,6 +215,15 @@ class Order {
     "shipping_charges": shippingCharges,
     "created_at": createdAt.toIso8601String(),
   };
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other is Order && other.entityId == entityId);
+  }
+
+  @override
+  int get hashCode => entityId.hashCode;
 }
 
 class Items {

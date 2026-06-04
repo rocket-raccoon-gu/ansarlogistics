@@ -50,37 +50,29 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
       var oldpost = <Order>[];
 
       if (currentstate is DriverPageLoadedState) {
-        oldpost = currentstate.posts;
+        oldpost = List<Order>.from(currentstate.posts);
       }
 
       if (count == 0) {
         oldpost.clear();
         UserController.userController.orderitems.clear();
         page = 1;
-      } else {
-        UserController.userController.orderitems.addAll(oldpost);
       }
 
-      emit(
-        DriverPageLoadingState(
-          oldpost == 0 ? [] : oldpost,
-          isFirstFetch: page == 1,
-        ),
-      );
+      emit(DriverPageLoadingState(oldpost, isFirstFetch: page == 1));
 
       log(status);
 
       // if (!searchvisible) {
       return postRepositories.fetchposts(page, 8, status).then((newpost) {
         page++;
-        List<Order> posts = (state as DriverPageLoadingState).oldpost;
+        final posts = List<Order>.from(oldpost)..addAll(newpost);
 
-        posts.addAll(newpost);
-        // }
+        final postlist =
+            {for (final order in posts) order.entityId: order}.values.toList();
 
-        var postlist = posts.toSet().toList();
-
-        emit(DriverPageLoadedState(postlist.toSet().toList()));
+        UserController.userController.orderitems = List<Order>.from(postlist);
+        emit(DriverPageLoadedState(postlist));
       });
     } catch (e) {
       // print(e);
