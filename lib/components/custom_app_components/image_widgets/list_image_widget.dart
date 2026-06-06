@@ -45,7 +45,9 @@ class ListImageWidget extends StatelessWidget {
 
           return CachedNetworkImage(
             imageUrl:
-                'https://media-qatar.ansargallery.com/catalog/product/${imageurl}',
+                imageurl.startsWith('http')
+                    ? imageurl
+                    : 'https://media-qatar.ansargallery.com/catalog/product/${imageurl}',
             httpHeaders: {
               'User-Agent':
                   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',

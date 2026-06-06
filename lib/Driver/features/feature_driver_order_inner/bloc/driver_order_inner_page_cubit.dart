@@ -40,16 +40,21 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
       emit(DriverOrderLoadingPageState());
     }
 
-    if (orderItem.items.assignedDriver!.isNotEmpty) {
+    if (orderItem.items.assignedDriver!.isNotEmpty ||
+        orderItem.items.returnrequested!.isNotEmpty) {
       assignedDriver.addAll(orderItem.items.assignedDriver!);
+      assignedDriver.addAll(orderItem.items.returnrequested!);
     }
 
-    if (orderItem.items.onTheWay!.isNotEmpty) {
+    if (orderItem.items.onTheWay!.isNotEmpty ||
+        orderItem.items.returnrequested!.isNotEmpty) {
       assignedDriver.addAll(orderItem.items.onTheWay!);
+      assignedDriver.addAll(orderItem.items.returnrequested!);
     }
 
     if (orderItem.items.holded!.isNotEmpty) {
       assignedDriver.addAll(orderItem.items.holded!);
+      assignedDriver.addAll(orderItem.items.returnrequested!);
     }
 
     emit(DriverOrderInitialPageState(assignedDriver: assignedDriver));

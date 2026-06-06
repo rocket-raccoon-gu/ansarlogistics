@@ -215,7 +215,8 @@ Color getTypeColor(String type) {
       return HexColor('#ff4081');
     case "ABY":
       return HexColor('#04a6c7');
-
+    case "RET":
+      return HexColor('#fcb103');
     default:
       return customColors().fontPrimary;
   }

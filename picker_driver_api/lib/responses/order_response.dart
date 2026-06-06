@@ -236,6 +236,7 @@ class Items {
   List<EndPicking>? materialRequest;
   List<EndPicking>? assignedDriver;
   List<EndPicking>? onTheWay;
+  List<EndPicking>? returnrequested;
 
   Items({
     this.assignedPicker,
@@ -247,6 +248,7 @@ class Items {
     this.materialRequest,
     this.assignedDriver,
     this.onTheWay,
+    this.returnrequested,
   });
 
   Items copyWith({
@@ -259,6 +261,7 @@ class Items {
     List<EndPicking>? materialRequest,
     List<EndPicking>? assignedDriver,
     List<EndPicking>? onTheWay,
+    List<EndPicking>? returnrequested,
   }) => Items(
     assignedPicker: assignedPicker ?? this.assignedPicker,
     endPicking: endPicking ?? this.endPicking,
@@ -269,6 +272,7 @@ class Items {
     materialRequest: materialRequest ?? this.materialRequest,
     assignedDriver: assignedDriver ?? this.assignedDriver,
     onTheWay: onTheWay ?? this.onTheWay,
+    returnrequested: returnrequested ?? this.returnrequested,
   );
 
   factory Items.fromJson(Map<String, dynamic> json) => Items(
@@ -326,6 +330,12 @@ class Items {
             : List<EndPicking>.from(
               json["on_the_way"]!.map((x) => EndPicking.fromJson(x)),
             ),
+    returnrequested:
+        json["return_requested"] == null
+            ? []
+            : List<EndPicking>.from(
+              json["return_requested"]!.map((x) => EndPicking.fromJson(x)),
+            ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -362,6 +372,10 @@ class Items {
         onTheWay == null
             ? []
             : List<dynamic>.from(onTheWay!.map((x) => x.toJson())),
+    "return_requested":
+        returnrequested == null
+            ? []
+            : List<dynamic>.from(returnrequested!.map((x) => x.toJson())),
   };
 }
 
@@ -465,22 +479,30 @@ class EndPicking {
   );
 
   factory EndPicking.fromJson(Map<String, dynamic> json) => EndPicking(
-    itemId: json["item_id"] ?? 0,
-    productId: json["product_id"] ?? 0,
+    itemId:
+        json["item_id"] == null || json["item_id"] == ''
+            ? 0
+            : int.parse(json["item_id"].toString()),
+    productId:
+        json["product_id"] == null || json["product_id"] == ''
+            ? 0
+            : int.parse(json["product_id"].toString()),
     productSku: json["product_sku"] ?? "",
     productName: json["product_name"] ?? "",
     itemStatus: json["item_status"] ?? "",
     productOptions: jsonDecode(json["product_options"] ?? "{}"),
     qtyOrdered: json["qty_ordered"] ?? 0,
-    qtyCanceled: json["qty_canceled"] ?? 0,
-    qtyShipped: json["qty_shipped"] ?? 0,
-    price: json["price"] ?? 0,
-    finalPrice: json["final_price"] ?? 0,
-    discountPercent: json["discount_percent"] ?? 0,
-    discountAmount: json["discount_amount"],
+    qtyCanceled:
+        json["qty_canceled"] == null ? "0" : json["qty_canceled"].toString(),
+    qtyShipped:
+        json["qty_shipped"] == null ? "0" : json["qty_shipped"].toString(),
+    price: json["price"].toString() ?? "0",
+    finalPrice: json["final_price"].toString() ?? "0",
+    discountPercent: json["discount_percent"].toString() ?? "0",
+    discountAmount: json["discount_amount"].toString() ?? "0",
     weight: json["weight"] ?? "",
-    subtotal: json["subtotal"] ?? "",
-    isProduce: json["is_produce"],
+    subtotal: json["subtotal"].toString() ?? "",
+    isProduce: json["is_produce"].toString() ?? "0",
     categoryId:
         json["category_id"] == null
             ? 2
@@ -488,9 +510,9 @@ class EndPicking {
     branchName: json["branch_name"] ?? "",
     catname: json["catname"] ?? "",
     productImages: List<String>.from(json["product_images"].map((x) => x)),
-    weightUnit: json["weight_unit"],
+    weightUnit: json["weight_unit"] ?? "",
     isproduce: json["is_produce"] != null ? json["is_produce"].toString() : "0",
-    itemWeight: json["weight"],
+    itemWeight: json["weight"].toString(),
   );
 
   Map<String, dynamic> toJson() => {

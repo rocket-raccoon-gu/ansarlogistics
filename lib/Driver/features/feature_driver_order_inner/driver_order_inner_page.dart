@@ -125,22 +125,40 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
                                     ),
                                     borderRadius: BorderRadius.circular(20.0),
                                   ),
-                                  child: SwipeableWidget(
-                                    text: "Ready To Deliver..!",
-                                    onSwipeFinish: () async {
-                                      setState(() {
-                                        loading = true;
-                                      });
-                                      BlocProvider.of<
-                                        DriverOrderInnerPageCubit
-                                      >(context).updateMainOrderStat(
-                                        widget
-                                            .orderResponseItem
-                                            .subgroupIdentifier,
-                                        "on_the_way",
-                                      );
-                                    },
-                                  ),
+                                  child:
+                                      widget.orderResponseItem.type == "RET"
+                                          ? SwipeableWidget(
+                                            text: "Ready To Return..!",
+                                            onSwipeFinish: () async {
+                                              setState(() {
+                                                loading = true;
+                                              });
+                                              BlocProvider.of<
+                                                DriverOrderInnerPageCubit
+                                              >(context).updateMainOrderStat(
+                                                widget
+                                                    .orderResponseItem
+                                                    .subgroupIdentifier,
+                                                "on_the_way_to_return",
+                                              );
+                                            },
+                                          )
+                                          : SwipeableWidget(
+                                            text: "Ready To Deliver..!",
+                                            onSwipeFinish: () async {
+                                              setState(() {
+                                                loading = true;
+                                              });
+                                              BlocProvider.of<
+                                                DriverOrderInnerPageCubit
+                                              >(context).updateMainOrderStat(
+                                                widget
+                                                    .orderResponseItem
+                                                    .subgroupIdentifier,
+                                                "on_the_way",
+                                              );
+                                            },
+                                          ),
                                 ),
                       ),
                     )

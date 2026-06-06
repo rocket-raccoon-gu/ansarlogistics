@@ -219,6 +219,30 @@ class DeliveryTypeTile extends StatelessWidget {
             ],
           ),
         );
+      case "RET":
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 3.0),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(8.0),
+              topRight: Radius.circular(8.0),
+            ),
+            color: HexColor('#f55f62'),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TranslatedText(
+                text: "Return Order",
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyL_SemiBold,
+                  color: FontColor.White,
+                ),
+              ),
+              OrderStatusWidget(status: orderResponseItem.status),
+            ],
+          ),
+        );
       default:
         return Container();
     }
