@@ -106,12 +106,14 @@ Widget dispatchSelector({
     options.add({'key': 'shipbee', 'label': 'Shipbee'});
   } else {
     options.add({'key': 'normal', 'label': 'Normal'});
+    options.add({'key': 'godo', 'label': 'GODO'});
     options.add({'key': 'shipbee', 'label': 'Shipbee'});
   }
 
   final Color selectedBg = switch (value) {
     'driver' => const Color(0xFF9729BA),
     'rider' => Colors.red,
+    'godo' => HexColor('#063997'),
     'shipbee' => Colors.grey,
     _ => customColors().islandAqua,
   };
@@ -132,6 +134,7 @@ Widget dispatchSelector({
               final Color selectedBg = switch (key) {
                 'driver' => HexColor('#9729BA'),
                 'rider' => HexColor('#FF0000'),
+                'godo' => HexColor('#063997'),
                 'shipbee' => HexColor('#808080'),
                 _ => customColors().islandAqua,
               };
@@ -140,6 +143,7 @@ Widget dispatchSelector({
               IconData icon = switch (key) {
                 'driver' => Icons.directions_car_filled_outlined,
                 'rider' => Icons.pedal_bike_outlined,
+                'godo' => Icons.local_shipping_outlined,
                 _ => Icons.local_shipping_outlined,
               };
 
@@ -168,7 +172,7 @@ Widget dispatchSelector({
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyL_SemiBold,
                           color:
-                              selected
+                              selected || key == "godo"
                                   ? FontColor.White
                                   : FontColor.FontPrimary,
                         ),
@@ -276,6 +280,25 @@ Widget getDriverTypeWidget(String driverType, String type) {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
           color: HexColor('#4d4b49'),
+        ),
+        child: Row(
+          children: [
+            Text(
+              type,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_SemiBold,
+                color: FontColor.White,
+              ),
+            ),
+          ],
+        ),
+      );
+    case 'godo':
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          color: HexColor('#063997'),
         ),
         child: Row(
           children: [

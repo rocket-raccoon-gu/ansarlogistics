@@ -593,6 +593,8 @@ String getDriverType(String driverType) {
       return 'RAD';
     case 'shipbee':
       return 'Shipbee';
+    case 'godo':
+      return 'GODO';
     default:
       return 'Ansar';
   }
