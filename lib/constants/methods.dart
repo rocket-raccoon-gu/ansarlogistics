@@ -73,6 +73,8 @@ String getStatus(String stat) {
       return "Assigned Driver";
     case "customer_not_answer":
       return "Customer Not Answer";
+    case "on_the_way_to_return":
+      return "On The Way";
     default:
       return "";
   }
@@ -126,6 +128,8 @@ Color getOrderWidgetColor(String status) {
       return HexColor('#5e0e9f');
     case "order_collected":
       return HexColor('#7b98c9');
+    case "on_the_way_to_return":
+      return HexColor('#fcb103');
     default:
       return customColors().accent;
   }

@@ -105,63 +105,95 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
             child: Column(
               children: [
                 widget.orderResponseItem.status != "on_the_way"
-                    ? SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                        child:
-                            loading
-                                ? BasketButton(
-                                  loading: true,
-                                  bgcolor: customColors().green4,
-                                  textStyle: customTextStyle(
-                                    fontStyle: FontStyle.BodyL_Bold,
-                                  ),
-                                )
-                                : Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: customColors().grey,
+                    ? widget.orderResponseItem.status == "on_the_way_to_return"
+                        ? SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 35.0,
+                            ),
+                            child: BasketButton(
+                              bgcolor: customColors().green4,
+                              textStyle: customTextStyle(
+                                fontStyle: FontStyle.BodyL_Bold,
+                                color: FontColor.FontPrimary,
+                              ),
+                              text: "Upload Return Bill",
+                              onpress: () {
+                                context.gNavigationService
+                                    .openDeliveryUpdatePage(
+                                      context,
+                                      arg: {'order': widget.orderResponseItem},
+                                    );
+                              },
+                            ),
+                          ),
+                        )
+                        : SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 35.0,
+                            ),
+                            child:
+                                loading
+                                    ? BasketButton(
+                                      loading: true,
+                                      bgcolor: customColors().green4,
+                                      textStyle: customTextStyle(
+                                        fontStyle: FontStyle.BodyL_Bold,
+                                      ),
+                                    )
+                                    : Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: customColors().grey,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                          20.0,
+                                        ),
+                                      ),
+                                      child:
+                                          widget.orderResponseItem.type == "RET"
+                                              ? SwipeableWidget(
+                                                text: "Ready To Return..!",
+                                                onSwipeFinish: () async {
+                                                  setState(() {
+                                                    loading = true;
+                                                  });
+                                                  BlocProvider.of<
+                                                    DriverOrderInnerPageCubit
+                                                  >(
+                                                    context,
+                                                  ).updateMainOrderStat(
+                                                    widget
+                                                        .orderResponseItem
+                                                        .subgroupIdentifier,
+                                                    "on_the_way_to_return",
+                                                  );
+                                                },
+                                              )
+                                              : SwipeableWidget(
+                                                text: "Ready To Deliver..!",
+                                                onSwipeFinish: () async {
+                                                  setState(() {
+                                                    loading = true;
+                                                  });
+                                                  BlocProvider.of<
+                                                    DriverOrderInnerPageCubit
+                                                  >(
+                                                    context,
+                                                  ).updateMainOrderStat(
+                                                    widget
+                                                        .orderResponseItem
+                                                        .subgroupIdentifier,
+                                                    "on_the_way",
+                                                  );
+                                                },
+                                              ),
                                     ),
-                                    borderRadius: BorderRadius.circular(20.0),
-                                  ),
-                                  child:
-                                      widget.orderResponseItem.type == "RET"
-                                          ? SwipeableWidget(
-                                            text: "Ready To Return..!",
-                                            onSwipeFinish: () async {
-                                              setState(() {
-                                                loading = true;
-                                              });
-                                              BlocProvider.of<
-                                                DriverOrderInnerPageCubit
-                                              >(context).updateMainOrderStat(
-                                                widget
-                                                    .orderResponseItem
-                                                    .subgroupIdentifier,
-                                                "on_the_way_to_return",
-                                              );
-                                            },
-                                          )
-                                          : SwipeableWidget(
-                                            text: "Ready To Deliver..!",
-                                            onSwipeFinish: () async {
-                                              setState(() {
-                                                loading = true;
-                                              });
-                                              BlocProvider.of<
-                                                DriverOrderInnerPageCubit
-                                              >(context).updateMainOrderStat(
-                                                widget
-                                                    .orderResponseItem
-                                                    .subgroupIdentifier,
-                                                "on_the_way",
-                                              );
-                                            },
-                                          ),
-                                ),
-                      ),
-                    )
+                          ),
+                        )
                     : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child:

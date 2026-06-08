@@ -17,10 +17,12 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:toastification/toastification.dart';
 
 class DeliveryUpdatePage extends StatefulWidget {
-  const DeliveryUpdatePage({super.key});
+  Map<String, dynamic>? data;
+  DeliveryUpdatePage({super.key, this.data});
 
   @override
   State<DeliveryUpdatePage> createState() => _DeliveryUpdatePageState();
@@ -32,6 +34,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
   bool updatestat = false;
   bool _isGettingLocation = false;
   Position? _currentPosition;
+
+  Order? orderResponseItem;
 
   final ImagePicker imagePicker = ImagePicker();
 
@@ -103,6 +107,11 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
         );
       }
     }
+  }
+
+  initState() {
+    super.initState();
+    orderResponseItem = widget.data!['order'];
   }
 
   @override
@@ -853,16 +862,25 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                       child: BasketButton(
                         loading:
                             context.read<DeliveryUpdatePageCubit>().updatestat,
-                        text: "Update Delivery Status",
+                        text:
+                            orderResponseItem?.status == "on_the_way_to_return"
+                                ? "Update Return Status"
+                                : "Update Delivery Status",
                         bgcolor: customColors().green600,
                         onpress: () async {
                           setState(() {
                             updatestat = true;
                           });
-
-                          BlocProvider.of<DeliveryUpdatePageCubit>(
-                            context,
-                          ).updateMainOrderStat("complete");
+                          if (orderResponseItem?.status ==
+                              "on_the_way_to_return") {
+                            BlocProvider.of<DeliveryUpdatePageCubit>(
+                              context,
+                            ).updateMainOrderStat("order_items_returned");
+                          } else {
+                            BlocProvider.of<DeliveryUpdatePageCubit>(
+                              context,
+                            ).updateMainOrderStat("complete");
+                          }
                         },
                         textStyle: customTextStyle(
                           fontStyle: FontStyle.BodyL_Bold,

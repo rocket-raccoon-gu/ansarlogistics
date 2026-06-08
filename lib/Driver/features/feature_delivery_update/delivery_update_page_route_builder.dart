@@ -27,7 +27,7 @@ class DeliveryUpdatePageRouteBuilder {
           RepositoryProvider.value(value: serviceLocator.navigationService),
           RepositoryProvider<CubitsLocator>.value(value: serviceLocator),
         ],
-        child: DeliveryUpdatePage(),
+        child: DeliveryUpdatePage(data: data),
       ),
     );
   }
