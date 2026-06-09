@@ -989,12 +989,13 @@ extension PDGeneralApi on PickerDriverApi {
     // print("${token} <<<<<<<<<<<<<<<token data");
 
     if (startDate != "" && endDate == "") {
-      url = Uri.parse(
-        'https://pickerdriver-api.testuatah.com/api/picker/report?start_date=$startDate',
-      );
+      // url = Uri.parse(
+      //   'https://pickerdriver-api.testuatah.com/api/picker/report?start_date=$startDate',
+      // );
+      url = _endpointWithApplicationPath('picker/report?start_date=$startDate');
     } else {
-      url = Uri.parse(
-        'https://pickerdriver-api.testuatah.com/api/picker/report?start_date=$startDate&end_date=$endDate',
+      url = _endpointWithApplicationPath(
+        'picker/report?start_date=$startDate&end_date=$endDate',
       );
     }
 
