@@ -1167,7 +1167,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String userid,
     required String categoryIds,
   }) {
-    final url = _endpointWithApplicationPath('/check_status.php');
+    final url = _endpointWithApplicationPath('check_status.php');
 
     final Map<String, String> headers = {
       'Content-Type': ContentTypes.applicationCharset,
