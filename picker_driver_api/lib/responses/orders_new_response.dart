@@ -179,6 +179,7 @@ class OrderItemNew {
   final String? productOptions;
   final String? finalPrice;
   final String? branchname;
+  final String? binNumber;
 
   OrderItemNew({
     this.id,
@@ -200,6 +201,7 @@ class OrderItemNew {
     this.productOptions,
     this.finalPrice,
     this.branchname,
+    this.binNumber,
   });
 
   factory OrderItemNew.fromJson(Map<String, dynamic> json) => OrderItemNew(
@@ -240,6 +242,7 @@ class OrderItemNew {
             : json['product_options']?.toString(),
     finalPrice: json['final_price']?.toString(),
     branchname: json['branch_name']?.toString(),
+    binNumber: json['bin_number']?.toString(),
   );
 }
 

@@ -129,6 +129,17 @@ class ItemTile extends StatelessWidget {
                           color: FontColor.FontSecondary,
                         ),
                       ),
+                      const SizedBox(height: 4),
+                      item.binNumber != null
+                          ? Text(
+                            'Bin: ${item.binNumber}',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyS_Bold,
+                              color: FontColor.FontSecondary,
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+
                       const SizedBox(height: 8),
                       Builder(
                         builder: (_) {

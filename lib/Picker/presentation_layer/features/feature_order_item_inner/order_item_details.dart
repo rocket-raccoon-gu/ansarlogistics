@@ -1099,6 +1099,31 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                         ),
                                       ],
                                     ),
+                                    //Bin number
+                                    if ((item.binNumber ?? '').isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 8.0,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'Bin Number  ',
+                                              style: customTextStyle(
+                                                fontStyle: FontStyle.BodyM_Bold,
+                                                color: FontColor.FontPrimary,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${item.binNumber}',
+                                              style: customTextStyle(
+                                                fontStyle: FontStyle.BodyM_Bold,
+                                                color: FontColor.FontPrimary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     // Price and Quantity inline
                                     Row(
                                       mainAxisAlignment:
