@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:ansarlogistics/Section_In/features/components/custom_toggle_button.dart';
 import 'package:ansarlogistics/Section_In/features/feature_home_section_incharge/bloc/home_section_incharge_cubit.dart';
+import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -31,6 +34,7 @@ class SectionProductListItem extends StatefulWidget {
 
 class _SectionProductListItemState extends State<SectionProductListItem> {
   late CarouselSliderController _sliderController;
+  late Future<String> _imagePathFuture;
 
   int val = 0;
 
@@ -39,6 +43,7 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
     // TODO: implement initState
     super.initState();
     _sliderController = CarouselSliderController();
+    _imagePathFuture = getImagePathFromFirestore();
   }
 
   // int get _currentStatus {
@@ -199,12 +204,29 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10.0),
+                            child: FutureBuilder<String>(
+                              future: _imagePathFuture,
+                              builder: (context, snapshot) {
+                                final imagePath =
+                                    snapshot.data ??
+                                    'https://media.ansargallery.com/media/catalog/product';
 
-                            child:
-                                widget.sectionitem.imageUrl.isNotEmpty
+                                log(
+                                  "$imagePath/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
+                                );
+                                final rawImageUrl = widget.sectionitem.imageUrl;
+                                log('Raw imageUrl: $rawImageUrl');
+
+                                final fullImageUrl = buildFullImageUrl(
+                                  imagePath,
+                                  rawImageUrl,
+                                );
+
+                                log('Full image URL: $fullImageUrl');
+
+                                return rawImageUrl.isNotEmpty
                                     ? CachedNetworkImage(
-                                      imageUrl:
-                                          "https://media-qatar.ansargallery.com/catalog/product/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
+                                      imageUrl: fullImageUrl,
                                       cacheKey:
                                           "product_${widget.sectionitem.sku}",
                                       maxWidthDiskCache: 200,
@@ -263,7 +285,9 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
                                         color: Colors.grey[400],
                                         size: 32,
                                       ),
-                                    ),
+                                    );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -400,6 +424,25 @@ class _SectionProductListItemState extends State<SectionProductListItem> {
 }
 
 String getImageUrlEdited(String base) {
-  String newPath = base.replaceFirst("/catalog/product/", "");
+  String newPath = base;
+  if (newPath.startsWith('/media/catalog/product/')) {
+    newPath = newPath.replaceFirst('/media/catalog/product/', '');
+  } else if (newPath.startsWith('/catalog/product/')) {
+    newPath = newPath.replaceFirst('/catalog/product/', '');
+  }
   return newPath;
+}
+
+String buildFullImageUrl(String imagePath, String imageUrl) {
+  if (imageUrl.startsWith('http')) {
+    return imageUrl;
+  }
+
+  final normalizedImagePath =
+      imagePath.endsWith('/')
+          ? imagePath.substring(0, imagePath.length - 1)
+          : imagePath;
+  final normalizedImageUrl = getImageUrlEdited(imageUrl);
+
+  return '$normalizedImagePath/$normalizedImageUrl';
 }

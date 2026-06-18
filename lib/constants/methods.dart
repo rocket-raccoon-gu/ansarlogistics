@@ -246,6 +246,18 @@ Future<Map<String, dynamic>> getData() async {
   }
 }
 
+// Function to fetch image path from Firestore
+Future<String> getImagePathFromFirestore() async {
+  try {
+    final data = await getData();
+    final imagePath = data['imagepath'] as String?;
+    return imagePath ?? 'https://media-qatar.ansargallery.com/catalog/product';
+  } catch (e) {
+    log('Error fetching image path from Firestore: $e');
+    return 'https://media-qatar.ansargallery.com/catalog/product';
+  }
+}
+
 String getcatecoryname(String id) {
   switch (id) {
     case "3":
