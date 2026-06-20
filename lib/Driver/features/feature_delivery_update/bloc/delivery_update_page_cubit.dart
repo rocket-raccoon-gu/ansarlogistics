@@ -109,16 +109,16 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
       final response = await serviceLocator.tradingApi.pickerDriverApi
           .uploadBillService(billfile, orderResponseItem!.subgroupIdentifier);
 
-      // if (response.statusCode == 200) {
-      //   log("success");
+      if (response.statusCode == 200) {
+        log("success");
 
-      uploadprogress = 100;
+        uploadprogress = 100;
 
-      emit(DeliveryBillUpdatedState(true));
-      // } else {
-      //   log("failed");
-      //   emit(DeliveryBillUpdateErrorState());
-      // }
+        emit(DeliveryBillUpdatedState(true));
+      } else {
+        log("failed");
+        emit(DeliveryBillUpdateErrorState());
+      }
     } catch (e) {
       emit(DeliveryBillUpdateErrorState());
     }
