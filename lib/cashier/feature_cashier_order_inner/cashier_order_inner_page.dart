@@ -86,13 +86,35 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     return diffPicker || diffWeb;
   }
 
+  double _couponDiscount() {
+    final couponCode = order.coupencode?.toString().trim().toUpperCase();
+    if (couponCode == 'FIRST20') return 20.0;
+    return _toDouble(order.discountValue ?? 0);
+  }
+
+  double _discountValue() {
+    final couponCode = order.coupencode?.toString().trim().toUpperCase();
+    if (couponCode == 'FIRST20') {
+      return 20.0;
+    } else {
+      return 0.0;
+    }
+  }
+
   double _baseGrandTotal() {
-    return _toDouble(
+    final rawTotal = _toDouble(
       order.endPickTotal != 0
           ? _toDouble(order.endPickTotal.toString()) +
               _toDouble(order.shippingCharge.toString())
           : order.grandTotal,
     );
+    return rawTotal - _couponDiscount();
+  }
+
+  double _dueAmount() {
+    final orderAmount = _toDouble(order.orderAmount);
+    final endPickTotal = _toDouble(order.endPickTotal);
+    return endPickTotal - orderAmount;
   }
 
   Widget _buildItemRow(Item item) {
@@ -224,7 +246,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     // _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
     _grandTotalOverride = null;
 
-    _editableGrandTotal =
+    final initialTotal =
         order.posAmount != null &&
                 order.posAmount != '0.0' &&
                 order.posAmount != "" &&
@@ -238,6 +260,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                           : _toDouble(order.shippingCharge.toString()))
                   : order.grandTotal,
             );
+    _editableGrandTotal = initialTotal - _discountValue();
   }
 
   @override
@@ -305,12 +328,18 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     }
   }
 
-  Widget _kvMoney(String label, num value, {bool bold = false}) {
-    final labelStyle = customTextStyle(
+  Widget _kvMoney(
+    String label,
+    num value, {
+    bool bold = false,
+    TextStyle? labelStyle,
+    TextStyle? valueStyle,
+  }) {
+    final defaultLabelStyle = customTextStyle(
       fontStyle: bold ? FontStyle.BodyM_Bold : FontStyle.BodyM_SemiBold,
       color: FontColor.FontPrimary,
     ).copyWith(fontSize: 16, height: 1.3);
-    final valueStyle = customTextStyle(
+    final defaultValueStyle = customTextStyle(
       fontStyle: bold ? FontStyle.BodyL_Bold : FontStyle.BodyM_Regular,
       color: FontColor.FontPrimary,
     ).copyWith(fontSize: bold ? 18 : 16, height: 1.4);
@@ -318,9 +347,13 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: labelStyle)),
+          Expanded(child: Text(label, style: labelStyle ?? defaultLabelStyle)),
           const SizedBox(width: 12),
-          Text(_fmtQar(value), style: valueStyle, textAlign: TextAlign.right),
+          Text(
+            _fmtQar(value),
+            style: valueStyle ?? defaultValueStyle,
+            textAlign: TextAlign.right,
+          ),
         ],
       ),
     );
@@ -1755,9 +1788,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       final lng = UserController.userController.locationlongitude;
 
       final grandTotal = _toDouble(_grandTotalOverride ?? _baseGrandTotal());
-      // Use onlinePaidAmount as paid
-      final paid = _toDouble(order.orderAmount);
-      final due = grandTotal - paid;
+      final due = _dueAmount();
 
       final token = await PreferenceUtils.getDataFromShared('usertoken');
 
@@ -1914,14 +1945,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     try {
       final name = UserController().profile.name.toString();
       final empId = UserController().profile.empId;
-      final userId = UserController().profile.id.toString();
+      final userId = UserController.userController.profile.id.toString();
       final lat = UserController.userController.locationlatitude;
       final lng = UserController.userController.locationlongitude;
 
       final grandTotal = _toDouble(_grandTotalOverride ?? _baseGrandTotal());
-      // Use onlinePaidAmount as paid
-      final paid = _toDouble(order.orderAmount);
-      final due = grandTotal - paid;
+      final due = _dueAmount();
 
       final token = await PreferenceUtils.getDataFromShared('usertoken');
 
@@ -2020,6 +2049,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         _translatedNote?.trim().isNotEmpty == true
             ? _translatedNote!.trim()
             : originalNote;
+
+    final couponCode = order.coupencode?.toString().trim();
+    final hasCoupon = couponCode?.isNotEmpty == true;
 
     return BlocConsumer<CashierOrderInnerPageCubit, CashierOrderInnerPageState>(
       listener: (context, state) {
@@ -2673,8 +2705,39 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                           ),
                                         ),
                                         _kvMoney(
-                                          'Discount',
-                                          _toDouble(order.discountValue ?? 0),
+                                          hasCoupon
+                                              ? 'Discount Code (${couponCode!.toUpperCase()})'
+                                              : 'Discount',
+                                          _toDouble(
+                                            couponCode == "FIRST20" ? 20 : 0,
+                                          ),
+                                          labelStyle:
+                                              hasCoupon
+                                                  ? customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle
+                                                            .BodyM_SemiBold,
+                                                    color:
+                                                        FontColor.FontPrimary,
+                                                  ).copyWith(
+                                                    fontSize: 16,
+                                                    height: 1.3,
+                                                    color: Colors.red,
+                                                  )
+                                                  : null,
+                                          valueStyle:
+                                              hasCoupon
+                                                  ? customTextStyle(
+                                                    fontStyle:
+                                                        FontStyle.BodyL_Bold,
+                                                    color:
+                                                        FontColor.FontPrimary,
+                                                  ).copyWith(
+                                                    fontSize: 18,
+                                                    height: 1.4,
+                                                    color: Colors.red,
+                                                  )
+                                                  : null,
                                         ),
 
                                         Builder(
@@ -2699,12 +2762,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                     : order.grandTotal,
                                               );
                                             }
+                                            grandTotal -= _discountValue();
 
-                                            // Use onlinePaidAmount as paid
-                                            final paid = _toDouble(
-                                              order.orderAmount,
-                                            );
-                                            final due = grandTotal - paid;
+                                            final due = _dueAmount();
 
                                             final labelStyle = customTextStyle(
                                               fontStyle:
@@ -2726,28 +2786,34 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                   due < 0 ? Colors.red : null,
                                             );
 
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 6,
-                                                  ),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      'Due Amount',
-                                                      style: labelStyle,
+                                            if (order.paymentMethod ==
+                                                'tns_hosted') {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 6,
                                                     ),
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  Text(
-                                                    _fmtQar(due),
-                                                    style: valueStyle,
-                                                    textAlign: TextAlign.right,
-                                                  ),
-                                                ],
-                                              ),
-                                            );
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Due Amount',
+                                                        style: labelStyle,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Text(
+                                                      _fmtQar(due),
+                                                      style: valueStyle,
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            } else {
+                                              return SizedBox();
+                                            }
                                           },
                                         ),
 
@@ -2755,6 +2821,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                           'Online Paid Amount',
                                           _toDouble(order.onlinePaidAmount),
                                         ),
+
                                         // _kvMoney(
                                         //   'POS Amount',
                                         //   _toDouble(order.posAmount ?? 0),
@@ -2790,7 +2857,14 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                 .startsWith('WAR')
                                             ? _editableKvMoney(
                                               'Grand Total',
-                                              _toDouble(order.orderAmount),
+                                              _toDouble(
+                                                order.coupencode == 'FIRST20'
+                                                    ? double.parse(
+                                                          order.orderAmount,
+                                                        ) -
+                                                        20
+                                                    : order.orderAmount,
+                                              ),
                                               onChanged: (newValue) {
                                                 setState(() {
                                                   _editableGrandTotal =

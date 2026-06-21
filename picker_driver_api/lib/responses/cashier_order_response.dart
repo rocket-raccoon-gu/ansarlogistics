@@ -99,6 +99,7 @@ class Datum {
   String? cashierName;
   int? customer_id;
   String? branchcode;
+  String? coupencode;
 
   Datum({
     required this.subgroupIdentifier,
@@ -158,6 +159,7 @@ class Datum {
     required this.cashierName,
     required this.customer_id,
     required this.branchcode,
+    required this.coupencode,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -230,6 +232,7 @@ class Datum {
     cashierName: json["cashier_name"] ?? "",
     customer_id: json["customer_id"] ?? 0,
     branchcode: json["branch_code"] ?? "",
+    coupencode: json["coupon_code"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -292,6 +295,7 @@ class Datum {
     "cashier_name": cashierName,
     "customer_id": customer_id,
     "branch_code": branchcode,
+    "coupon_code": coupencode,
   };
 }
 

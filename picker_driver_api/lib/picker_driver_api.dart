@@ -1292,7 +1292,7 @@ extension PDGeneralApi on PickerDriverApi {
     };
 
     final url = Uri.parse(
-      '${scanbarcodeurl}v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
+      'https://pickerdriver.ansargallery.qa/v1/api/qatar/getProductdata_newV2.php?sku=$endpoint&ordersku=$productSku&action=$action',
     );
 
     // final url = _endpointWithApplicationPath('picker/orders/check-sku');
