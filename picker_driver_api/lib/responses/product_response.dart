@@ -35,45 +35,48 @@ class ProductResponse {
 
   factory ProductResponse.fromJson(Map<String, dynamic> json) =>
       ProductResponse(
-        id: json["id"],
+        id: json["id"] ?? 0,
         sku: json["sku"],
         name: json["name"],
         price: json["price"] != null ? json["price"].toString() : "0.0",
         status: json["status"],
         typeId: json["type_id"],
         createdAt: DateTime.parse(json["created_at"]),
-        extensionAttributes:
-            ExtensionAttributes.fromJson(json["extension_attributes"]),
+        extensionAttributes: ExtensionAttributes.fromJson(
+          json["extension_attributes"],
+        ),
         mediaGalleryEntries: List<MediaGalleryEntry1>.from(
-            json["media_gallery_entries"]
-                .map((x) => MediaGalleryEntry1.fromJson(x))),
+          json["media_gallery_entries"].map(
+            (x) => MediaGalleryEntry1.fromJson(x),
+          ),
+        ),
         tierPrices: List<dynamic>.from(json["tier_prices"].map((x) => x)),
         customAttributes: List<CustomAttribute>.from(
-            json["custom_attributes"].map((x) => CustomAttribute.fromJson(x))),
+          json["custom_attributes"].map((x) => CustomAttribute.fromJson(x)),
+        ),
       );
 
   Map<String, dynamic> toJson() => {
-        "sku": sku,
-        "id": id,
-        "name": name,
-        "price": price,
-        "status": status,
-        "type_id": typeId,
-        "created_at": createdAt.toIso8601String(),
-        "extension_attributes": extensionAttributes.toJson(),
-        "media_gallery_entries":
-            List<dynamic>.from(mediaGalleryEntries.map((x) => x.toJson())),
-        "tier_prices": List<dynamic>.from(tierPrices.map((x) => x)),
-        "custom_attributes":
-            List<dynamic>.from(customAttributes.map((x) => x.toJson())),
-      };
+    "sku": sku,
+    "id": id,
+    "name": name,
+    "price": price,
+    "status": status,
+    "type_id": typeId,
+    "created_at": createdAt.toIso8601String(),
+    "extension_attributes": extensionAttributes.toJson(),
+    "media_gallery_entries": List<dynamic>.from(
+      mediaGalleryEntries.map((x) => x.toJson()),
+    ),
+    "tier_prices": List<dynamic>.from(tierPrices.map((x) => x)),
+    "custom_attributes": List<dynamic>.from(
+      customAttributes.map((x) => x.toJson()),
+    ),
+  };
 }
 
 class CustomAttribute {
-  CustomAttribute({
-    required this.attributeCode,
-    required this.value,
-  });
+  CustomAttribute({required this.attributeCode, required this.value});
 
   String attributeCode;
   dynamic value;
@@ -85,19 +88,18 @@ class CustomAttribute {
       );
 
   Map<String, dynamic> toJson() => {
-        "attribute_code": attributeCode,
-        "value": value,
-      };
+    "attribute_code": attributeCode,
+    "value": value,
+  };
 }
 
 class ExtensionAttributes {
-  ExtensionAttributes(
-      {
-      // required this.websiteIds,
-      required this.categoryLinks,
-      this.configurableProductOptions
-      // required this.stockItem,
-      });
+  ExtensionAttributes({
+    // required this.websiteIds,
+    required this.categoryLinks,
+    this.configurableProductOptions,
+    // required this.stockItem,
+  });
 
   // List<int> websiteIds;
   List<CategoryLink> categoryLinks;
@@ -106,43 +108,43 @@ class ExtensionAttributes {
 
   factory ExtensionAttributes.fromJson(Map<String, dynamic> json) =>
       ExtensionAttributes(
-        categoryLinks: json["category_links"] == null
-            ? []
-            : List<CategoryLink>.from(
-                json["category_links"].map((x) => CategoryLink.fromJson(x))),
-        configurableProductOptions: json["configurable_product_options"] == null
-            ? []
-            : List<ConfigurableProductOption>.from(
-                json["configurable_product_options"]
-                    .map((x) => ConfigurableProductOption.fromJson(x))),
+        categoryLinks:
+            json["category_links"] == null
+                ? []
+                : List<CategoryLink>.from(
+                  json["category_links"].map((x) => CategoryLink.fromJson(x)),
+                ),
+        configurableProductOptions:
+            json["configurable_product_options"] == null
+                ? []
+                : List<ConfigurableProductOption>.from(
+                  json["configurable_product_options"].map(
+                    (x) => ConfigurableProductOption.fromJson(x),
+                  ),
+                ),
       );
 
   Map<String, dynamic> toJson() => {
-        "category_links":
-            List<dynamic>.from(categoryLinks.map((x) => x.toJson())),
-        "configurable_product_options": List<dynamic>.from(
-            configurableProductOptions!.map((x) => x.toJson())),
-      };
+    "category_links": List<dynamic>.from(categoryLinks.map((x) => x.toJson())),
+    "configurable_product_options": List<dynamic>.from(
+      configurableProductOptions!.map((x) => x.toJson()),
+    ),
+  };
 }
 
 class CategoryLink {
-  CategoryLink({
-    required this.position,
-    required this.categoryId,
-  });
+  CategoryLink({required this.position, required this.categoryId});
 
   int position;
   String categoryId;
 
-  factory CategoryLink.fromJson(Map<String, dynamic> json) => CategoryLink(
-        position: json["position"],
-        categoryId: json["category_id"],
-      );
+  factory CategoryLink.fromJson(Map<String, dynamic> json) =>
+      CategoryLink(position: json["position"], categoryId: json["category_id"]);
 
   Map<String, dynamic> toJson() => {
-        "position": position,
-        "category_id": categoryId,
-      };
+    "position": position,
+    "category_id": categoryId,
+  };
 }
 
 class ConfigurableProductOption {
@@ -169,18 +171,19 @@ class ConfigurableProductOption {
         label: json["label"],
         position: json["position"],
         values: List<ValueElement>.from(
-            json["values"].map((x) => ValueElement.fromJson(x))),
+          json["values"].map((x) => ValueElement.fromJson(x)),
+        ),
         productId: json["product_id"],
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "attribute_id": attributeId,
-        "label": label,
-        "position": position,
-        "values": List<dynamic>.from(values.map((x) => x.toJson())),
-        "product_id": productId,
-      };
+    "id": id,
+    "attribute_id": attributeId,
+    "label": label,
+    "position": position,
+    "values": List<dynamic>.from(values.map((x) => x.toJson())),
+    "product_id": productId,
+  };
 }
 
 class ValueElement {
@@ -195,32 +198,27 @@ class ValueElement {
   });
 
   factory ValueElement.fromJson(Map<String, dynamic> json) => ValueElement(
-        valueIndex: json["value_index"].toString(),
-        label: json["label"] ?? "",
-        sku: json["sku"] ?? "",
-      );
+    valueIndex: json["value_index"].toString(),
+    label: json["label"] ?? "",
+    sku: json["sku"] ?? "",
+  );
 
   Map<String, dynamic> toJson() => {
-        "value_index": valueIndex,
-        "label": label,
-        "sku": sku,
-      };
+    "value_index": valueIndex,
+    "label": label,
+    "sku": sku,
+  };
 }
 
 class StockItem {
-  StockItem({
-    required this.isInStock,
-  });
+  StockItem({required this.isInStock});
 
   bool isInStock;
 
-  factory StockItem.fromJson(Map<String, dynamic> json) => StockItem(
-        isInStock: json["is_in_stock"],
-      );
+  factory StockItem.fromJson(Map<String, dynamic> json) =>
+      StockItem(isInStock: json["is_in_stock"]);
 
-  Map<String, dynamic> toJson() => {
-        "is_in_stock": isInStock,
-      };
+  Map<String, dynamic> toJson() => {"is_in_stock": isInStock};
 }
 
 class MediaGalleryEntry1 {
@@ -254,14 +252,14 @@ class MediaGalleryEntry1 {
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "media_type": mediaType,
-        "label": label,
-        "position": position,
-        "disabled": disabled,
-        "types": List<dynamic>.from(types.map((x) => x)),
-        "file": file,
-      };
+    "id": id,
+    "media_type": mediaType,
+    "label": label,
+    "position": position,
+    "disabled": disabled,
+    "types": List<dynamic>.from(types.map((x) => x)),
+    "file": file,
+  };
 }
 
 class ProductLink {
@@ -280,18 +278,18 @@ class ProductLink {
   int position;
 
   factory ProductLink.fromJson(Map<String, dynamic> json) => ProductLink(
-        sku: json["sku"],
-        linkType: json["link_type"],
-        linkedProductSku: json["linked_product_sku"],
-        linkedProductType: json["linked_product_type"],
-        position: json["position"],
-      );
+    sku: json["sku"],
+    linkType: json["link_type"],
+    linkedProductSku: json["linked_product_sku"],
+    linkedProductType: json["linked_product_type"],
+    position: json["position"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "sku": sku,
-        "link_type": linkType,
-        "linked_product_sku": linkedProductSku,
-        "linked_product_type": linkedProductType,
-        "position": position,
-      };
+    "sku": sku,
+    "link_type": linkType,
+    "linked_product_sku": linkedProductSku,
+    "linked_product_type": linkedProductType,
+    "position": position,
+  };
 }

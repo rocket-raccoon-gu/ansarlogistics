@@ -22,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 
 class NewScanBarcodePage extends StatefulWidget {
@@ -371,7 +372,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                                           );
                                         },
                                         child: Image.network(
-                                          "$_dynamicImageUrl${_productResponse!.mediaGalleryEntries[0].file}",
+                                          "$_dynamicImageUrl${_productResponse!.mediaGalleryEntries[0].file.trim()}",
                                           fit: BoxFit.contain,
                                         ),
                                       ),
@@ -2070,7 +2071,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
   }
 
   getImageViewver(
-    List<MediaGalleryEntry1> mediaGalleryEntries,
+    List<MediaGalleryEntry1> imageList,
     context,
     CarouselSliderController sliderController,
   ) {
@@ -2127,7 +2128,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                           height: 250,
                           width: 300,
                           child: CarouselSlider.builder(
-                            itemCount: mediaGalleryEntries.length,
+                            itemCount: imageList.length,
                             options: CarouselOptions(height: 400.0),
                             itemBuilder:
                                 (
@@ -2141,7 +2142,7 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
                                     color: Colors.amber,
                                   ),
                                   child: Image.network(
-                                    "$_dynamicImageUrl${mediaGalleryEntries[itemIndex].file.toString()}",
+                                    "$_dynamicImageUrl${imageList[itemIndex].file.toString()}",
                                     fit: BoxFit.fill,
                                   ),
                                 ),

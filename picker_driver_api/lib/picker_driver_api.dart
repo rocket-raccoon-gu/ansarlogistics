@@ -756,13 +756,13 @@ extension PDGeneralApi on PickerDriverApi {
   }) async {
     log("endpoint.........${endpoint}");
 
-    // final url = Uri.parse(
-    //   'https://www.ansargallery.com/rest/V1/products/${endpoint.trim()}',
-    // );
-
     final url = Uri.parse(
-      '${scanbarcodeurl}v1/api/qatar/getProductdata_for_section.php?sku=${endpoint.trim()}&ordersku=${endpoint.trim()}&action=pick',
+      'https://www.ansargallery.com/rest/V1/products/${endpoint.trim()}',
     );
+
+    // final url = Uri.parse(
+    //   '${scanbarcodeurl}v1/api/qatar/getProductdata_for_section.php?sku=${endpoint.trim()}&ordersku=${endpoint.trim()}&action=pick',
+    // );
 
     log(url.toString());
 
@@ -1129,8 +1129,12 @@ extension PDGeneralApi on PickerDriverApi {
     //   url = _endpointWithApplicationPath('updateproductstatus.php');
     // }
 
+    // final url = Uri.parse(
+    //   'https://pickerdriver.ansargallery.qa/v1/api/qatar/updateproductstatus.php',
+    // );
+
     final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/updateproductstatus.php',
+      'https://pickerdriver.ansargallery.qa/v1/api/qatar/updateproductstatusv2.php',
     );
 
     // print(url);
@@ -1387,7 +1391,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String categoryIds,
   }) {
     final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/check_status.php',
+      'https://pickerdriver.ansargallery.qa/v1/api/qatar/check_status.php',
     );
 
     final Map<String, String> headers = {
@@ -1684,7 +1688,7 @@ extension on PickerDriverApi {
     // print(
     //   '${root}get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}',
     // );
-    return 'https://pickerdriver.testuatah.com/v1/api/qatar/get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}';
+    return 'https://pickerdriver.ansargallery.qa/v1/api/qatar/get_section_data.php?category_ids=${categoryIds}&branch=${branchCode}';
     // switch (userid) {
     //   case "ahqa_fish":
     //   case "fish_alkhor":
