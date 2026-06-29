@@ -49,7 +49,6 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   final Set<int> _selectedItemIds = <int>{};
   String? paymentMethodnew;
 
-  OnDeviceTranslator? _translator;
   String? _translatedNote;
   bool _isTranslating = false;
 
@@ -1623,14 +1622,14 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       _isTranslating = true;
     });
 
-    _translator = OnDeviceTranslator(
+    final translator = OnDeviceTranslator(
       sourceLanguage: TranslateLanguage.arabic,
       targetLanguage: TranslateLanguage.english,
     );
 
     try {
-      final translatedText = await _translator!.translateText(note);
-      if (!mounted) return;
+      final translatedText = await translator.translateText(note);
+      if (!mounted || order.deliveryNote != note) return;
       setState(() {
         _translatedNote = translatedText;
         _isTranslating = false;
@@ -1640,6 +1639,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       setState(() {
         _isTranslating = false;
       });
+    } finally {
+      await translator.close();
     }
   }
 

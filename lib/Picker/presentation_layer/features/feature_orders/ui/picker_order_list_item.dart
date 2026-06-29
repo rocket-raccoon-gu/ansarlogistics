@@ -355,7 +355,6 @@ class CustomerBottomBanner extends StatefulWidget {
 }
 
 class _CustomerBottomBannerState extends State<CustomerBottomBanner> {
-  OnDeviceTranslator? _translator;
   String? _translatedNote;
   bool _isTranslating = false;
 
@@ -377,14 +376,14 @@ class _CustomerBottomBannerState extends State<CustomerBottomBanner> {
       _isTranslating = true;
     });
 
-    _translator = OnDeviceTranslator(
+    final translator = OnDeviceTranslator(
       sourceLanguage: TranslateLanguage.arabic,
       targetLanguage: TranslateLanguage.english,
     );
 
     try {
-      final translatedText = await _translator!.translateText(note);
-      if (!mounted) return;
+      final translatedText = await translator.translateText(note);
+      if (!mounted || widget.order?.deliveryNote != note) return;
       setState(() {
         _translatedNote = translatedText;
         _isTranslating = false;
@@ -394,13 +393,9 @@ class _CustomerBottomBannerState extends State<CustomerBottomBanner> {
       setState(() {
         _isTranslating = false;
       });
+    } finally {
+      await translator.close();
     }
-  }
-
-  @override
-  void dispose() {
-    _translator?.close();
-    super.dispose();
   }
 
   @override
