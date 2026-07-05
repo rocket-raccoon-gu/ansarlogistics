@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:barcode_scan2/barcode_scan2.dart' as legacy_scanner;
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode.dart';
 import 'package:scandit_flutter_datacapture_barcode/scandit_flutter_datacapture_barcode_capture.dart';
 import 'package:scandit_flutter_datacapture_core/scandit_flutter_datacapture_core.dart';
@@ -18,14 +21,14 @@ class ScanditBarcodeScannerPage extends StatefulWidget {
 
 class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
     implements BarcodeCaptureListener {
-  late final DataCaptureContext _context;
-  late final Camera _camera;
-  late final DataCaptureView _captureView;
-  late final BarcodeCapture _barcodeCapture;
+  Camera? _camera;
+  DataCaptureView? _captureView;
+  BarcodeCapture? _barcodeCapture;
 
   bool _handled = false;
   bool _isLoading = true;
   String? _error;
+  bool _legacyScannerOpening = false;
 
   @override
   void initState() {
@@ -43,6 +46,11 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
     }
 
     try {
+      final permission = await Permission.camera.request();
+      if (!permission.isGranted) {
+        throw Exception('Camera permission is required to open the scanner');
+      }
+
       // 1. Read document from Firestore
       final doc =
           await FirebaseFirestore.instance
@@ -56,15 +64,19 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
       final String scankeyFromFs = data['scandit-key'] as String;
 
       // 2. Use ScanditManager to get shared context (prevents Error 1028)
-      _context = ScanditManager.getContext(scankeyFromFs);
+      final dataCaptureContext = ScanditManager.getContext(scankeyFromFs);
 
       // 3. Remove any existing modes to prevent conflicts
       ScanditManager.removeAllModes();
 
       // 4. Setup camera
-      _camera = Camera.defaultCamera!;
-      _context.setFrameSource(_camera);
-      _camera.switchToDesiredState(FrameSourceState.on);
+      final camera = Camera.defaultCamera;
+      if (camera == null) {
+        throw Exception('No camera was found on this device');
+      }
+      _camera = camera;
+      dataCaptureContext.setFrameSource(camera);
+      camera.switchToDesiredState(FrameSourceState.on);
 
       // 5. Configure barcode settings
       final settings = BarcodeCaptureSettings();
@@ -85,19 +97,24 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
       );
 
       // 6. Create barcode capture with context
-      _barcodeCapture = BarcodeCapture.forContext(_context, settings);
-      _barcodeCapture.addListener(this);
-      _barcodeCapture.isEnabled = true;
+      final barcodeCapture = BarcodeCapture.forContext(
+        dataCaptureContext,
+        settings,
+      );
+      _barcodeCapture = barcodeCapture;
+      barcodeCapture.addListener(this);
+      barcodeCapture.isEnabled = true;
 
       // Register with ScanditManager for proper cleanup
-      ScanditManager.registerMode(_barcodeCapture);
+      ScanditManager.registerMode(barcodeCapture);
 
       // 7. Create view and overlay
-      _captureView = DataCaptureView.forContext(_context);
-      final overlay = BarcodeCaptureOverlay.withBarcodeCapture(_barcodeCapture);
+      final captureView = DataCaptureView.forContext(dataCaptureContext);
+      _captureView = captureView;
+      final overlay = BarcodeCaptureOverlay.withBarcodeCapture(barcodeCapture);
       overlay.viewfinder = RectangularViewfinder();
       overlay.brush = Brush(Colors.transparent, Colors.greenAccent, 4);
-      _captureView.addOverlay(overlay);
+      captureView.addOverlay(overlay);
 
       setState(() {
         _isLoading = false;
@@ -110,16 +127,93 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
     }
   }
 
+  Future<void> _openLegacyScanner() async {
+    if (_legacyScannerOpening) return;
+
+    setState(() {
+      _legacyScannerOpening = true;
+      _error = null;
+    });
+
+    try {
+      final result = await legacy_scanner.BarcodeScanner.scan();
+      final code = result.rawContent.trim();
+      if (!mounted) return;
+
+      if (code.isNotEmpty) {
+        Navigator.pop(context, widget.leadingZero == true ? '0$code' : code);
+        return;
+      }
+
+      setState(() {
+        _error = 'Nothing captured. Please try again.';
+        _legacyScannerOpening = false;
+      });
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error =
+            e.code == legacy_scanner.BarcodeScanner.cameraAccessDenied
+                ? 'Camera permission was denied'
+                : 'Legacy scanner error: ${e.message ?? e.code}';
+        _legacyScannerOpening = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Legacy scanner error: $e';
+        _legacyScannerOpening = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_error != null) {
-      return Scaffold(body: Center(child: Text('Scanner error: $_error')));
+      return Scaffold(
+        appBar: AppBar(title: const Text('Scan Barcode')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Scanner error: $_error',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _legacyScannerOpening ? null : _openLegacyScanner,
+                  child: Text(
+                    _legacyScannerOpening
+                        ? 'Opening scanner...'
+                        : 'Open alternate scanner',
+                  ),
+                ),
+                TextButton(
+                  onPressed:
+                      _legacyScannerOpening
+                          ? null
+                          : () {
+                            setState(() {
+                              _error = null;
+                              _isLoading = true;
+                            });
+                            _initScanner();
+                          },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
-
-    return Scaffold(body: SafeArea(child: _captureView));
+    return Scaffold(body: SafeArea(child: _captureView!));
   }
 
   @override
@@ -147,11 +241,11 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
     _handled = true;
 
     // Stop further scanning
-    _barcodeCapture.isEnabled = false;
+    _barcodeCapture?.isEnabled = false;
 
     Future.delayed(const Duration(milliseconds: 200), () {
       try {
-        _camera.switchToDesiredState(FrameSourceState.standby);
+        _camera?.switchToDesiredState(FrameSourceState.standby);
       } catch (_) {}
       if (mounted) Navigator.pop(context, code);
     });
@@ -296,7 +390,7 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
 
   // Decode rawData (base64) if present; fallback to barcode.data
   String extractBarcodeValue(Barcode barcode) {
-    // Always prefer .data first — it preserves leading zeros
+    // Always prefer .data first; it preserves leading zeros
     if (barcode.data != null && barcode.data!.isNotEmpty) {
       return barcode.data!;
     }
@@ -355,17 +449,20 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
   @override
   void dispose() {
     try {
-      _barcodeCapture.removeListener(this);
+      _barcodeCapture?.removeListener(this);
     } catch (_) {}
     try {
-      _barcodeCapture.isEnabled = false;
+      _barcodeCapture?.isEnabled = false;
     } catch (_) {}
     try {
-      _camera.switchToDesiredState(FrameSourceState.off);
+      _camera?.switchToDesiredState(FrameSourceState.off);
     } catch (_) {}
 
     // Unregister from ScanditManager for proper cleanup
-    ScanditManager.unregisterMode(_barcodeCapture);
+    final barcodeCapture = _barcodeCapture;
+    if (barcodeCapture != null) {
+      ScanditManager.unregisterMode(barcodeCapture);
+    }
 
     super.dispose();
   }

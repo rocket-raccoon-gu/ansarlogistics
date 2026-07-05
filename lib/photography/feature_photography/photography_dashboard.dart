@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_scan_barcode/new_scan_barcode_page.dart';
 import 'package:ansarlogistics/components/custom_app_components/app_bar/custom_app_bar.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
@@ -21,9 +20,6 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:picker_driver_api/responses/product_bd_data_response.dart';
 import 'package:picker_driver_api/responses/product_response.dart';
 import 'package:provider/provider.dart';
 
@@ -40,7 +36,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
   String _scanBarcode = 'Unknown';
   bool stock_stat = false;
   late CarouselSliderController _sliderController;
-  ProductDBdata? _productResponse;
+  ProductResponse? _productResponse;
   bool producebarcode = false;
   bool manual = false;
 
@@ -174,7 +170,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
         log(productresponse.body);
 
         setState(() {
-          _productResponse = ProductDBdata.fromJson(data);
+          _productResponse = ProductResponse.fromJson(data);
         });
 
         showGeneralDialog(
@@ -207,18 +203,19 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                               height: 90.0,
                               width: 90.0,
                               child:
-                                  _productResponse!.imagesList.isEmpty
+                                  _productResponse!.mediaGalleryEntries.isEmpty
                                       ? Image.asset('assets/placeholder.png')
                                       : InkWell(
                                         onTap: () {
                                           getImageViewver(
-                                            _productResponse!.imagesList,
+                                            _productResponse!
+                                                .mediaGalleryEntries,
                                             context,
                                             _sliderController,
                                           );
                                         },
                                         child: Image.network(
-                                          "${mainimageurl}${_productResponse!.imagesList[0]}",
+                                          "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
                                           fit: BoxFit.contain,
                                         ),
                                       ),
@@ -235,7 +232,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       horizontal: 8.0,
                                     ),
                                     child: Text(
-                                      _productResponse!.skuName,
+                                      _productResponse!.name,
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.FontPrimary,
@@ -807,12 +804,11 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
 
       if (!data.containsKey('message')) {
         // Navigator.pop(context);
-        Map<String, dynamic> data = jsonDecode(productresponse.body);
 
         log(productresponse.body);
 
         setState(() {
-          _productResponse = ProductDBdata.fromJson(data);
+          _productResponse = ProductResponse.fromJson(data);
         });
 
         showGeneralDialog(
@@ -845,18 +841,19 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                               height: 90.0,
                               width: 90.0,
                               child:
-                                  _productResponse!.imagesList.isEmpty
+                                  _productResponse!.mediaGalleryEntries.isEmpty
                                       ? Image.asset('assets/placeholder.png')
                                       : InkWell(
                                         onTap: () {
                                           getImageViewver(
-                                            _productResponse!.imagesList,
+                                            _productResponse!
+                                                .mediaGalleryEntries,
                                             context,
                                             _sliderController,
                                           );
                                         },
                                         child: Image.network(
-                                          "${mainimageurl}${_productResponse!.imagesList[0]}",
+                                          "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
                                           fit: BoxFit.contain,
                                         ),
                                       ),
@@ -873,7 +870,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       horizontal: 8.0,
                                     ),
                                     child: Text(
-                                      _productResponse!.skuName,
+                                      _productResponse!.name,
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.FontPrimary,
@@ -2024,7 +2021,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
   }
 
   getImageViewver(
-    List<String> imageList,
+    List<MediaGalleryEntry1> imageList,
     context,
     CarouselSliderController sliderController,
   ) {
@@ -2091,7 +2088,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                     color: Colors.amber,
                                   ),
                                   child: Image.network(
-                                    "${mainimageurl}${imageList[itemIndex].toString()}",
+                                    "${mainimageurl}${imageList[itemIndex].file.toString()}",
                                     fit: BoxFit.fill,
                                   ),
                                 ),

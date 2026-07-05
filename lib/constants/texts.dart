@@ -3,7 +3,7 @@
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-const mainimageurl = "https://media-qatar.ansargallery.com/catalog/product";
+const mainimageurl = "https://media.ansargallery.com/media/catalog/product";
 
 const noimageurl =
     "https://www.ansargallery.com/static/frontend/Ahmarket/ahm/en_US/images/no_image.jpg";
