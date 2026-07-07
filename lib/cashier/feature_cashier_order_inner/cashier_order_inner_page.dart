@@ -86,13 +86,13 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   }
 
   double _couponDiscount() {
-    final couponCode = order.coupencode?.toString().trim().toUpperCase();
+    final couponCode = order.couponCode?.toString().trim().toUpperCase();
     if (couponCode == 'FIRST20') return 20.0;
     return _toDouble(order.discountValue ?? 0);
   }
 
   double _discountValue() {
-    final couponCode = order.coupencode?.toString().trim().toUpperCase();
+    final couponCode = order.couponCode?.toString().trim().toUpperCase();
     if (couponCode == 'FIRST20') {
       return 20.0;
     } else {
@@ -102,8 +102,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
   double _baseGrandTotal() {
     final rawTotal = _toDouble(
-      order.endPickTotal != 0
-          ? _toDouble(order.endPickTotal.toString()) +
+      order.endPickedTotal != 0
+          ? _toDouble(order.endPickedTotal.toString()) +
               _toDouble(order.shippingCharge.toString())
           : order.grandTotal,
     );
@@ -112,40 +112,53 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
   double _dueAmount() {
     final orderAmount = _toDouble(order.orderAmount);
-    final endPickTotal = _toDouble(order.endPickTotal);
-    return endPickTotal - orderAmount;
+    final endPickedTotal = _toDouble(order.endPickedTotal);
+    return endPickedTotal - orderAmount;
   }
 
-  Widget _buildItemRow(Item item) {
-    final colors = customColors();
+  Widget _buildItemRow(Item item, int index) {
     final qty = _toDouble(item.qtyShipped);
     final orderPrice = _toDouble(item.price);
     final pickerPrice = _toDouble(item.finalPrice);
     final webPrice = _toDouble(item.webprice);
-    final unitPrice = pickerPrice != 0 ? pickerPrice : orderPrice;
-    final total = unitPrice * qty;
+    final total =
+        (_toDouble(item.finalPrice) != 0 ? pickerPrice : orderPrice) * qty;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+    return Container(
+      color:
+          _hasPriceChange(item)
+              ? customColors().warning.withOpacity(0.08)
+              : Colors.transparent,
+      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Item selection checkbox
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0, top: 2.0),
-            child: Checkbox(
-              value: _selectedItemIds.contains(item.itemId),
-              onChanged: (val) {
-                setState(() {
-                  if (val == true) {
-                    _selectedItemIds.add(item.itemId);
-                  } else {
-                    _selectedItemIds.remove(item.itemId);
-                  }
-                });
-              },
+          SizedBox(
+            width: 40,
+            child: Center(
+              child: Checkbox(
+                value: _selectedItemIds.contains(item.itemId),
+                onChanged: (val) {
+                  setState(() {
+                    if (val == true) {
+                      _selectedItemIds.add(item.itemId);
+                    } else {
+                      _selectedItemIds.remove(item.itemId);
+                    }
+                  });
+                },
+              ),
             ),
           ),
+          SizedBox(
+            width: 44,
+            child: Text(
+              '${index + 1}',
+              style: subtitleStyle(),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: () {
               _openImage(item.imageurl);
@@ -154,11 +167,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               builder: (_) {
                 final raw = (item.imageurl ?? '').toString().trim();
                 final imgUrl = raw.isEmpty ? noimageurl : resolveImageUrl(raw);
-                return SizedBox(
-                  width: 120,
-                  height: 120,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 72,
+                    height: 72,
                     child: CachedNetworkImage(
                       imageUrl: imgUrl,
                       fit: BoxFit.cover,
@@ -179,55 +192,243 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               },
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // if (item.imageurl != null)
-                  // Product image (fixed size + robust URL + fallback)
-                  Text(
-                    item.name,
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyL_Bold,
-                      color: FontColor.FontPrimary,
-                    ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 180,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name,
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Bold,
+                    color: FontColor.FontPrimary,
                   ),
-                  const SizedBox(height: 2),
-                  Text('SKU: ${item.sku}', style: subtitleStyle()),
-                  const SizedBox(height: 2),
-                  Text('Status: ${item.itemStatus}', style: subtitleStyle()),
-                ],
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(item.sku, style: subtitleStyle()),
+                const SizedBox(height: 4),
+                Text(item.branchName ?? '', style: subtitleStyle()),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 90,
+            child: Text(
+              webPrice.toStringAsFixed(2),
+              style: subtitleStyle(),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 70,
+            child: Text(
+              orderPrice.toStringAsFixed(2),
+              style: subtitleStyle(),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 110,
+            child: Text(
+              pickerPrice.toStringAsFixed(2),
+              style: subtitleStyle(),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 80,
+            child: Text(
+              item.qtyOrdered,
+              style: subtitleStyle(),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 80,
+            child: Text(
+              item.qtyShipped,
+              style: subtitleStyle(),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 80,
+            child: Text(
+              total.toStringAsFixed(2),
+              style: subtitleStyle(),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableValue(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              '$label:',
+              style: subtitleStyle().copyWith(fontSize: 13),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            value,
+            style: subtitleStyle().copyWith(fontSize: 13),
+            textAlign: TextAlign.right,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(
+    String title, {
+    Color? backgroundColor,
+    Color? borderColor,
+    Color? textColor,
+  }) {
+    final colors = customColors();
+    final baseStyle = customTextStyle(fontStyle: FontStyle.BodyL_Bold);
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? colors.backgroundPrimary,
+        borderRadius: BorderRadius.circular(10),
+        border: borderColor != null ? Border.all(color: borderColor) : null,
+      ),
+      child: Text(
+        title,
+        style: baseStyle.copyWith(color: textColor ?? baseStyle.color),
+      ),
+    );
+  }
+
+  Widget _buildTableHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 40,
+            child: Center(
+              child: Text(
+                '',
+                style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 44,
+            child: Center(
+              child: Text(
+                '#',
+                style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           ),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Qty: ${_toInt(item.qtyShipped)}', style: subtitleStyle()),
-              const SizedBox(height: 2),
-              Text(
-                'Order Price: ${orderPrice.toStringAsFixed(2)}',
-                style: subtitleStyle(),
+          SizedBox(
+            width: 72,
+            child: Center(
+              child: Text(
+                'Image',
+                style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 2),
-              Text(
-                'Picker Price: ${pickerPrice.toStringAsFixed(2)}',
-                style: subtitleStyle(),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Current Price: ${webPrice.toStringAsFixed(2)}',
-                style: subtitleStyle(),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Total: ${total.toStringAsFixed(2)}',
-                style: subtitleStyle(),
-              ),
-            ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 180,
+            child: Text(
+              'Product',
+              style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+          // const SizedBox(width: 12),
+          // SizedBox(
+          //   width: 120,
+          //   child: Text(
+          //     'SKU',
+          //     style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+          //   ),
+          // ),
+          // const SizedBox(width: 12),
+          // SizedBox(
+          //   width: 110,
+          //   child: Text(
+          //     'Branch',
+          //     style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+          //   ),
+          // ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 90,
+            child: Text(
+              'Web.Price',
+              style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 70,
+            child: Text(
+              'Price',
+              style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 110,
+            child: Text(
+              'Picker Price',
+              style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 80,
+            child: Text(
+              'Qty Order',
+              style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 80,
+            child: Text(
+              'Qty Shipped',
+              style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 80,
+            child: Text(
+              'Total',
+              style: subtitleStyle().copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.right,
+            ),
           ),
         ],
       ),
@@ -252,8 +453,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                 order.subgroupIdentifier.startsWith("EXP")
             ? _toDouble(order.posAmount!.toString())
             : _toDouble(
-              order.endPickTotal != 0
-                  ? _toDouble(order.endPickTotal.toString()) +
+              order.endPickedTotal != 0
+                  ? _toDouble(order.endPickedTotal.toString()) +
                       (order.combinedOrderPlacedTotal! > 99
                           ? 0
                           : _toDouble(order.shippingCharge.toString()))
@@ -1338,11 +1539,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     );
   }
 
-  // Build a table-like layout for items with a fixed set of columns.
+  // Build a table layout for items with category grouping.
   Widget _buildItemsTableSection() {
     final colors = customColors();
 
-    // Apply the same filtering as before
     final filtered =
         order.items.where((i) {
           final s = (i.itemStatus).toString().toLowerCase();
@@ -1351,262 +1551,317 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               s != 'cancelled';
         }).toList();
 
-    final withChanges = filtered.where(_hasPriceChange).toList();
-    final withoutChanges = filtered.where((i) => !_hasPriceChange(i)).toList();
+    if (filtered.isEmpty) {
+      return Card(
+        margin: EdgeInsets.zero,
+        color: colors.backgroundSecondary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(child: Text('-', style: subtitleStyle())),
+        ),
+      );
+    }
 
-    DataTable buildTable(List<Item> items) {
-      // Pre-calc totals
-      double totalQty = 0;
-      double totalSubtotal = 0;
+    final priceChangedItems = filtered.where(_hasPriceChange).toList();
+    final noPriceChangeItems =
+        filtered.where((item) => !_hasPriceChange(item)).toList();
 
-      final rows = <DataRow>[];
-      for (int index = 0; index < items.length; index++) {
-        final item = items[index];
-        final orderQty = _toDouble(item.qtyOrdered);
-        final qty = _toDouble(item.qtyShipped);
-        final orderPrice = _toDouble(item.price);
-        final pickerPrice = _toDouble(item.finalPrice);
-        final webPrice = _toDouble(item.webprice);
-        final branchName = item.branchName ?? "";
-        final unitPrice = pickerPrice != 0 ? pickerPrice : orderPrice;
+    Map<String, List<Item>> _groupByCategory(List<Item> list) {
+      final map = <String, List<Item>>{};
+      for (final item in list) {
+        final category = (item.categoryName ?? '').trim();
+        final key = category.isNotEmpty ? category : 'Uncategorized';
+        map.putIfAbsent(key, () => []).add(item);
+      }
+      return map;
+    }
 
-        final subtotal = _toDouble(item.finalPrice.toString()) * qty;
+    final priceChangedGroups = _groupByCategory(priceChangedItems);
+    final noPriceChangeGroups = _groupByCategory(noPriceChangeItems);
 
-        // log("subtotal ${item.price} * Qty $qty");
+    Widget _tableCell(
+      String text, {
+      TextStyle? style,
+      Alignment alignment = Alignment.centerLeft,
+    }) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        alignment: alignment,
+        child: Text(
+          text,
+          style: style ?? subtitleStyle().copyWith(fontSize: 13),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+    }
 
-        // log("subtotal value $subtotal");
+    TableRow _buildHeaderRow() {
+      final headerStyle = subtitleStyle().copyWith(
+        fontWeight: FontWeight.w700,
+        fontSize: 13,
+      );
+      return TableRow(
+        decoration: BoxDecoration(color: colors.backgroundPrimary),
+        children:
+            [
+              _tableCell('', alignment: Alignment.center),
+              _tableCell('#', alignment: Alignment.center),
+              _tableCell('Product'),
+              _tableCell('Branch'),
+              _tableCell('Web.Price', alignment: Alignment.centerRight),
+              _tableCell('Price', alignment: Alignment.centerRight),
+              _tableCell('Picker Price', alignment: Alignment.centerRight),
+              _tableCell('Qty Order', alignment: Alignment.centerRight),
+              _tableCell('Qty Shipped', alignment: Alignment.centerRight),
+              _tableCell('Total', alignment: Alignment.centerRight),
+            ].map((cell) {
+              return Container(
+                decoration: const BoxDecoration(),
+                child: DefaultTextStyle.merge(style: headerStyle, child: cell),
+              );
+            }).toList(),
+      );
+    }
 
-        totalQty += qty;
-        // totalSubtotal += subtotal;
+    TableRow _buildItemRow(Item item, int index) {
+      final orderPrice = _toDouble(item.price);
+      final pickerPrice = _toDouble(item.finalPrice);
+      final webPrice = _toDouble(item.webprice);
+      final qtyOrder = item.qtyOrdered.isNotEmpty ? item.qtyOrdered : '0';
+      final qtyShipped = item.qtyShipped.isNotEmpty ? item.qtyShipped : '0';
+      final total = ((pickerPrice != 0 ? pickerPrice : orderPrice) *
+              _toDouble(item.qtyShipped))
+          .toStringAsFixed(2);
 
-        rows.add(
-          DataRow(
-            color: MaterialStateProperty.resolveWith(
-              (states) =>
-                  index.isEven
-                      ? colors.backgroundPrimary.withOpacity(0.02)
-                      : null,
+      return TableRow(
+        decoration: BoxDecoration(
+          color:
+              _hasPriceChange(item)
+                  ? customColors().carnationRed.withOpacity(0.08)
+                  : customColors().success.withOpacity(0.06),
+        ),
+        children: [
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Checkbox(
+              value: _selectedItemIds.contains(item.itemId),
+              onChanged: (val) {
+                setState(() {
+                  if (val == true) {
+                    _selectedItemIds.add(item.itemId);
+                  } else {
+                    _selectedItemIds.remove(item.itemId);
+                  }
+                });
+              },
             ),
-            cells: [
-              DataCell(
-                Checkbox(
-                  value: _selectedItemIds.contains(item.itemId),
-                  onChanged: (val) {
-                    setState(() {
-                      if (val == true) {
-                        _selectedItemIds.add(item.itemId);
-                      } else {
-                        _selectedItemIds.remove(item.itemId);
-                      }
-                    });
-                  },
+          ),
+          _tableCell('${index + 1}', alignment: Alignment.center),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: colors.backgroundTertiary,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: CachedNetworkImage(
+                    imageUrl:
+                        (item.imageurl ?? '').toString().isEmpty
+                            ? noimageurl
+                            : resolveImageUrl(item.imageurl ?? ''),
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) => Center(
+                          child: Image.asset(
+                            'assets/Iphone_spinner.gif',
+                            width: 24,
+                            height: 24,
+                          ),
+                        ),
+                    errorWidget:
+                        (context, url, error) =>
+                            Image.network(noimageurl, fit: BoxFit.cover),
+                  ),
                 ),
-              ),
-              DataCell(Text('${index + 1}')),
-              // Image thumbnail cell
-              DataCell(
-                InkWell(
-                  onTap: () => _openImage(item.imageurl),
-                  child: SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: Builder(
-                        builder: (_) {
-                          final raw = (item.imageurl ?? '').toString().trim();
-                          final imgUrl =
-                              raw.isEmpty ? noimageurl : resolveImageUrl(raw);
-                          return CachedNetworkImage(
-                            imageUrl: imgUrl,
-                            fit: BoxFit.cover,
-                            placeholder:
-                                (context, _) => const Center(
-                                  child: SizedBox(
-                                    width: 14,
-                                    height: 14,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ),
-                            errorWidget:
-                                (context, _, __) => Image.network(
-                                  noimageurl,
-                                  fit: BoxFit.cover,
-                                ),
-                          );
-                        },
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        item.name.isNotEmpty
+                            ? item.name
+                            : item.productName ?? '',
+                        style: subtitleStyle().copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
+                      if ((item.sku ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          item.sku,
+                          style: subtitleStyle().copyWith(
+                            fontSize: 12,
+                            color: customColors().fontTertiary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
+              ],
+            ),
+          ),
+          _tableCell(item.branchName ?? ''),
+          _tableCell(
+            webPrice.toStringAsFixed(2),
+            alignment: Alignment.centerRight,
+          ),
+          _tableCell(
+            orderPrice.toStringAsFixed(2),
+            alignment: Alignment.centerRight,
+          ),
+          _tableCell(
+            pickerPrice.toStringAsFixed(2),
+            alignment: Alignment.centerRight,
+          ),
+          _tableCell(qtyOrder, alignment: Alignment.centerRight),
+          _tableCell(qtyShipped, alignment: Alignment.centerRight),
+          _tableCell(total, alignment: Alignment.centerRight),
+        ],
+      );
+    }
+
+    Widget _buildSection(String sectionTitle, Map<String, List<Item>> groups) {
+      final List<Widget> widgets = [];
+      // choose a heading text color: red for price-changed, green for no-change
+      Color? headingTextColor;
+      final lower = sectionTitle.toLowerCase();
+      if (lower.contains('price')) {
+        headingTextColor = colors.carnationRed;
+      } else if (lower.contains('without')) {
+        headingTextColor = colors.success;
+      }
+
+      widgets.add(
+        _buildSectionHeader(
+          sectionTitle,
+          backgroundColor: colors.backgroundPrimary,
+          borderColor: colors.backgroundTertiary,
+          textColor: headingTextColor,
+        ),
+      );
+      widgets.add(const SizedBox(height: 12));
+
+      for (final entry in groups.entries) {
+        final categoryName = entry.key;
+        final items = entry.value;
+
+        widgets.add(
+          _buildSectionHeader(
+            categoryName,
+            backgroundColor: HexColor('#FCFCFC'),
+            borderColor: HexColor('#D1D1D1'),
+          ),
+        );
+        widgets.add(const SizedBox(height: 12));
+
+        widgets.add(
+          Table(
+            border: TableBorder.all(color: colors.backgroundTertiary),
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            columnWidths: const {
+              0: FixedColumnWidth(40),
+              1: FixedColumnWidth(30),
+              2: FixedColumnWidth(290),
+              3: FixedColumnWidth(140),
+              4: FixedColumnWidth(130),
+              5: FixedColumnWidth(140),
+              6: FixedColumnWidth(110),
+              7: FixedColumnWidth(100),
+              8: FixedColumnWidth(100),
+              9: FixedColumnWidth(100),
+            },
+            children: [
+              _buildHeaderRow(),
+              ...List.generate(
+                items.length,
+                (index) => _buildItemRow(items[index], index),
               ),
-              DataCell(
-                SizedBox(
-                  width: 260,
-                  child: Text(
-                    item.productName == "" ? item.name : item.productName!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              DataCell(
-                SizedBox(
-                  width: 120,
-                  child: Text(
-                    item.sku,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              DataCell(
-                SizedBox(
-                  width: 140,
-                  child: Text(
-                    branchName,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              DataCell(Text(webPrice.toStringAsFixed(2))),
-              DataCell(Text(orderPrice.toStringAsFixed(2))),
-              DataCell(Text(pickerPrice.toStringAsFixed(2))),
-              DataCell(Text(orderQty.toStringAsFixed(0))),
-              DataCell(Text(qty.round().toString())),
-              const DataCell(Text('0.00')),
-              DataCell(Text(subtotal.toStringAsFixed(2))),
             ],
           ),
         );
+
+        widgets.add(const SizedBox(height: 24));
       }
 
-      // Totals row
-      // rows.add(
-      //   DataRow(
-      //     color: MaterialStateProperty.all(
-      //       colors.backgroundPrimary.withOpacity(0.06),
-      //     ),
-      //     cells: [
-      //       const DataCell(Text('')),
-      //       const DataCell(Text('')),
-      //       const DataCell(Text('')),
-      //       const DataCell(Text('')),
-      //       DataCell(Text('Total', style: _amountBold())),
-      //       const DataCell(Text('')),
-      //       const DataCell(Text('')),
-      //       const DataCell(Text('')),
-      //       DataCell(Text(totalQty.toStringAsFixed(0), style: _amountBold())),
-      //       const DataCell(Text('')),
-      //       DataCell(
-      //         Text(totalSubtotal.toStringAsFixed(2), style: _amountBold()),
-      //       ),
-      //     ],
-      //   ),
-      // );
-
-      return DataTable(
-        headingRowHeight: 40,
-        dataRowMinHeight: 40,
-        dataRowMaxHeight: 60,
-        headingRowColor: MaterialStateProperty.all(colors.backgroundPrimary),
-        border: TableBorder.all(color: colors.primary),
-        // Slightly tighter spacing so more columns fit without horizontal scroll
-        columnSpacing: 8,
-        columns: [
-          const DataColumn(label: Text('')),
-          const DataColumn(label: Text('Sr No'), numeric: true),
-          const DataColumn(label: Text('Image')),
-          const DataColumn(label: Text('Product')),
-          const DataColumn(label: Text('SKU')),
-          const DataColumn(label: Text('Branch')),
-          const DataColumn(label: Text('Web.Price'), numeric: true),
-          const DataColumn(label: Text('Price'), numeric: true),
-          const DataColumn(label: Text('Picker Price (QAR)'), numeric: true),
-          const DataColumn(label: Text('Qty Order'), numeric: true),
-          const DataColumn(label: Text('Qty shipp')),
-          const DataColumn(label: Text('Discount (QAR)')),
-          const DataColumn(label: Text('Row Total (QAR)'), numeric: true),
-        ],
-        rows: rows,
+      return Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: colors.backgroundTertiary),
+          borderRadius: BorderRadius.circular(12),
+          color: colors.backgroundPrimary,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
+          ),
+        ),
       );
     }
 
-    List<Widget> sections = [];
-
-    if (withChanges.isNotEmpty) {
-      sections.add(
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-          decoration: BoxDecoration(
-            color: customColors().carnationRed.withValues(alpha: 0.50),
-            borderRadius: BorderRadius.circular(8),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Card(
+          margin: EdgeInsets.zero,
+          color: colors.backgroundSecondary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Text(
-            '  Items Have Price Changes',
-            style: customTextStyle(
-              fontStyle: FontStyle.BodyM_Bold,
-              color: FontColor.FontPrimary,
+          elevation: 0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (priceChangedGroups.isNotEmpty) ...[
+                      _buildSection('Price Changed Items', priceChangedGroups),
+                      const SizedBox(height: 24),
+                    ],
+                    if (noPriceChangeGroups.isNotEmpty) ...[
+                      _buildSection(
+                        'Items Without Price Change',
+                        noPriceChangeGroups,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      );
-      sections.add(const SizedBox(height: 8));
-      sections.add(
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.zero,
-          child: buildTable(withChanges),
-        ),
-      );
-      if (withoutChanges.isNotEmpty) sections.add(const SizedBox(height: 12));
-    }
-
-    if (withoutChanges.isNotEmpty) {
-      sections.add(
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-          decoration: BoxDecoration(
-            color: customColors().secretGarden.withValues(alpha: 0.50),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            '  Items Without Price Changes',
-            style: customTextStyle(
-              fontStyle: FontStyle.BodyM_Bold,
-              color: FontColor.FontPrimary,
-            ),
-          ),
-        ),
-      );
-      sections.add(const SizedBox(height: 8));
-      sections.add(
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.zero,
-          child: buildTable(withoutChanges),
-        ),
-      );
-    }
-
-    if (sections.isEmpty) {
-      sections.add(Center(child: Text('-', style: subtitleStyle())));
-    }
-
-    return Card(
-      margin: EdgeInsets.zero,
-      color: colors.backgroundSecondary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: sections,
-      ),
+        );
+      },
     );
   }
 
@@ -2051,7 +2306,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             ? _translatedNote!.trim()
             : originalNote;
 
-    final couponCode = order.coupencode?.toString().trim();
+    final couponCode = order.couponCode?.toString().trim();
     final hasCoupon = couponCode?.isNotEmpty == true;
 
     return BlocConsumer<CashierOrderInnerPageCubit, CashierOrderInnerPageState>(
@@ -2695,7 +2950,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                         ),
                                         _kvMoney(
                                           'End Pick Total',
-                                          _toDouble(order.endPickTotal),
+                                          _toDouble(order.endPickedTotal),
                                         ),
                                         _kvMoney(
                                           'Shipping Charge',
@@ -2755,9 +3010,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                               );
                                             } else {
                                               grandTotal = _toDouble(
-                                                order.endPickTotal != 0
+                                                order.endPickedTotal != 0
                                                     ? _toDouble(
-                                                      order.endPickTotal
+                                                      order.endPickedTotal
                                                           .toString(),
                                                     )
                                                     : order.grandTotal,
@@ -2859,7 +3114,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                             ? _editableKvMoney(
                                               'Grand Total',
                                               _toDouble(
-                                                order.coupencode == 'FIRST20'
+                                                order.couponCode == 'FIRST20'
                                                     ? double.parse(
                                                           order.orderAmount,
                                                         ) -

@@ -371,7 +371,7 @@ class OrderTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Branch: ${order.branchcode}',
+                  'Branch: ${order.branchCode}',
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyL_Bold,
                     color: FontColor.Success,

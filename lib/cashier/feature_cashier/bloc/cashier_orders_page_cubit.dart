@@ -159,7 +159,9 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
                 hasNext: false,
                 hasPrev: false,
               ),
-              data: [], // Keep data empty since we only want count
+              data: [],
+              totalResults: _orderCount,
+              searchKey: '', // Keep data empty since we only want count
             ),
           ),
         );
@@ -314,6 +316,8 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
             totalCount: currentState.cashierOrders.totalCount,
             pagination: currentState.cashierOrders.pagination,
             data: updatedOrders,
+            totalResults: currentState.cashierOrders.count,
+            searchKey: '',
           ),
         ),
       );
@@ -356,7 +360,9 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
             hasNext: false,
             hasPrev: false,
           ),
-          data: [], // Empty list
+          data: [],
+          totalResults: _orderCount,
+          searchKey: '', // Empty list
         ),
       ),
     );

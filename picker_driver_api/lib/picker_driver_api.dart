@@ -1327,8 +1327,12 @@ extension PDGeneralApi on PickerDriverApi {
     required String key,
     required String token,
   }) async {
+    // final url = _endpointWithApplicationPathString(
+    //   'cashier/orders/search?key=$key',
+    // );
+
     final url = _endpointWithApplicationPathString(
-      'cashier/orders/search?key=$key',
+      'cashier/orders/searchcategory?key=$key',
     );
 
     final Map<String, String> headers = {
