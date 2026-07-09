@@ -245,7 +245,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           SizedBox(
             width: 80,
             child: Text(
-              item.qtyOrdered,
+              int.parse(item.qtyOrdered.toString()).toString(),
               style: subtitleStyle(),
               textAlign: TextAlign.right,
             ),
@@ -1646,7 +1646,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         children: [
           Container(
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 14),
             child: Checkbox(
               value: _selectedItemIds.contains(item.itemId),
               onChanged: (val) {
@@ -1741,8 +1741,14 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             pickerPrice.toStringAsFixed(2),
             alignment: Alignment.centerRight,
           ),
-          _tableCell(qtyOrder, alignment: Alignment.centerRight),
-          _tableCell(qtyShipped, alignment: Alignment.centerRight),
+          _tableCell(
+            double.parse(qtyOrder.toString()).toInt().toString(),
+            alignment: Alignment.centerRight,
+          ),
+          _tableCell(
+            double.parse(qtyShipped.toString()).toInt().toString(),
+            alignment: Alignment.centerRight,
+          ),
           _tableCell(total, alignment: Alignment.centerRight),
         ],
       );
@@ -1796,7 +1802,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               6: FixedColumnWidth(110),
               7: FixedColumnWidth(100),
               8: FixedColumnWidth(100),
-              9: FixedColumnWidth(100),
+              9: FixedColumnWidth(120),
             },
             children: [
               _buildHeaderRow(),
@@ -1837,7 +1843,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           ),
           elevation: 0,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: ConstrainedBox(
@@ -2965,7 +2971,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                               ? 'Discount Code (${couponCode!.toUpperCase()})'
                                               : 'Discount',
                                           _toDouble(
-                                            couponCode == "FIRST20" ? 20 : 0,
+                                            couponCode == "first20" ? 20 : 0,
                                           ),
                                           labelStyle:
                                               hasCoupon
@@ -2976,7 +2982,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                     color:
                                                         FontColor.FontPrimary,
                                                   ).copyWith(
-                                                    fontSize: 16,
+                                                    fontSize: 20,
                                                     height: 1.3,
                                                     color: Colors.red,
                                                   )
@@ -2989,7 +2995,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                     color:
                                                         FontColor.FontPrimary,
                                                   ).copyWith(
-                                                    fontSize: 18,
+                                                    fontSize: 20,
                                                     height: 1.4,
                                                     color: Colors.red,
                                                   )

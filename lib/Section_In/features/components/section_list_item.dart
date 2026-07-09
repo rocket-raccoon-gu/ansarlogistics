@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ansarlogistics/Section_In/features/components/custom_toggle_button.dart';
 import 'package:ansarlogistics/constants/texts.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -98,9 +100,13 @@ class _SectionProductListItemState extends State<SectionProductListItem>
       );
     }
 
+    log(
+      "https://media.ansargallery.com/media/catalog/product/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
+    );
+
     return CachedNetworkImage(
       imageUrl:
-          "https://media-qatar.ansargallery.com/catalog/product/cache/6445c95191c1b7d36f6f846ddd0b49b3/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
+          "https://media.ansargallery.com/media/catalog/product/${getImageUrlEdited(widget.sectionitem.imageUrl)}",
       fit: BoxFit.cover,
       memCacheWidth: 300, // Optimize memory usage
       memCacheHeight: 300,

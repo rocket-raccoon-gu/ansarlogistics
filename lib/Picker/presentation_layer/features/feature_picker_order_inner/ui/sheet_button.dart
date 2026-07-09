@@ -5,11 +5,15 @@ import 'package:flutter/material.dart';
 class SheetButton extends StatelessWidget {
   String imagepath;
   String sheettext;
+  double? width;
+  double? height;
   void Function()? onTapbtn;
   SheetButton({
     super.key,
     required this.imagepath,
     required this.sheettext,
+    this.width,
+    this.height,
     this.onTapbtn,
   });
 
@@ -19,7 +23,7 @@ class SheetButton extends StatelessWidget {
       onTap: onTapbtn,
       child: Column(
         children: [
-          Image.asset(imagepath),
+          Image.asset(imagepath, width: width, height: height),
           TranslatedText(
             text: sheettext,
             textAlign: TextAlign.center,

@@ -468,29 +468,37 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Stack(
-                children: [
-                  SheetButton(
-                    imagepath: 'assets/contact_btn.png',
-                    sheettext:
-                        isRecording ? 'Recording...' : 'Contact \nCustomer',
-                    onTapbtn: () async {
-                      // await handleCall();
-                    },
+              widget.orderResponseItem!.deliveryNote!.contains(
+                        "don't contact",
+                      ) ||
+                      widget.orderResponseItem!.deliveryNote!.contains(
+                        "don't call",
+                      )
+                  ? Container()
+                  : Stack(
+                    children: [
+                      SheetButton(
+                        imagepath: 'assets/contact_btn.png',
+                        sheettext:
+                            isRecording ? 'Recording...' : 'Contact \nCustomer',
+                        onTapbtn: () async {
+                          // await handleCall();
+                        },
+                      ),
+                      Positioned(
+                        child: CsToolTipBoard(
+                          phone_num:
+                              widget.orderResponseItem!.customer!.phone
+                                  .toString(),
+                          onTap: () async {
+                            await handleCall(); // Call and record
+                            // await _makeCall('97450154119');
+                          },
+                          ordernum: widget.orderResponseItem!.id.toString(),
+                        ),
+                      ),
+                    ],
                   ),
-                  Positioned(
-                    child: CsToolTipBoard(
-                      phone_num:
-                          widget.orderResponseItem!.customer!.phone.toString(),
-                      onTap: () async {
-                        await handleCall(); // Call and record
-                        // await _makeCall('97450154119');
-                      },
-                      ordernum: widget.orderResponseItem!.id.toString(),
-                    ),
-                  ),
-                ],
-              ),
 
               SheetButton(
                 imagepath: 'assets/hold_req.png',
@@ -499,6 +507,80 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                   setState(() {
                     enableholdrequest = true;
                   });
+                },
+              ),
+
+              SheetButton(
+                imagepath: 'assets/no-phones.png',
+                sheettext: 'Customer \nNot Answer',
+                height: 50,
+                width: 50,
+                onTapbtn: () async {
+                  // setState(() {
+                  //   enablecancelrequest = true;
+                  // });
+
+                  showSnackBar(
+                    context: context,
+                    snackBar: showSuccessDialogue(
+                      message: "status updating....!",
+                    ),
+                  );
+
+                  final token = await PreferenceUtils.getDataFromShared(
+                    'usertoken',
+                  );
+
+                  final resp = await context.gTradingApiGateway
+                      .updateMainOrderStatNew(
+                        preparationId: widget.preparationId,
+                        orderStatus: "customer_not_answer",
+                        comment:
+                            "${UserController().profile.name.toString()} (${UserController().profile.empId}) was updated the order as Customer Not Answer",
+                        orderNumber: widget.suborderId,
+                        token: token!,
+                        branchCode: widget.orderResponseItem!.branchCode ?? '',
+                        userbranchCode:
+                            UserController().profile.branchCode ?? '',
+                      );
+
+                  if (resp.statusCode == 200) {
+                    toastification.show(
+                      backgroundColor: customColors().secretGarden,
+                      context: context,
+                      autoCloseDuration: const Duration(seconds: 5),
+                      title: TranslatedText(
+                        text: "Order is Updated as Customer Not Answer",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.White,
+                        ),
+                      ),
+                    );
+
+                    // UserController().cancelreason = "Please Select Reason";
+
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+
+                    context.gNavigationService.openPickerWorkspacePage(context);
+                  } else {
+                    // setState(() {
+                    //   sendcancelreq = false;
+                    // });
+
+                    toastification.show(
+                      backgroundColor: customColors().carnationRed,
+                      context: context,
+                      autoCloseDuration: const Duration(seconds: 5),
+                      title: TranslatedText(
+                        text: "Send Request Failed Please Try Again...!",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.White,
+                        ),
+                      ),
+                    );
+                  }
                 },
               ),
 

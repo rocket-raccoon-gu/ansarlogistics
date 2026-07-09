@@ -450,7 +450,18 @@ class OrderTile extends StatelessWidget {
                       ],
                     ),
                     order.isWhatsappOrder == 1
-                        ? const Icon(Icons.chat_bubble)
+                        ? Row(
+                          children: [
+                            Text(
+                              'Whatsapp Order ',
+                              style: customTextStyle(
+                                fontStyle: FontStyle.BodyL_Bold,
+                                color: FontColor.SecretGarden,
+                              ),
+                            ),
+                            Icon(Icons.chat_bubble),
+                          ],
+                        )
                         : const SizedBox.shrink(),
                     Row(
                       children: [
