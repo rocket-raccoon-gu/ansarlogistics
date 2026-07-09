@@ -27,7 +27,7 @@ class OrderResponse {
 }
 
 class Order {
-  int entityId;
+  String entityId;
   String subgroupIdentifier;
   String status;
   String type;
@@ -90,7 +90,7 @@ class Order {
   });
 
   Order copyWith({
-    int? entityId,
+    String? entityId,
     String? subgroupIdentifier,
     String? status,
     String? type,
@@ -152,7 +152,7 @@ class Order {
   );
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
-    entityId: json["entity_id"] == "" ? 0 : json["entity_id"],
+    entityId: json["entity_id"] == "" ? "0" : json["entity_id"].toString(),
     subgroupIdentifier: json["subgroup_identifier"],
     status: json["status"],
     type: json["type"],

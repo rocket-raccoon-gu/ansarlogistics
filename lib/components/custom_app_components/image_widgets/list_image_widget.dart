@@ -24,7 +24,10 @@ class ListImageWidget extends StatelessWidget {
           Map<String, dynamic> data = snapshot.data!;
           log('${data['imagepath']}${imageurl}');
           return CachedNetworkImage(
-            imageUrl: '${data['imagepath']}${imageurl}',
+            imageUrl:
+                imageurl.toString().contains('https://media.ansargallery.com')
+                    ? imageurl
+                    : '${data['imagepath']}${imageurl}',
             imageBuilder: (context, imageProvider) {
               return Container(
                 decoration: BoxDecoration(
