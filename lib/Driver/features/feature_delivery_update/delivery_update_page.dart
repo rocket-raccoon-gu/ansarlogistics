@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -46,6 +47,8 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
   bool upload = false;
 
   bool uploading = false;
+  String? selectedReturnAction;
+  bool returnActionReady = false;
 
   Future<void>? getImage(String imgsource) async {
     _pictures.clear();
@@ -114,6 +117,115 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
     orderResponseItem = widget.data!['order'];
   }
 
+  bool get isReturnOrder {
+    final orderType = [
+      orderResponseItem?.type,
+      widget.data?['order_type'],
+      widget.data?['orderType'],
+      widget.data?['type'],
+    ].firstWhere(
+      (value) => value != null && value.toString().trim().isNotEmpty,
+      orElse: () => null,
+    );
+
+    final normalized = orderType?.toString().toLowerCase();
+    return normalized == 'return' || normalized == 'ret';
+  }
+
+  String _getUploadTitle() {
+    if (!isReturnOrder) {
+      return 'Upload Bill Picture';
+    }
+
+    switch (selectedReturnAction) {
+      case 'refund':
+        return 'Upload Refund Template';
+      case 'replacement':
+        return 'Upload Replacement Image';
+      case 'return':
+        return 'Upload Bill Image';
+      default:
+        return 'Return Order Action';
+    }
+  }
+
+  String _getUploadButtonLabel() {
+    if (!isReturnOrder) {
+      return 'Upload Bill';
+    }
+
+    switch (selectedReturnAction) {
+      case 'refund':
+        return 'Upload Refund Template';
+      case 'replacement':
+        return 'Upload Replacement Image';
+      case 'return':
+        return 'Upload Bill Image';
+      default:
+        return 'Upload Return Document';
+    }
+  }
+
+  String _getActionButtonText() {
+    switch (selectedReturnAction) {
+      case 'refund':
+        return 'Mark Order Return With Refund';
+      case 'replacement':
+        return 'Order Replaced';
+      case 'return':
+        return 'Update Return Status';
+      default:
+        return 'Update Return Status';
+    }
+  }
+
+  String _getActionStatus() {
+    switch (selectedReturnAction) {
+      case 'refund':
+        return 'order_items_returned';
+      case 'replacement':
+        return 'replaced';
+      case 'return':
+        return 'order_items_returned';
+      default:
+        return 'order_items_returned';
+    }
+  }
+
+  void _selectReturnAction(String action) {
+    setState(() {
+      selectedReturnAction = action;
+      _pictures.clear();
+      upload = false;
+      uploading = false;
+      returnActionReady = false;
+      _currentPosition = null;
+    });
+  }
+
+  Future<void> _submitSelectedReturnAction() async {
+    setState(() {
+      updatestat = true;
+    });
+
+    BlocProvider.of<DeliveryUpdatePageCubit>(
+      context,
+    ).updateMainOrderStat(_getActionStatus(), _getCommentForStatusUpdate());
+  }
+
+  _getCommentForStatusUpdate() {
+    switch (selectedReturnAction) {
+      case 'refund':
+        return "Order Returned With Refund";
+      case 'replacement':
+        return "Order Replaced";
+      case 'return':
+        return "Order Returned";
+      default:
+        return "Order Status Updated";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double mheight = MediaQuery.of(context).size.height * 1.222;
@@ -178,7 +290,7 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                             top: 8.0,
                                           ),
                                           child: TranslatedText(
-                                            text: "Upload Bill Picture ",
+                                            text: _getUploadTitle(),
                                             style: customTextStyle(
                                               fontStyle: FontStyle.BodyL_Bold,
                                               color: FontColor.FontPrimary,
@@ -203,6 +315,7 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                             setState(() {
                               upload = true;
                               uploading = false;
+                              returnActionReady = isReturnOrder;
                             });
                           }
 
@@ -235,318 +348,91 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                ),
-                                child: DottedBorder(
-                                  // color: Colors.black, //color of dotted/dash line
-                                  // strokeWidth: 3, //thickness of dash/dots
-                                  // dashPattern: [10, 6],
-                                  //dash patterns, 10 is dash width, 6 is space width
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0,
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 50.0,
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              _pictures.isEmpty
-                                                  ? InkWell(
-                                                    onTap: () async {
-                                                      // getImage();
-                                                      customShowModalBottomSheet(
-                                                        context: context,
-                                                        inputWidget: Column(
-                                                          children: [
-                                                            InkWell(
-                                                              onTap: () {
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                                getImage(
-                                                                  "camera",
-                                                                );
-                                                              },
-                                                              child: Container(
-                                                                padding:
-                                                                    EdgeInsets.symmetric(
-                                                                      vertical:
-                                                                          18.0,
-                                                                      horizontal:
-                                                                          18.0,
-                                                                    ),
-                                                                decoration: BoxDecoration(
-                                                                  border: Border(
-                                                                    bottom: BorderSide(
-                                                                      color:
-                                                                          customColors()
-                                                                              .fontPrimary,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  children: [
-                                                                    TranslatedText(
-                                                                      text:
-                                                                          "Camera",
-                                                                      style: customTextStyle(
-                                                                        fontStyle:
-                                                                            FontStyle.BodyL_Bold,
-                                                                        color:
-                                                                            FontColor.FontPrimary,
-                                                                      ),
-                                                                    ),
-                                                                    Icon(
-                                                                      Icons
-                                                                          .camera_alt,
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            InkWell(
-                                                              onTap: () {
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                                getImage(
-                                                                  "gallery",
-                                                                );
-                                                              },
-                                                              child: Container(
-                                                                padding:
-                                                                    EdgeInsets.symmetric(
-                                                                      vertical:
-                                                                          18.0,
-                                                                      horizontal:
-                                                                          18.0,
-                                                                    ),
-                                                                decoration: BoxDecoration(
-                                                                  border: Border(
-                                                                    bottom: BorderSide(
-                                                                      color:
-                                                                          customColors()
-                                                                              .fontPrimary,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  children: [
-                                                                    TranslatedText(
-                                                                      text:
-                                                                          "Gallery",
-                                                                      style: customTextStyle(
-                                                                        fontStyle:
-                                                                            FontStyle.BodyL_Bold,
-                                                                        color:
-                                                                            FontColor.FontPrimary,
-                                                                      ),
-                                                                    ),
-                                                                    Icon(
-                                                                      Icons
-                                                                          .browse_gallery,
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      );
-                                                    },
-                                                    child:
-                                                        uploading
-                                                            ? CircularProgressIndicator(
-                                                              color:
-                                                                  customColors()
-                                                                      .pacificBlue,
-                                                            )
-                                                            : Column(
-                                                              children: [
-                                                                Icon(
-                                                                  Icons
-                                                                      .camera_alt,
-                                                                ),
-                                                                TranslatedText(
-                                                                  text:
-                                                                      "Upload Bill",
-                                                                  style: customTextStyle(
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .BodyL_Bold,
-                                                                    color:
-                                                                        FontColor
-                                                                            .FontPrimary,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                  )
-                                                  : Image.file(
-                                                    File(_pictures[0]),
-                                                    height: 220,
-                                                    width: 220,
-                                                    errorBuilder: (
-                                                      context,
-                                                      error,
-                                                      stackTrace,
-                                                    ) {
-                                                      return Container(
-                                                        height: 200,
-                                                        color: Colors.grey[300],
-                                                        child: const Center(
-                                                          child: Icon(
-                                                            Icons.broken_image,
-                                                            size: 50,
-                                                            color: Colors.grey,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                            ],
-                                          ),
+                              if (isReturnOrder &&
+                                  selectedReturnAction == null) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 12.0,
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      SizedBox(height: 150.0),
+                                      BasketButton(
+                                        text: "Order Return With Refund",
+                                        bgcolor: customColors().primary,
+                                        onpress:
+                                            () => _selectReturnAction('refund'),
+                                        textStyle: customTextStyle(
+                                          fontStyle: FontStyle.BodyL_Bold,
+                                          color: FontColor.White,
                                         ),
-                                        _pictures.isNotEmpty
-                                            ? Padding(
-                                              padding: const EdgeInsets.all(
-                                                8.0,
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                          left: 8.0,
-                                                          bottom: 8.0,
-                                                        ),
-                                                    child: InkWell(
-                                                      onTap: () async {
-                                                        try {
-                                                          if (_pictures
-                                                              .isNotEmpty) {
-                                                            setState(() {
-                                                              uploading = true;
-                                                            });
-
-                                                            File file = File(
-                                                              image!.path,
-                                                            );
-
-                                                            // print("image");
-                                                            BlocProvider.of<
-                                                              DeliveryUpdatePageCubit
-                                                            >(
-                                                              context,
-                                                            ).uploadimage(file);
-                                                          } else {
-                                                            showSnackBar(
-                                                              context: context,
-                                                              snackBar:
-                                                                  showErrorDialogue(
-                                                                    errorMessage:
-                                                                        "Please Select a Picture",
-                                                                  ),
-                                                            );
-                                                          }
-                                                        } catch (e) {
-                                                          showSnackBar(
-                                                            context: context,
-                                                            snackBar: showSnackBar(
-                                                              context: context,
-                                                              snackBar:
-                                                                  showErrorDialogue(
-                                                                    errorMessage:
-                                                                        e.toString(),
-                                                                  ),
-                                                            ),
-                                                          );
-                                                        }
-                                                      },
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 24.0,
-                                                              vertical: 9.0,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              _pictures.isEmpty
-                                                                  ? customColors()
-                                                                      .pacificBlue
-                                                                      .withOpacity(
-                                                                        0.5,
-                                                                      )
-                                                                  : customColors()
-                                                                      .pacificBlue,
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                5.0,
-                                                              ),
-                                                        ),
-                                                        child: Center(
-                                                          child: Row(
-                                                            children: [
-                                                              TranslatedText(
-                                                                text: "Upload",
-                                                                style: customTextStyle(
-                                                                  fontStyle:
-                                                                      FontStyle
-                                                                          .BodyM_Bold,
-                                                                  color:
-                                                                      FontColor
-                                                                          .White,
-                                                                ),
-                                                              ),
-                                                              const Padding(
-                                                                padding:
-                                                                    EdgeInsets.only(
-                                                                      left: 8.0,
-                                                                    ),
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .cloud_upload_outlined,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                          right: 8.0,
-                                                          bottom: 8.0,
-                                                        ),
-                                                    child: InkWell(
+                                      ),
+                                      const SizedBox(height: 10),
+                                      BasketButton(
+                                        text: "Order Replaced",
+                                        bgcolor: customColors().pacificBlue,
+                                        onpress:
+                                            () => _selectReturnAction(
+                                              'replacement',
+                                            ),
+                                        textStyle: customTextStyle(
+                                          fontStyle: FontStyle.BodyL_Bold,
+                                          color: FontColor.White,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      BasketButton(
+                                        text: "Returned",
+                                        bgcolor: customColors().green600,
+                                        onpress:
+                                            () => _selectReturnAction('return'),
+                                        textStyle: customTextStyle(
+                                          fontStyle: FontStyle.BodyL_Bold,
+                                          color: FontColor.White,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                              if (!isReturnOrder ||
+                                  (isReturnOrder &&
+                                      selectedReturnAction != null))
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
+                                  child: DottedBorder(
+                                    // color: Colors.black, //color of dotted/dash line
+                                    // strokeWidth: 3, //thickness of dash/dots
+                                    // dashPattern: [10, 6],
+                                    //dash patterns, 10 is dash width, 6 is space width
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5.0,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 50.0,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                _pictures.isEmpty
+                                                    ? InkWell(
                                                       onTap: () async {
                                                         // getImage();
-
-                                                        setState(() {
-                                                          uploading = false;
-                                                        });
                                                         customShowModalBottomSheet(
                                                           context: context,
                                                           inputWidget: Column(
@@ -649,65 +535,393 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                           ),
                                                         );
                                                       },
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 24.0,
-                                                              vertical: 12.0,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              customColors()
-                                                                  .secretGarden,
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                5.0,
+                                                      child:
+                                                          uploading
+                                                              ? CircularProgressIndicator(
+                                                                color:
+                                                                    customColors()
+                                                                        .pacificBlue,
+                                                              )
+                                                              : Column(
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons
+                                                                        .camera_alt,
+                                                                  ),
+                                                                  TranslatedText(
+                                                                    text:
+                                                                        _getUploadButtonLabel(),
+                                                                    style: customTextStyle(
+                                                                      fontStyle:
+                                                                          FontStyle
+                                                                              .BodyL_Bold,
+                                                                      color:
+                                                                          FontColor
+                                                                              .FontPrimary,
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                        ),
-                                                        child: Center(
-                                                          child: TranslatedText(
-                                                            text: "Retake",
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyL_Bold,
+                                                    )
+                                                    : Image.file(
+                                                      File(_pictures[0]),
+                                                      height: 220,
+                                                      width: 220,
+                                                      errorBuilder: (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) {
+                                                        return Container(
+                                                          height: 200,
+                                                          color:
+                                                              Colors.grey[300],
+                                                          child: const Center(
+                                                            child: Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              size: 50,
                                                               color:
-                                                                  FontColor
-                                                                      .White,
+                                                                  Colors.grey,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                              ],
+                                            ),
+                                          ),
+                                          _pictures.isNotEmpty
+                                              ? Padding(
+                                                padding: const EdgeInsets.all(
+                                                  8.0,
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            left: 8.0,
+                                                            bottom: 8.0,
+                                                          ),
+                                                      child: InkWell(
+                                                        onTap: () async {
+                                                          try {
+                                                            if (_pictures
+                                                                .isNotEmpty) {
+                                                              setState(() {
+                                                                uploading =
+                                                                    true;
+                                                              });
+
+                                                              File file = File(
+                                                                image!.path,
+                                                              );
+
+                                                              // print("image");
+                                                              BlocProvider.of<
+                                                                DeliveryUpdatePageCubit
+                                                              >(
+                                                                context,
+                                                              ).uploadimage(
+                                                                file,
+                                                              );
+                                                            } else {
+                                                              showSnackBar(
+                                                                context:
+                                                                    context,
+                                                                snackBar: showErrorDialogue(
+                                                                  errorMessage:
+                                                                      "Please Select a Picture",
+                                                                ),
+                                                              );
+                                                            }
+                                                          } catch (e) {
+                                                            showSnackBar(
+                                                              context: context,
+                                                              snackBar: showSnackBar(
+                                                                context:
+                                                                    context,
+                                                                snackBar: showErrorDialogue(
+                                                                  errorMessage:
+                                                                      e.toString(),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        child: Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal:
+                                                                    24.0,
+                                                                vertical: 9.0,
+                                                              ),
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                _pictures
+                                                                        .isEmpty
+                                                                    ? customColors()
+                                                                        .pacificBlue
+                                                                        .withOpacity(
+                                                                          0.5,
+                                                                        )
+                                                                    : customColors()
+                                                                        .pacificBlue,
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  5.0,
+                                                                ),
+                                                          ),
+                                                          child: Center(
+                                                            child: Row(
+                                                              children: [
+                                                                TranslatedText(
+                                                                  text:
+                                                                      "Upload",
+                                                                  style: customTextStyle(
+                                                                    fontStyle:
+                                                                        FontStyle
+                                                                            .BodyM_Bold,
+                                                                    color:
+                                                                        FontColor
+                                                                            .White,
+                                                                  ),
+                                                                ),
+                                                                const Padding(
+                                                                  padding:
+                                                                      EdgeInsets.only(
+                                                                        left:
+                                                                            8.0,
+                                                                      ),
+                                                                  child: Icon(
+                                                                    Icons
+                                                                        .cloud_upload_outlined,
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           ),
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                            : SizedBox(height: 100.0),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            right: 8.0,
+                                                            bottom: 8.0,
+                                                          ),
+                                                      child: InkWell(
+                                                        onTap: () async {
+                                                          // getImage();
 
-                                        // Location Section
-                                        if (upload) ...[
-                                          const SizedBox(height: 16),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16.0,
-                                            ),
-                                            child: Container(
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                color: customColors().primary
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                border: Border.all(
-                                                  color: customColors().primary
-                                                      .withOpacity(0.3),
-                                                  width: 1,
+                                                          setState(() {
+                                                            uploading = false;
+                                                          });
+                                                          customShowModalBottomSheet(
+                                                            context: context,
+                                                            inputWidget: Column(
+                                                              children: [
+                                                                InkWell(
+                                                                  onTap: () {
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    );
+                                                                    getImage(
+                                                                      "camera",
+                                                                    );
+                                                                  },
+                                                                  child: Container(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                      vertical:
+                                                                          18.0,
+                                                                      horizontal:
+                                                                          18.0,
+                                                                    ),
+                                                                    decoration: BoxDecoration(
+                                                                      border: Border(
+                                                                        bottom: BorderSide(
+                                                                          color:
+                                                                              customColors().fontPrimary,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    child: Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .spaceBetween,
+                                                                      children: [
+                                                                        TranslatedText(
+                                                                          text:
+                                                                              "Camera",
+                                                                          style: customTextStyle(
+                                                                            fontStyle:
+                                                                                FontStyle.BodyL_Bold,
+                                                                            color:
+                                                                                FontColor.FontPrimary,
+                                                                          ),
+                                                                        ),
+                                                                        Icon(
+                                                                          Icons
+                                                                              .camera_alt,
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                InkWell(
+                                                                  onTap: () {
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    );
+                                                                    getImage(
+                                                                      "gallery",
+                                                                    );
+                                                                  },
+                                                                  child: Container(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                      vertical:
+                                                                          18.0,
+                                                                      horizontal:
+                                                                          18.0,
+                                                                    ),
+                                                                    decoration: BoxDecoration(
+                                                                      border: Border(
+                                                                        bottom: BorderSide(
+                                                                          color:
+                                                                              customColors().fontPrimary,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    child: Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .spaceBetween,
+                                                                      children: [
+                                                                        TranslatedText(
+                                                                          text:
+                                                                              "Gallery",
+                                                                          style: customTextStyle(
+                                                                            fontStyle:
+                                                                                FontStyle.BodyL_Bold,
+                                                                            color:
+                                                                                FontColor.FontPrimary,
+                                                                          ),
+                                                                        ),
+                                                                        Icon(
+                                                                          Icons
+                                                                              .browse_gallery,
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        },
+                                                        child: Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal:
+                                                                    24.0,
+                                                                vertical: 12.0,
+                                                              ),
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                customColors()
+                                                                    .secretGarden,
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  5.0,
+                                                                ),
+                                                          ),
+                                                          child: Center(
+                                                            child: TranslatedText(
+                                                              text: "Retake",
+                                                              style: customTextStyle(
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .BodyL_Bold,
+                                                                color:
+                                                                    FontColor
+                                                                        .White,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                              child: Column(
-                                                children: [
-                                                  if (_currentPosition != null)
+                                              )
+                                              : SizedBox(height: 100.0),
+
+                                          // Location Section
+                                          if (upload && !isReturnOrder) ...[
+                                            const SizedBox(height: 16),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16.0,
+                                                  ),
+                                              child: Container(
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color: customColors().primary
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                    color: customColors()
+                                                        .primary
+                                                        .withOpacity(0.3),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  children: [
+                                                    if (_currentPosition !=
+                                                        null)
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              8.0,
+                                                            ),
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons.location_on,
+                                                              size: 16,
+                                                              color:
+                                                                  customColors()
+                                                                      .primary,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 6,
+                                                            ),
+                                                            Expanded(
+                                                              child: Text(
+                                                                'Lat: ${_currentPosition!.latitude.toStringAsFixed(6)}, Lng: ${_currentPosition!.longitude.toStringAsFixed(6)}',
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .BodyM_Bold,
+                                                                  color:
+                                                                      FontColor
+                                                                          .FontPrimary,
+                                                                ),
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     Padding(
                                                       padding:
                                                           const EdgeInsets.all(
@@ -715,57 +929,61 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                           ),
                                                       child: Row(
                                                         children: [
-                                                          Icon(
-                                                            Icons.location_on,
-                                                            size: 16,
-                                                            color:
-                                                                customColors()
-                                                                    .primary,
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 6,
-                                                          ),
-                                                          Expanded(
-                                                            child: Text(
-                                                              'Lat: ${_currentPosition!.latitude.toStringAsFixed(6)}, Lng: ${_currentPosition!.longitude.toStringAsFixed(6)}',
-                                                              style: customTextStyle(
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .BodyM_Bold,
-                                                                color:
-                                                                    FontColor
-                                                                        .FontPrimary,
-                                                              ),
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
+                                                          _currentPosition ==
+                                                                  null
+                                                              ? Expanded(
+                                                                child: BasketButton(
+                                                                  loading:
+                                                                      _isGettingLocation,
+                                                                  text:
+                                                                      _currentPosition ==
+                                                                              null
+                                                                          ? "Get Current Location"
+                                                                          : "Update Location",
+                                                                  bgcolor:
+                                                                      customColors()
+                                                                          .primary,
+                                                                  onpress:
+                                                                      () async {
+                                                                        await _getCurrentLocation();
+                                                                      },
+                                                                  textStyle: customTextStyle(
+                                                                    fontStyle:
+                                                                        FontStyle
+                                                                            .BodyL_Bold,
+                                                                    color:
+                                                                        FontColor
+                                                                            .White,
+                                                                  ),
+                                                                ),
+                                                              )
+                                                              : const SizedBox.shrink(),
+                                                          if (_currentPosition !=
+                                                              null) ...[
+                                                            const SizedBox(
+                                                              width: 8,
                                                             ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          8.0,
-                                                        ),
-                                                    child: Row(
-                                                      children: [
-                                                        _currentPosition == null
-                                                            ? Expanded(
+                                                            Expanded(
                                                               child: BasketButton(
-                                                                loading:
-                                                                    _isGettingLocation,
                                                                 text:
-                                                                    _currentPosition ==
-                                                                            null
-                                                                        ? "Get Current Location"
-                                                                        : "Update Location",
+                                                                    "Update Location",
                                                                 bgcolor:
                                                                     customColors()
-                                                                        .primary,
+                                                                        .green600,
                                                                 onpress: () async {
-                                                                  await _getCurrentLocation();
+                                                                  if (_currentPosition !=
+                                                                      null) {
+                                                                    BlocProvider.of<
+                                                                      DeliveryUpdatePageCubit
+                                                                    >(
+                                                                      context,
+                                                                    ).updateLocation(
+                                                                      _currentPosition!
+                                                                          .latitude,
+                                                                      _currentPosition!
+                                                                          .longitude,
+                                                                    );
+                                                                  }
                                                                 },
                                                                 textStyle: customTextStyle(
                                                                   fontStyle:
@@ -776,59 +994,21 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                                                                           .White,
                                                                 ),
                                                               ),
-                                                            )
-                                                            : const SizedBox.shrink(),
-                                                        if (_currentPosition !=
-                                                            null) ...[
-                                                          const SizedBox(
-                                                            width: 8,
-                                                          ),
-                                                          Expanded(
-                                                            child: BasketButton(
-                                                              text:
-                                                                  "Update Location",
-                                                              bgcolor:
-                                                                  customColors()
-                                                                      .green600,
-                                                              onpress: () async {
-                                                                if (_currentPosition !=
-                                                                    null) {
-                                                                  BlocProvider.of<
-                                                                    DeliveryUpdatePageCubit
-                                                                  >(
-                                                                    context,
-                                                                  ).updateLocation(
-                                                                    _currentPosition!
-                                                                        .latitude,
-                                                                    _currentPosition!
-                                                                        .longitude,
-                                                                  );
-                                                                }
-                                                              },
-                                                              textStyle: customTextStyle(
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .BodyL_Bold,
-                                                                color:
-                                                                    FontColor
-                                                                        .White,
-                                                              ),
                                                             ),
-                                                          ),
+                                                          ],
                                                         ],
-                                                      ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
+                                          ],
                                         ],
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
                             ],
                           );
                         },
@@ -847,7 +1027,7 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
         },
       ),
       bottomNavigationBar:
-          upload
+          (isReturnOrder ? returnActionReady : upload)
               ? SizedBox(
                 height: screenSize.height * 0.15,
                 child: Column(
@@ -863,23 +1043,34 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                         loading:
                             context.read<DeliveryUpdatePageCubit>().updatestat,
                         text:
-                            orderResponseItem?.status == "on_the_way_to_return"
+                            isReturnOrder
+                                ? _getActionButtonText()
+                                : orderResponseItem?.status ==
+                                    "on_the_way_to_return"
                                 ? "Update Return Status"
                                 : "Update Delivery Status",
                         bgcolor: customColors().green600,
                         onpress: () async {
-                          setState(() {
-                            updatestat = true;
-                          });
-                          if (orderResponseItem?.status ==
-                              "on_the_way_to_return") {
-                            BlocProvider.of<DeliveryUpdatePageCubit>(
-                              context,
-                            ).updateMainOrderStat("order_items_returned");
+                          if (isReturnOrder) {
+                            await _submitSelectedReturnAction();
                           } else {
-                            BlocProvider.of<DeliveryUpdatePageCubit>(
-                              context,
-                            ).updateMainOrderStat("complete");
+                            log("normal orders");
+                            setState(() {
+                              updatestat = true;
+                            });
+                            if (orderResponseItem?.status ==
+                                "on_the_way_to_return") {
+                              BlocProvider.of<DeliveryUpdatePageCubit>(
+                                context,
+                              ).updateMainOrderStat(
+                                "order_items_returned",
+                                _getCommentForStatusUpdate(),
+                              );
+                            } else {
+                              BlocProvider.of<DeliveryUpdatePageCubit>(
+                                context,
+                              ).updateMainOrderStat("complete", "");
+                            }
                           }
                         },
                         textStyle: customTextStyle(

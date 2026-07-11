@@ -23,11 +23,18 @@ class ListImageWidget extends StatelessWidget {
         if (snapshot.hasData) {
           Map<String, dynamic> data = snapshot.data!;
           log('${data['imagepath']}${imageurl}');
+          log('imageurl: $imageurl');
           return CachedNetworkImage(
             imageUrl:
-                imageurl.toString().contains('https://media.ansargallery.com')
+                imageurl.toString().contains('https://')
                     ? imageurl
-                    : '${data['imagepath']}${imageurl}',
+                        .replaceFirst(
+                          'https://media-qatar.ansargallery.com/catalog/product/',
+                          'https://media.ansargallery.com/media/catalog/product/',
+                        )
+                        .replaceAll(RegExp(r'/cache/[a-f0-9]+'), '')
+                    : data['imagepath'] + imageurl,
+
             imageBuilder: (context, imageProvider) {
               return Container(
                 decoration: BoxDecoration(

@@ -152,98 +152,88 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 3.0,
-                                    ),
-                                    child: TranslatedText(
-                                      text: "Zone  ",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.Inter_Light,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 3.0,
+                                        ),
+                                        child: TranslatedText(
+                                          text: "Zone  ",
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.Inter_Light,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  // Padding(
-                                  //   padding: const EdgeInsets.symmetric(
-                                  //       vertical: 3.0),
-                                  //   child: Text(
-                                  //     "Street ",
-                                  //     style: customTextStyle(
-                                  //         fontStyle: FontStyle.Inter_Light),
-                                  //   ),
-                                  // ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 3.0,
-                                    ),
-                                    child: TranslatedText(
-                                      text: "Building  ",
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.Inter_Light,
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 3.0,
+                                        ),
+                                        child: TranslatedText(
+                                          text: "Building  ",
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.Inter_Light,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 3.0,
-                                    ),
-                                    child: Text(
-                                      widget.orderResponseItem.postcode,
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyL_Bold,
-                                        color: FontColor.FontPrimary,
+                                ),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 3.0,
+                                        ),
+                                        child: Text(
+                                          widget.orderResponseItem.postcode,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyL_Bold,
+                                            color: FontColor.FontPrimary,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  // Padding(
-                                  //   padding: const EdgeInsets.symmetric(
-                                  //       vertical: 3.0),
-                                  //   child: Row(
-                                  //     children: [
-                                  //       Text(
-                                  //         widget.orderResponseItem
-                                  //             .billingStreet,
-                                  //         style: customTextStyle(
-                                  //             fontStyle:
-                                  //                 FontStyle.BodyL_Bold,
-                                  //             color: FontColor.FontPrimary),
-                                  //       ),
-                                  //     ],
-                                  //   ),
-                                  // ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 3.0,
-                                    ),
-                                    child: Text(
-                                      widget.orderResponseItem.buildingNumber
-                                          .toString(),
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyL_Bold,
-                                        color: FontColor.FontPrimary,
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 3.0,
+                                        ),
+                                        child: Text(
+                                          widget
+                                              .orderResponseItem
+                                              .buildingNumber
+                                              .toString(),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyL_Bold,
+                                            color: FontColor.FontPrimary,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Row(
@@ -272,7 +262,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                                 child: Icon(Icons.phone),
                               ),
                             )
-                            : SizedBox(),
+                            : SizedBox(width: 40),
                         IconButton(
                           onPressed: () async {
                             customShowModalBottomSheet(

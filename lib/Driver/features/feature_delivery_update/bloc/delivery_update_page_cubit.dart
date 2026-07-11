@@ -171,7 +171,7 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
   //   }
   // }
 
-  updateMainOrderStat(String status) async {
+  updateMainOrderStat(String status, String comment) async {
     try {
       emit(DeliveryUpdatePageLoading());
 
@@ -189,7 +189,9 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         orderid: orderResponseItem!.subgroupIdentifier,
         orderstatus: status,
         comment:
-            "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order",
+            comment == ""
+                ? "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order"
+                : comment,
         userid: UserController().profile.id,
         latitude: lat,
         longitude: long,
