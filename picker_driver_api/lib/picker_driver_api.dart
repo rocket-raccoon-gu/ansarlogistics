@@ -351,6 +351,7 @@ extension PDGeneralApi on PickerDriverApi {
     required String user_id,
     required String latitude,
     required String longitude,
+    required bool paymentCollected,
   }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
@@ -370,6 +371,7 @@ extension PDGeneralApi on PickerDriverApi {
       "user_id": user_id,
       "latitude": latitude,
       "longitude": longitude,
+      "payment_collected": paymentCollected ? 1 : 0,
     };
 
     log(url.toString());
@@ -397,64 +399,70 @@ extension PDGeneralApi on PickerDriverApi {
     }
   }
 
-  Future uploadDocumentService(
-    Uint8List imagebytes,
-    Uint8List imagebytesdSign,
-    Uint8List imagebytesqId,
-    String orderid,
-    int driverid,
+  Future<int> uploadDocumentService(
+    Uint8List customerSignatureBytes,
+    Uint8List driverSignatureBytes,
+    Uint8List customerQidBytes,
+    String orderId,
+    int driverId,
   ) async {
-    final Map<String, String> headers = {"Content-Type": "multipart/form-data"};
-
-    Uri url = Uri.parse(
-      _endpointWithApplicationPathString('delivery_verification.php'),
+    final Uri url = Uri.parse(
+      _endpointWithApplicationPathString('upload_documents_s3.php'),
     );
 
     try {
-      var request = await http.MultipartRequest('POST', url);
+      final request = http.MultipartRequest('POST', url);
 
-      final httpcSign = await http.MultipartFile.fromBytes(
-        'customer_signature',
-        imagebytes,
-        filename: 'customersign-${orderid.toString()}.jpg',
+      request.fields['order_number'] = orderId;
+      request.fields['driver_id'] = driverId.toString();
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'customer_signature',
+          customerSignatureBytes,
+          filename: 'customer-signature-$orderId.jpg',
+        ),
       );
 
-      final httpdSign = await http.MultipartFile.fromBytes(
-        'driver_signature',
-        imagebytesdSign,
-        filename: 'driversign-${orderid.toString()}.jpg',
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'customer_qid',
+          customerQidBytes,
+          filename: 'customer-qid-passport-$orderId.jpg',
+        ),
       );
 
-      final httpqId = await http.MultipartFile.fromBytes(
-        'document',
-        imagebytesqId,
-        filename: 'qId-${orderid.toString()}.jpg',
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'driver_signature',
+          driverSignatureBytes,
+          filename: 'driver-signature-$orderId.jpg',
+        ),
       );
 
-      request.files.add(httpcSign);
+      log('Upload URL: $url');
+      log('Fields: ${request.fields}');
 
-      request.files.add(httpdSign);
-
-      request.files.add(httpqId);
-
-      request.fields['order_id'] = orderid.toString();
-
-      request.fields['driver_id'] = driverid.toString();
-
-      // print(driverid);
+      for (final file in request.files) {
+        log(
+          'File field: ${file.field}, '
+          'filename: ${file.filename}, '
+          'size: ${file.length}',
+        );
+      }
 
       final response = await request.send();
 
-      String responsebody = await response.stream.bytesToString();
+      final responseBody = await response.stream.bytesToString();
 
-      // print(responsebody);
-
-      log(responsebody);
+      log('Status code: ${response.statusCode}');
+      log('Response body: $responseBody');
 
       return response.statusCode;
-    } catch (e) {
-      log(e.toString());
-      return "500";
+    } catch (e, stackTrace) {
+      log('Document upload error: $e', stackTrace: stackTrace);
+
+      return 500;
     }
   }
 

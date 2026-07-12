@@ -202,6 +202,7 @@ class _DriverCustomerDetailsTabState extends State<DriverCustomerDetailsTab> {
                               UserController.userController.locationlatitude,
                           longitude:
                               UserController.userController.locationlongitude,
+                          paymentCollected: false,
                         );
 
                     if (resp.statusCode == 200) {

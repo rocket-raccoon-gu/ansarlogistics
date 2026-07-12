@@ -78,6 +78,7 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
                 userid: UserController().profile.id,
                 latitude: UserController.userController.locationlatitude,
                 longitude: UserController.userController.locationlongitude,
+                paymentCollected: false,
               );
 
               if (responce.statusCode == 200) {

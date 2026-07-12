@@ -222,6 +222,7 @@ class PickerOrderDetailsCubit extends Cubit<PickerOrderDetailsState> {
         userid: UserController().profile.id,
         latitude: UserController.userController.locationlatitude,
         longitude: UserController.userController.locationlongitude,
+        paymentCollected: false,
       );
 
       if (resp.statusCode == 200) {

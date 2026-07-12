@@ -10,6 +10,7 @@ import 'package:ansarlogistics/components/custom_app_components/buttons/basket_b
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/themes/style.dart';
+import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
   bool upload = false;
 
   bool uploading = false;
+  bool paymentCollected = false;
   String? selectedReturnAction;
   bool returnActionReady = false;
 
@@ -208,9 +210,11 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
       updatestat = true;
     });
 
-    BlocProvider.of<DeliveryUpdatePageCubit>(
-      context,
-    ).updateMainOrderStat(_getActionStatus(), _getCommentForStatusUpdate());
+    BlocProvider.of<DeliveryUpdatePageCubit>(context).updateMainOrderStat(
+      _getActionStatus(),
+      _getCommentForStatusUpdate(),
+      paymentCollected: paymentCollected,
+    );
   }
 
   _getCommentForStatusUpdate() {
@@ -1022,6 +1026,67 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                 // <-- close SingleChildScrollView
                 // <-- close Expanded
               ),
+              orderResponseItem!.paymentMethod == "Cash On Delivery" &&
+                      orderResponseItem!.type == "WAR" &&
+                      UserController.userController.profile.branchCode ==
+                          "Ansar Warehouse"
+                  ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+                        child: Row(
+                          children: [
+                            Checkbox(
+                              value: paymentCollected,
+                              activeColor: customColors().green600,
+                              onChanged: (value) {
+                                setState(() {
+                                  paymentCollected = value ?? false;
+                                });
+                              },
+                            ),
+                            TranslatedText(
+                              text: "Payment Collected",
+                              style: customTextStyle(
+                                fontStyle: FontStyle.BodyM_Bold,
+                                color: FontColor.FontPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Padding(
+                      //   padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
+                      //   child: InkWell(
+                      //     onTap: () {
+                      //       Navigator.pop(context);
+                      //     },
+                      //     child: Container(
+                      //       padding: const EdgeInsets.symmetric(
+                      //         horizontal: 24.0,
+                      //         vertical: 9.0,
+                      //       ),
+                      //       decoration: BoxDecoration(
+                      //         color: customColors().secretGarden,
+                      //         borderRadius: BorderRadius.circular(5.0),
+                      //       ),
+                      //       child: Center(
+                      //         child: TranslatedText(
+                      //           text: "Back",
+                      //           style: customTextStyle(
+                      //             fontStyle: FontStyle.BodyM_Bold,
+                      //             color: FontColor.White,
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                    ],
+                  )
+                  : SizedBox(),
             ],
           );
         },
@@ -1065,11 +1130,16 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                               ).updateMainOrderStat(
                                 "order_items_returned",
                                 _getCommentForStatusUpdate(),
+                                paymentCollected: paymentCollected,
                               );
                             } else {
                               BlocProvider.of<DeliveryUpdatePageCubit>(
                                 context,
-                              ).updateMainOrderStat("complete", "");
+                              ).updateMainOrderStat(
+                                "complete",
+                                "",
+                                paymentCollected: paymentCollected,
+                              );
                             }
                           }
                         },

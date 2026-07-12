@@ -197,10 +197,12 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
                     : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child:
-                          double.parse(widget.orderResponseItem.grandTotal) >=
-                                      500 ||
+                          (double.parse(widget.orderResponseItem.grandTotal) >=
+                                          500 &&
+                                      widget.orderResponseItem.type == "NOL") ||
                                   widget.orderResponseItem.type == "VPO" ||
-                                  widget.orderResponseItem.type == "SUP"
+                                  widget.orderResponseItem.type == "SUP" ||
+                                  widget.orderResponseItem.type == "WAR"
                               ? BasketButton(
                                 onpress: () {
                                   context.gNavigationService

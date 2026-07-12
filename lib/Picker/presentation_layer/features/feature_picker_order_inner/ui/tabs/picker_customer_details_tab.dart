@@ -400,6 +400,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                                 UserController.userController.locationlatitude,
                             longitude:
                                 UserController.userController.locationlongitude,
+                            paymentCollected: false,
                           );
 
                       try {
@@ -520,6 +521,7 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                                 UserController.userController.locationlatitude,
                             longitude:
                                 UserController.userController.locationlongitude,
+                            paymentCollected: false,
                           );
 
                       if (resp.statusCode == 200) {

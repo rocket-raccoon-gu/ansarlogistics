@@ -16,6 +16,17 @@ import 'package:picker_driver_api/responses/order_response.dart';
 import 'package:signature/signature.dart';
 
 class DocumentUploadPageCubit extends Cubit<DocumentUploadPageState> {
+  static int resolveSignatureExportDimension(
+    int requestedSize,
+    int? actualSize,
+  ) {
+    if (actualSize == null || actualSize <= 0) {
+      return requestedSize;
+    }
+
+    return max(requestedSize, actualSize);
+  }
+
   final ServiceLocator serviceLocator;
   BuildContext context;
   Map<String, dynamic> data;
@@ -73,9 +84,17 @@ class DocumentUploadPageCubit extends Cubit<DocumentUploadPageState> {
     if (controller.isNotEmpty) {
       var intValue = Random().nextInt(10); // Value is >= 0 and < 10.
       intValue = Random().nextInt(100) + 50;
+      final int exportHeight = resolveSignatureExportDimension(
+        300,
+        controller.defaultHeight,
+      );
+      final int exportWidth = resolveSignatureExportDimension(
+        300,
+        controller.defaultWidth,
+      );
       final Uint8List? data = await controller.toPngBytes(
-        height: 300,
-        width: 300,
+        height: exportHeight,
+        width: exportWidth,
       );
       // XFile xfle =
       //     XFile.fromData(data!, mimeType: 'image/jpeg', name: 'new_img.jpg');
@@ -169,7 +188,7 @@ class DocumentUploadPageCubit extends Cubit<DocumentUploadPageState> {
 
       // print(response);
 
-      if (response == 201) {
+      if (response == 200) {
         // ignore: use_build_context_synchronously
         showSnackBar(
           context: context,

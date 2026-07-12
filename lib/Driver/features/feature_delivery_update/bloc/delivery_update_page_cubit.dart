@@ -171,7 +171,11 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
   //   }
   // }
 
-  updateMainOrderStat(String status, String comment) async {
+  updateMainOrderStat(
+    String status,
+    String comment, {
+    required bool paymentCollected,
+  }) async {
     try {
       emit(DeliveryUpdatePageLoading());
 
@@ -195,6 +199,7 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         userid: UserController().profile.id,
         latitude: lat,
         longitude: long,
+        paymentCollected: paymentCollected,
       );
 
       // final resp = await serviceLocator.tradingApi.updateMainOrderStat(
