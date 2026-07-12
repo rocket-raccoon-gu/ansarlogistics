@@ -257,6 +257,7 @@ class ItemAddPageCubit extends Cubit<ItemAddPageState> {
         'productId': productId,
         'name': productName,
         'reason': reason,
+        'branch_code': UserController().profile.branchCode,
       };
 
       log("📦 Request Body: $body");
