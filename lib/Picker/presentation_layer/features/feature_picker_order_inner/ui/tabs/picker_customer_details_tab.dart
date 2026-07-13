@@ -468,9 +468,10 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              widget.orderResponseItem!.deliveryNote!.contains(
-                        "don't contact",
-                      ) ||
+              widget.orderResponseItem!.deliveryNote! != null &&
+                          widget.orderResponseItem!.deliveryNote!.contains(
+                            "don't contact",
+                          ) ||
                       widget.orderResponseItem!.deliveryNote!.contains(
                         "don't call",
                       )
