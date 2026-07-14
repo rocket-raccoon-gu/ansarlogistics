@@ -1700,9 +1700,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        item.name.isNotEmpty
-                            ? item.name
-                            : item.productName ?? '',
+                        item.productName ?? item.name ?? '',
                         style: subtitleStyle().copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
