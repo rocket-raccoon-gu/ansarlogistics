@@ -57,6 +57,9 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
         return routesFactory.createStaffMainPanelPageRoute();
       case _staffSummeryListPageRouteName:
         return routesFactory.createStaffSummeryListPageRoute();
+      case _paymentCollectionPageRouteName:
+        final arg = settings.arguments as MapArguments;
+        return routesFactory.createPaymentCollectionPageRoute(arg.data);
       default:
         return null;
     }

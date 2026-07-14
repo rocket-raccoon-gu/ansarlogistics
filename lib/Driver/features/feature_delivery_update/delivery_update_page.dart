@@ -1104,50 +1104,78 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: BasketButton(
-                        loading:
-                            context.read<DeliveryUpdatePageCubit>().updatestat,
-                        text:
-                            isReturnOrder
-                                ? _getActionButtonText()
-                                : orderResponseItem?.status ==
-                                    "on_the_way_to_return"
-                                ? "Update Return Status"
-                                : "Update Delivery Status",
-                        bgcolor: customColors().green600,
-                        onpress: () async {
-                          if (isReturnOrder) {
-                            await _submitSelectedReturnAction();
-                          } else {
-                            log("normal orders");
-                            setState(() {
-                              updatestat = true;
-                            });
-                            if (orderResponseItem?.status ==
-                                "on_the_way_to_return") {
-                              BlocProvider.of<DeliveryUpdatePageCubit>(
-                                context,
-                              ).updateMainOrderStat(
-                                "order_items_returned",
-                                _getCommentForStatusUpdate(),
-                                paymentCollected: paymentCollected,
-                              );
-                            } else {
-                              BlocProvider.of<DeliveryUpdatePageCubit>(
-                                context,
-                              ).updateMainOrderStat(
-                                "complete",
-                                "",
-                                paymentCollected: paymentCollected,
-                              );
-                            }
-                          }
-                        },
-                        textStyle: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
-                          color: FontColor.White,
-                        ),
-                      ),
+                      child:
+                          UserController.userController.profile.branchCode ==
+                                  "Ansar Warehouse"
+                              ? BasketButton(
+                                textStyle: customTextStyle(
+                                  fontStyle: FontStyle.BodyL_Bold,
+                                  color: FontColor.White,
+                                ),
+                                text: "Update Payment Collection",
+                                bgcolor: customColors().green600,
+                                onpress: () async {
+                                  // setState(() {
+                                  //   updatestat = true;
+                                  // });
+                                  context.gNavigationService
+                                      .openPaymentCollectionPage(
+                                        context,
+                                        arg: {
+                                          "orderId":
+                                              orderResponseItem
+                                                  ?.subgroupIdentifier,
+                                          "orderResponse": orderResponseItem,
+                                        },
+                                      );
+                                },
+                              )
+                              : BasketButton(
+                                loading:
+                                    context
+                                        .read<DeliveryUpdatePageCubit>()
+                                        .updatestat,
+                                text:
+                                    isReturnOrder
+                                        ? _getActionButtonText()
+                                        : orderResponseItem?.status ==
+                                            "on_the_way_to_return"
+                                        ? "Update Return Status"
+                                        : "Update Delivery Status",
+                                bgcolor: customColors().green600,
+                                onpress: () async {
+                                  if (isReturnOrder) {
+                                    await _submitSelectedReturnAction();
+                                  } else {
+                                    log("normal orders");
+                                    setState(() {
+                                      updatestat = true;
+                                    });
+                                    if (orderResponseItem?.status ==
+                                        "on_the_way_to_return") {
+                                      BlocProvider.of<DeliveryUpdatePageCubit>(
+                                        context,
+                                      ).updateMainOrderStat(
+                                        "order_items_returned",
+                                        _getCommentForStatusUpdate(),
+                                        paymentCollected: paymentCollected,
+                                      );
+                                    } else {
+                                      BlocProvider.of<DeliveryUpdatePageCubit>(
+                                        context,
+                                      ).updateMainOrderStat(
+                                        "complete",
+                                        "",
+                                        paymentCollected: paymentCollected,
+                                      );
+                                    }
+                                  }
+                                },
+                                textStyle: customTextStyle(
+                                  fontStyle: FontStyle.BodyL_Bold,
+                                  color: FontColor.White,
+                                ),
+                              ),
                     ),
                   ],
                 ),

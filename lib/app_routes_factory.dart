@@ -3,6 +3,7 @@ import 'package:ansarlogistics/Driver/features/feature_document_upload/document_
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_order_routes/order_routes_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_payment_collection/payment_collection_page_root_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_add/item_add_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/order_item_inner_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_replacement/item_replacement_page_route_builder.dart';
@@ -196,6 +197,14 @@ class AppRoutesFactory extends RoutesFactory {
     // TODO: implement createStaffSummeryListPageRoute
     return CustomRoute(
       builder: StaffSummeryListPageRootBuilder(serviceLocator: _serviceLocator),
+    );
+  }
+
+  @override
+  Route<dynamic> createPaymentCollectionPageRoute(Map<String, dynamic> data) {
+    // TODO: implement createPaymentCollectionPageRoute
+    return CustomRoute(
+      builder: PaymentCollectionPageRootBuilder(_serviceLocator, data: data),
     );
   }
 }

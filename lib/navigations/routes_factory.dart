@@ -23,4 +23,5 @@ abstract class RoutesFactory {
   Route<dynamic> createSignupStaffPageRoute();
   Route<dynamic> createStaffMainPanelPageRoute();
   Route<dynamic> createStaffSummeryListPageRoute();
+  Route<dynamic> createPaymentCollectionPageRoute(Map<String, dynamic> data);
 }

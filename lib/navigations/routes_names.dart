@@ -22,3 +22,4 @@ const _salesStaffDashboardPageRouteName = '/salesstaffdashboardpageroutename';
 const _signupStaffPageRouteName = '/signupstaffpageroutename';
 const _staffMainPanelPageRouteName = '/staffmainpanelpageroutename';
 const _staffSummeryListPageRouteName = '/staffsummerylistpageroutename';
+const _paymentCollectionPageRouteName = '/paymentcollectionpageroutename';

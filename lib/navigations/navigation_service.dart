@@ -173,4 +173,13 @@ class NavigationService {
   Future<void> openStaffSummeryListPage(BuildContext context) {
     return Navigator.of(context).pushNamed(_staffSummeryListPageRouteName);
   }
+
+  Future<void> openPaymentCollectionPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_paymentCollectionPageRouteName, arguments: MapArguments(arg!));
+  }
 }
