@@ -79,6 +79,8 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
                 latitude: UserController.userController.locationlatitude,
                 longitude: UserController.userController.locationlongitude,
                 paymentCollected: false,
+                secondaryPaymentMethod: "",
+                secondaryPaymentAmount: "",
               );
 
               if (responce.statusCode == 200) {

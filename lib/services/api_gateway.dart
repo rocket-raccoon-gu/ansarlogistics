@@ -275,6 +275,8 @@ class PDApiGateway implements AuthenticationService {
     required String latitude,
     required String longitude,
     required bool paymentCollected,
+    required String secondaryPaymentMethod,
+    required String secondaryPaymentAmount,
   }) async {
     try {
       final responce = await pickerDriverApi
@@ -286,6 +288,8 @@ class PDApiGateway implements AuthenticationService {
             latitude: latitude,
             longitude: longitude,
             paymentCollected: paymentCollected,
+            secondaryPaymentMethod: secondaryPaymentMethod,
+            secondaryPaymentAmount: secondaryPaymentAmount,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());

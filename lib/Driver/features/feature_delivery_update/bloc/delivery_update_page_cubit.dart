@@ -200,6 +200,8 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         latitude: lat,
         longitude: long,
         paymentCollected: paymentCollected,
+        secondaryPaymentMethod: "",
+        secondaryPaymentAmount: "",
       );
 
       // final resp = await serviceLocator.tradingApi.updateMainOrderStat(

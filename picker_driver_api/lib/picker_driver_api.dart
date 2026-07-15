@@ -352,6 +352,8 @@ extension PDGeneralApi on PickerDriverApi {
     required String latitude,
     required String longitude,
     required bool paymentCollected,
+    required String secondaryPaymentMethod,
+    required String secondaryPaymentAmount,
   }) {
     // Uri url = Uri.parse(_endpointWithApplicationCustomPath(
     //     'custom-api/api/qatar/updateSubOrder.php'));
@@ -372,6 +374,8 @@ extension PDGeneralApi on PickerDriverApi {
       "latitude": latitude,
       "longitude": longitude,
       "payment_collected": paymentCollected ? 1 : 0,
+      "secondary_payment_method": secondaryPaymentMethod,
+      "secondary_payment_amount": secondaryPaymentAmount,
     };
 
     log(url.toString());

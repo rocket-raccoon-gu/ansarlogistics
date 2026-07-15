@@ -97,6 +97,7 @@ dependencies:
   share_plus: any
   image: any
   excel: any
+  logger: any
 
   picker_driver_api:
     path: ./picker_driver_api/

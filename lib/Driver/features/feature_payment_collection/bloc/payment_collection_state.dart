@@ -8,6 +8,8 @@ class PaymentCollectionLoaded extends PaymentCollectionState {
   final double cardAmount;
   final String paymentMethod; // 'cash', 'card', 'split'
   final String orderPaymentMethod; // default payment method from order response
+  final String secondaryPaymentMethod;
+  final String secondaryPaymentAmount;
   final double balanceRemaining;
 
   PaymentCollectionLoaded({
@@ -16,6 +18,8 @@ class PaymentCollectionLoaded extends PaymentCollectionState {
     required this.cardAmount,
     required this.paymentMethod,
     required this.orderPaymentMethod,
+    required this.secondaryPaymentMethod,
+    required this.secondaryPaymentAmount,
     required this.balanceRemaining,
   });
 
@@ -25,6 +29,8 @@ class PaymentCollectionLoaded extends PaymentCollectionState {
     double? cardAmount,
     String? paymentMethod,
     String? orderPaymentMethod,
+    String? secondaryPaymentMethod,
+    String? secondaryPaymentAmount,
     double? balanceRemaining,
   }) {
     return PaymentCollectionLoaded(
@@ -33,6 +39,10 @@ class PaymentCollectionLoaded extends PaymentCollectionState {
       cardAmount: cardAmount ?? this.cardAmount,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       orderPaymentMethod: orderPaymentMethod ?? this.orderPaymentMethod,
+      secondaryPaymentMethod:
+          secondaryPaymentMethod ?? this.secondaryPaymentMethod,
+      secondaryPaymentAmount:
+          secondaryPaymentAmount ?? this.secondaryPaymentAmount,
       balanceRemaining: balanceRemaining ?? this.balanceRemaining,
     );
   }

@@ -71,6 +71,8 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
         latitude: UserController.userController.locationlatitude,
         longitude: UserController.userController.locationlongitude,
         paymentCollected: false,
+        secondaryPaymentMethod: "",
+        secondaryPaymentAmount: "",
       );
 
       if (resp.statusCode == 200) {

@@ -610,7 +610,13 @@ class _PaymentCollectionPageState extends State<PaymentCollectionPage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                context.read<PaymentCollectionCubit>().collectPayment(context);
+                context.read<PaymentCollectionCubit>().collectPayment(
+                  context,
+                  'complete',
+                  true,
+                  state.secondaryPaymentMethod,
+                  state.secondaryPaymentAmount,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: customColors().secretGarden,

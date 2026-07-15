@@ -401,6 +401,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                             longitude:
                                 UserController.userController.locationlongitude,
                             paymentCollected: false,
+                            secondaryPaymentMethod: "",
+                            secondaryPaymentAmount: "",
                           );
 
                       try {
@@ -522,6 +524,8 @@ class _PickerCustomerDetailsTabState extends State<PickerCustomerDetailsTab> {
                             longitude:
                                 UserController.userController.locationlongitude,
                             paymentCollected: false,
+                            secondaryPaymentMethod: "",
+                            secondaryPaymentAmount: "",
                           );
 
                       if (resp.statusCode == 200) {
