@@ -163,7 +163,8 @@ class _PickerOrderListItemState extends State<PickerOrderListItem> {
                 widget.orderResponseItem.status == "end_picking")
               _BottomBanner(order: widget.orderResponseItem),
 
-            if (widget.orderResponseItem.deliveryNote != null)
+            if (widget.orderResponseItem.deliveryNote != null &&
+                widget.orderResponseItem.deliveryNote!.trim().isNotEmpty)
               CustomerBottomBanner(order: widget.orderResponseItem),
 
             const SizedBox(height: 10),

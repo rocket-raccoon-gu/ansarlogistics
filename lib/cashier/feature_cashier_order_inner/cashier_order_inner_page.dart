@@ -159,7 +159,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             ),
           ),
           const SizedBox(width: 8),
-          GestureDetector(
+
+          InkWell(
             onTap: () {
               _openImage(item.imageurl);
             },
@@ -1217,47 +1218,61 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   Future<void> _openImage(String? imageUrl) async {
     final raw = (imageUrl ?? '').toString().trim();
     final url = raw.isEmpty ? noimageurl : resolveImageUrl(raw);
+
     await showDialog(
       context: context,
       barrierDismissible: true,
       builder: (ctx) {
         return Dialog(
           insetPadding: const EdgeInsets.all(16),
-          backgroundColor: Colors.black,
-          child: Stack(
-            children: [
-              InteractiveViewer(
-                panEnabled: true,
-                minScale: 0.5,
-                maxScale: 4,
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: CachedNetworkImage(
-                    imageUrl: url,
-                    fit: BoxFit.contain,
-                    placeholder:
-                        (context, _) => Center(
-                          child: Image.asset(
-                            'assets/Iphone_spinner.gif',
-                            width: 32,
-                            height: 32,
-                          ),
-                        ),
-                    errorWidget:
-                        (context, _, __) =>
-                            Image.network(noimageurl, fit: BoxFit.contain),
+          backgroundColor: Colors.black.withOpacity(0.95),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: InteractiveViewer(
+                    panEnabled: true,
+                    minScale: 0.8,
+                    maxScale: 4,
+                    child: Center(
+                      child: CachedNetworkImage(
+                        imageUrl: url,
+                        fit: BoxFit.contain,
+                        placeholder:
+                            (context, _) => Center(
+                              child: Image.asset(
+                                'assets/Iphone_spinner.gif',
+                                width: 36,
+                                height: 36,
+                              ),
+                            ),
+                        errorWidget:
+                            (context, _, __) =>
+                                Image.network(noimageurl, fit: BoxFit.contain),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.of(ctx).pop(),
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -1666,31 +1681,34 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: 70,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: colors.backgroundTertiary,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: CachedNetworkImage(
-                    imageUrl:
-                        (item.imageurl ?? '').toString().isEmpty
-                            ? noimageurl
-                            : resolveImageUrl(item.imageurl ?? ''),
-                    fit: BoxFit.cover,
-                    placeholder:
-                        (context, url) => Center(
-                          child: Image.asset(
-                            'assets/Iphone_spinner.gif',
-                            width: 24,
-                            height: 24,
+                InkWell(
+                  onTap: () => _openImage(item.imageurl),
+                  child: Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: colors.backgroundTertiary,
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: CachedNetworkImage(
+                      imageUrl:
+                          (item.imageurl ?? '').toString().isEmpty
+                              ? noimageurl
+                              : resolveImageUrl(item.imageurl ?? ''),
+                      fit: BoxFit.cover,
+                      placeholder:
+                          (context, url) => Center(
+                            child: Image.asset(
+                              'assets/Iphone_spinner.gif',
+                              width: 24,
+                              height: 24,
+                            ),
                           ),
-                        ),
-                    errorWidget:
-                        (context, url, error) =>
-                            Image.network(noimageurl, fit: BoxFit.cover),
+                      errorWidget:
+                          (context, url, error) =>
+                              Image.network(noimageurl, fit: BoxFit.cover),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 6),

@@ -75,11 +75,46 @@ class OrderInnerAppBar extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 6),
                   InkWell(
                     onTap: onTapinfo,
-                    child: ImageIcon(
-                      AssetImage("assets/info.png"),
-                      color: HexColor('#A3A3A3'),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ImageIcon(
+                          const AssetImage("assets/info.png"),
+                          color: HexColor('#A3A3A3'),
+                        ),
+                        if ((orderResponseItem.deliveryNote ?? '')
+                            .toString()
+                            .trim()
+                            .isNotEmpty)
+                          Positioned(
+                            right: -6,
+                            top: -6,
+                            child: Container(
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                color: HexColor('#FF3498'),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 1.5,
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                '1',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   Container(
