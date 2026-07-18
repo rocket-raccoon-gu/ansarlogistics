@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/constants/methods.dart';
+import 'package:ansarlogistics/constants/texts.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_driver_api/responses/orders_new_response.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -72,40 +73,47 @@ class ItemTile extends StatelessWidget {
                     color: customColors().backgroundSecondary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: FutureBuilder<String>(
-                    future: resolveImageUrlFromFirebase(imgPath),
-                    builder: (context, snapshot) {
-                      // final resolved = snapshot.data ?? '';
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        // loading or no URL → placeholder
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      final resolved = snapshot.data!;
-                      log('Resolved image URL: $resolved');
-                      return CachedNetworkImage(
-                        imageUrl: resolved,
-                        imageBuilder:
-                            (context, imageProvider) => Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                        placeholder:
-                            (context, url) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                        errorWidget:
-                            (context, url, error) =>
-                                const Icon(Icons.error, color: Colors.red),
-                      );
-                    },
-                  ),
+                  child:
+                      imgPath != ""
+                          ? FutureBuilder<String>(
+                            future: resolveImageUrlFromFirebase(imgPath),
+                            builder: (context, snapshot) {
+                              // final resolved = snapshot.data ?? '';
+                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                // loading or no URL → placeholder
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              final resolved = snapshot.data!;
+                              log('Resolved image URL: $resolved');
+                              return CachedNetworkImage(
+                                imageUrl: resolved,
+                                imageBuilder:
+                                    (context, imageProvider) => Container(
+                                      width: 80,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: imageProvider,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                placeholder:
+                                    (context, url) => const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                errorWidget:
+                                    (context, url, error) => const Icon(
+                                      Icons.error,
+                                      color: Colors.red,
+                                    ),
+                              );
+                            },
+                          )
+                          : Image.network(noimageurl),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

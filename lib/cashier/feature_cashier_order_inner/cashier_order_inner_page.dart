@@ -75,6 +75,23 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
   int _toInt(Object? s) => _toDouble(s).toInt();
 
+  bool _isArabicText(String? text) {
+    final value = text?.trim() ?? '';
+    if (value.isEmpty) return false;
+    return RegExp(r'[\u0600-\u06FF]').hasMatch(value);
+  }
+
+  String _getDisplayItemName(Item item) {
+    final name = item.name?.toString().trim() ?? '';
+    final productName = item.productName?.toString().trim() ?? '';
+
+    if (name.isNotEmpty && _isArabicText(name)) {
+      return productName.isNotEmpty ? productName : name;
+    }
+
+    return name.isNotEmpty ? name : productName;
+  }
+
   bool _hasPriceChange(Item item) {
     final orderPrice = _toDouble(item.price);
     final pickerPrice = _toDouble(item.finalPrice);
@@ -200,7 +217,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
+                  _getDisplayItemName(item),
                   style: customTextStyle(
                     fontStyle: FontStyle.BodyM_Bold,
                     color: FontColor.FontPrimary,
@@ -1718,7 +1735,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        item.productName ?? item.name ?? '',
+                        _getDisplayItemName(item),
                         style: subtitleStyle().copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

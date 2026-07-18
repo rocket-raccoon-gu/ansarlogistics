@@ -168,10 +168,10 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
     String price,
     String preparationLabel1,
   ) async {
-    // print("🚀 updateitemstatuspick() called");
-    // print("🔢 Qty: $qty");
-    // print("🔍 Scanned SKU: $scannedSku");
-    // print("💲 Price: $price");
+    print("🚀 updateitemstatuspick() called");
+    print("🔢 Qty: $qty");
+    print("🔍 Scanned SKU: $scannedSku");
+    print("💲 Price: $price");
 
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
@@ -565,18 +565,20 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                             : erPdata.erpPrice;
 
                     if (orderItem.price == erPdata.erpPrice) {
-                      updateitemstatuspick(
-                        // orderItem.isProduce == true
-                        //     ? getWeightFromBarcode(
-                        //       getLastSixDigits(scannedSku),
-                        //       orderItem.price?.toString() ?? '0',
-                        //     )
-                        //     :
-                        qty,
-                        scannedSku,
-                        calculatedPrice,
-                        preparationLabel11,
-                      );
+                      log("$calculatedPrice");
+
+                      // updateitemstatuspick(
+                      //   // orderItem.isProduce == true
+                      //   //     ? getWeightFromBarcode(
+                      //   //       getLastSixDigits(scannedSku),
+                      //   //       orderItem.price?.toString() ?? '0',
+                      //   //     )
+                      //   //     :
+                      //   qty,
+                      //   scannedSku,
+                      //   calculatedPrice,
+                      //   preparationLabel11,
+                      // );
                     } else {
                       showSnackBar(
                         context: context,
@@ -658,6 +660,9 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                             : productDBdata.specialPrice != ""
                             ? productDBdata.specialPrice
                             : productDBdata.regularPrice;
+
+                    log("💰11 Scanned SKU: $scannedSku");
+
                     updateitemstatuspick(
                       // orderItem.isProduce == true
                       //     ? getWeightFromBarcode(
@@ -765,18 +770,20 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                               data['special_price'] != null
                           ? data['special_price']
                           : data['regular_price'];
-                  updateitemstatuspick(
-                    // orderItem.isProduce == true
-                    //     ? getWeightFromBarcode(
-                    //       getLastSixDigits(scannedSku),
-                    //       orderItem.price?.toString() ?? '0',
-                    //     )
-                    //     :
-                    qty,
-                    scannedSku,
-                    calculatedPrice,
-                    preparationLabel11,
-                  );
+
+                  log("💰 Calculated Price: $calculatedPrice");
+                  // updateitemstatuspick(
+                  //   // orderItem.isProduce == true
+                  //   //     ? getWeightFromBarcode(
+                  //   //       getLastSixDigits(scannedSku),
+                  //   //       orderItem.price?.toString() ?? '0',
+                  //   //     )
+                  //   //     :
+                  //   qty,
+                  //   scannedSku,
+                  //   calculatedPrice,
+                  //   preparationLabel11,
+                  // );
                 },
                 onClose: () {
                   // context.gNavigationService.back(context);

@@ -402,7 +402,7 @@ class _ItemAddPageState extends State<ItemAddPage> {
                                           int.parse(
                                             erp.erpItemNumber.toString(),
                                           ),
-                                          isProduce,
+                                          erp.erpProductName.toString(),
                                           widget.orderNumber,
                                           context,
                                         );
