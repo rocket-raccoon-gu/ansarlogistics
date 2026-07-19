@@ -1,6 +1,7 @@
 import 'package:ansarlogistics/cashier/feature_cashier_order_inner/bloc/cashier_order_inner_page_state.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picker_driver_api/responses/cashier_order_response.dart';
@@ -24,9 +25,11 @@ class CashierOrderInnerPageCubit extends Cubit<CashierOrderInnerPageState> {
     try {
       final numericKey = subgroupId.replaceAll(RegExp(r'[^0-9]'), '');
 
+      final token = await PreferenceUtils.getDataFromShared("usertoken");
+
       final response = await _serviceLocator!.tradingApi.getCashierOrdersSearch(
         key: numericKey,
-        token: UserController.userController.app_token,
+        token: token!,
       );
 
       if (response == null ||

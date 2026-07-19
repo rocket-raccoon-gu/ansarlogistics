@@ -2991,20 +2991,26 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                           'End Pick Total',
                                           _toDouble(order.endPickedTotal),
                                         ),
-                                        _kvMoney(
-                                          'Shipping Charge',
-                                          _toDouble(
-                                            order.combinedOrderPlacedTotal! > 99
-                                                ? 0
-                                                : 10.00,
-                                          ),
-                                        ),
+                                        order.shippingCharge != "0.0000"
+                                            ? _kvMoney(
+                                              'Shipping Charge',
+                                              _toDouble(
+                                                order.combinedOrderPlacedTotal! >
+                                                        99
+                                                    ? 0
+                                                    : 10.00,
+                                              ),
+                                            )
+                                            : SizedBox(),
                                         _kvMoney(
                                           hasCoupon
                                               ? 'Discount Code (${couponCode!.toUpperCase()})'
                                               : 'Discount',
                                           _toDouble(
-                                            couponCode == "first20" ? 20 : 0,
+                                            couponCode == "FIRST20" ||
+                                                    couponCode == "first20"
+                                                ? -20
+                                                : 0,
                                           ),
                                           labelStyle:
                                               hasCoupon
