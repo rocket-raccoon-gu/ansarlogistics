@@ -12,7 +12,6 @@ import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
-import 'package:camera/camera.dart';
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -44,44 +43,16 @@ class _NewScanBarcodePageState extends State<NewScanBarcodePage>
       mainimageurl; // Default to mainimageurl, will be updated from Firestore
 
   List<String> barcodelist = [];
-  List<CameraDescription> cameras = [];
-
-  late CameraController _cameraController;
-
   bool isScan = false;
 
   @override
   void initState() {
     super.initState();
     _fetchImageUrlFromFirestore();
-    _initializeCameras();
-    // TODO: implement initState
     WidgetsBinding.instance.addObserver(this);
     _sliderController = CarouselSliderController();
     barcodelist = [];
     isScan = false;
-  }
-
-  // Initialize cameras
-  Future<void> _initializeCameras() async {
-    try {
-      cameras = await availableCameras();
-      if (cameras.isNotEmpty) {
-        // Use front camera if available (index 1), otherwise use back camera (index 0)
-        int cameraIndex = cameras.length > 1 ? 1 : 0;
-        _cameraController = CameraController(
-          cameras[cameraIndex],
-          ResolutionPreset.high,
-          enableAudio: false,
-        );
-        await _cameraController.initialize();
-        if (mounted) setState(() {});
-      } else {
-        debugPrint('No cameras available');
-      }
-    } catch (e) {
-      debugPrint('Error initializing cameras: $e');
-    }
   }
 
   // Method to fetch image URL from Firestore
