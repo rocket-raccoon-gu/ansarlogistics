@@ -504,18 +504,10 @@ class PDApiGateway implements AuthenticationService {
   }
 
   @override
-  Future getProductdata({
-    required String product_id,
-    required String token,
-    required String scanbarcodeurl,
-  }) async {
+  Future getProductdata({required String product_id}) async {
     try {
       final response = await pickerDriverApi
-          .generalProductService(
-            endpoint: product_id,
-            token: token,
-            scanbarcodeurl: scanbarcodeurl,
-          )
+          .generalProductService(endpoint: product_id)
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());
             throw e;
@@ -783,20 +775,12 @@ class PDApiGateway implements AuthenticationService {
   }
 
   @override
-  Future generalProductServiceGet({
-    required String endpoint,
-    required String token11,
-    required String scanbarcodeurl,
-  }) async {
+  Future generalProductServiceGet({required String endpoint}) async {
     try {
       // String? token11 = await PreferenceUtils.getDataFromShared("usertoken");
 
       final responce = await pickerDriverApi
-          .generalProductService(
-            endpoint: endpoint,
-            token: token11,
-            scanbarcodeurl: scanbarcodeurl,
-          )
+          .generalProductService(endpoint: endpoint)
           .catchError((e) {
             networkStreamController.sink.add(e.toString());
             // throw e;

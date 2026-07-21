@@ -20,7 +20,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:picker_driver_api/responses/product_response.dart';
+import 'package:picker_driver_api/responses/logistics_product_response.dart';
 import 'package:provider/provider.dart';
 
 class PhotographyDashboard extends StatefulWidget {
@@ -36,7 +36,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
   String _scanBarcode = 'Unknown';
   bool stock_stat = false;
   late CarouselSliderController _sliderController;
-  ProductResponse? _productResponse;
+  LogisticsProductResponse? _productResponse;
   bool producebarcode = false;
   bool manual = false;
 
@@ -137,11 +137,9 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
         },
       );
 
-      String? token = await PreferenceUtils.getDataFromShared("usertoken");
-
-      String? barcodescanurl = await PreferenceUtils.getDataFromShared(
-        "qa_check_barcode_path",
-      );
+      // String? barcodescanurl = await PreferenceUtils.getDataFromShared(
+      //   "qa_check_barcode_path",
+      // );
 
       if (producebarcode) {
         // Replace the last 6 digits with '000000'
@@ -155,11 +153,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
       }
 
       final productresponse = await widget.serviceLocator.tradingApi
-          .generalProductServiceGet(
-            endpoint: barcodescanRes!,
-            token11: token!,
-            scanbarcodeurl: barcodescanurl!,
-          );
+          .generalProductServiceGet(endpoint: barcodescanRes!);
 
       Map<String, dynamic> data = jsonDecode(productresponse.body);
 
@@ -170,7 +164,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
         log(productresponse.body);
 
         setState(() {
-          _productResponse = ProductResponse.fromJson(data);
+          _productResponse = LogisticsProductResponse.fromJson(data);
         });
 
         showGeneralDialog(
@@ -203,19 +197,21 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                               height: 90.0,
                               width: 90.0,
                               child:
-                                  _productResponse!.mediaGalleryEntries.isEmpty
+                                  _productResponse!.data.isEmpty ||
+                                          _productResponse!.data[0].image == ""
                                       ? Image.asset('assets/placeholder.png')
                                       : InkWell(
                                         onTap: () {
                                           getImageViewver(
                                             _productResponse!
-                                                .mediaGalleryEntries,
+                                                .data[0]
+                                                .additionalImages,
                                             context,
                                             _sliderController,
                                           );
                                         },
                                         child: Image.network(
-                                          "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+                                          "${_productResponse!.data[0].image}",
                                           fit: BoxFit.contain,
                                         ),
                                       ),
@@ -232,7 +228,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       horizontal: 8.0,
                                     ),
                                     child: Text(
-                                      _productResponse!.name,
+                                      _productResponse!.data[0].nameEn,
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.FontPrimary,
@@ -245,7 +241,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       vertical: 3.0,
                                     ),
                                     child: Text(
-                                      "SKU: ${_productResponse!.sku}",
+                                      "SKU: ${_productResponse!.data[0].sku}",
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.FontPrimary,
@@ -298,130 +294,8 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                           Expanded(
                             child: InkWell(
                               onTap: () async {
-                                // String response = await widget
-                                //     .serviceLocator
-                                //     .tradingApi
-                                //     .checkbarcodeavailablity(
-                                //       sku: _productResponse!.sku,
-                                //     );
-
-                                // Map<String, dynamic> mdata = jsonDecode(
-                                //   response,
-                                // );
-
-                                // if (mdata['success'] == 1) {
-                                //   Navigator.pop(context);
-
-                                //   showGeneralDialog(
-                                //     context: context,
-                                //     pageBuilder: (
-                                //       context,
-                                //       animation,
-                                //       secondaryanimation,
-                                //     ) {
-                                //       return Container();
-                                //     },
-                                //     transitionBuilder: (
-                                //       context,
-                                //       animation,
-                                //       secondaryAnimation,
-                                //       child,
-                                //     ) {
-                                //       var curves = Curves.easeInOut.transform(
-                                //         animation.value,
-                                //       );
-
-                                //       return Transform.scale(
-                                //         scale: curves,
-                                //         child: AlertDialog(
-                                //           shape: RoundedRectangleBorder(
-                                //             borderRadius: BorderRadius.circular(
-                                //               8.0,
-                                //             ),
-                                //           ),
-                                //           content: Column(
-                                //             mainAxisAlignment:
-                                //                 MainAxisAlignment.center,
-                                //             mainAxisSize: MainAxisSize.min,
-                                //             children: [
-                                //               Text(
-                                //                 _productResponse!.sku,
-                                //                 style: customTextStyle(
-                                //                   fontStyle:
-                                //                       FontStyle.BodyM_Bold,
-                                //                   color: FontColor.FontPrimary,
-                                //                 ),
-                                //               ),
-                                //               Text(
-                                //                 "Barcode Already Scanned on ${mdata['data']['date']}",
-                                //                 style: customTextStyle(
-                                //                   fontStyle:
-                                //                       FontStyle.BodyL_Bold,
-                                //                 ),
-                                //                 textAlign: TextAlign.center,
-                                //               ),
-                                //               Text(
-                                //                 "Product Upload in Processing...",
-                                //                 style: customTextStyle(
-                                //                   fontStyle:
-                                //                       FontStyle.BodyL_Bold,
-                                //                 ),
-                                //                 textAlign: TextAlign.center,
-                                //               ),
-                                //               Padding(
-                                //                 padding: const EdgeInsets.only(
-                                //                   top: 12.0,
-                                //                 ),
-                                //                 child: Row(
-                                //                   mainAxisAlignment:
-                                //                       MainAxisAlignment.center,
-                                //                   children: [
-                                //                     InkWell(
-                                //                       onTap: () {
-                                //                         Navigator.pop(context);
-                                //                       },
-                                //                       child: Container(
-                                //                         padding:
-                                //                             EdgeInsets.symmetric(
-                                //                               horizontal: 50,
-                                //                               vertical: 10.0,
-                                //                             ),
-                                //                         decoration: BoxDecoration(
-                                //                           color:
-                                //                               customColors()
-                                //                                   .carnationRed,
-                                //                           borderRadius:
-                                //                               BorderRadius.circular(
-                                //                                 5.0,
-                                //                               ),
-                                //                         ),
-                                //                         child: Center(
-                                //                           child: Text(
-                                //                             "OK",
-                                //                             style: customTextStyle(
-                                //                               fontStyle:
-                                //                                   FontStyle
-                                //                                       .BodyM_Bold,
-                                //                               color:
-                                //                                   FontColor
-                                //                                       .White,
-                                //                             ),
-                                //                           ),
-                                //                         ),
-                                //                       ),
-                                //                     ),
-                                //                   ],
-                                //                 ),
-                                //               ),
-                                //             ],
-                                //           ),
-                                //         ),
-                                //       );
-                                //     },
-                                //   );
-                                // } else {
                                 ctx.read<PhotographyDashboardCubit>().addtolist(
-                                  _productResponse!.sku,
+                                  _productResponse!.data[0].sku,
                                   "",
                                   "",
                                   "",
@@ -467,15 +341,6 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
         if (context.mounted) {
           Navigator.pop(context);
         }
-        // String response = await widget.serviceLocator.tradingApi
-        //     .checkbarcodeavailablity(sku: barcodescanRes!);
-
-        // log(response);
-
-        // Map<String, dynamic> mdata = jsonDecode(response);
-
-        // if (mdata['success'] == 1) {
-        //   Navigator.pop(context);
 
         showGeneralDialog(
           context: context,
@@ -503,7 +368,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                       ),
                     ),
                     Text(
-                      "${data['message']}",
+                      "Barcode Not Found in System...!",
                       style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
                       textAlign: TextAlign.center,
                     ),
@@ -517,41 +382,55 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              ctx.read<PhotographyDashboardCubit>().addtolist(
-                                barcodescanRes!.toString(),
-                                "",
-                                "",
-                                "",
-                              );
-
-                              // if (ctx
-                              //     .read<PhotographyDashboardCubit>()
-                              //     .skulist
-                              //     .isNotEmpty) {
-                              //   ctx
-                              //       .read<PhotographyDashboardCubit>()
-                              //       .updatetoproductList();
-                              // }
-
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 50,
-                                vertical: 10.0,
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 10.0),
+                                decoration: BoxDecoration(
+                                  color: customColors().secretGarden,
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Cancel",
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_Bold,
+                                      color: FontColor.White,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              decoration: BoxDecoration(
-                                color: customColors().carnationRed,
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "OK",
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyM_Bold,
-                                    color: FontColor.White,
+                            ),
+                          ),
+                          SizedBox(width: 5.0),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                ctx.read<PhotographyDashboardCubit>().addtolist(
+                                  barcodescanRes!.toString(),
+                                  "",
+                                  "",
+                                  "",
+                                );
+
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 10.0),
+                                decoration: BoxDecoration(
+                                  color: customColors().carnationRed,
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Add",
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_Bold,
+                                      color: FontColor.White,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -566,213 +445,6 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
             );
           },
         );
-
-        // } else {
-        //   Navigator.pop(context);
-
-        //   if (context
-        //       .read<PhotographyDashboardCubit>()
-        //       .skulist
-        //       .where((element) => element.containsValue(barcodescanRes))
-        //       .isEmpty) {
-        //     // ignore: use_build_context_synchronously
-        //     ctx.read<PhotographyDashboardCubit>().addtolist(
-        //       barcodescanRes!,
-        //       "",
-        //       "",
-        //       "",
-        //     );
-
-        //     // ignore: use_build_context_synchronously
-        //     showGeneralDialog(
-        //       context: context,
-        //       pageBuilder: (context, animation, secondaryanimation) {
-        //         return Container();
-        //       },
-        //       transitionBuilder: (
-        //         context,
-        //         animation,
-        //         secondaryAnimation,
-        //         child,
-        //       ) {
-        //         var curves = Curves.easeInOut.transform(animation.value);
-
-        //         return Transform.scale(
-        //           scale: curves,
-        //           child: AlertDialog(
-        //             shape: RoundedRectangleBorder(
-        //               borderRadius: BorderRadius.circular(8.0),
-        //             ),
-        //             content: Column(
-        //               mainAxisAlignment: MainAxisAlignment.center,
-        //               mainAxisSize: MainAxisSize.min,
-        //               children: [
-        //                 Text(
-        //                   "Do you Want to Add More...?",
-        //                   textAlign: TextAlign.center,
-        //                   style: customTextStyle(
-        //                     fontStyle: FontStyle.BodyL_Bold,
-        //                     color: FontColor.FontPrimary,
-        //                   ),
-        //                 ),
-        //                 Padding(
-        //                   padding: const EdgeInsets.only(top: 15.0),
-        //                   child: Row(
-        //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                     children: [
-        //                       Expanded(
-        //                         child: InkWell(
-        //                           onTap: () {
-        //                             Navigator.pop(context);
-        //                           },
-        //                           child: Container(
-        //                             padding: const EdgeInsets.symmetric(
-        //                               horizontal: 8.0,
-        //                               vertical: 8.0,
-        //                             ),
-        //                             decoration: BoxDecoration(
-        //                               color: customColors().carnationRed,
-        //                             ),
-        //                             child: Center(
-        //                               child: Center(
-        //                                 child: Text(
-        //                                   "No",
-        //                                   style: customTextStyle(
-        //                                     fontStyle: FontStyle.BodyM_Bold,
-        //                                     color: FontColor.White,
-        //                                   ),
-        //                                 ),
-        //                               ),
-        //                             ),
-        //                           ),
-        //                         ),
-        //                       ),
-        //                       Expanded(
-        //                         child: InkWell(
-        //                           onTap: () {
-        //                             // ctx
-        //                             //     .read<NewScanBarcodePageCubit>()
-        //                             //     .addtolist(barcodescanRes);
-
-        //                             scanBarcodeNormal(ctx);
-
-        //                             Navigator.pop(context);
-        //                           },
-        //                           child: Padding(
-        //                             padding: const EdgeInsets.only(left: 8.0),
-        //                             child: Container(
-        //                               padding: const EdgeInsets.symmetric(
-        //                                 horizontal: 8.0,
-        //                                 vertical: 8.0,
-        //                               ),
-        //                               decoration: BoxDecoration(
-        //                                 color: customColors().secretGarden,
-        //                               ),
-        //                               child: Center(
-        //                                 child: Text(
-        //                                   "Yes",
-        //                                   style: customTextStyle(
-        //                                     fontStyle: FontStyle.BodyM_Bold,
-        //                                     color: FontColor.White,
-        //                                   ),
-        //                                 ),
-        //                               ),
-        //                             ),
-        //                           ),
-        //                         ),
-        //                       ),
-        //                     ],
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //           ),
-        //         );
-        //       },
-        //     );
-        //   } else {
-        //     showGeneralDialog(
-        //       context: context,
-        //       pageBuilder: (context, animation, secondaryanimation) {
-        //         return Container();
-        //       },
-        //       transitionBuilder: (
-        //         context,
-        //         animation,
-        //         secondaryAnimation,
-        //         child,
-        //       ) {
-        //         var curves = Curves.easeInOut.transform(animation.value);
-
-        //         return Transform.scale(
-        //           scale: curves,
-        //           child: AlertDialog(
-        //             shape: RoundedRectangleBorder(
-        //               borderRadius: BorderRadius.circular(8.0),
-        //             ),
-        //             content: Column(
-        //               mainAxisAlignment: MainAxisAlignment.center,
-        //               mainAxisSize: MainAxisSize.min,
-        //               children: [
-        //                 Text(
-        //                   barcodescanRes.toString(),
-        //                   textAlign: TextAlign.center,
-        //                   style: customTextStyle(
-        //                     fontStyle: FontStyle.BodyL_Bold,
-        //                     color: FontColor.FontPrimary,
-        //                   ),
-        //                 ),
-        //                 Padding(
-        //                   padding: const EdgeInsets.only(top: 8.0),
-        //                   child: Text(
-        //                     "You Already Added This Barcode in List...!",
-        //                     textAlign: TextAlign.center,
-        //                     style: customTextStyle(
-        //                       fontStyle: FontStyle.BodyL_Bold,
-        //                       color: FontColor.FontPrimary,
-        //                     ),
-        //                   ),
-        //                 ),
-        //                 Padding(
-        //                   padding: EdgeInsets.only(top: 10.0),
-        //                   child: Row(
-        //                     mainAxisAlignment: MainAxisAlignment.center,
-        //                     children: [
-        //                       InkWell(
-        //                         onTap: () {
-        //                           context.gNavigationService.back(context);
-        //                         },
-        //                         child: Container(
-        //                           padding: const EdgeInsets.symmetric(
-        //                             horizontal: 35.0,
-        //                             vertical: 8.0,
-        //                           ),
-        //                           decoration: BoxDecoration(
-        //                             color: customColors().carnationRed,
-        //                             borderRadius: BorderRadius.circular(5.0),
-        //                           ),
-        //                           child: Center(
-        //                             child: Text(
-        //                               "OK",
-        //                               style: customTextStyle(
-        //                                 fontStyle: FontStyle.BodyM_Bold,
-        //                                 color: FontColor.White,
-        //                               ),
-        //                             ),
-        //                           ),
-        //                         ),
-        //                       ),
-        //                     ],
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //           ),
-        //         );
-        //       },
-        //     );
-        //   }
-        // }
       }
     } catch (e) {
       //   // log(e.toString(), stackTrace: StackTrace.current);
@@ -787,18 +459,12 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
 
   Future<void> scanBarcodeManuall(BuildContext ctx, String barcode) async {
     try {
-      String? token = await PreferenceUtils.getDataFromShared("usertoken");
-
       String? scanbarcodeurl = await PreferenceUtils.getDataFromShared(
         "qa_check_barcode_path",
       );
 
       final productresponse = await widget.serviceLocator.tradingApi
-          .generalProductServiceGet(
-            endpoint: barcode,
-            token11: token!,
-            scanbarcodeurl: scanbarcodeurl!,
-          );
+          .generalProductServiceGet(endpoint: barcode);
 
       Map<String, dynamic> data = jsonDecode(productresponse.body);
 
@@ -808,7 +474,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
         log(productresponse.body);
 
         setState(() {
-          _productResponse = ProductResponse.fromJson(data);
+          _productResponse = LogisticsProductResponse.fromJson(data);
         });
 
         showGeneralDialog(
@@ -841,19 +507,21 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                               height: 90.0,
                               width: 90.0,
                               child:
-                                  _productResponse!.mediaGalleryEntries.isEmpty
+                                  _productResponse!.data.isEmpty ||
+                                          _productResponse!.data[0].image == ""
                                       ? Image.asset('assets/placeholder.png')
                                       : InkWell(
                                         onTap: () {
                                           getImageViewver(
                                             _productResponse!
-                                                .mediaGalleryEntries,
+                                                .data[0]
+                                                .additionalImages,
                                             context,
                                             _sliderController,
                                           );
                                         },
                                         child: Image.network(
-                                          "${mainimageurl}${_productResponse!.mediaGalleryEntries[0].file}",
+                                          "${mainimageurl}${_productResponse!.data[0].image}",
                                           fit: BoxFit.contain,
                                         ),
                                       ),
@@ -870,7 +538,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       horizontal: 8.0,
                                     ),
                                     child: Text(
-                                      _productResponse!.name,
+                                      _productResponse!.data[0].nameEn,
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.FontPrimary,
@@ -883,7 +551,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       vertical: 3.0,
                                     ),
                                     child: Text(
-                                      "SKU: ${_productResponse!.sku}",
+                                      "SKU: ${_productResponse!.data[0].sku}",
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.FontPrimary,
@@ -940,7 +608,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                     .serviceLocator
                                     .tradingApi
                                     .checkbarcodeavailablity(
-                                      sku: _productResponse!.sku,
+                                      sku: _productResponse!.data[0].sku,
                                     );
 
                                 Map<String, dynamic> mdata = jsonDecode(
@@ -983,7 +651,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Text(
-                                                _productResponse!.sku,
+                                                _productResponse!.data[0].sku,
                                                 style: customTextStyle(
                                                   fontStyle:
                                                       FontStyle.BodyM_Bold,
@@ -1061,8 +729,8 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                   ctx
                                       .read<PhotographyDashboardCubit>()
                                       .addtolist(
-                                        _productResponse!.sku,
-                                        "",
+                                        _productResponse!.data[0].sku,
+                                        _productResponse!.data[0].nameEn,
                                         "",
                                         "",
                                       );
@@ -1196,297 +864,6 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
             );
           },
         );
-
-        // String response = await widget.serviceLocator.tradingApi
-        //     .checkbarcodeavailablity(sku: barcode);
-
-        // log(response);
-
-        // Map<String, dynamic> mdata = jsonDecode(response);
-
-        // if (mdata['success'] == 1) {
-        //   // Navigator.pop(context);
-
-        //   showGeneralDialog(
-        //     context: context,
-        //     pageBuilder: (context, animation, secondaryanimation) {
-        //       return Container();
-        //     },
-        //     transitionBuilder: (context, animation, secondaryAnimation, child) {
-        //       var curves = Curves.easeInOut.transform(animation.value);
-
-        //       return Transform.scale(
-        //         scale: curves,
-        //         child: AlertDialog(
-        //           shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(8.0),
-        //           ),
-        //           content: Column(
-        //             mainAxisAlignment: MainAxisAlignment.center,
-        //             mainAxisSize: MainAxisSize.min,
-        //             children: [
-        //               Text(
-        //                 barcode.toString(),
-        //                 style: customTextStyle(
-        //                   fontStyle: FontStyle.BodyM_Bold,
-        //                   color: FontColor.FontPrimary,
-        //                 ),
-        //               ),
-        //               Text(
-        //                 "Barcode Already Scanned on ${mdata['data']['date']}",
-        //                 style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-        //                 textAlign: TextAlign.center,
-        //               ),
-        //               Text(
-        //                 "Product Upload in Processing...",
-        //                 style: customTextStyle(fontStyle: FontStyle.BodyL_Bold),
-        //                 textAlign: TextAlign.center,
-        //               ),
-        //               Padding(
-        //                 padding: const EdgeInsets.only(top: 12.0),
-        //                 child: Row(
-        //                   mainAxisAlignment: MainAxisAlignment.center,
-        //                   children: [
-        //                     InkWell(
-        //                       onTap: () {
-        //                         Navigator.pop(context);
-        //                       },
-        //                       child: Container(
-        //                         padding: EdgeInsets.symmetric(
-        //                           horizontal: 50,
-        //                           vertical: 10.0,
-        //                         ),
-        //                         decoration: BoxDecoration(
-        //                           color: customColors().carnationRed,
-        //                           borderRadius: BorderRadius.circular(5.0),
-        //                         ),
-        //                         child: Center(
-        //                           child: Text(
-        //                             "OK",
-        //                             style: customTextStyle(
-        //                               fontStyle: FontStyle.BodyM_Bold,
-        //                               color: FontColor.White,
-        //                             ),
-        //                           ),
-        //                         ),
-        //                       ),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               ),
-        //             ],
-        //           ),
-        //         ),
-        //       );
-        //     },
-        //   );
-        // } else {
-        //   // Navigator.pop(context);
-
-        //   if (mounted &&
-        //       context
-        //           .read<PhotographyDashboardCubit>()
-        //           .skulist
-        //           .where((element) => element.containsValue(barcode))
-        //           .isEmpty) {
-        //     // ignore: use_build_context_synchronously
-        //     ctx.read<PhotographyDashboardCubit>().addtolist(
-        //       barcode,
-        //       "",
-        //       "",
-        //       "",
-        //     );
-
-        //     // ignore: use_build_context_synchronously
-        //     showGeneralDialog(
-        //       context: context,
-        //       pageBuilder: (context, animation, secondaryanimation) {
-        //         return Container();
-        //       },
-        //       transitionBuilder: (
-        //         context,
-        //         animation,
-        //         secondaryAnimation,
-        //         child,
-        //       ) {
-        //         var curves = Curves.easeInOut.transform(animation.value);
-
-        //         return Transform.scale(
-        //           scale: curves,
-        //           child: AlertDialog(
-        //             shape: RoundedRectangleBorder(
-        //               borderRadius: BorderRadius.circular(8.0),
-        //             ),
-        //             content: Column(
-        //               mainAxisAlignment: MainAxisAlignment.center,
-        //               mainAxisSize: MainAxisSize.min,
-        //               children: [
-        //                 Text(
-        //                   "Do you Want to Add More...?",
-        //                   textAlign: TextAlign.center,
-        //                   style: customTextStyle(
-        //                     fontStyle: FontStyle.BodyL_Bold,
-        //                     color: FontColor.FontPrimary,
-        //                   ),
-        //                 ),
-        //                 Padding(
-        //                   padding: const EdgeInsets.only(top: 15.0),
-        //                   child: Row(
-        //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                     children: [
-        //                       Expanded(
-        //                         child: InkWell(
-        //                           onTap: () {
-        //                             Navigator.pop(context);
-        //                           },
-        //                           child: Container(
-        //                             padding: const EdgeInsets.symmetric(
-        //                               horizontal: 8.0,
-        //                               vertical: 8.0,
-        //                             ),
-        //                             decoration: BoxDecoration(
-        //                               color: customColors().carnationRed,
-        //                             ),
-        //                             child: Center(
-        //                               child: Center(
-        //                                 child: Text(
-        //                                   "No",
-        //                                   style: customTextStyle(
-        //                                     fontStyle: FontStyle.BodyM_Bold,
-        //                                     color: FontColor.White,
-        //                                   ),
-        //                                 ),
-        //                               ),
-        //                             ),
-        //                           ),
-        //                         ),
-        //                       ),
-        //                       Expanded(
-        //                         child: InkWell(
-        //                           onTap: () {
-        //                             // ctx
-        //                             //     .read<NewScanBarcodePageCubit>()
-        //                             //     .addtolist(barcodescanRes);
-
-        //                             scanBarcodeNormal(ctx);
-
-        //                             Navigator.pop(context);
-        //                           },
-        //                           child: Padding(
-        //                             padding: const EdgeInsets.only(left: 8.0),
-        //                             child: Container(
-        //                               padding: const EdgeInsets.symmetric(
-        //                                 horizontal: 8.0,
-        //                                 vertical: 8.0,
-        //                               ),
-        //                               decoration: BoxDecoration(
-        //                                 color: customColors().secretGarden,
-        //                               ),
-        //                               child: Center(
-        //                                 child: Text(
-        //                                   "Yes",
-        //                                   style: customTextStyle(
-        //                                     fontStyle: FontStyle.BodyM_Bold,
-        //                                     color: FontColor.White,
-        //                                   ),
-        //                                 ),
-        //                               ),
-        //                             ),
-        //                           ),
-        //                         ),
-        //                       ),
-        //                     ],
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //           ),
-        //         );
-        //       },
-        //     );
-        //   } else {
-        //     showGeneralDialog(
-        //       context: context,
-        //       pageBuilder: (context, animation, secondaryanimation) {
-        //         return Container();
-        //       },
-        //       transitionBuilder: (
-        //         context,
-        //         animation,
-        //         secondaryAnimation,
-        //         child,
-        //       ) {
-        //         var curves = Curves.easeInOut.transform(animation.value);
-
-        //         return Transform.scale(
-        //           scale: curves,
-        //           child: AlertDialog(
-        //             shape: RoundedRectangleBorder(
-        //               borderRadius: BorderRadius.circular(8.0),
-        //             ),
-        //             content: Column(
-        //               mainAxisAlignment: MainAxisAlignment.center,
-        //               mainAxisSize: MainAxisSize.min,
-        //               children: [
-        //                 Text(
-        //                   barcode.toString(),
-        //                   textAlign: TextAlign.center,
-        //                   style: customTextStyle(
-        //                     fontStyle: FontStyle.BodyL_Bold,
-        //                     color: FontColor.FontPrimary,
-        //                   ),
-        //                 ),
-        //                 Padding(
-        //                   padding: const EdgeInsets.only(top: 8.0),
-        //                   child: Text(
-        //                     "You Already Added This Barcode in List...!",
-        //                     textAlign: TextAlign.center,
-        //                     style: customTextStyle(
-        //                       fontStyle: FontStyle.BodyL_Bold,
-        //                       color: FontColor.FontPrimary,
-        //                     ),
-        //                   ),
-        //                 ),
-        //                 Padding(
-        //                   padding: EdgeInsets.only(top: 10.0),
-        //                   child: Row(
-        //                     mainAxisAlignment: MainAxisAlignment.center,
-        //                     children: [
-        //                       InkWell(
-        //                         onTap: () {
-        //                           context.gNavigationService.back(context);
-        //                         },
-        //                         child: Container(
-        //                           padding: const EdgeInsets.symmetric(
-        //                             horizontal: 35.0,
-        //                             vertical: 8.0,
-        //                           ),
-        //                           decoration: BoxDecoration(
-        //                             color: customColors().carnationRed,
-        //                             borderRadius: BorderRadius.circular(5.0),
-        //                           ),
-        //                           child: Center(
-        //                             child: Text(
-        //                               "OK",
-        //                               style: customTextStyle(
-        //                                 fontStyle: FontStyle.BodyM_Bold,
-        //                                 color: FontColor.White,
-        //                               ),
-        //                             ),
-        //                           ),
-        //                         ),
-        //                       ),
-        //                     ],
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //           ),
-        //         );
-        //       },
-        //     );
-        //   }
-        // }
       }
     } catch (e) {
       //   // log(e.toString(), stackTrace: StackTrace.current);
@@ -2021,7 +1398,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
   }
 
   getImageViewver(
-    List<MediaGalleryEntry1> imageList,
+    List<AdditionalImage> imageList,
     context,
     CarouselSliderController sliderController,
   ) {
@@ -2088,7 +1465,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                     color: Colors.amber,
                                   ),
                                   child: Image.network(
-                                    "${mainimageurl}${imageList[itemIndex].file.toString()}",
+                                    "${imageList[itemIndex].image}",
                                     fit: BoxFit.fill,
                                   ),
                                 ),

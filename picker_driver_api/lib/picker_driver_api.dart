@@ -751,13 +751,11 @@ extension PDGeneralApi on PickerDriverApi {
 
   Future<http.Response> generalProductService({
     required String endpoint,
-    required String token,
-    required String scanbarcodeurl,
   }) async {
     log("endpoint.........${endpoint}");
 
     final url = Uri.parse(
-      'https://www.ansargallery.com/rest/V1/products/${endpoint.trim()}',
+      'https://logisapi.ansargallery.qa/api/products?skus=${endpoint.trim()}',
     );
 
     // final url = Uri.parse(
@@ -767,8 +765,7 @@ extension PDGeneralApi on PickerDriverApi {
     log(url.toString());
 
     final Map<String, String> headers = {
-      'Content-Type': ContentTypes.applicationCharset,
-      'Authorization': 'Bearer $token',
+      'Content-Type': ContentTypes.applicationJson,
     };
 
     return _handleRequest(

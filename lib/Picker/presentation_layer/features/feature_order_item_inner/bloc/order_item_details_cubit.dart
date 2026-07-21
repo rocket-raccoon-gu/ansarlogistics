@@ -567,18 +567,18 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     if (orderItem.price == erPdata.erpPrice) {
                       log("$calculatedPrice");
 
-                      // updateitemstatuspick(
-                      //   // orderItem.isProduce == true
-                      //   //     ? getWeightFromBarcode(
-                      //   //       getLastSixDigits(scannedSku),
-                      //   //       orderItem.price?.toString() ?? '0',
-                      //   //     )
-                      //   //     :
-                      //   qty,
-                      //   scannedSku,
-                      //   calculatedPrice,
-                      //   preparationLabel11,
-                      // );
+                      updateitemstatuspick(
+                        // orderItem.isProduce == true
+                        //     ? getWeightFromBarcode(
+                        //       getLastSixDigits(scannedSku),
+                        //       orderItem.price?.toString() ?? '0',
+                        //     )
+                        //     :
+                        qty,
+                        scannedSku,
+                        calculatedPrice,
+                        preparationLabel11,
+                      );
                     } else {
                       showSnackBar(
                         context: context,
@@ -772,18 +772,18 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                           : data['regular_price'];
 
                   log("💰 Calculated Price: $calculatedPrice");
-                  // updateitemstatuspick(
-                  //   // orderItem.isProduce == true
-                  //   //     ? getWeightFromBarcode(
-                  //   //       getLastSixDigits(scannedSku),
-                  //   //       orderItem.price?.toString() ?? '0',
-                  //   //     )
-                  //   //     :
-                  //   qty,
-                  //   scannedSku,
-                  //   calculatedPrice,
-                  //   preparationLabel11,
-                  // );
+                  updateitemstatuspick(
+                    // orderItem.isProduce == true
+                    //     ? getWeightFromBarcode(
+                    //       getLastSixDigits(scannedSku),
+                    //       orderItem.price?.toString() ?? '0',
+                    //     )
+                    //     :
+                    qty,
+                    scannedSku,
+                    calculatedPrice,
+                    preparationLabel11,
+                  );
                 },
                 onClose: () {
                   // context.gNavigationService.back(context);

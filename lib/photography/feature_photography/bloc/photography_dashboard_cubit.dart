@@ -121,7 +121,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
         },
       );
 
-      String? token = await PreferenceUtils.getDataFromShared("usertoken");
+      // String? token = await PreferenceUtils.getDataFromShared("usertoken");
 
       // check in products magento db
 
@@ -130,11 +130,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
       );
 
       final productresponse = await serviceLocator.tradingApi
-          .generalProductServiceGet(
-            endpoint: sku,
-            token11: token!,
-            scanbarcodeurl: scanbarcodeurl!,
-          );
+          .generalProductServiceGet(endpoint: sku);
 
       if (productresponse.statusCode == 200) {
         //
