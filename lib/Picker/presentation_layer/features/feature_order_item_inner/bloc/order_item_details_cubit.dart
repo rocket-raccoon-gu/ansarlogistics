@@ -740,7 +740,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
               print("✅ Barcode matched in barcodes list");
               showPickConfirmBottomSheet(
                 name: data['sku_name']!,
-                sku: data['sku']!,
+                sku: trimmedScannedSku,
                 oldPrice: orderItem.price?.toString(),
                 imageUrl: orderItem.productImage?.split(',').first,
                 newPrice:
@@ -780,7 +780,7 @@ class OrderItemDetailsCubit extends Cubit<OrderItemDetailsState> {
                     //     )
                     //     :
                     qty,
-                    scannedSku,
+                    trimmedScannedSku,
                     calculatedPrice,
                     preparationLabel11,
                   );
