@@ -41,6 +41,7 @@ class Product {
   final String nameEn;
   final String nameAr;
   final String image;
+  final String price;
   final List<AdditionalImage> additionalImages;
 
   Product({
@@ -49,6 +50,7 @@ class Product {
     required this.nameEn,
     required this.nameAr,
     required this.image,
+    required this.price,
     required this.additionalImages,
   });
 
@@ -58,6 +60,7 @@ class Product {
     nameEn: json["name_en"],
     nameAr: json["name_ar"],
     image: json["image"] ?? "",
+    price: json["price"].toString() ?? "",
     additionalImages: List<AdditionalImage>.from(
       json["additional_images"].map((x) => AdditionalImage.fromJson(x)),
     ),
@@ -69,6 +72,7 @@ class Product {
     "name_en": nameEn,
     "name_ar": nameAr,
     "image": image,
+    "price": price,
     "additional_images": List<dynamic>.from(
       additionalImages.map((x) => x.toJson()),
     ),

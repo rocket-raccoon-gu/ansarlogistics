@@ -52,7 +52,13 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
     emit(PhotographyDashboardInitialState());
   }
 
-  addtolist(String sku, String title, String qty, String price) {
+  addtolist(
+    String sku,
+    String title,
+    String qty,
+    String price,
+    String reason,
+  ) async {
     // Check if the map already exists before adding
     // if (!isMapAlreadyExist(sku)) {
     Map<String, dynamic> newdata = {
@@ -60,6 +66,7 @@ class PhotographyDashboardCubit extends Cubit<PhotographyDashboardState> {
       'title': "",
       'price': "",
       'qty': "",
+      'reason': reason,
       'user_id': UserController().profile.id.toString(),
     };
 

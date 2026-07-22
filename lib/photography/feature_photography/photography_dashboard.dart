@@ -248,6 +248,19 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                       ),
                                     ),
                                   ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 3.0,
+                                    ),
+                                    child: Text(
+                                      "Price: ${_productResponse!.data[0].price}",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyM_Bold,
+                                        color: FontColor.FontPrimary,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -296,9 +309,10 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                               onTap: () async {
                                 ctx.read<PhotographyDashboardCubit>().addtolist(
                                   _productResponse!.data[0].sku,
+                                  _productResponse!.data[0].nameEn,
                                   "",
                                   "",
-                                  "",
+                                  "Image Not Same",
                                 );
 
                                 Navigator.pop(context);
@@ -317,7 +331,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                   ),
                                   child: Center(
                                     child: Text(
-                                      "Add This Item",
+                                      "Image Not Same",
                                       style: customTextStyle(
                                         fontStyle: FontStyle.BodyM_Bold,
                                         color: FontColor.White,
@@ -411,6 +425,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                               onTap: () {
                                 ctx.read<PhotographyDashboardCubit>().addtolist(
                                   barcodescanRes!.toString(),
+                                  "",
                                   "",
                                   "",
                                   "",
@@ -733,6 +748,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                                         _productResponse!.data[0].nameEn,
                                         "",
                                         "",
+                                        "",
                                       );
 
                                   Navigator.pop(context);
@@ -816,6 +832,7 @@ class _PhotographyDashboardState extends State<PhotographyDashboard>
                             onTap: () {
                               ctx.read<PhotographyDashboardCubit>().addtolist(
                                 barcode.toString(),
+                                "",
                                 "",
                                 "",
                                 "",
