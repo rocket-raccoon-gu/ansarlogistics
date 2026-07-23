@@ -424,7 +424,8 @@ class OrderTile extends StatelessWidget {
 
                         const SizedBox(width: 8),
 
-                        order.customer_id == 164509 && order.postcode == "50"
+                        order.email == "ishaqah21@gmail.com" &&
+                                order.postcode == "50"
                             ? Container(
                               padding: EdgeInsets.symmetric(
                                 vertical: 5.0,
