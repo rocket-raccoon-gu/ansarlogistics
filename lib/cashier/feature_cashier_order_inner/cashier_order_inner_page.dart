@@ -43,6 +43,49 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   bool _submitting = false;
   bool _uploading = false;
   bool _isClubEnabled = false;
+  bool _discountEnabled = false; // false = no discount, true = discount applied
+  String? _selectedDiscountType;
+  final TextEditingController _discountAmountController =
+      TextEditingController();
+  double _selectedDiscountAmount = 0.0;
+  static const List<String> _discountTypeOptions = [
+    'ANSAR SMILE CUSTOMER DISCOUNT',
+    'ANSAR SMILE STAFF DISCOUNT',
+    'QATAR AIRWAYS (STAFF DISCOUNT)',
+    'MINISTRY OF COM & INSTRY STAFF DISCOUNT',
+    'MINISTRY OF DEFENCE - DISCOUNT (TestHeal)',
+    'CARSHOW JAN2023',
+    'GENERAL RETIREMENT & SOCIAL INSURANCE AUTHORITY',
+    'QATAR UNIVERSITY-1',
+    'E COMMERCE WEBSITE',
+    'E-COMMERCE QATAR AIRWAYS STAFF',
+    'SOGAH',
+    'MINISTRY OF FOREIGN AFFAIRS',
+    'MONAQASAT',
+    'EID CHARITY',
+    'ANSAR GALLERY STAND DISCOUNT',
+    'AL JAZEERA MEDIA NETWORK',
+    'AL HARAM KAFETERYA',
+    'GENERAL AUTHORITY OF CUSTOMS',
+    'ELITE PAPER RECYCLING',
+    'TALABAT ECOM',
+    'RAFEEQ ECOM',
+    'SNOONU ECOM',
+    'MINISTRY OF INTERIOR & LKHWIYA',
+    'MAZAYA CARD HOLDERS',
+    'BEIN SPORT (MAZAYA CLUB)',
+    'ASPIRE EMPLOYEE DISCOUNT',
+    'PAK INDEPENDENCE',
+    'COMMERCIAL BANK - EMPLOYEE DISCOUNT',
+    'AHLI BANK - EMPLOYEE DISCOUNT',
+    'QIB - EMPLOYEE DISCOUNT',
+    'QATAR CHARITY - EMPLOYEE DISCOUNT',
+    'DOHA BANK - EMPLOYEE DISCOUNT',
+    'RED CRESCENT - EMPLOYEE DISCOUNT',
+    'QATAR STEEL - EMPLOYEE DISCOUNT',
+    'MOWASALAT - DISCOUNT',
+    'BOOKLET PROMOTION 1',
+  ];
   String? _posBillUrl;
   XFile? _pickedImage;
   double? _uploadProgress; // 0.0 - 1.0
@@ -53,9 +96,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   bool _isTranslating = false;
 
   double _editableGrandTotal = 0.0;
-
   // Editable Grand Total state
-  // final TextEditingController _grandTotalController = TextEditingController();
+  final TextEditingController _grandTotalController = TextEditingController();
   double? _grandTotalOverride; // if null, use base computed value
 
   // Dispatch method selected by cashier: 'normal' | 'driver' | 'rider'
@@ -110,21 +152,43 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
   double _discountValue() {
     final couponCode = order.couponCode?.toString().trim().toUpperCase();
-    if (couponCode == 'FIRST20') {
-      return 20.0;
-    } else {
-      return 0.0;
+    final couponAmount = couponCode == 'FIRST20' ? 20.0 : 0.0;
+    final additionalDiscount = _discountEnabled ? _selectedDiscountAmount : 0.0;
+    return couponAmount + additionalDiscount;
+  }
+
+  void _updateDiscountedGrandTotal() {
+    setState(() {
+      order.discountValue = _discountEnabled ? _selectedDiscountAmount : 0.0;
+      order.discountType = _discountEnabled ? _selectedDiscountType : null;
+      _editableGrandTotal = _computeRawGrandTotal() - _discountValue();
+    });
+    // Keep the grand total controller in sync for the editable field
+    try {
+      _grandTotalController.text = _fmtQar(_editableGrandTotal);
+    } catch (_) {}
+  }
+
+  double _computeRawGrandTotal() {
+    if (order.posAmount != null &&
+        order.posAmount != '0.0' &&
+        order.posAmount != "" &&
+        order.subgroupIdentifier.startsWith("EXP")) {
+      return _toDouble(order.posAmount!);
     }
+
+    return _toDouble(
+      order.endPickedTotal != 0
+          ? _toDouble(order.endPickedTotal.toString()) +
+              (order.combinedOrderPlacedTotal! > 99
+                  ? 0
+                  : _toDouble(order.shippingCharge.toString()))
+          : order.grandTotal,
+    );
   }
 
   double _baseGrandTotal() {
-    final rawTotal = _toDouble(
-      order.endPickedTotal != 0
-          ? _toDouble(order.endPickedTotal.toString()) +
-              _toDouble(order.shippingCharge.toString())
-          : order.grandTotal,
-    );
-    return rawTotal - _couponDiscount();
+    return _computeRawGrandTotal() - _discountValue();
   }
 
   double _dueAmount() {
@@ -464,6 +528,21 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     // _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
     _grandTotalOverride = null;
 
+    final hasUserDiscount =
+        order.discountType?.toString().trim().isNotEmpty == true ||
+        _toDouble(order.discountValue ?? 0) > 0;
+    _discountEnabled = hasUserDiscount;
+    _selectedDiscountType =
+        order.discountType?.toString().trim().isNotEmpty == true
+            ? order.discountType?.toString().trim()
+            : null;
+    _selectedDiscountAmount = _toDouble(order.discountValue ?? 0);
+    // Only pre-fill discount amount if the order already has a user discount.
+    _discountAmountController.text =
+        _discountEnabled && _selectedDiscountAmount > 0
+            ? _selectedDiscountAmount.toStringAsFixed(2)
+            : '';
+
     final initialTotal =
         order.posAmount != null &&
                 order.posAmount != '0.0' &&
@@ -479,11 +558,13 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                   : order.grandTotal,
             );
     _editableGrandTotal = initialTotal - _discountValue();
+    _grandTotalController.text = _fmtQar(_editableGrandTotal);
   }
 
   @override
   void dispose() {
-    // _grandTotalController.dispose();
+    _discountAmountController.dispose();
+    _grandTotalController.dispose();
     super.dispose();
   }
 
@@ -540,7 +621,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   String _fmtQar(num v) {
     try {
       // Use a simple consistent QAR format
-      return 'QAR ' + (v.toDouble()).toStringAsFixed(2);
+      double d = v.toDouble();
+      // Normalize negative zero to plain zero for display clarity
+      if (d == 0.0 || d.abs() < 0.0005) d = 0.0;
+      return 'QAR ' + d.toStringAsFixed(2);
     } catch (_) {
       return 'QAR 0.00';
     }
@@ -600,27 +684,57 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           Expanded(child: Text(label, style: labelStyle)),
           const SizedBox(width: 12),
           Expanded(
-            child: TextFormField(
-              initialValue: _fmtQar(value),
-              // readOnly: !order.subgroupIdentifier.startsWith("EXP"),
-              style: valueStyle,
-              textAlign: TextAlign.right,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 4,
-                  horizontal: 8,
-                ),
-                isDense: true,
-              ),
-              onChanged: (value) {
-                final numericValue =
-                    double.tryParse(value.replaceAll(RegExp(r'[^0-9.]'), '')) ??
-                    0.0;
-                onChanged(numericValue);
-              },
-            ),
+            child:
+                label == 'Grand Total'
+                    ? TextFormField(
+                      controller: _grandTotalController,
+                      style: valueStyle,
+                      textAlign: TextAlign.right,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
+                        isDense: true,
+                      ),
+                      onChanged: (value) {
+                        final numericValue =
+                            double.tryParse(
+                              value.replaceAll(RegExp(r'[^0-9.]'), ''),
+                            ) ??
+                            0.0;
+                        onChanged(numericValue);
+                      },
+                    )
+                    : TextFormField(
+                      initialValue: _fmtQar(value),
+                      // readOnly: !order.subgroupIdentifier.startsWith("EXP"),
+                      style: valueStyle,
+                      textAlign: TextAlign.right,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
+                        isDense: true,
+                      ),
+                      onChanged: (value) {
+                        final numericValue =
+                            double.tryParse(
+                              value.replaceAll(RegExp(r'[^0-9.]'), ''),
+                            ) ??
+                            0.0;
+                        onChanged(numericValue);
+                      },
+                    ),
           ),
         ],
       ),
@@ -2116,6 +2230,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         token1: token!,
         clubvalue: _isClubEnabled ? 1 : 0,
         tripid: order.tracker_id ?? "",
+        discountType: _selectedDiscountType,
+        discountAmount:
+            _discountAmountController.text.trim().isNotEmpty
+                ? _discountAmountController.text.trim()
+                : null,
       );
 
       if (mounted) {
@@ -3002,18 +3121,182 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                               ),
                                             )
                                             : SizedBox(),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 1,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Checkbox(
+                                                        value: _discountEnabled,
+                                                        onChanged: (val) {
+                                                          setState(() {
+                                                            _discountEnabled =
+                                                                val ?? false;
+                                                            if (!_discountEnabled) {
+                                                              _selectedDiscountType =
+                                                                  null;
+                                                              _selectedDiscountAmount =
+                                                                  0.0;
+                                                              _discountAmountController
+                                                                      .text =
+                                                                  '0.00';
+                                                            }
+                                                          });
+                                                          _updateDiscountedGrandTotal();
+                                                        },
+                                                      ),
+
+                                                      Text(
+                                                        'Discount',
+                                                        style: customTextStyle(
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .BodyL_Bold,
+                                                          color:
+                                                              FontColor
+                                                                  .CarnationRed,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              if (_discountEnabled) ...[
+                                                const SizedBox(height: 8),
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 6,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color:
+                                                              colors
+                                                                  .backgroundPrimary,
+                                                          border: Border.all(
+                                                            color: colors
+                                                                .primary
+                                                                .withOpacity(
+                                                                  0.3,
+                                                                ),
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                8,
+                                                              ),
+                                                        ),
+                                                        child: DropdownButtonHideUnderline(
+                                                          child: DropdownButton<
+                                                            String
+                                                          >(
+                                                            isExpanded: true,
+                                                            hint: const Text(
+                                                              'Select...',
+                                                            ),
+                                                            value:
+                                                                _selectedDiscountType,
+                                                            items:
+                                                                _discountTypeOptions
+                                                                    .map(
+                                                                      (
+                                                                        type,
+                                                                      ) => DropdownMenuItem(
+                                                                        value:
+                                                                            type,
+                                                                        child: Text(
+                                                                          type,
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                    .toList(),
+                                                            onChanged:
+                                                                _discountEnabled
+                                                                    ? (value) {
+                                                                      setState(() {
+                                                                        _selectedDiscountType =
+                                                                            value;
+                                                                      });
+                                                                      _updateDiscountedGrandTotal();
+                                                                    }
+                                                                    : null,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: TextFormField(
+                                                        controller:
+                                                            _discountAmountController,
+                                                        keyboardType:
+                                                            const TextInputType.numberWithOptions(
+                                                              decimal: true,
+                                                            ),
+                                                        inputFormatters: [
+                                                          FilteringTextInputFormatter.allow(
+                                                            RegExp(r'[0-9\.]'),
+                                                          ),
+                                                        ],
+                                                        decoration: InputDecoration(
+                                                          labelText:
+                                                              'Discount Value',
+                                                          hintText:
+                                                              'Enter Value',
+                                                          border: OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
+                                                          ),
+                                                          isDense: true,
+                                                          contentPadding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 12,
+                                                                vertical: 14,
+                                                              ),
+                                                        ),
+                                                        onChanged: (value) {
+                                                          final parsed =
+                                                              double.tryParse(
+                                                                value.replaceAll(
+                                                                  RegExp(
+                                                                    r'[^0-9.]',
+                                                                  ),
+                                                                  '',
+                                                                ),
+                                                              ) ??
+                                                              0.0;
+                                                          setState(() {
+                                                            _selectedDiscountAmount =
+                                                                parsed;
+                                                          });
+                                                          _updateDiscountedGrandTotal();
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
                                         _kvMoney(
                                           hasCoupon
                                               ? 'Discount Code (${couponCode!.toUpperCase()})'
                                               : 'Discount',
-                                          _toDouble(
-                                            couponCode == "FIRST20" ||
-                                                    couponCode == "first20"
-                                                ? -20
-                                                : 0,
-                                          ),
+                                          -_discountValue(),
                                           labelStyle:
-                                              hasCoupon
+                                              _discountValue() > 0
                                                   ? customTextStyle(
                                                     fontStyle:
                                                         FontStyle
@@ -3027,7 +3310,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                   )
                                                   : null,
                                           valueStyle:
-                                              hasCoupon
+                                              _discountValue() > 0
                                                   ? customTextStyle(
                                                     fontStyle:
                                                         FontStyle.BodyL_Bold,

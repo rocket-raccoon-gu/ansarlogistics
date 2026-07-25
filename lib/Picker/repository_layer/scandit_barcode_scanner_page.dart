@@ -141,7 +141,11 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
       if (!mounted) return;
 
       if (code.isNotEmpty) {
-        Navigator.pop(context, widget.leadingZero == true ? '0$code' : code);
+        final normalizedCode =
+            widget.leadingZero == true
+                ? _maybeAddLeadingZeroLegacyBarcode(code)
+                : code;
+        Navigator.pop(context, normalizedCode);
         return;
       }
 
@@ -181,10 +185,7 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Scanner error: $_error',
-                  textAlign: TextAlign.center,
-                ),
+                Text('Scanner error: $_error', textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _legacyScannerOpening ? null : _openLegacyScanner,
@@ -227,9 +228,9 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
 
     String code = extractBarcodeValue(barcode);
 
-    // Custom post-processing logic for UPC-A barcodes with leading zeros
+    // Custom post-processing logic for UPC-A/EAN barcodes with leading zeros
     if (widget.leadingZero == true) {
-      code = _processBarcode(code);
+      code = _processBarcode(barcode, code);
     }
 
     if (code.isEmpty) return;
@@ -251,57 +252,47 @@ class _ScanditBarcodeScannerPageState extends State<ScanditBarcodeScannerPage>
     });
   }
 
-  // Custom post-processing logic for UPC-A barcodes with leading zeros
-  String _processBarcode(String code) {
-    // For 12-digit codes (UPC-A) that might need leading zero
-    // if (code.length == 12) {
-    // Check if this should be a 13-digit EAN-13 with leading zero
-    // if (_shouldAddLeadingZero(code)) {
-    return '0$code';
-    // }
-    // }
+  // Custom post-processing logic for UPC-A/EAN codes with leading zeros.
+  String _processBarcode(Barcode barcode, String code) {
+    if (code.isEmpty) return code;
 
-    // For 13-digit codes, validate and potentially correct checksum
-    // if (code.length == 13) {
-    //   code = _validateAndCorrectChecksum(code);
-    // }
-
-    // return code;
-  }
-
-  // Validate and potentially correct EAN-13 checksum
-  String _validateAndCorrectChecksum(String code) {
-    if (code.length != 13) return code;
-
-    // Special case correction for known problematic barcodes
-    if (code == '6937372250044') {
-      debugPrint('Special case correction: 6937372250044 -> 6937372250042');
-      return '6937372250042';
-    }
-
-    // Extract the first 12 digits (without checksum)
-    final first12 = code.substring(0, 12);
-    final scannedChecksum = code.substring(12, 13);
-
-    // Calculate the correct checksum
-    final correctChecksum = _calculateEAN13Checksum(first12);
-
-    debugPrint('Barcode validation: $code');
-    debugPrint('First 12 digits: $first12');
-    debugPrint('Scanned checksum: $scannedChecksum');
-    debugPrint('Calculated checksum: $correctChecksum');
-
-    // If checksums don't match, correct it
-    if (scannedChecksum != correctChecksum.toString()) {
-      debugPrint(
-        'Barcode checksum correction: $code -> $first12$correctChecksum',
-      );
-      return first12 + correctChecksum.toString();
-    } else {
-      debugPrint('Checksum is correct, no correction needed');
+    // Only restore the leading zero when the scanned result is 12 digits and
+    // it looks like the zero was removed from a true EAN/UPC value.
+    if (code.length == 12 && _shouldRestoreLeadingZero(code, barcode)) {
+      return '0$code';
     }
 
     return code;
+  }
+
+  String _maybeAddLeadingZeroLegacyBarcode(String code) {
+    if (code.length == 12 && _shouldRestoreLeadingZeroLegacy(code)) {
+      return '0$code';
+    }
+    return code;
+  }
+
+  bool _shouldRestoreLeadingZero(String code, Barcode barcode) {
+    if (code.length != 12) return false;
+
+    final sym = barcode.symbology.toString().toLowerCase();
+    final isEanUpc =
+        sym.contains('ean13') || sym.contains('upca') || sym.contains('upce');
+    if (!isEanUpc) return false;
+
+    // Only restore when the scanned value starts with two zeros.
+    // This is the safest check for cases where remove_leading_upca_zero
+    // has removed a zero from a value that should still have one.
+    if (code.startsWith('00')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool _shouldRestoreLeadingZeroLegacy(String code) {
+    if (code.length != 12) return false;
+    return code.startsWith('00');
   }
 
   // Calculate EAN-13 checksum

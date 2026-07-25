@@ -619,6 +619,8 @@ extension PDGeneralApi on PickerDriverApi {
     required String token1,
     int clubvalue = 0,
     String? tripid,
+    String? discountType,
+    String? discountAmount,
   }) {
     Uri url = _endpointWithApplicationPath('cashier/orders/status/$orderid');
 
@@ -640,6 +642,8 @@ extension PDGeneralApi on PickerDriverApi {
       "payment_method": paymentMethod,
       "club_value": clubvalue,
       "trip_id": tripid,
+      "discount_type": discountType,
+      "discount_value": discountAmount,
     };
 
     log(url.toString());
