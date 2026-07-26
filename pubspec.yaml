@@ -104,6 +104,7 @@ dependencies:
   scandit_flutter_datacapture_parser: any
   scandit_flutter_datacapture_id: any 
   scandit_flutter_datacapture_core: any
+  google_mlkit_document_scanner: any
   
   picker_driver_api:
     path: ./picker_driver_api/

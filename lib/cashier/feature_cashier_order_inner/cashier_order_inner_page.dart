@@ -14,12 +14,11 @@ import 'package:picker_driver_api/responses/cashier_order_response.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ansarlogistics/cashier/feature_cashier/components/document_scanner_page.dart';
 import 'package:ansarlogistics/cashier/feature_cashier_order_inner/bloc/cashier_order_inner_page_cubit.dart';
 import 'package:ansarlogistics/cashier/feature_cashier_order_inner/bloc/cashier_order_inner_page_state.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -87,7 +86,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     'BOOKLET PROMOTION 1',
   ];
   String? _posBillUrl;
-  XFile? _pickedImage;
+  String? _pickedDocumentPath;
+  String? _pickedDocumentName;
+  bool _pickedDocumentIsPdf = false;
   double? _uploadProgress; // 0.0 - 1.0
   final Set<int> _selectedItemIds = <int>{};
   String? paymentMethodnew;
@@ -774,59 +775,60 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               Text('Upload POS Bill', style: titleStyle()),
               const SizedBox(height: 8),
               Text(
-                'Attach a clear photo or file of the POS bill before marking the order ready to dispatch.',
+                'Scan a clear document for the POS bill before marking the order ready to dispatch. JPEG is fine for most orders, while WAR orders should use a PDF.',
                 style: subtitleStyle(),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed:
-                          _uploading
-                              ? null
-                              : () async {
-                                final picker = ImagePicker();
-                                final img = await picker.pickImage(
-                                  source: ImageSource.camera,
-                                  imageQuality: 80, // initial downsampling
-                                  maxWidth: 1600,
-                                  maxHeight: 1600,
-                                );
-                                if (img != null) {
-                                  setState(() => _pickedImage = img);
-                                  await _uploadPickedImage();
-                                }
-                              },
-                      icon: const Icon(Icons.photo_camera_outlined),
-                      label: const Text('Camera'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed:
-                          _uploading
-                              ? null
-                              : () async {
-                                final result = await FilePicker.platform
-                                    .pickFiles(
-                                      type: FileType.image,
-                                      allowMultiple: false,
-                                    );
-                                if (result != null &&
-                                    result.files.single.path != null) {
-                                  final path = result.files.single.path!;
-                                  setState(() => _pickedImage = XFile(path));
-                                  await _uploadPickedImage();
-                                }
-                              },
-                      icon: const Icon(Icons.upload_file_outlined),
-                      label: const Text('Browse'),
-                    ),
-                  ),
-                ],
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed:
+                      _uploading
+                          ? null
+                          : () async {
+                            final selection = await Navigator.of(
+                              context,
+                            ).push<DocumentScanSelection>(
+                              MaterialPageRoute(
+                                builder: (_) => const DocumentScannerPage(),
+                              ),
+                            );
+
+                            if (!mounted || selection == null) return;
+
+                            final String? selectedPath =
+                                selection.imagePaths.isNotEmpty
+                                    ? selection.imagePaths.first
+                                    : null;
+
+                            if (selectedPath == null ||
+                                !File(selectedPath).existsSync()) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'No document was returned from the scanner.',
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+
+                            setState(() {
+                              _pickedDocumentPath = selectedPath;
+                              _pickedDocumentName =
+                                  selectedPath.split('/').last;
+                              _pickedDocumentIsPdf = false;
+                            });
+
+                            await _uploadPickedDocument(
+                              filePath: selectedPath,
+                              isPdf: false,
+                            );
+                          },
+                  icon: const Icon(Icons.document_scanner_outlined),
+                  label: const Text('Scan document'),
+                ),
               ),
               const SizedBox(height: 8),
               Align(
@@ -908,8 +910,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     });
   }
 
-  Future<void> _uploadPickedImage() async {
-    if (_pickedImage == null) return;
+  Future<void> _uploadPickedDocument({
+    required String filePath,
+    required bool isPdf,
+  }) async {
+    if (filePath.isEmpty) return;
     setState(() {
       _uploading = true;
       _uploadProgress = 0.0;
@@ -1018,7 +1023,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       // );
       // final url = await taskSnapshot.ref.getDownloadURL();
 
-      final file = await _compressImageIfNeeded(_pickedImage!);
+      final file =
+          isPdf ? File(filePath) : await _compressImageIfNeeded(File(filePath));
 
       // Start countdown timer (visual only)
       _uploadTimer?.cancel();
@@ -1041,7 +1047,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               await http.MultipartFile.fromPath(
                 'bill',
                 file.path,
-                filename: 'bill_${order.subgroupIdentifier}.jpg',
+                filename:
+                    'bill_${order.subgroupIdentifier}.${isPdf ? 'pdf' : 'jpg'}',
               ),
             );
 
@@ -1104,9 +1111,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   }
 
   // Compress picked image if it's large; always convert to JPEG to ensure small, fast uploads
-  Future<File> _compressImageIfNeeded(XFile xfile) async {
+  Future<File> _compressImageIfNeeded(File originalFile) async {
     try {
-      final original = File(xfile.path);
+      final original = originalFile;
       final originalBytes = await original.length();
 
       // If already reasonably small (< 300 KB), skip compression
@@ -1130,7 +1137,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       }
       return original; // fallback
     } catch (_) {
-      return File(xfile.path); // fallback on any error
+      return originalFile; // fallback on any error
     }
   }
 
@@ -2497,125 +2504,153 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             backgroundColor: colors.backgroundPrimary,
             title: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('#${order.subgroupIdentifier}', style: titleStyle()),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('#${order.subgroupIdentifier}', style: titleStyle()),
 
-                  if (order.combinedSubgroupIdentifiers
-                      .where((id) => id != order.subgroupIdentifier)
-                      .isNotEmpty) ...[
-                    const SizedBox(width: 12),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children:
-                          order.combinedSubgroupIdentifiers
-                              .where((id) => id != order.subgroupIdentifier)
-                              .map(
-                                (id) => InkWell(
-                                  borderRadius: BorderRadius.circular(16),
-                                  onTap: () {
-                                    setState(() => _posBillUrl = null);
-                                    context
-                                        .read<CashierOrderInnerPageCubit>()
-                                        .loadBySubgroupId(id);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: colors.backgroundSecondary,
-                                      border: Border.all(color: colors.primary),
+                      if (order.combinedSubgroupIdentifiers
+                          .where((id) => id != order.subgroupIdentifier)
+                          .isNotEmpty) ...[
+                        const SizedBox(width: 12),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children:
+                              order.combinedSubgroupIdentifiers
+                                  .where((id) => id != order.subgroupIdentifier)
+                                  .map(
+                                    (id) => InkWell(
                                       borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Text(
-                                      '#$id',
-                                      style: customTextStyle(
-                                        fontStyle: FontStyle.BodyS_Bold,
-                                        color: FontColor.FontPrimary,
+                                      onTap: () {
+                                        setState(() => _posBillUrl = null);
+                                        context
+                                            .read<CashierOrderInnerPageCubit>()
+                                            .loadBySubgroupId(id);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: colors.backgroundSecondary,
+                                          border: Border.all(
+                                            color: colors.primary,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '#$id',
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyS_Bold,
+                                            color: FontColor.FontPrimary,
+                                          ),
+                                        ),
                                       ),
                                     ),
+                                  )
+                                  .toList(),
+                        ),
+
+                        if (order.combinedSubgroupIdentifiers
+                                .where((id) => id != order.subgroupIdentifier)
+                                .isNotEmpty &&
+                            order.driverType == "shipbee")
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Club Both Orders',
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyL_Bold,
+                                    color: FontColor.FontPrimary,
                                   ),
                                 ),
-                              )
-                              .toList(),
-                    ),
+                                const SizedBox(width: 8),
+                                Switch(
+                                  value: _isClubEnabled,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _isClubEnabled = value;
+                                    });
+                                  },
+                                  activeColor: customColors().primary,
+                                ),
+                              ],
+                            ),
+                          ),
 
-                    if (order.combinedSubgroupIdentifiers
-                            .where((id) => id != order.subgroupIdentifier)
-                            .isNotEmpty &&
-                        order.driverType == "shipbee")
+                        // order.driverType != null &&
+                        //         (order.driverType == 'rider' ||
+                        //             order.driverType == 'rafeeq')
+                        //     ? Padding(
+                        //       padding: const EdgeInsets.only(left: 8.0),
+                        //       child: Container(
+                        //         padding: const EdgeInsets.symmetric(
+                        //           horizontal: 8,
+                        //           vertical: 4,
+                        //         ),
+                        //         decoration: BoxDecoration(
+                        //           color: Colors.purple,
+                        //           borderRadius: BorderRadius.circular(4),
+                        //         ),
+                        //         child: Row(
+                        //           children: [
+                        //             Image.asset(
+                        //               'assets/rafeeq_logo.png',
+                        //               width: 24,
+                        //               height: 24,
+                        //             ),
+                        //             const SizedBox(width: 8),
+                        //             Text(
+                        //               getDriverType(order.driverType!),
+                        //               style: customTextStyle(
+                        //                 fontStyle: FontStyle.BodyL_SemiBold,
+                        //                 color: FontColor.White,
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ),
+                        //     )
+                        //     : const SizedBox.shrink(),
+                      ],
+
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(width: 8),
-                            Text(
-                              'Club Both Orders',
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.FontPrimary,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Switch(
-                              value: _isClubEnabled,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isClubEnabled = value;
-                                });
-                              },
-                              activeColor: customColors().primary,
-                            ),
-                          ],
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: getDriverTypeWidget(
+                          order.driverType!,
+                          getDriverType(order.driverType!),
                         ),
                       ),
-
-                    // order.driverType != null &&
-                    //         (order.driverType == 'rider' ||
-                    //             order.driverType == 'rafeeq')
-                    //     ? Padding(
-                    //       padding: const EdgeInsets.only(left: 8.0),
-                    //       child: Container(
-                    //         padding: const EdgeInsets.symmetric(
-                    //           horizontal: 8,
-                    //           vertical: 4,
-                    //         ),
-                    //         decoration: BoxDecoration(
-                    //           color: Colors.purple,
-                    //           borderRadius: BorderRadius.circular(4),
-                    //         ),
-                    //         child: Row(
-                    //           children: [
-                    //             Image.asset(
-                    //               'assets/rafeeq_logo.png',
-                    //               width: 24,
-                    //               height: 24,
-                    //             ),
-                    //             const SizedBox(width: 8),
-                    //             Text(
-                    //               getDriverType(order.driverType!),
-                    //               style: customTextStyle(
-                    //                 fontStyle: FontStyle.BodyL_SemiBold,
-                    //                 color: FontColor.White,
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     )
-                    //     : const SizedBox.shrink(),
-                  ],
+                    ],
+                  ),
 
                   Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: getDriverTypeWidget(
-                      order.driverType!,
-                      getDriverType(order.driverType!),
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 280),
+                      child: Text(
+                        'Delivery Note : ${displayNote.isNotEmpty ? displayNote : 'N/A'}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
                     ),
                   ),
                 ],
