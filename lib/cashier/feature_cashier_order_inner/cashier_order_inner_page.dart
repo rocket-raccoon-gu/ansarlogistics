@@ -1929,6 +1929,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       );
       widgets.add(const SizedBox(height: 12));
 
+      int globalItemCounter = 0; // Global counter across all categories
+
       for (final entry in groups.entries) {
         final categoryName = entry.key;
         final items = entry.value;
@@ -1962,7 +1964,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               _buildHeaderRow(),
               ...List.generate(
                 items.length,
-                (index) => _buildItemRow(items[index], index),
+                (index) => _buildItemRow(items[index], globalItemCounter++),
               ),
             ],
           ),
@@ -2637,22 +2639,6 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                       ),
                     ],
                   ),
-
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 280),
-                      child: Text(
-                        'Delivery Note : ${displayNote.isNotEmpty ? displayNote : 'N/A'}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_Bold,
-                          color: FontColor.FontPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -2930,7 +2916,50 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                         ),
                                       ),
                                     )
-                                    : SizedBox(),
+                                    : const SizedBox(),
+
+                                if ((order.deliveryNote ?? '')
+                                    .trim()
+                                    .isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12.0,
+                                      vertical: 8.0,
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: customColors().pTokenBackground,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                        horizontal: 16,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(
+                                            Icons.info_outline,
+                                            size: 18,
+                                            color: Colors.red,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Delivery note: ${displayNote.isNotEmpty ? displayNote : 'N/A'}',
+                                              style: customTextStyle(
+                                                fontStyle: FontStyle.BodyL_Bold,
+                                                color: FontColor.Danger,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(height: 8),
 
                                 // Customer Information
                                 Padding(
@@ -2968,18 +2997,6 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                               'Delivery Window',
                                               timeRangeText!,
                                             ),
-                                          if ((order.deliveryNote ?? '')
-                                              .trim()
-                                              .isNotEmpty)
-                                            _kvSelectable(
-                                              'Delivery Note',
-                                              displayNote,
-                                              valueStyle: const TextStyle(
-                                                color: Colors.red,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-
                                           if ((order.pickername ?? '')
                                               .toString()
                                               .trim()
