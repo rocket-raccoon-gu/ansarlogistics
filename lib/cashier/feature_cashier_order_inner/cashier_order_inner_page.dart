@@ -783,49 +783,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed:
-                      _uploading
-                          ? null
-                          : () async {
-                            final selection = await Navigator.of(
-                              context,
-                            ).push<DocumentScanSelection>(
-                              MaterialPageRoute(
-                                builder: (_) => const DocumentScannerPage(),
-                              ),
-                            );
-
-                            if (!mounted || selection == null) return;
-
-                            final String? selectedPath =
-                                selection.imagePaths.isNotEmpty
-                                    ? selection.imagePaths.first
-                                    : null;
-
-                            if (selectedPath == null ||
-                                !File(selectedPath).existsSync()) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'No document was returned from the scanner.',
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
-
-                            setState(() {
-                              _pickedDocumentPath = selectedPath;
-                              _pickedDocumentName =
-                                  selectedPath.split('/').last;
-                              _pickedDocumentIsPdf = false;
-                            });
-
-                            await _uploadPickedDocument(
-                              filePath: selectedPath,
-                              isPdf: false,
-                            );
-                          },
+                  onPressed: _uploading ? null : _scanAndUploadPosBill,
                   icon: const Icon(Icons.document_scanner_outlined),
                   label: const Text('Scan document'),
                 ),
@@ -908,6 +866,36 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       // Sheet closed
       _posSheetOpen = false;
     });
+  }
+
+  Future<void> _scanAndUploadPosBill() async {
+    final selection = await Navigator.of(context).push<DocumentScanSelection>(
+      MaterialPageRoute(builder: (_) => const DocumentScannerPage()),
+    );
+
+    if (!mounted || selection == null) return;
+
+    final String? selectedPath =
+        selection.imagePaths.isNotEmpty ? selection.imagePaths.first : null;
+
+    if (selectedPath == null || !File(selectedPath).existsSync()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No document was returned from the scanner.'),
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      _pickedDocumentPath = selectedPath;
+      _pickedDocumentName = selectedPath.split('/').last;
+      _pickedDocumentIsPdf = false;
+    });
+
+    await _uploadPickedDocument(filePath: selectedPath, isPdf: false);
   }
 
   Future<void> _uploadPickedDocument({
@@ -1038,7 +1026,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
 
       // Build multipart request to provided API
       final uri = Uri.parse(
-        'https://pickerdriver.testuatah.com/v1/api/qatar/upload-pos-bill.php',
+        'https://pickerdriver.ansargallery.qa/v1/api/qatar/upload-pos-bill.php',
       );
       final request =
           http.MultipartRequest('POST', uri)
@@ -1052,34 +1040,52 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               ),
             );
 
-      final streamedResponse = await request.send().timeout(
-        Duration(seconds: _uploadTimeoutSeconds + 5),
+      log(
+        'https://pickerdriver.ansargallery.qa/v1/api/qatar/upload-pos-bill.php',
       );
+
+      log('Uploading POS bill to $uri for order ${order.subgroupIdentifier}');
+
+      log('Request fields: ${request.fields}');
+      log('Request files: ${request.files}');
+
+      _uploadClient = http.Client();
+      final streamedResponse = await _uploadClient!
+          .send(request)
+          .timeout(Duration(seconds: _uploadTimeoutSeconds + 5));
 
       final respBody = await streamedResponse.stream.bytesToString();
       if (streamedResponse.statusCode == 200) {
         if (mounted) {
-          // Try to capture a URL if the API returns one
-          String uploadedUrl = 'uploaded';
+          // Use the returned URL directly when available.
+          String? uploadedUrl;
           try {
             final parsed = jsonDecode(respBody);
-            if (parsed is Map && parsed['url'] != null) {
-              uploadedUrl = parsed['url'].toString();
+            if (parsed is Map) {
+              uploadedUrl = parsed['image_url']?.toString().trim();
             } else if (parsed is String && parsed.startsWith('http')) {
-              uploadedUrl = parsed;
+              uploadedUrl = parsed.trim();
             }
           } catch (_) {}
 
-          setState(() => _posBillUrl = uploadedUrl);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('POS bill uploaded successfully')),
+          setState(
+            () =>
+                _posBillUrl =
+                    (uploadedUrl?.isNotEmpty == true) ? uploadedUrl : null,
           );
           await _removePendingBill(order.subgroupIdentifier);
         }
 
+        if (_uploadDialogOpen) {
+          _uploadDialogOpen = false;
+          if (Navigator.of(context, rootNavigator: true).canPop()) {
+            Navigator.of(context, rootNavigator: true).pop();
+          }
+        }
+
         if (_posSheetOpen) {
-          Navigator.of(context).pop();
           _posSheetOpen = false;
+          Navigator.of(context).pop();
         }
       } else {
         throw Exception(
@@ -1088,10 +1094,16 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       }
     } catch (e) {
       final msg =
-          e is TimeoutException
+          _cancelRequested
+              ? 'Upload cancelled.'
+              : e is TimeoutException
               ? 'Upload timed out. Please try again.'
               : 'Upload failed: $e';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      if (!_cancelRequested) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -1102,10 +1114,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       _uploadTimer?.cancel();
       _uploadTimer = null;
       _currentUploadTask = null;
-      // Close the modal progress dialog if still open
       if (_uploadDialogOpen) {
-        _uploadDialogOpen = false;
-        Navigator.of(context, rootNavigator: true).maybePop();
+        _closeUploadDialog();
       }
     }
   }
@@ -1144,39 +1154,37 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   static const int _uploadTimeoutSeconds = 90; // configurable timeout
   int _secondsLeft = 0;
   Timer? _uploadTimer;
+  http.Client? _uploadClient;
   UploadTask? _currentUploadTask;
   bool _uploadDialogOpen = false;
   bool _cancelRequested = false;
   bool _posSheetOpen = false;
 
+  void _closeUploadDialog() {
+    _uploadDialogOpen = false;
+    try {
+      Navigator.of(context, rootNavigator: true).pop();
+    } catch (_) {}
+    try {
+      Navigator.of(context).pop();
+    } catch (_) {}
+  }
+
   Future<void> _loadExistingPosBillIfAny() async {
     try {
       final orderNo = order.subgroupIdentifier;
       final uri = Uri.parse(
-        'https://pickerdriver.testuatah.com/v1/api/qatar/get_bill_data.php?order_number='
-        '${Uri.encodeQueryComponent(orderNo)}',
+        'https://media.ansargallery.com/pos-bill/'
+        '${Uri.encodeQueryComponent(orderNo)}.jpg',
       );
 
+      log('Checking for existing POS bill at $uri for order $orderNo');
+
       final resp = await http.get(uri).timeout(const Duration(seconds: 20));
-      if (resp.statusCode != 200) return;
-
-      final data = jsonDecode(resp.body);
-      bool exists = false;
-      String? url;
-
-      if (data is Map<String, dynamic>) {
-        final bill = data['bill'];
-        exists =
-            (data['success'] == true) &&
-            (bill is Map && (bill['exists'] == true));
-        if (bill is Map && bill['url'] != null) {
-          url = bill['url'].toString();
-        }
-      }
-
       if (!mounted) return;
+
       setState(() {
-        _posBillUrl = (exists && url != null && url!.isNotEmpty) ? url : null;
+        _posBillUrl = resp.statusCode == 200 ? uri.toString() : null;
       });
     } catch (_) {
       // keep silent on load errors
@@ -3099,7 +3107,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                   onPressed:
                                                       _uploading
                                                           ? null
-                                                          : _openUploadPosBillSheet,
+                                                          : _scanAndUploadPosBill,
                                                   child: Text(
                                                     _posBillUrl == null
                                                         ? 'Upload'
@@ -3716,6 +3724,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     _cancelRequested = true;
 
     try {
+      _uploadClient?.close();
+      _uploadClient = null;
       await _currentUploadTask?.cancel();
     } catch (_) {}
 
@@ -3730,15 +3740,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       });
     }
 
-    // Close the upload progress dialog if it is open
     if (_uploadDialogOpen) {
-      _uploadDialogOpen = false;
-      Navigator.of(context, rootNavigator: true).maybePop();
-    }
-
-    // Also attempt to close the bottom sheet (if currently open)
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).maybePop();
+      _closeUploadDialog();
     }
   }
 

@@ -35,6 +35,11 @@ class _DocumentScannerPageState extends State<DocumentScannerPage> {
     );
 
     _documentScanner = DocumentScanner(options: options);
+
+    // Automatically start scanning when the page opens.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _scanDocument();
+    });
   }
 
   Future<void> _scanDocument() async {
