@@ -1642,7 +1642,7 @@ extension PDGeneralApi on PickerDriverApi {
   }
 
   Future<http.Response> getCashierAssignedOrders({
-    required int userId,
+    required String userId,
     required String token,
   }) async {
     final url = _endpointWithApplicationPathString(

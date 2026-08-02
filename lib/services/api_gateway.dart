@@ -1062,7 +1062,7 @@ class PDApiGateway implements AuthenticationService {
   }
 
   Future getCashierAssignedOrders({
-    required int userId,
+    required String userId,
     required String token,
   }) async {
     try {
