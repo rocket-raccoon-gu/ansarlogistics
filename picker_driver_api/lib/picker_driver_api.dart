@@ -1453,7 +1453,7 @@ extension PDGeneralApi on PickerDriverApi {
     required List<Map<String, dynamic>> dynamiclist,
   }) async {
     final url = Uri.parse(
-      'https://pickerdriver.testuatah.com/v1/api/qatar/addSkuScannedDirect.php',
+      'https://pickerdriver.ansargallery.qa/v1/api/qatar/addSkuScannedDirect.php',
     );
 
     final Map<String, String> headers = {
