@@ -35,9 +35,7 @@ class PaymentCollectionCubit extends Cubit<PaymentCollectionState> {
   void initializePayment() {
     orderResponseItem = data['orderResponse'];
     if (orderResponseItem != null) {
-      totalAmount =
-          double.tryParse(orderResponseItem!.grandTotal?.toString() ?? '0') ??
-          0;
+      totalAmount = double.tryParse(orderResponseItem!.posAmount ?? '0') ?? 0;
 
       final normalizedMethod = _normalizePaymentMethod(
         orderResponseItem!.paymentMethod,

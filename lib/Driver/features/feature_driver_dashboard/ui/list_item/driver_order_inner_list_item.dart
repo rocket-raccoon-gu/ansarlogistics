@@ -160,9 +160,7 @@ class DriverOrderInnerListItem extends StatelessWidget {
   }
 
   Widget _buildQuantityRow() {
-    final quantity =
-        double.parse(orderItem.qtyOrdered).toInt() -
-        double.parse(orderItem.qtyCanceled).toInt();
+    final quantity = double.parse(orderItem.qtyShipped).toInt();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

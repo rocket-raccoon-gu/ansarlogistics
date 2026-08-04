@@ -56,6 +56,7 @@ class Order {
   int itemCount;
   String shippingCharges;
   DateTime createdAt;
+  String posAmount;
 
   Order({
     required this.entityId,
@@ -87,6 +88,7 @@ class Order {
     required this.itemCount,
     required this.shippingCharges,
     required this.createdAt,
+    required this.posAmount,
   });
 
   Order copyWith({
@@ -119,6 +121,7 @@ class Order {
     int? itemCount,
     String? shippingCharges,
     DateTime? createdAt,
+    String? posAmount,
   }) => Order(
     entityId: entityId ?? this.entityId,
     subgroupIdentifier: subgroupIdentifier ?? this.subgroupIdentifier,
@@ -149,6 +152,7 @@ class Order {
     itemCount: itemCount ?? this.itemCount,
     shippingCharges: shippingCharges ?? this.shippingCharges,
     createdAt: createdAt ?? this.createdAt,
+    posAmount: posAmount ?? this.posAmount,
   );
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -182,6 +186,7 @@ class Order {
     itemCount: json["item_count"],
     shippingCharges: json["shipping_charge"] ?? "0",
     createdAt: DateTime.parse(json["created_at"]),
+    posAmount: json["pos_amount"] ?? "0",
   );
 
   Map<String, dynamic> toJson() => {
@@ -214,6 +219,7 @@ class Order {
     "item_count": itemCount,
     "shipping_charges": shippingCharges,
     "created_at": createdAt.toIso8601String(),
+    "pos_amount": posAmount,
   };
 
   @override

@@ -75,6 +75,8 @@ String getStatus(String stat) {
       return "Customer Not Answer";
     case "on_the_way_to_return":
       return "On The Way";
+    case "approvel_discount":
+      return "Approvel Discount";
     default:
       return "";
   }
