@@ -85,6 +85,29 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     'MOWASALAT - DISCOUNT',
     'BOOKLET PROMOTION 1',
   ];
+
+  List<DropdownMenuItem<String>> _buildDiscountItems() {
+    final items =
+        _discountTypeOptions.map((type) {
+          return DropdownMenuItem<String>(value: type, child: Text(type));
+        }).toList();
+
+    final selectedValue = _selectedDiscountType?.trim();
+    if (selectedValue != null &&
+        selectedValue.isNotEmpty &&
+        !items.any((item) => item.value == selectedValue)) {
+      items.insert(
+        0,
+        DropdownMenuItem<String>(
+          value: selectedValue,
+          child: Text(selectedValue),
+        ),
+      );
+    }
+
+    return items;
+  }
+
   String? _posBillUrl;
   String? _pickedDocumentPath;
   String? _pickedDocumentName;
@@ -2409,6 +2432,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         token1: token!,
         clubvalue: _isClubEnabled ? 1 : 0,
         tripid: order.tracker_id ?? "",
+        discountType: _selectedDiscountType,
+        discountAmount:
+            _discountAmountController.text.trim().isNotEmpty
+                ? _discountAmountController.text.trim()
+                : null,
       );
 
       if (mounted) {
@@ -3266,19 +3294,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                                             value:
                                                                 _selectedDiscountType,
                                                             items:
-                                                                _discountTypeOptions
-                                                                    .map(
-                                                                      (
-                                                                        type,
-                                                                      ) => DropdownMenuItem(
-                                                                        value:
-                                                                            type,
-                                                                        child: Text(
-                                                                          type,
-                                                                        ),
-                                                                      ),
-                                                                    )
-                                                                    .toList(),
+                                                                _buildDiscountItems(),
                                                             onChanged:
                                                                 _discountEnabled
                                                                     ? (value) {
@@ -3626,33 +3642,89 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                         order.orderStatus != "assigned_cashier"
                     ? Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      child: SizedBox(
-                        height: 48,
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.peachBackgrond,
-                          ),
-                          onPressed: () {
-                            // TODO: Implement WAR order action
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 48,
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colors.peachBackgrond,
+                                ),
+                                onPressed: () {
+                                  // TODO: Implement WAR order action
 
-                            if (_posBillUrl == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please upload POS bill before proceeding',
+                                  if (_posBillUrl == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Please upload POS bill before proceeding',
+                                        ),
+                                      ),
+                                    );
+                                    // _openUploadPosBillSheet();
+                                    // return;
+                                  } else {
+                                    _submitWarOrder();
+                                  }
+                                },
+                                icon: const Icon(Icons.check),
+                                label: const Text('Submit To DO'),
+                              ),
+                            ),
+                          ),
+
+                          Expanded(
+                            child: SizedBox(
+                              height: 48,
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colors.islandAqua,
+                                ),
+                                onPressed:
+                                    _submitting
+                                        ? null
+                                        : () {
+                                          if (_posBillUrl == null) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Please upload POS bill before proceeding',
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            _confirmAndMarkReady();
+                                          }
+                                        },
+                                icon:
+                                    _submitting
+                                        ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                        : const Icon(
+                                          Icons.check_circle_outline,
+                                          color: Colors.white,
+                                        ),
+                                label: const Text(
+                                  'Mark Ready to Dispatch',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
                                   ),
                                 ),
-                              );
-                              // _openUploadPosBillSheet();
-                              // return;
-                            } else {
-                              _submitWarOrder();
-                            }
-                          },
-                          icon: const Icon(Icons.check),
-                          label: const Text('Submit To DO'),
-                        ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     )
                     : Padding(
