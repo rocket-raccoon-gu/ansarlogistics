@@ -1,9 +1,7 @@
 import 'dart:io';
 
-import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -11,11 +9,6 @@ class DocumentScanSelection {
   const DocumentScanSelection({required this.imagePaths});
 
   final List<String> imagePaths;
-}
-
-bool shouldUseNormalCameraForBranch(String? branchCode) {
-  final normalizedBranchCode = branchCode?.toString().trim().toUpperCase();
-  return normalizedBranchCode == 'Q008';
 }
 
 class DocumentScannerPage extends StatefulWidget {
@@ -26,41 +19,9 @@ class DocumentScannerPage extends StatefulWidget {
 }
 
 class _DocumentScannerPageState extends State<DocumentScannerPage> {
-  late final DocumentScanner _documentScanner;
-
   bool _isScanning = false;
-  bool _useNormalCamera = false;
   List<String> _scannedImages = [];
   String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _useNormalCamera = shouldUseNormalCameraForBranch(
-      UserController.userController.profile.branchCode,
-    );
-
-    if (!_useNormalCamera) {
-      final options = DocumentScannerOptions(
-        documentFormats: const {DocumentFormat.jpeg},
-        mode: ScannerMode.filter,
-        pageLimit: 5,
-        isGalleryImport: true,
-      );
-
-      _documentScanner = DocumentScanner(options: options);
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (_useNormalCamera) {
-        _captureImageWithCamera();
-      } else {
-        _scanDocument();
-      }
-    });
-  }
 
   Future<String> _prepareImageForUpload(String sourcePath) async {
     final sourceFile = File(sourcePath);
@@ -140,69 +101,15 @@ class _DocumentScannerPageState extends State<DocumentScannerPage> {
     }
   }
 
-  Future<void> _scanDocument() async {
-    if (_isScanning) return;
-
-    setState(() {
-      _isScanning = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final DocumentScanningResult result =
-          await _documentScanner.scanDocument();
-
-      if (!mounted) return;
-
-      final imagePaths = <String>[];
-      for (final imagePath in result.images ?? const []) {
-        imagePaths.add(await _prepareImageForUpload(imagePath));
-      }
-
-      final selection = DocumentScanSelection(imagePaths: imagePaths);
-
-      if (selection.imagePaths.isEmpty) {
-        setState(() {
-          _errorMessage = 'No document was returned from the scanner.';
-          _scannedImages = const [];
-        });
-        return;
-      }
-
-      setState(() {
-        _scannedImages = selection.imagePaths;
-      });
-
-      Navigator.of(context).pop(selection);
-    } catch (error) {
-      if (!mounted) return;
-
-      setState(() {
-        _errorMessage = error.toString();
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isScanning = false;
-        });
-      }
-    }
-  }
-
   @override
   void dispose() {
-    if (!_useNormalCamera) {
-      _documentScanner.close();
-    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_useNormalCamera ? 'Capture POS Bill' : 'Document Scanner'),
-      ),
+      appBar: AppBar(title: const Text('Capture POS Bill')),
       body: Column(
         children: [
           Padding(
@@ -210,12 +117,7 @@ class _DocumentScannerPageState extends State<DocumentScannerPage> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed:
-                    _isScanning
-                        ? null
-                        : (_useNormalCamera
-                            ? _captureImageWithCamera
-                            : _scanDocument),
+                onPressed: _isScanning ? null : _captureImageWithCamera,
                 icon:
                     _isScanning
                         ? const SizedBox(
@@ -223,17 +125,9 @@ class _DocumentScannerPageState extends State<DocumentScannerPage> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                        : Icon(
-                          _useNormalCamera
-                              ? Icons.camera_alt
-                              : Icons.document_scanner,
-                        ),
+                        : const Icon(Icons.camera_alt),
                 label: Text(
-                  _isScanning
-                      ? (_useNormalCamera
-                          ? 'Opening camera...'
-                          : 'Opening scanner...')
-                      : (_useNormalCamera ? 'Capture image' : 'Scan document'),
+                  _isScanning ? 'Opening camera...' : 'Capture image',
                 ),
               ),
             ),
@@ -249,13 +143,7 @@ class _DocumentScannerPageState extends State<DocumentScannerPage> {
           Expanded(
             child:
                 _scannedImages.isEmpty
-                    ? Center(
-                      child: Text(
-                        _useNormalCamera
-                            ? 'No image captured yet'
-                            : 'No scanned document',
-                      ),
-                    )
+                    ? const Center(child: Text('No image captured yet'))
                     : ListView.builder(
                       padding: const EdgeInsets.all(12),
                       itemCount: _scannedImages.length,

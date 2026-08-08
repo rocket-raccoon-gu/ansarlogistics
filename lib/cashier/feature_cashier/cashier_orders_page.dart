@@ -412,135 +412,121 @@ class OrderTile extends StatelessWidget {
                     )
                     : const SizedBox.shrink(),
                 const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Row(
-                      children: [
-                        getDriverTypeWidget(
-                          order.driverType!,
-                          getDriverType(order.driverType!),
-                        ),
-
-                        const SizedBox(width: 8),
-
-                        order.email == "ishaqah21@gmail.com" &&
-                                order.postcode == "50"
-                            ? Container(
-                              padding: EdgeInsets.symmetric(
-                                vertical: 5.0,
-                                horizontal: 8.0,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: customColors().accent,
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(5.0),
-                                ),
-                              ),
-                              child: Text(
-                                "Thumama Charity Order",
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
-                                  color: FontColor.Purple,
-                                ),
-                              ),
-                            )
-                            : const SizedBox.shrink(),
-                      ],
+                    getDriverTypeWidget(
+                      order.driverType!,
+                      getDriverType(order.driverType!),
                     ),
-                    order.isWhatsappOrder == 1
-                        ? Row(
-                          children: [
-                            Text(
-                              'Whatsapp Order ',
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyL_Bold,
-                                color: FontColor.SecretGarden,
-                              ),
-                            ),
-                            Icon(Icons.chat_bubble),
-                          ],
-                        )
-                        : const SizedBox.shrink(),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                    if (order.email == "ishaqah21@gmail.com" &&
+                        order.postcode == "50")
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 5.0,
+                          horizontal: 8.0,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: customColors().accent,
                           ),
-                          decoration: BoxDecoration(
-                            color: getStatusColor(order.orderStatus),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            getStatus(order.orderStatus),
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyM_SemiBold,
-                              color: FontColor.White,
-                            ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5.0),
                           ),
                         ),
-                        if (order.orderStatus.toLowerCase() !=
-                            'start_punching') ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.8),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.swipe,
-                                  size: 14,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Swipe to start',
-                                  style: customTextStyle(
-                                    fontStyle: FontStyle.BodyS_SemiBold,
-                                    color: FontColor.White,
-                                  ),
-                                ),
-                              ],
+                        child: Text(
+                          "Thumama Charity Order",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyL_Bold,
+                            color: FontColor.Purple,
+                          ),
+                        ),
+                      ),
+                    if (order.isWhatsappOrder == 1)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Whatsapp Order ',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.SecretGarden,
                             ),
                           ),
+                          Icon(Icons.chat_bubble),
                         ],
-                        if (order.statusHistory != null &&
-                            DateUtils.isSameDay(
-                              order.statusHistory!.createdAt,
-                              DateTime.now(),
-                            )) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
+                      ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: getStatusColor(order.orderStatus),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        getStatus(order.orderStatus),
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_SemiBold,
+                          color: FontColor.White,
+                        ),
+                      ),
+                    ),
+                    if (order.orderStatus.toLowerCase() !=
+                        'start_punching')
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.swipe,
+                              size: 14,
+                              color: Colors.white,
                             ),
-                            decoration: BoxDecoration(
-                              color: customColors().islandAqua,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'Ready to Dispatch',
+                            const SizedBox(width: 4),
+                            Text(
+                              'Swipe to start',
                               style: customTextStyle(
-                                fontStyle: FontStyle.BodyS_Bold,
+                                fontStyle: FontStyle.BodyS_SemiBold,
                                 color: FontColor.White,
                               ),
                             ),
+                          ],
+                        ),
+                      ),
+                    if (order.statusHistory != null &&
+                        DateUtils.isSameDay(
+                          order.statusHistory!.createdAt,
+                          DateTime.now(),
+                        ))
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: customColors().islandAqua,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Ready to Dispatch',
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyS_Bold,
+                            color: FontColor.White,
                           ),
-                        ],
-                      ],
-                    ),
+                        ),
+                      ),
                   ],
                 ),
               ],

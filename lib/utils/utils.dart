@@ -73,8 +73,7 @@ Widget sectionTitle(String text) {
   return Text(text, style: titleStyle());
 }
 
-// UI: Dispatch type selector (Normal / Driver / Rider)
-// UI: Dispatch type selector (Normal / Driver / Rider)
+// UI: Dispatch type selector (Normal / Rafeeq / GODO / Shipbee)
 Widget dispatchSelector({
   required String? value,
   required ValueChanged<String> onChanged,
@@ -85,107 +84,110 @@ Widget dispatchSelector({
 }) {
   final options = <Map<String, String>>[];
 
-  // Check if subgroup ID starts with 'EXP'
-  // if (subgroupId.startsWith('EXP') &&
-  //     paymentMethod.toLowerCase() == 'cashondelivery') {
-  // Add Rafeeq Driver for EXP subgroups
-  // options.add({'key': 'driver', 'label': 'Rafeeq Driver'});
-
-  // Add Snoonu Rider option only for specific postcodes in EXP subgroups
-  // final postcodePrefix =
-  //     postcode.length >= 2 ? int.tryParse(postcode.substring(0, 2)) : null;
-  // if (postcodePrefix != null &&
-  //     ((postcodePrefix >= 42 && postcodePrefix <= 46) ||
-  //         postcodePrefix == 50 ||
-  //         (postcodePrefix >= 56 && postcodePrefix <= 58))) {
-  // options.add({'key': 'rider', 'label': 'Snoonu'});
-  // }
-  // }
-
   if (type == "shipbee") {
     options.add({'key': 'shipbee', 'label': 'Shipbee'});
   } else {
     options.add({'key': 'normal', 'label': 'Normal'});
+    options.add({'key': 'rafeeq', 'label': 'Rafeeq'});
     options.add({'key': 'godo', 'label': 'GODO'});
     options.add({'key': 'shipbee', 'label': 'Shipbee'});
   }
 
-  final Color selectedBg = switch (value) {
-    'driver' => const Color(0xFF9729BA),
-    'rider' => Colors.red,
+  Color brandColor(String key) => switch (key) {
+    'rafeeq' || 'driver' => HexColor('#9729BA'),
+    'rider' => HexColor('#FF0000'),
     'godo' => HexColor('#063997'),
-    'shipbee' => Colors.grey,
+    'shipbee' => HexColor('#4D4B49'),
     _ => customColors().islandAqua,
   };
 
-  return Row(
+  Widget leading(String key, {required bool selected}) {
+    if (key == 'rafeeq' || key == 'driver') {
+      return Image.asset('assets/rafeeq_logo.png', width: 18, height: 18);
+    }
+    final IconData icon = switch (key) {
+      'rider' => Icons.pedal_bike_outlined,
+      'godo' => Icons.local_shipping_outlined,
+      'shipbee' => Icons.inventory_2_outlined,
+      _ => Icons.local_shipping_outlined,
+    };
+    return Icon(
+      icon,
+      size: 16,
+      color: selected ? Colors.white : brandColor(key),
+    );
+  }
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.end,
     children: [
       Text('Dispatch Type', style: titleStyle()),
-      const SizedBox(width: 8),
-      Wrap(
-        spacing: 8,
-        alignment: WrapAlignment.end,
-        children:
-            options.map((o) {
-              final key = o['key']!;
-              final selected = value == key;
+      const SizedBox(height: 8),
+      SizedBox(
+        width: options.length == 1 ? 140 : 300,
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.end,
+          children:
+              options.map((o) {
+                final key = o['key']!;
+                final selected = value == key;
+                final color = brandColor(key);
 
-              // Pick selected background color by option
-              final Color selectedBg = switch (key) {
-                'driver' => HexColor('#9729BA'),
-                'rider' => HexColor('#FF0000'),
-                'godo' => HexColor('#063997'),
-                'shipbee' => HexColor('#808080'),
-                _ => customColors().islandAqua,
-              };
-
-              // Pick an icon per option
-              IconData icon = switch (key) {
-                'driver' => Icons.directions_car_filled_outlined,
-                'rider' => Icons.pedal_bike_outlined,
-                'godo' => Icons.local_shipping_outlined,
-                _ => Icons.local_shipping_outlined,
-              };
-
-              return Padding(
-                padding: const EdgeInsets.only(right: 32.0, left: 8),
-                child: ChoiceChip(
-                  // small, neat chips
-                  visualDensity: VisualDensity.comfortable,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  labelPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        icon,
-                        size: 16,
-                        color:
-                            selected ? customColors().backgroundPrimary : null,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        o['label']!,
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyL_SemiBold,
-                          color:
-                              selected || key == "godo"
-                                  ? FontColor.White
-                                  : FontColor.FontPrimary,
+                return SizedBox(
+                  width: options.length == 1 ? 140 : 146,
+                  height: 40,
+                  child: Material(
+                    color: selected ? color : color.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    child: InkWell(
+                      onTap: () => onChanged(key),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: selected ? color : color.withOpacity(0.45),
+                            width: selected ? 2 : 1,
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            leading(key, selected: selected),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                o['label']!,
+                                overflow: TextOverflow.ellipsis,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyM_SemiBold,
+                                  color:
+                                      selected
+                                          ? FontColor.White
+                                          : FontColor.FontPrimary,
+                                ),
+                              ),
+                            ),
+                            if (selected) ...[
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.check_circle,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                  selected: selected,
-                  onSelected: (_) => onChanged(key),
-                  selectedColor: selectedBg,
-                  backgroundColor: selectedBg,
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+        ),
       ),
     ],
   );

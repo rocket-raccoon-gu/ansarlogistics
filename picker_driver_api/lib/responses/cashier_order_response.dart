@@ -616,6 +616,7 @@ class Item {
   String? erp_promo_price;
   String? basePrice;
   String? originalPrice;
+  String? transfernumber;
 
   Item({
     required this.itemId,
@@ -648,6 +649,7 @@ class Item {
     this.erp_promo_price,
     this.basePrice,
     this.originalPrice,
+    this.transfernumber,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
@@ -681,6 +683,7 @@ class Item {
     erp_promo_price: json["erp_promo_price"],
     basePrice: json["base_price"],
     originalPrice: json["original_price"],
+    transfernumber: json["transfer_number"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -714,6 +717,7 @@ class Item {
     "erp_promo_price": erp_promo_price,
     "base_price": basePrice,
     "original_price": originalPrice,
+    "transfer_number": transfernumber,
   };
 }
 

@@ -1928,19 +1928,167 @@ class _OrderItemDetailsState extends State<OrderItemDetails> {
                                                           .carnationRed,
                                                   asset: Icons.cancel,
                                                   onTap: () {
-                                                    context
-                                                        .read<
-                                                          OrderItemDetailsCubit
-                                                        >()
-                                                        .updateitemstatus(
-                                                          'canceled',
-                                                          '${item.qtyOrdered ?? 0}',
-                                                          'cancelled_by_picker',
-                                                          item.price ?? '0',
-                                                          widget
-                                                              .data['preparationLabel'],
-                                                          item.sku ?? '',
+                                                    final reasonController =
+                                                        TextEditingController();
+
+                                                    showModalBottomSheet(
+                                                      context: context,
+                                                      isScrollControlled: true,
+                                                      shape: const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.vertical(
+                                                              top:
+                                                                  Radius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                      builder: (ctx) {
+                                                        return Padding(
+                                                          padding: EdgeInsets.only(
+                                                            bottom:
+                                                                MediaQuery.of(
+                                                                      ctx,
+                                                                    )
+                                                                    .viewInsets
+                                                                    .bottom,
+                                                            left: 16,
+                                                            right: 16,
+                                                            top: 16,
+                                                          ),
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                'Cancel item?',
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .BodyL_Bold,
+                                                                  color:
+                                                                      FontColor
+                                                                          .FontPrimary,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 8,
+                                                              ),
+                                                              Text(
+                                                                'Please enter the reason for cancelling this item.',
+                                                                style: customTextStyle(
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .BodyS_Regular,
+                                                                  color:
+                                                                      FontColor
+                                                                          .FontSecondary,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 12,
+                                                              ),
+                                                              TextField(
+                                                                controller:
+                                                                    reasonController,
+                                                                maxLines: 3,
+                                                                autofocus: true,
+                                                                decoration:
+                                                                    const InputDecoration(
+                                                                      labelText:
+                                                                          'Reason',
+                                                                      hintText:
+                                                                          'Why is this item being cancelled?',
+                                                                      border:
+                                                                          OutlineInputBorder(),
+                                                                    ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 12,
+                                                              ),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .end,
+                                                                children: [
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () =>
+                                                                            Navigator.of(
+                                                                              ctx,
+                                                                            ).pop(),
+                                                                    child: const Text(
+                                                                      'Close',
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 8,
+                                                                  ),
+                                                                  ElevatedButton(
+                                                                    style: ElevatedButton.styleFrom(
+                                                                      backgroundColor:
+                                                                          customColors()
+                                                                              .carnationRed,
+                                                                    ),
+                                                                    onPressed: () {
+                                                                      final reason =
+                                                                          reasonController
+                                                                              .text
+                                                                              .trim();
+                                                                      if (reason
+                                                                          .isEmpty) {
+                                                                        showSnackBar(
+                                                                          context:
+                                                                              context,
+                                                                          snackBar: showErrorDialogue(
+                                                                            errorMessage:
+                                                                                'Please enter a reason',
+                                                                          ),
+                                                                        );
+                                                                        return;
+                                                                      }
+
+                                                                      Navigator.of(
+                                                                        ctx,
+                                                                      ).pop();
+
+                                                                      context
+                                                                          .read<
+                                                                            OrderItemDetailsCubit
+                                                                          >()
+                                                                          .updateitemstatus(
+                                                                            'canceled',
+                                                                            '${item.qtyOrdered ?? 0}',
+                                                                            reason,
+                                                                            item.price ??
+                                                                                '0',
+                                                                            widget.data['preparationLabel'],
+                                                                            item.sku ??
+                                                                                '',
+                                                                          );
+                                                                    },
+                                                                    child: const Text(
+                                                                      'Cancel Item',
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Colors.white,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 50,
+                                                              ),
+                                                            ],
+                                                          ),
                                                         );
+                                                      },
+                                                    );
                                                   },
                                                 ),
                                               ),

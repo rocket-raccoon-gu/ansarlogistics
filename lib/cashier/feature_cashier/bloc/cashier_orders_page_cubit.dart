@@ -129,12 +129,9 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
       final token1 = await PreferenceUtils.getDataFromShared("usertoken");
 
       final userId =
-          UserController
-              .userController
-              .profile
-              .empId; // Use empId instead of id
+          UserController.userController.profile.id; // Use empId instead of id
       final response = await serviceLocator.tradingApi.getCashierAssignedOrders(
-        userId: userId,
+        userId: userId.toString(),
         token: token1!,
       );
 
@@ -180,9 +177,9 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
     try {
       final token1 = await PreferenceUtils.getDataFromShared("usertoken");
 
-      final userId = UserController.userController.profile.empId;
+      final userId = UserController.userController.profile.id;
       final response = await serviceLocator.tradingApi.getCashierAssignedOrders(
-        userId: userId,
+        userId: userId.toString(),
         token: token1!,
       );
 
@@ -249,7 +246,7 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
             orderid: orderId,
             orderstatus: status,
             comment: comment,
-            userid: UserController.userController.profile.empId,
+            userid: UserController.userController.profile.id.toString(),
             latitude: "0",
             longitude: "0",
             token1: token!,
@@ -332,9 +329,9 @@ class CashierOrdersPageCubit extends Cubit<CashierOrdersPageState> {
     try {
       final token1 = await PreferenceUtils.getDataFromShared("usertoken");
 
-      final userId = UserController.userController.profile.empId;
+      final userId = UserController.userController.profile.id;
       final response = await serviceLocator.tradingApi.getCashierAssignedOrders(
-        userId: userId,
+        userId: userId.toString(),
         token: token1!,
       );
 

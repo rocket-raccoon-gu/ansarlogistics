@@ -124,7 +124,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   final TextEditingController _grandTotalController = TextEditingController();
   double? _grandTotalOverride; // if null, use base computed value
 
-  // Dispatch method selected by cashier: 'normal' | 'driver' | 'rider'
+  // Dispatch method selected by cashier: 'normal' | 'rafeeq' | 'godo' | 'shipbee'
   String? dispatchMethod;
 
   // Sadad QA payment lookup state
@@ -1765,6 +1765,10 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     final priceChangedGroups = _groupByCategory(priceChangedItems);
     final noPriceChangeGroups = _groupByCategory(noPriceChangeItems);
 
+    final showTransferColumn = filtered.any(
+      (item) => (item.transfernumber ?? '').toString().trim().isNotEmpty,
+    );
+
     Widget _tableCell(
       String text, {
       TextStyle? style,
@@ -1795,6 +1799,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
               _tableCell('#', alignment: Alignment.center),
               _tableCell('Product'),
               _tableCell('Branch'),
+              if (showTransferColumn) _tableCell('Transfer Number/Date'),
               _tableCell('Web.Price', alignment: Alignment.centerRight),
               _tableCell('Price', alignment: Alignment.centerRight),
               _tableCell('Picker Price', alignment: Alignment.centerRight),
@@ -1906,6 +1911,17 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        Text(
+                          '(${getStatus(item.itemStatus) ?? '-'})',
+                          style: subtitleStyle().copyWith(
+                            fontSize: 14,
+                            color:
+                                getStatusColor(item.itemStatus) ??
+                                customColors().fontTertiary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ],
                   ),
@@ -1914,6 +1930,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
             ),
           ),
           _tableCell(item.branchName ?? ''),
+          if (showTransferColumn) _tableCell('${item.transfernumber ?? '-'}'),
           _tableCell(
             webPrice.toStringAsFixed(2),
             alignment: Alignment.centerRight,
@@ -1979,18 +1996,33 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           Table(
             border: TableBorder.all(color: colors.backgroundTertiary),
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            columnWidths: const {
-              0: FixedColumnWidth(40),
-              1: FixedColumnWidth(30),
-              2: FixedColumnWidth(290),
-              3: FixedColumnWidth(140),
-              4: FixedColumnWidth(130),
-              5: FixedColumnWidth(140),
-              6: FixedColumnWidth(110),
-              7: FixedColumnWidth(100),
-              8: FixedColumnWidth(100),
-              9: FixedColumnWidth(120),
-            },
+            columnWidths:
+                showTransferColumn
+                    ? const {
+                      0: FixedColumnWidth(40),
+                      1: FixedColumnWidth(30),
+                      2: FixedColumnWidth(290),
+                      3: FixedColumnWidth(140),
+                      4: FixedColumnWidth(130),
+                      5: FixedColumnWidth(140),
+                      6: FixedColumnWidth(110),
+                      7: FixedColumnWidth(100),
+                      8: FixedColumnWidth(100),
+                      9: FixedColumnWidth(120),
+                      10: FixedColumnWidth(120),
+                    }
+                    : const {
+                      0: FixedColumnWidth(40),
+                      1: FixedColumnWidth(30),
+                      2: FixedColumnWidth(290),
+                      3: FixedColumnWidth(140),
+                      4: FixedColumnWidth(140),
+                      5: FixedColumnWidth(110),
+                      6: FixedColumnWidth(100),
+                      7: FixedColumnWidth(100),
+                      8: FixedColumnWidth(120),
+                      9: FixedColumnWidth(120),
+                    },
             children: [
               _buildHeaderRow(),
               ...List.generate(
@@ -2103,7 +2135,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Please select dispatch type (Normal / Driver / Rider)',
+            'Please select dispatch type (Normal / Rafeeq / GODO / Shipbee)',
           ),
         ),
       );
@@ -2269,7 +2301,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         paymentMethod: paymentMethodnew ?? order.paymentMethod,
         token1: token!,
         clubvalue: _isClubEnabled ? 1 : 0,
-        tripid: order.tracker_id ?? "",
+        tripid: order.increment_id ?? "",
         discountType: _selectedDiscountType,
         discountAmount:
             _discountAmountController.text.trim().isNotEmpty
@@ -2316,7 +2348,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Please select dispatch type (Normal / Driver / Rider)',
+            'Please select dispatch type (Normal / Rafeeq / GODO / Shipbee)',
           ),
         ),
       );
@@ -2540,6 +2572,12 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           appBar: AppBar(
             elevation: 0,
             backgroundColor: colors.backgroundPrimary,
+            toolbarHeight:
+                (order.orderStatus == 'end_picking' ||
+                        order.orderStatus == "assigned_cashier" ||
+                        order.orderStatus == "start_punching")
+                    ? 120
+                    : kToolbarHeight,
             title: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Column(
@@ -2598,9 +2636,8 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                         ),
 
                         if (order.combinedSubgroupIdentifiers
-                                .where((id) => id != order.subgroupIdentifier)
-                                .isNotEmpty &&
-                            order.driverType == "shipbee")
+                            .where((id) => id != order.subgroupIdentifier)
+                            .isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12.0,
@@ -2610,7 +2647,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                               children: [
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Club Both Orders',
+                                  'Club Orders',
                                   style: customTextStyle(
                                     fontStyle: FontStyle.BodyL_Bold,
                                     color: FontColor.FontPrimary,
@@ -2630,40 +2667,40 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                             ),
                           ),
 
-                        // order.driverType != null &&
-                        //         (order.driverType == 'rider' ||
-                        //             order.driverType == 'rafeeq')
-                        //     ? Padding(
-                        //       padding: const EdgeInsets.only(left: 8.0),
-                        //       child: Container(
-                        //         padding: const EdgeInsets.symmetric(
-                        //           horizontal: 8,
-                        //           vertical: 4,
-                        //         ),
-                        //         decoration: BoxDecoration(
-                        //           color: Colors.purple,
-                        //           borderRadius: BorderRadius.circular(4),
-                        //         ),
-                        //         child: Row(
-                        //           children: [
-                        //             Image.asset(
-                        //               'assets/rafeeq_logo.png',
-                        //               width: 24,
-                        //               height: 24,
-                        //             ),
-                        //             const SizedBox(width: 8),
-                        //             Text(
-                        //               getDriverType(order.driverType!),
-                        //               style: customTextStyle(
-                        //                 fontStyle: FontStyle.BodyL_SemiBold,
-                        //                 color: FontColor.White,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ),
-                        //     )
-                        //     : const SizedBox.shrink(),
+                        order.driverType != null &&
+                                (order.driverType == 'rider' ||
+                                    order.driverType == 'rafeeq')
+                            ? Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.purple,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      'assets/rafeeq_logo.png',
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      getDriverType(order.driverType!),
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyL_SemiBold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                            : const SizedBox.shrink(),
                       ],
 
                       Padding(
@@ -2683,14 +2720,52 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                   order.orderStatus == "assigned_cashier" ||
                   order.orderStatus == "start_punching")
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
                   child: dispatchSelector(
                     value: dispatchMethod,
                     postcode: order.postcode,
                     subgroupId: order.subgroupIdentifier,
                     paymentMethod: order.paymentMethod!,
-                    onChanged:
-                        (value) => setState(() => dispatchMethod = value),
+                    onChanged: (value) async {
+                      if (dispatchMethod == value) return;
+
+                      final label = switch (value) {
+                        'rafeeq' => 'Rafeeq',
+                        'godo' => 'GODO',
+                        'shipbee' => 'Shipbee',
+                        'normal' => 'Normal',
+                        _ => value,
+                      };
+
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (ctx) => AlertDialog(
+                              title: const Text('Confirm Dispatch Type'),
+                              content: Text(
+                                'Do you want to set dispatch type to "$label"?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(false),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: customColors().islandAqua,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Confirm'),
+                                ),
+                              ],
+                            ),
+                      );
+
+                      if (confirmed == true && mounted) {
+                        setState(() => dispatchMethod = value);
+                      }
+                    },
                     type: order.driverType ?? '',
                   ),
                 ),
@@ -3548,76 +3623,6 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                               },
                                               bold: true,
                                             ),
-
-                                        // Editable Grand Total
-                                        // Padding(
-                                        //   padding: const EdgeInsets.symmetric(
-                                        //     vertical: 6,
-                                        //   ),
-                                        //   child: Row(
-                                        //     children: [
-                                        //       Expanded(
-                                        //         child: Text(
-                                        //           'Grand Total',
-                                        //           style: customTextStyle(
-                                        //             fontStyle:
-                                        //                 FontStyle.BodyM_Bold,
-                                        //             color:
-                                        //                 FontColor.FontPrimary,
-                                        //           ).copyWith(
-                                        //             fontSize: 16,
-                                        //             height: 1.3,
-                                        //           ),
-                                        //         ),
-                                        //       ),
-                                        //       const SizedBox(width: 12),
-                                        //       SizedBox(
-                                        //         width: 180,
-                                        //         child: TextField(
-                                        //           controller:
-                                        //               _grandTotalController,
-                                        //           textAlign: TextAlign.right,
-                                        //           keyboardType:
-                                        //               const TextInputType.numberWithOptions(
-                                        //                 decimal: true,
-                                        //               ),
-                                        //           inputFormatters: [
-                                        //             FilteringTextInputFormatter.allow(
-                                        //               RegExp(r'[0-9\\.]'),
-                                        //             ),
-                                        //           ],
-                                        //           style: customTextStyle(
-                                        //             fontStyle:
-                                        //                 FontStyle.BodyL_Bold,
-                                        //             color:
-                                        //                 FontColor.FontPrimary,
-                                        //           ).copyWith(
-                                        //             fontSize: 18,
-                                        //             height: 1.4,
-                                        //           ),
-                                        //           decoration:
-                                        //               const InputDecoration(
-                                        //                 isDense: true,
-                                        //                 prefixText: 'QAR ',
-                                        //                 border:
-                                        //                     OutlineInputBorder(),
-                                        //                 contentPadding:
-                                        //                     EdgeInsets.symmetric(
-                                        //                       horizontal: 8,
-                                        //                       vertical: 8,
-                                        //                     ),
-                                        //               ),
-                                        //           onChanged: (val) {
-                                        //             setState(() {
-                                        //               _grandTotalOverride =
-                                        //                   _toDouble(val);
-                                        //             });
-                                        //           },
-                                        //         ),
-                                        //       ),
-                                        //     ],
-                                        //   ),
-                                        // ),
                                       ],
                                     ),
                                   ),
