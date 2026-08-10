@@ -1353,6 +1353,42 @@ extension PDGeneralApi on PickerDriverApi {
     );
   }
 
+  Future<http.Response> getShipbeeDriversCount({required String token}) async {
+    final url = Uri.parse(
+      'https://api.shipbee.io/api/drivers/branch-driver-count',
+    );
+    final Map<String, String> headers = {
+      'Content-Type': ContentTypes.applicationJson,
+      'x-api-key': 'kilg7dxv7rdxqes7ejp5caojags2rp',
+    };
+
+    // Body matches Shipbee Postman collection: list of branch objects
+    final List<Map<String, String>> body = [
+      {
+        "name": "Ansar Gallery Rayyan",
+        "zone": "53",
+        "coordinates": "25.30198407008534, 51.420574040760144",
+      },
+      {
+        "name": "Ansar Gallery Barwa",
+        "zone": "56",
+        "coordinates": "25.21804841522213, 51.50144838123862",
+      },
+    ];
+
+    log(url.toString());
+    log(body.toString());
+    serviceSend("get Shipbee Drivers Count...!");
+
+    return _handleRequest(
+      onRequest:
+          () => _client.post(url, headers: headers, body: jsonEncode(body)),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
   Future<String> getSectionData(
     String user,
     int catid,

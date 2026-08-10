@@ -127,6 +127,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   // Dispatch method selected by cashier: 'normal' | 'rafeeq' | 'godo' | 'shipbee'
   String? dispatchMethod;
 
+  // Shipbee available drivers count for current branch
+  bool _shipbeeDriversLoading = false;
+  int? _shipbeeDriversWithin5km;
+  int? _shipbeeDriversWithin10km;
+
   // Sadad QA payment lookup state
   bool _sadadLoading = false;
   String? _sadadError;
@@ -548,6 +553,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     _loadExistingPosBillIfAny();
     _maybeFetchSadad();
     _maybeTranslateNote();
+    _fetchShipbeeDriversCount();
 
     // _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
     _grandTotalOverride = null;
@@ -990,50 +996,6 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     });
 
     try {
-      // final file = await _compressImageIfNeeded(_pickedImage!);
-      // if (_cancelRequested) {
-      //   throw FirebaseException(plugin: 'firebase_storage', code: 'canceled');
-      // }
-      // final ts = DateTime.now().millisecondsSinceEpoch;
-      // final ref = FirebaseStorage.instance.ref().child(
-      //   'pos_bills/${order.subgroupIdentifier}/bill_${order.subgroupIdentifier}.jpg',
-      // );
-
-      // final uploadTask = ref.putFile(
-      //   file,
-      //   SettableMetadata(contentType: 'image/jpeg'),
-      // );
-      // _currentUploadTask = uploadTask;
-
-      // // Start countdown timer; auto-cancel when time is up
-      // _uploadTimer?.cancel();
-      // _uploadTimer = Timer.periodic(const Duration(seconds: 1), (t) async {
-      //   if (!mounted) return;
-      //   setState(
-      //     () =>
-      //         _secondsLeft = (_secondsLeft - 1).clamp(0, _uploadTimeoutSeconds),
-      //   );
-      //   if (_secondsLeft <= 0) {
-      //     await _currentUploadTask?.cancel();
-      //     t.cancel();
-      //   }
-      // });
-
-      // uploadTask.snapshotEvents.listen((snapshot) {
-      //   if (snapshot.totalBytes > 0) {
-      //     final p = snapshot.bytesTransferred / snapshot.totalBytes;
-      //     if (mounted) {
-      //       setState(() => _uploadProgress = p);
-      //     }
-      //   }
-      // });
-
-      // // Enforce a hard timeout on the future as well
-      // final taskSnapshot = await uploadTask.timeout(
-      //   Duration(seconds: _uploadTimeoutSeconds + 5),
-      // );
-      // final url = await taskSnapshot.ref.getDownloadURL();
-
       final file =
           isPdf ? File(filePath) : await _compressImageIfNeeded(File(filePath));
 
@@ -1232,6 +1194,117 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         }
       }
     } catch (_) {}
+  }
+
+  /// Maps cashier/order branch codes to Shipbee zone ids used by the API.
+  String? _shipbeeZoneForBranchCode(String? branchCode) {
+    final code = (branchCode ?? '').trim().toUpperCase();
+    switch (code) {
+      case 'Q008': // Al Rayyan
+        return '53';
+      case 'Q013': // Barwa
+      case 'Q019':
+        return '56';
+      default:
+        return null;
+    }
+  }
+
+  Future<void> _fetchShipbeeDriversCount() async {
+    if (!mounted) return;
+    setState(() => _shipbeeDriversLoading = true);
+
+    try {
+      final token = await PreferenceUtils.getDataFromShared('usertoken');
+      final response = await context.gTradingApiGateway.getShipbeeDriversCount(
+        token: token ?? '',
+      );
+
+      if (!mounted) return;
+
+      if (response is! http.Response || response.statusCode != 200) {
+        setState(() {
+          _shipbeeDriversLoading = false;
+          _shipbeeDriversWithin5km = null;
+          _shipbeeDriversWithin10km = null;
+        });
+        return;
+      }
+
+      final decoded = jsonDecode(response.body);
+      final List<dynamic> data =
+          decoded is Map<String, dynamic>
+              ? (decoded['data'] as List<dynamic>? ?? const [])
+              : (decoded is List ? decoded : const []);
+
+      final branchCode =
+          (order.branchCode?.toString().trim().isNotEmpty == true)
+              ? order.branchCode!.toString().trim()
+              : (UserController().profile.branchCode ?? '').trim();
+      final targetZone = _shipbeeZoneForBranchCode(branchCode);
+
+      Map<String, dynamic>? matched;
+      if (targetZone != null) {
+        for (final item in data) {
+          if (item is Map<String, dynamic> &&
+              item['zone']?.toString() == targetZone) {
+            matched = item;
+            break;
+          }
+        }
+      }
+
+      // Fallback: match by branch name hint if zone mapping missed
+      if (matched == null) {
+        final hint = branchCode.toLowerCase();
+        for (final item in data) {
+          if (item is! Map<String, dynamic>) continue;
+          final name = (item['name'] ?? '').toString().toLowerCase();
+          if ((hint.contains('008') || hint.contains('rayyan')) &&
+              name.contains('rayyan')) {
+            matched = item;
+            break;
+          }
+          if ((hint.contains('013') ||
+                  hint.contains('019') ||
+                  hint.contains('barwa')) &&
+              name.contains('barwa')) {
+            matched = item;
+            break;
+          }
+        }
+      }
+
+      // Last resort: first branch in response
+      matched ??=
+          data.isNotEmpty && data.first is Map<String, dynamic>
+              ? data.first as Map<String, dynamic>
+              : null;
+
+      setState(() {
+        _shipbeeDriversLoading = false;
+        _shipbeeDriversWithin5km = _toIntOrNull(matched?['driversWithin5km']);
+        _shipbeeDriversWithin10km = _toIntOrNull(
+          matched?['driversWithin10km'],
+        );
+      });
+    } catch (e) {
+      log('Shipbee drivers count fetch failed: $e');
+      if (mounted) {
+        setState(() {
+          _shipbeeDriversLoading = false;
+          _shipbeeDriversWithin5km = null;
+          _shipbeeDriversWithin10km = null;
+        });
+      }
+    }
+  }
+
+  int? _toIntOrNull(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value.toString().trim());
   }
 
   // Call Sadad QA APIs: login to retrieve token, then query transactions by website_ref_no
@@ -2576,7 +2649,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                 (order.orderStatus == 'end_picking' ||
                         order.orderStatus == "assigned_cashier" ||
                         order.orderStatus == "start_punching")
-                    ? 120
+                    ? 140
                     : kToolbarHeight,
             title: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -2726,6 +2799,9 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                     postcode: order.postcode,
                     subgroupId: order.subgroupIdentifier,
                     paymentMethod: order.paymentMethod!,
+                    shipbeeDriversWithin5km: _shipbeeDriversWithin5km,
+                    shipbeeDriversWithin10km: _shipbeeDriversWithin10km,
+                    shipbeeDriversLoading: _shipbeeDriversLoading,
                     onChanged: (value) async {
                       if (dispatchMethod == value) return;
 

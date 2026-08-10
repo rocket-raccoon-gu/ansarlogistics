@@ -81,6 +81,9 @@ Widget dispatchSelector({
   required String subgroupId,
   required String paymentMethod,
   required String type,
+  int? shipbeeDriversWithin5km,
+  int? shipbeeDriversWithin10km,
+  bool shipbeeDriversLoading = false,
 }) {
   final options = <Map<String, String>>[];
 
@@ -118,6 +121,9 @@ Widget dispatchSelector({
     );
   }
 
+  final hasShipbeeCounts =
+      shipbeeDriversWithin5km != null || shipbeeDriversWithin10km != null;
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.end,
@@ -135,10 +141,13 @@ Widget dispatchSelector({
                 final key = o['key']!;
                 final selected = value == key;
                 final color = brandColor(key);
+                final isShipbee = key == 'shipbee';
+                final showCounts =
+                    isShipbee && (hasShipbeeCounts || shipbeeDriversLoading);
 
                 return SizedBox(
                   width: options.length == 1 ? 140 : 146,
-                  height: 40,
+                  height: showCounts ? 58 : 40,
                   child: Material(
                     color: selected ? color : color.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(10),
@@ -153,32 +162,67 @@ Widget dispatchSelector({
                             width: selected ? 2 : 1,
                           ),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            leading(key, selected: selected),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                o['label']!,
-                                overflow: TextOverflow.ellipsis,
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyM_SemiBold,
-                                  color:
-                                      selected
-                                          ? FontColor.White
-                                          : FontColor.FontPrimary,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                leading(key, selected: selected),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    o['label']!,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: customTextStyle(
+                                      fontStyle: FontStyle.BodyM_SemiBold,
+                                      color:
+                                          selected
+                                              ? FontColor.White
+                                              : FontColor.FontPrimary,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                if (selected) ...[
+                                  const SizedBox(width: 4),
+                                  const Icon(
+                                    Icons.check_circle,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ],
                             ),
-                            if (selected) ...[
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.check_circle,
-                                size: 14,
-                                color: Colors.white,
-                              ),
+                            if (showCounts) ...[
+                              const SizedBox(height: 2),
+                              if (shipbeeDriversLoading)
+                                SizedBox(
+                                  height: 10,
+                                  width: 10,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.5,
+                                    color:
+                                        selected
+                                            ? Colors.white
+                                            : brandColor('shipbee'),
+                                  ),
+                                )
+                              else
+                                Text(
+                                  '5km: ${shipbeeDriversWithin5km ?? 0}  ·  10km: ${shipbeeDriversWithin10km ?? 0}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        selected
+                                            ? Colors.white.withOpacity(0.95)
+                                            : Colors.black87,
+                                  ),
+                                ),
                             ],
                           ],
                         ),
