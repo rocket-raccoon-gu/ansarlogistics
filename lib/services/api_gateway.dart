@@ -1079,4 +1079,18 @@ class PDApiGateway implements AuthenticationService {
       return "Retry";
     }
   }
+
+  Future getShipbeeDriversCount({required String token}) async {
+    try {
+      final response = await pickerDriverApi
+          .getShipbeeDriversCount(token: token)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("get Shipbee Drivers Count Api Error");
+      return "Retry";
+    }
+  }
 }
