@@ -147,7 +147,7 @@ Widget dispatchSelector({
 
                 return SizedBox(
                   width: options.length == 1 ? 140 : 146,
-                  height: showCounts ? 58 : 40,
+                  height: showCounts ? 68 : 40,
                   child: Material(
                     color: selected ? color : color.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(10),
@@ -163,7 +163,7 @@ Widget dispatchSelector({
                           ),
                         ),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
+                          horizontal: 8,
                           vertical: 4,
                         ),
                         child: Column(
@@ -199,28 +199,42 @@ Widget dispatchSelector({
                             ),
                             if (showCounts) ...[
                               const SizedBox(height: 2),
+                              Text(
+                                'Available Drivers',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      selected
+                                          ? Colors.white.withOpacity(0.85)
+                                          : Colors.black54,
+                                ),
+                              ),
                               if (shipbeeDriversLoading)
-                                SizedBox(
-                                  height: 10,
-                                  width: 10,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 1.5,
-                                    color:
-                                        selected
-                                            ? Colors.white
-                                            : brandColor('shipbee'),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: SizedBox(
+                                    height: 10,
+                                    width: 10,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 1.5,
+                                      color:
+                                          selected
+                                              ? Colors.white
+                                              : brandColor('shipbee'),
+                                    ),
                                   ),
                                 )
                               else
                                 Text(
                                   '5km: ${shipbeeDriversWithin5km ?? 0}  ·  10km: ${shipbeeDriversWithin10km ?? 0}',
                                   style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
                                     color:
                                         selected
-                                            ? Colors.white.withOpacity(0.95)
-                                            : Colors.black87,
+                                            ? Colors.white
+                                            : Colors.red.shade700,
                                   ),
                                 ),
                             ],

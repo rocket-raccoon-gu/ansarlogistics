@@ -1284,9 +1284,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       setState(() {
         _shipbeeDriversLoading = false;
         _shipbeeDriversWithin5km = _toIntOrNull(matched?['driversWithin5km']);
-        _shipbeeDriversWithin10km = _toIntOrNull(
-          matched?['driversWithin10km'],
-        );
+        _shipbeeDriversWithin10km = _toIntOrNull(matched?['driversWithin10km']);
       });
     } catch (e) {
       log('Shipbee drivers count fetch failed: $e');
@@ -2649,7 +2647,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                 (order.orderStatus == 'end_picking' ||
                         order.orderStatus == "assigned_cashier" ||
                         order.orderStatus == "start_punching")
-                    ? 140
+                    ? 150
                     : kToolbarHeight,
             title: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
