@@ -45,12 +45,14 @@ class StatusHistory {
   String status;
   DateTime? createdAt;
   List<String>? orderIds;
+  List<ReportOrderDetail> orders;
 
   StatusHistory({
     required this.orderCount,
     required this.status,
     this.createdAt,
     this.orderIds,
+    this.orders = const [],
   });
 
   StatusHistory copyWith({
@@ -58,31 +60,80 @@ class StatusHistory {
     String? status,
     DateTime? createdAt,
     List<String>? orderIds,
+    List<ReportOrderDetail>? orders,
   }) => StatusHistory(
     orderCount: orderCount ?? this.orderCount,
     status: status ?? this.status,
     createdAt: createdAt ?? this.createdAt,
     orderIds: orderIds ?? this.orderIds,
+    orders: orders ?? this.orders,
   );
 
-  factory StatusHistory.fromJson(Map<String, dynamic> json) => StatusHistory(
-    orderCount: json["order_count"],
-    status: json["status"],
-    createdAt:
-        json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
-    orderIds:
-        json["order_ids"] == null
+  factory StatusHistory.fromJson(Map<String, dynamic> json) {
+    final rawOrderIds = json["order_ids"];
+    final List<String>? parsedOrderIds =
+        rawOrderIds == null
             ? null
-            : (json["order_ids"] as String)
+            : rawOrderIds is List
+            ? rawOrderIds.map((e) => e.toString().trim()).toList()
+            : rawOrderIds
+                .toString()
                 .split(',')
                 .map((id) => id.trim())
-                .toList(),
-  );
+                .where((id) => id.isNotEmpty)
+                .toList();
+
+    final rawOrders = json["orders"];
+    final List<ReportOrderDetail> parsedOrders =
+        rawOrders is List
+            ? rawOrders
+                .whereType<Map<String, dynamic>>()
+                .map(ReportOrderDetail.fromJson)
+                .toList()
+            : const [];
+
+    return StatusHistory(
+      orderCount: json["order_count"],
+      status: json["status"]?.toString() ?? "",
+      createdAt:
+          json["created_at"] == null
+              ? null
+              : DateTime.tryParse(json["created_at"].toString()),
+      orderIds: parsedOrderIds,
+      orders: parsedOrders,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "order_count": orderCount,
     "status": status,
     "created_at": createdAt?.toIso8601String(),
     "order_ids": orderIds?.join(','),
+    "orders": orders.map((x) => x.toJson()).toList(),
+  };
+}
+
+class ReportOrderDetail {
+  final String subgroupIdentifier;
+  final String paymentMethod;
+  final String posAmount;
+
+  ReportOrderDetail({
+    required this.subgroupIdentifier,
+    required this.paymentMethod,
+    required this.posAmount,
+  });
+
+  factory ReportOrderDetail.fromJson(Map<String, dynamic> json) =>
+      ReportOrderDetail(
+        subgroupIdentifier: json["subgroup_identifier"]?.toString() ?? "",
+        paymentMethod: json["payment_method"]?.toString() ?? "",
+        posAmount: json["pos_amount"]?.toString() ?? "",
+      );
+
+  Map<String, dynamic> toJson() => {
+    "subgroup_identifier": subgroupIdentifier,
+    "payment_method": paymentMethod,
+    "pos_amount": posAmount,
   };
 }

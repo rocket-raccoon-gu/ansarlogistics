@@ -1,7 +1,6 @@
-import 'dart:math';
-
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_reports/bloc/driver_reports_cubit.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_reports/bloc/driver_reports_state.dart';
+import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_reports/driver_delivered_orders_page.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_reports/ui/count_container_widget.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/animation_switch.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
@@ -9,11 +8,10 @@ import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import 'package:intl/intl.dart';
+import 'package:picker_driver_api/responses/order_report_response.dart';
 
 class DriverReportsPage extends StatefulWidget {
   const DriverReportsPage({super.key});
@@ -37,6 +35,54 @@ class _DriverReportsPageState extends State<DriverReportsPage> {
   String start = "";
 
   String end = "";
+
+  String _statusCount(List<StatusHistory> list, String status) {
+    for (final entry in list) {
+      if (entry.status == status) {
+        return entry.orderCount?.toString() ?? '0';
+      }
+    }
+    return '0';
+  }
+
+  StatusHistory? _statusEntry(List<StatusHistory> list, String status) {
+    for (final entry in list) {
+      if (entry.status == status) {
+        return entry;
+      }
+    }
+    return null;
+  }
+
+  void _openDeliveredOrders(List<StatusHistory> statuslist) {
+    final delivered = _statusEntry(statuslist, 'complete');
+    final orders = delivered?.orders ?? const <ReportOrderDetail>[];
+    final fallbackIds = delivered?.orderIds ?? const <String>[];
+
+    if (orders.isEmpty && fallbackIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No delivered order details available.')),
+      );
+      return;
+    }
+
+    final cubit = context.read<DriverReportCubit>();
+    final dateLabel =
+        cubit.enddate.isEmpty || cubit.startdate == cubit.enddate
+            ? cubit.startdate
+            : '${cubit.startdate} - ${cubit.enddate}';
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (_) => DriverDeliveredOrdersPage(
+              orders: orders,
+              fallbackOrderIds: fallbackIds,
+              dateRangeLabel: dateLabel,
+            ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -363,34 +409,20 @@ class _DriverReportsPageState extends State<DriverReportsPage> {
                                                   Expanded(
                                                     child: CountContainer(
                                                       title: 'Order Assigned',
-                                                      total:
-                                                          state.statuslist
-                                                              .where(
-                                                                (element) =>
-                                                                    element
-                                                                        .status ==
-                                                                    'assigned_driver',
-                                                              )
-                                                              .first
-                                                              .orderCount
-                                                              .toString(),
+                                                      total: _statusCount(
+                                                        state.statuslist,
+                                                        'assigned_driver',
+                                                      ),
                                                     ),
                                                   ),
                                                   SizedBox(width: 5.0),
                                                   Expanded(
                                                     child: CountContainer(
                                                       title: 'Pending',
-                                                      total:
-                                                          state.statuslist
-                                                              .where(
-                                                                (element) =>
-                                                                    element
-                                                                        .status ==
-                                                                    'on_the_way',
-                                                              )
-                                                              .first
-                                                              .orderCount
-                                                              .toString(),
+                                                      total: _statusCount(
+                                                        state.statuslist,
+                                                        'on_the_way',
+                                                      ),
                                                     ),
                                                   ),
                                                 ],
@@ -406,17 +438,14 @@ class _DriverReportsPageState extends State<DriverReportsPage> {
                                                   Expanded(
                                                     child: CountContainer(
                                                       title: "Delivered",
-                                                      total:
-                                                          state.statuslist
-                                                              .where(
-                                                                (element) =>
-                                                                    element
-                                                                        .status ==
-                                                                    'complete',
-                                                              )
-                                                              .first
-                                                              .orderCount
-                                                              .toString(),
+                                                      total: _statusCount(
+                                                        state.statuslist,
+                                                        'complete',
+                                                      ),
+                                                      onTap:
+                                                          () => _openDeliveredOrders(
+                                                            state.statuslist,
+                                                          ),
                                                     ),
                                                   ),
                                                 ],
