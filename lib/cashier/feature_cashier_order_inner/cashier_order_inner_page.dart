@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:ansarlogistics/Picker/repository_layer/scandit_barcode_scanner_page.dart';
+import 'package:ansarlogistics/main.dart' show scanditAvailable;
 import 'package:ansarlogistics/cashier/feature_cashier/cashier_orders_page.dart';
 import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/constants/texts.dart';
@@ -131,6 +133,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   bool _shipbeeDriversLoading = false;
   int? _shipbeeDriversWithin5km;
   int? _shipbeeDriversWithin10km;
+
+  // Warehouse order transaction barcode scan state
+  bool _warehouseScanLoading = false;
+  String? _warehouseScannedBarcode;
+  String? _warehouseTransactionId;
 
   // Sadad QA payment lookup state
   bool _sadadLoading = false;
@@ -554,6 +561,7 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     _maybeFetchSadad();
     _maybeTranslateNote();
     _fetchShipbeeDriversCount();
+    _initWarehouseTransactionState();
 
     // _grandTotalController.text = _baseGrandTotal().toStringAsFixed(2);
     _grandTotalOverride = null;
@@ -1303,6 +1311,201 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
     if (value is int) return value;
     if (value is num) return value.toInt();
     return int.tryParse(value.toString().trim());
+  }
+
+  bool get _isWarehouseOrder =>
+      order.subgroupIdentifier.trim().toUpperCase().startsWith('WAR');
+
+  String _warehouseTransactionStorageKey() =>
+      'warehouse_txn_${order.subgroupIdentifier}';
+
+  void _initWarehouseTransactionState() {
+    if (!_isWarehouseOrder) return;
+
+    final existingTracker = (order.tracker_id ?? '').trim();
+    if (existingTracker.isNotEmpty) {
+      _warehouseTransactionId = existingTracker;
+    }
+
+    PreferenceUtils.getDataFromShared(_warehouseTransactionStorageKey()).then((
+      saved,
+    ) {
+      if (!mounted || saved == null || saved.trim().isEmpty) return;
+      setState(() {
+        _warehouseTransactionId ??= saved.trim();
+      });
+    });
+  }
+
+  String? _extractTransactionId(Map<String, dynamic> json) {
+    final direct =
+        json['transaction_id'] ??
+        json['transactionId'] ??
+        json['tracker_id'] ??
+        json['trackerId'] ??
+        json['trip_id'] ??
+        json['tripId'];
+
+    if (direct != null && direct.toString().trim().isNotEmpty) {
+      return direct.toString().trim();
+    }
+
+    final data = json['data'];
+    if (data is Map<String, dynamic>) {
+      return _extractTransactionId(data);
+    }
+
+    return null;
+  }
+
+  Future<void> _scanWarehouseTransactionBarcode() async {
+    if (!_isWarehouseOrder) return;
+
+    if (!scanditAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Barcode scanning is not available on this device.'),
+        ),
+      );
+      return;
+    }
+
+    final scanned = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const ScanditBarcodeScannerPage()),
+    );
+
+    final barcode = scanned?.trim() ?? '';
+    if (barcode.isEmpty) {
+      showSnackBar(
+        context: context,
+        snackBar: SnackBar(content: Text('Barcode scan failed')),
+      );
+      return;
+    } else {
+      setState(() {
+        _warehouseScannedBarcode = barcode;
+      });
+      showSnackBar(
+        context: context,
+        snackBar: SnackBar(content: Text('Barcode scanned successfully')),
+      );
+    }
+  }
+
+  Widget _warehouseTransactionScanCard() {
+    if (!_isWarehouseOrder) return const SizedBox.shrink();
+
+    final colors = customColors();
+    final hasTransaction =
+        (_warehouseTransactionId ?? order.tracker_id ?? '').trim().isNotEmpty;
+
+    return Card(
+      color: colors.backgroundSecondary,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Warehouse Transaction',
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_Bold,
+                color: FontColor.FontPrimary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Scan the warehouse barcode to fetch and save the transaction ID before Submit To DO or Ready to Dispatch.',
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyS_Regular,
+                color: FontColor.FontSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.islandAqua,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed:
+                    _warehouseScanLoading
+                        ? null
+                        : _scanWarehouseTransactionBarcode,
+                icon:
+                    _warehouseScanLoading
+                        ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                        : const Icon(Icons.qr_code_scanner),
+                label: Text(
+                  hasTransaction
+                      ? 'Rescan Transaction Barcode'
+                      : 'Scan Transaction Barcode',
+                ),
+              ),
+            ),
+            if ((_warehouseScannedBarcode ?? '').isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Scanned Barcode: ${_warehouseScannedBarcode!}',
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyS_Regular,
+                  color: FontColor.FontSecondary,
+                ),
+              ),
+            ],
+            if (hasTransaction) ...[
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green.withOpacity(0.35)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Transaction ID: ${(_warehouseTransactionId ?? order.tracker_id ?? '').trim()}',
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_SemiBold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _warehouseTripId() {
+    final txn = (_warehouseTransactionId ?? order.tracker_id ?? '').trim();
+    return txn;
   }
 
   // Call Sadad QA APIs: login to retrieve token, then query transactions by website_ref_no
@@ -2213,6 +2416,16 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
       return;
     }
 
+    if (_isWarehouseOrder && _warehouseScannedBarcode == null) {
+      showSnackBar(
+        context: context,
+        snackBar: SnackBar(
+          content: Text('Please scan a warehouse transaction barcode'),
+        ),
+      );
+      return;
+    }
+
     log(dispatchMethod.toString());
     // If POS bill missing, offer Upload Now / Upload Later
     if (_posBillUrl == null && !forceLater) {
@@ -2372,12 +2585,14 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         paymentMethod: paymentMethodnew ?? order.paymentMethod,
         token1: token!,
         clubvalue: _isClubEnabled ? 1 : 0,
-        tripid: order.increment_id ?? "",
+        tripid:
+            _isWarehouseOrder ? _warehouseTripId() : (order.increment_id ?? ""),
         discountType: _selectedDiscountType,
         discountAmount:
             _discountAmountController.text.trim().isNotEmpty
                 ? _discountAmountController.text.trim()
                 : null,
+        warehouseTransactionId: _warehouseScannedBarcode,
       );
 
       if (mounted) {
@@ -2412,8 +2627,6 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
   }
 
   Future<void> _submitWarOrder() async {
-    // TODO: Implement WAR order action
-
     // Require selection of dispatch type before proceeding
     if (dispatchMethod == null || dispatchMethod!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2421,6 +2634,16 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
           content: Text(
             'Please select dispatch type (Normal / Rafeeq / GODO / Shipbee)',
           ),
+        ),
+      );
+      return;
+    }
+
+    if (_isWarehouseOrder && _warehouseScannedBarcode == null) {
+      showSnackBar(
+        context: context,
+        snackBar: SnackBar(
+          content: Text('Please scan a warehouse transaction barcode'),
         ),
       );
       return;
@@ -2534,12 +2757,13 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
         paymentMethod: paymentMethodnew ?? order.paymentMethod,
         token1: token!,
         clubvalue: _isClubEnabled ? 1 : 0,
-        tripid: order.tracker_id ?? "",
+        tripid: _warehouseTripId(),
         discountType: _selectedDiscountType,
         discountAmount:
             _discountAmountController.text.trim().isNotEmpty
                 ? _discountAmountController.text.trim()
                 : null,
+        warehouseTransactionId: _warehouseScannedBarcode,
       );
 
       if (mounted) {
@@ -3087,6 +3311,11 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                   ),
                                 ),
 
+                                if (_isWarehouseOrder) ...[
+                                  const SizedBox(height: 12),
+                                  _warehouseTransactionScanCard(),
+                                ],
+
                                 order.cashierName != null &&
                                         order.orderStatus == "start_punching"
                                     ? Padding(
@@ -3103,47 +3332,6 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                     )
                                     : const SizedBox(),
 
-                                if ((order.deliveryNote ?? '')
-                                    .trim()
-                                    .isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12.0,
-                                      vertical: 8.0,
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: customColors().pTokenBackground,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                        horizontal: 16,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.info_outline,
-                                            size: 18,
-                                            color: Colors.red,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              'Delivery note: ${displayNote.isNotEmpty ? displayNote : 'N/A'}',
-                                              style: customTextStyle(
-                                                fontStyle: FontStyle.BodyL_Bold,
-                                                color: FontColor.Danger,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
                                 const SizedBox(height: 8),
 
                                 // Customer Information
@@ -3173,6 +3361,81 @@ class _CashierOrderInnerPageState extends State<CashierOrderInnerPage> {
                                             'Phone',
                                             (order.telephone).toString(),
                                           ),
+                                          if (displayNote.isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 4,
+                                                bottom: 4,
+                                              ),
+                                              child: Container(
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      customColors()
+                                                          .pTokenBackground,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                    color: customColors()
+                                                        .carnationRed
+                                                        .withOpacity(0.25),
+                                                  ),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 12,
+                                                    ),
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.info_outline,
+                                                      size: 18,
+                                                      color: Colors.red,
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            'Delivery Note',
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyM_SemiBold,
+                                                              color:
+                                                                  FontColor
+                                                                      .FontPrimary,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 4,
+                                                          ),
+                                                          SelectableText(
+                                                            displayNote,
+                                                            style: customTextStyle(
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .BodyM_Bold,
+                                                              color:
+                                                                  FontColor
+                                                                      .Danger,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          else
+                                            _kvSelectable('Delivery Note', '-'),
                                           _kvSelectable(
                                             'Delivery Date',
                                             deliveryDateText,

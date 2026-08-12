@@ -458,6 +458,7 @@ class PDApiGateway implements AuthenticationService {
     String? tripid,
     String? discountType,
     String? discountAmount,
+    String? warehouseTransactionId,
   }) async {
     try {
       final responce = await pickerDriverApi
@@ -477,6 +478,7 @@ class PDApiGateway implements AuthenticationService {
             tripid: tripid,
             discountType: discountType,
             discountAmount: discountAmount,
+            warehouseTransactionId: warehouseTransactionId,
           )
           .catchError((e, trace) {
             networkStreamController.sink.add(e.toString());

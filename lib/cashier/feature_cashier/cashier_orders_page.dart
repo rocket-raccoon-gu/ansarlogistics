@@ -257,12 +257,47 @@ class OrderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Dismissible(
-        key: Key(order.subgroupIdentifier),
-        direction:
-            order.orderStatus.toLowerCase() == 'start_punching' ||
+    return InkWell(
+      onTap: () {
+        context.gNavigationService.openCashierOrderInnerPage(
+          context,
+          arg: {'order': order},
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Dismissible(
+          key: Key(order.subgroupIdentifier),
+
+          direction:
+              order.orderStatus.toLowerCase() == 'start_punching' ||
+                      order.orderStatus.toLowerCase() == 'start_picking' ||
+                      order.orderStatus.toLowerCase() == 'complete' ||
+                      order.orderStatus.toLowerCase() == 'on_the_way' ||
+                      order.orderStatus.toLowerCase() == 'assigned_picker' ||
+                      order.orderStatus.toLowerCase() == 'assigned_driver' ||
+                      order.orderStatus.toLowerCase() == 'pending' ||
+                      order.orderStatus.toLowerCase() == 'canceled' ||
+                      order.orderStatus.toLowerCase() == 'cancelled' ||
+                      order.orderStatus.toLowerCase() == 'cancel_request' ||
+                      order.orderStatus.toLowerCase() == 'canceled_by_team' ||
+                      order.orderStatus.toLowerCase() == 'note' ||
+                      order.orderStatus.toLowerCase() == 'ready_to_dispatch' ||
+                      order.orderStatus.toLowerCase() ==
+                          'assigned_customer_service' ||
+                      order.orderStatus.toLowerCase() == 'submit_do'
+                  ? DismissDirection.none
+                  : DismissDirection.startToEnd,
+          background: Container(
+            color: Colors.green,
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 20),
+            child: Row(
+              children: [
+                Icon(Icons.play_arrow, color: Colors.white, size: 30),
+                SizedBox(width: 10),
+
+                if (order.orderStatus.toLowerCase() == 'start_punching' ||
                     order.orderStatus.toLowerCase() == 'start_picking' ||
                     order.orderStatus.toLowerCase() == 'complete' ||
                     order.orderStatus.toLowerCase() == 'on_the_way' ||
@@ -277,259 +312,226 @@ class OrderTile extends StatelessWidget {
                     order.orderStatus.toLowerCase() == 'ready_to_dispatch' ||
                     order.orderStatus.toLowerCase() ==
                         'assigned_customer_service' ||
-                    order.orderStatus.toLowerCase() == 'submit_do'
-                ? DismissDirection.none
-                : DismissDirection.startToEnd,
-        background: Container(
-          color: Colors.green,
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Icon(Icons.play_arrow, color: Colors.white, size: 30),
-              SizedBox(width: 10),
-
-              if (order.orderStatus.toLowerCase() == 'start_punching' ||
-                  order.orderStatus.toLowerCase() == 'start_picking' ||
-                  order.orderStatus.toLowerCase() == 'complete' ||
-                  order.orderStatus.toLowerCase() == 'on_the_way' ||
-                  order.orderStatus.toLowerCase() == 'assigned_picker' ||
-                  order.orderStatus.toLowerCase() == 'assigned_driver' ||
-                  order.orderStatus.toLowerCase() == 'pending' ||
-                  order.orderStatus.toLowerCase() == 'canceled' ||
-                  order.orderStatus.toLowerCase() == 'cancelled' ||
-                  order.orderStatus.toLowerCase() == 'cancel_request' ||
-                  order.orderStatus.toLowerCase() == 'canceled_by_team' ||
-                  order.orderStatus.toLowerCase() == 'note' ||
-                  order.orderStatus.toLowerCase() == 'ready_to_dispatch' ||
-                  order.orderStatus.toLowerCase() ==
-                      'assigned_customer_service' ||
-                  order.orderStatus.toLowerCase() == 'submit_do')
-                SizedBox()
-              else
-                Text(
-                  'Swipe to Start Punching',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-            ],
-          ),
-        ),
-        confirmDismiss: (direction) async {
-          if (direction == DismissDirection.startToEnd) {
-            _handleSwipeToStart(context);
-            return false; // Don't actually dismiss, just update status
-          }
-          return false;
-        },
-        child: InkWell(
-          onTap: () {
-            // if (_canNavigateToOrder()) {
-            context.gNavigationService.openCashierOrderInnerPage(
-              context,
-              arg: {'order': order},
-            );
-            // } else {
-            //   // Show message that user needs to swipe first
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     SnackBar(
-            //       content: Text(
-            //         'Please swipe right to start punching before accessing order details',
-            //         style: TextStyle(color: Colors.white),
-            //       ),
-            //       backgroundColor: Colors.orange,
-            //       duration: Duration(seconds: 3),
-            //       action: SnackBarAction(
-            //         label: 'Got it',
-            //         textColor: Colors.white,
-            //         onPressed: () {
-            //           // Check if the context is still valid before using it
-            //           if (context.mounted) {
-            //             ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            //           }
-            //         },
-            //       ),
-            //     ),
-            //   );
-
-            // }
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Order #${order.subgroupIdentifier}',
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Bold,
-                    color: FontColor.FontPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Branch: ${order.branchCode}',
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Bold,
-                    color: FontColor.Success,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Customer: ${order.firstname}',
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Regular,
-                    color: FontColor.FontSecondary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Amount: ${order.orderAmount ?? '0.00'}',
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_SemiBold,
-                    color: FontColor.FontPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Delivery Date: ${getdateformatted(order.deliveryFrom!)}',
-                  style: customTextStyle(
-                    fontStyle: FontStyle.BodyL_Regular,
-                    color: FontColor.FontSecondary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                gettimeformatted(order) != ''
-                    ? Text(
-                      'Time: ${gettimeformatted(order)}',
-                      style: customTextStyle(
-                        fontStyle: FontStyle.BodyL_Regular,
-                        color: FontColor.FontSecondary,
-                      ),
-                    )
-                    : const SizedBox.shrink(),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    getDriverTypeWidget(
-                      order.driverType!,
-                      getDriverType(order.driverType!),
+                    order.orderStatus.toLowerCase() == 'submit_do')
+                  SizedBox()
+                else
+                  Text(
+                    'Swipe to Start Punching',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
-                    if (order.email == "ishaqah21@gmail.com" &&
-                        order.postcode == "50")
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 5.0,
-                          horizontal: 8.0,
+                  ),
+              ],
+            ),
+          ),
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.startToEnd) {
+              _handleSwipeToStart(context);
+              return false; // Don't actually dismiss, just update status
+            }
+            return false;
+          },
+          child: InkWell(
+            onTap: () {
+              // if (_canNavigateToOrder()) {
+              context.gNavigationService.openCashierOrderInnerPage(
+                context,
+                arg: {'order': order},
+              );
+              // } else {
+              //   // Show message that user needs to swipe first
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     SnackBar(
+              //       content: Text(
+              //         'Please swipe right to start punching before accessing order details',
+              //         style: TextStyle(color: Colors.white),
+              //       ),
+              //       backgroundColor: Colors.orange,
+              //       duration: Duration(seconds: 3),
+              //       action: SnackBarAction(
+              //         label: 'Got it',
+              //         textColor: Colors.white,
+              //         onPressed: () {
+              //           // Check if the context is still valid before using it
+              //           if (context.mounted) {
+              //             ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              //           }
+              //         },
+              //       ),
+              //     ),
+              //   );
+
+              // }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Order #${order.subgroupIdentifier}',
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyL_Bold,
+                      color: FontColor.FontPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Branch: ${order.branchCode}',
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyL_Bold,
+                      color: FontColor.Success,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Customer: ${order.firstname}',
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyL_Regular,
+                      color: FontColor.FontSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Amount: ${order.orderAmount ?? '0.00'}',
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyL_SemiBold,
+                      color: FontColor.FontPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Delivery Date: ${getdateformatted(order.deliveryFrom!)}',
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyL_Regular,
+                      color: FontColor.FontSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  gettimeformatted(order) != ''
+                      ? Text(
+                        'Time: ${gettimeformatted(order)}',
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Regular,
+                          color: FontColor.FontSecondary,
                         ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: customColors().accent,
-                          ),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(5.0),
-                          ),
-                        ),
-                        child: Text(
-                          "Thumama Charity Order",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.Purple,
-                          ),
-                        ),
+                      )
+                      : const SizedBox.shrink(),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      getDriverTypeWidget(
+                        order.driverType!,
+                        getDriverType(order.driverType!),
                       ),
-                    if (order.isWhatsappOrder == 1)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Whatsapp Order ',
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyL_Bold,
-                              color: FontColor.SecretGarden,
+                      if (order.email == "ishaqah21@gmail.com" &&
+                          order.postcode == "50")
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 8.0,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: customColors().accent),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5.0),
                             ),
                           ),
-                          Icon(Icons.chat_bubble),
-                        ],
-                      ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: getStatusColor(order.orderStatus),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        getStatus(order.orderStatus),
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyM_SemiBold,
-                          color: FontColor.White,
+                          child: Text(
+                            "Thumama Charity Order",
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.Purple,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    if (order.orderStatus.toLowerCase() !=
-                        'start_punching')
+                      if (order.isWhatsappOrder == 1)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Whatsapp Order ',
+                              style: customTextStyle(
+                                fontStyle: FontStyle.BodyL_Bold,
+                                color: FontColor.SecretGarden,
+                              ),
+                            ),
+                            Icon(Icons.chat_bubble),
+                          ],
+                        ),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.8),
+                          color: getStatusColor(order.orderStatus),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.swipe,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Swipe to start',
-                              style: customTextStyle(
-                                fontStyle: FontStyle.BodyS_SemiBold,
-                                color: FontColor.White,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (order.statusHistory != null &&
-                        DateUtils.isSameDay(
-                          order.statusHistory!.createdAt,
-                          DateTime.now(),
-                        ))
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: customColors().islandAqua,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
                         child: Text(
-                          'Ready to Dispatch',
+                          getStatus(order.orderStatus),
                           style: customTextStyle(
-                            fontStyle: FontStyle.BodyS_Bold,
+                            fontStyle: FontStyle.BodyM_SemiBold,
                             color: FontColor.White,
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ],
+                      if (order.orderStatus.toLowerCase() != 'start_punching')
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.swipe, size: 14, color: Colors.white),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Swipe to start',
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyS_SemiBold,
+                                  color: FontColor.White,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (order.statusHistory != null &&
+                          DateUtils.isSameDay(
+                            order.statusHistory!.createdAt,
+                            DateTime.now(),
+                          ))
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: customColors().islandAqua,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'Ready to Dispatch',
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyS_Bold,
+                              color: FontColor.White,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

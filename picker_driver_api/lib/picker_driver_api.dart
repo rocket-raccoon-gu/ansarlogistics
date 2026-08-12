@@ -621,6 +621,7 @@ extension PDGeneralApi on PickerDriverApi {
     String? tripid,
     String? discountType,
     String? discountAmount,
+    String? warehouseTransactionId,
   }) {
     Uri url = _endpointWithApplicationPath('cashier/orders/status/$orderid');
 
@@ -644,6 +645,7 @@ extension PDGeneralApi on PickerDriverApi {
       "trip_id": tripid,
       "discount_type": discountType,
       "discount_value": discountAmount,
+      "warehouse_transaction_id": warehouseTransactionId,
     };
 
     log(url.toString());
