@@ -546,6 +546,8 @@ extension PDGeneralApi on PickerDriverApi {
     String? dueAmount,
     String? dispatchMethod,
     String? paymentMethod,
+    String? cashAmount,
+    String? cardAmount,
     required String token1,
   }) {
     Uri url = _endpointWithApplicationPath('driver/orders/status/$orderid');
@@ -579,6 +581,21 @@ extension PDGeneralApi on PickerDriverApi {
       "latitude": latitude,
       "longitude": longitude,
     };
+    if (paymentMethod != null && paymentMethod.isNotEmpty) {
+      body["payment_method"] = paymentMethod;
+    }
+    if (grandTotal != null) {
+      body["grand_total"] = grandTotal;
+    }
+    if (dueAmount != null) {
+      body["due_amount"] = dueAmount;
+    }
+    if (cashAmount != null) {
+      body["cash_amount"] = cashAmount;
+    }
+    if (cardAmount != null) {
+      body["card_amount"] = cardAmount;
+    }
 
     // print(url);
 

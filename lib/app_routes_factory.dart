@@ -7,6 +7,7 @@ import 'package:ansarlogistics/Driver/features/feature_delivery_update/delivery_
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_order_routes/order_routes_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_payment_collection/payment_collection_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/item_batch_pickup_root_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_add/item_add_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/order_item_inner_route_builder.dart';
@@ -122,9 +123,15 @@ class AppRoutesFactory extends RoutesFactory {
 
   @override
   Route createDeliveryUpdatePageRoute(Map<String, dynamic> data) {
-    // TODO: implement createDeliveryUpdatePageRoute
     return CustomRoute(
       builder: DeliveryUpdatePageRouteBuilder(_serviceLocator, data),
+    );
+  }
+
+  @override
+  Route createPaymentCollectionPageRoute(Map<String, dynamic> data) {
+    return CustomRoute(
+      builder: PaymentCollectionPageRouteBuilder(_serviceLocator, data),
     );
   }
 

@@ -12,6 +12,7 @@ const _driverDashBoardPageRouteName = '/driverdashboard';
 const _driverOrderInnerPageRouteName = '/driverorderinnerpageroute';
 const _deliveryUpdatePageRouteName = '/deliveryupdatepageroute';
 const _documentUploadPageRouteName = '/documentuplloadpageroute';
+const _paymentCollectionPageRouteName = '/paymentcollectionpageroute';
 const _viewOrderRoutePageRouteName = '/vieworderpageroute';
 const _homeSectionInchargePageRouteName = '/homesectioninchargepageroutename';
 const _newScanBarcodePageRouteName = 'newscanbarcodepageroutename';

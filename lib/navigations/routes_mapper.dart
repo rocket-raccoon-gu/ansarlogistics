@@ -34,6 +34,9 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
       case _deliveryUpdatePageRouteName:
         final arg = settings.arguments as MapArguments;
         return routesFactory.createDeliveryUpdatePageRoute(arg.data);
+      case _paymentCollectionPageRouteName:
+        final arg = settings.arguments as MapArguments;
+        return routesFactory.createPaymentCollectionPageRoute(arg.data);
       case _viewOrderRoutePageRouteName:
         final arg = settings.arguments as MapArguments;
         return routesFactory.createViewOrderRoutePageRoute(arg.data);

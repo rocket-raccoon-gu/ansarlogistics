@@ -496,7 +496,10 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: TranslatedText(
-                        text: "Upload the bill to enable Mark Delivered",
+                        text:
+                            cubit.isWarehouseOrder
+                                ? "Upload the bill to continue to payment"
+                                : "Upload the bill to enable Mark Delivered",
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyM_Regular,
                           color: FontColor.FontTertiary,
@@ -504,13 +507,26 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                       ),
                     ),
                   BasketButton(
-                    text: "Mark Delivered",
+                    text:
+                        cubit.isWarehouseOrder
+                            ? "Collect Payment"
+                            : "Mark Delivered",
                     enabled: enabled,
                     loading: cubit.updatestat,
                     bgcolor: customColors().green600,
                     onpress:
                         enabled
-                            ? () => cubit.updateMainOrderStat("complete")
+                            ? () {
+                              if (cubit.isWarehouseOrder) {
+                                context.gNavigationService
+                                    .openPaymentCollectionPage(
+                                      context,
+                                      arg: {'order': cubit.orderResponseItem},
+                                    );
+                              } else {
+                                cubit.updateMainOrderStat("complete");
+                              }
+                            }
                             : null,
                     textStyle: customTextStyle(
                       fontStyle: FontStyle.BodyL_Bold,

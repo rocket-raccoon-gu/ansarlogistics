@@ -125,6 +125,15 @@ class NavigationService {
     ).pushNamed(_deliveryUpdatePageRouteName, arguments: MapArguments(arg!));
   }
 
+  Future<void> openPaymentCollectionPage(
+    BuildContext context, {
+    Map<String, dynamic>? arg,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(_paymentCollectionPageRouteName, arguments: MapArguments(arg!));
+  }
+
   Future<void> openDocumentUpdatePage(
     BuildContext context, {
     Map<String, dynamic>? arg,

@@ -412,6 +412,8 @@ class PDApiGateway implements AuthenticationService {
     String? dueAmount,
     String? dispatchMethod,
     String? paymentMethod,
+    String? cashAmount,
+    String? cardAmount,
     required String token1,
   }) async {
     try {
@@ -427,6 +429,8 @@ class PDApiGateway implements AuthenticationService {
             dueAmount: dueAmount,
             dispatchMethod: dispatchMethod,
             paymentMethod: paymentMethod,
+            cashAmount: cashAmount,
+            cardAmount: cardAmount,
             token1: token1,
           )
           .catchError((e, trace) {

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:ansarlogistics/Driver/features/feature_delivery_update/bloc/delivery_update_page_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
+import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
@@ -40,6 +41,12 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
 
   String get orderId =>
       orderResponseItem?.order.subgroupIdentifier ?? '';
+
+  bool get isWarehouseOrder {
+    final order = orderResponseItem;
+    if (order == null) return false;
+    return getType(order) == 'WAR';
+  }
 
   Future<void> uploadimage(File billfile) async {
     try {

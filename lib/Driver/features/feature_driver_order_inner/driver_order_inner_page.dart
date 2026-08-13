@@ -147,48 +147,57 @@ class _DriverOrderInnerPageState extends State<DriverOrderInnerPage> {
                     )
                     : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child:
-                          double.parse(
-                                        widget.orderResponseItem.order.total
-                                            .toString(),
-                                      ) >=
-                                      500 ||
-                                  getType(widget.orderResponseItem) == "VPO" ||
-                                  getType(widget.orderResponseItem) == "SUP"
-                              ? BasketButton(
-                                onpress: () {
-                                  context.gNavigationService
-                                      .openDocumentUpdatePage(
-                                        context,
-                                        arg: {
-                                          'order': widget.orderResponseItem,
-                                        },
-                                      );
-                                },
-                                text: "Upload Documents",
-                                bgcolor: customColors().wTokenFontColor,
-                                textStyle: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
-                                  color: FontColor.White,
-                                ),
-                              )
-                              : BasketButton(
-                                onpress: () {
-                                  context.gNavigationService
-                                      .openDeliveryUpdatePage(
-                                        context,
-                                        arg: {
-                                          'order': widget.orderResponseItem,
-                                        },
-                                      );
-                                },
-                                text: "Upload Bill",
-                                bgcolor: customColors().green600,
-                                textStyle: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
-                                  color: FontColor.White,
-                                ),
+                      child: Builder(
+                        builder: (context) {
+                          final type = getType(widget.orderResponseItem);
+                          final total = double.tryParse(
+                                widget.orderResponseItem.order.total.toString(),
+                              ) ??
+                              0;
+                          final needsDocuments =
+                              type == "VPO" ||
+                              type == "SUP" ||
+                              (type != "WAR" && total >= 500);
+
+                          if (needsDocuments) {
+                            return BasketButton(
+                              onpress: () {
+                                context.gNavigationService
+                                    .openDocumentUpdatePage(
+                                      context,
+                                      arg: {
+                                        'order': widget.orderResponseItem,
+                                      },
+                                    );
+                              },
+                              text: "Upload Documents",
+                              bgcolor: customColors().wTokenFontColor,
+                              textStyle: customTextStyle(
+                                fontStyle: FontStyle.BodyL_Bold,
+                                color: FontColor.White,
                               ),
+                            );
+                          }
+
+                          return BasketButton(
+                            onpress: () {
+                              context.gNavigationService
+                                  .openDeliveryUpdatePage(
+                                    context,
+                                    arg: {
+                                      'order': widget.orderResponseItem,
+                                    },
+                                  );
+                            },
+                            text: "Upload Bill",
+                            bgcolor: customColors().green600,
+                            textStyle: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.White,
+                            ),
+                          );
+                        },
+                      ),
                     ),
               ],
             ),
