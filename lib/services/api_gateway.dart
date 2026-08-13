@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:ansarlogistics/services/authentication_service.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
@@ -590,6 +591,25 @@ class PDApiGateway implements AuthenticationService {
       return response;
     } catch (e) {
       serviceSendError("Order Report Request" + e.toString());
+      rethrow;
+    }
+  }
+
+  Future uploadDriverBill({
+    required File bill,
+    required String orderId,
+    required String token,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .uploadDriverBill(bill: bill, orderId: orderId, token: token)
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("Driver Bill Upload Request$e");
       rethrow;
     }
   }

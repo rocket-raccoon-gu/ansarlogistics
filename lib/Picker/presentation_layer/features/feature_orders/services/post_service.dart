@@ -16,6 +16,7 @@ class PostService {
   final ServiceLocator _serviceLocator;
   BuildContext context;
   int FETCH_LIMIT = 6;
+  bool lastHasMore = false;
 
   PostService(this._serviceLocator, this.context);
 
@@ -27,6 +28,7 @@ class PostService {
     String status,
   ) async {
     Map<String, dynamic> map = {};
+    lastHasMore = false;
 
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
@@ -34,7 +36,7 @@ class PostService {
       int userId = UserController.userController.profile.id;
 
       final responce = await _serviceLocator.tradingApi.orderRequestService(
-        pagesize: FETCH_LIMIT,
+        pagesize: postcount,
         currentpage: page,
         token: token,
         status: status,
@@ -47,10 +49,9 @@ class PostService {
         if (map.containsKey("data")) {
           DriverBaseOrderResponse orderResponse =
               DriverBaseOrderResponse.fromJson(map);
-          orderlist = [orderResponse.data];
+          lastHasMore = orderResponse.hasMorePages(postcount);
+          return orderResponse.data;
         } else if (map.containsKey("success") && map["success"] == 0) {
-          // print("ok");
-          // ignore: use_build_context_synchronously
           sessionTimeOutBottomSheet(
             context: context,
             inputWidget: SessionOutBottomSheet(
@@ -75,7 +76,6 @@ class PostService {
     } catch (e) {
       if (map['message'] ==
           "The consumer isn't authorized to access %resources.") {
-        // print(map['message']);
         sessionTimeOutBottomSheet(
           context: context,
           inputWidget: SessionOutBottomSheet(
@@ -96,7 +96,6 @@ class PostService {
 
       return orderlist;
     }
-    // }
   }
 
   // New non-paginated endpoint: /api/picker/ordersnew

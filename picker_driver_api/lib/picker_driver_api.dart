@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:picker_driver_api/requests/update_section_request.dart';
 import 'package:picker_driver_api/responses/base_response.dart';
 import 'package:picker_driver_api/responses/login_response.dart';
@@ -357,15 +358,19 @@ extension PDGeneralApi on PickerDriverApi {
 
     log("${currentpage.toString()}........................");
 
-    if (status == "all") {
-      urlorder = Uri.parse(
-        _endpointWithApplicationPathString('driver/orders/$id'),
-      );
-    } else {
-      urlorder = Uri.parse(
-        _endpointWithApplicationPathString('driver/orders/$id'),
-      );
+    final query = <String, String>{
+      'page': currentpage.toString(),
+      'limit': pagesize.toString(),
+    };
+    if (status != null &&
+        status.toString().trim().isNotEmpty &&
+        status.toString() != 'all') {
+      query['status'] = status.toString();
     }
+
+    urlorder = Uri.parse(
+      _endpointWithApplicationPathString('driver/orders'),
+    ).replace(queryParameters: query);
 
     log("-------------------------------------");
 
@@ -1044,6 +1049,47 @@ extension PDGeneralApi on PickerDriverApi {
     log(DateTime.now().toString() + ".....time ended");
 
     return response;
+  }
+
+  /// POST driver/orders/bill/{orderId}  form-data: bill
+  Future<http.Response> uploadDriverBill({
+    required File bill,
+    required String orderId,
+    required String token,
+  }) async {
+    final url = _endpointWithApplicationPath('driver/orders/bill/$orderId');
+    log('uploadDriverBill $url');
+
+    serviceSend("Driver Bill Upload");
+
+    final bytes = await bill.readAsBytes();
+    log('uploadDriverBill bytes=${bytes.length} path=${bill.path}');
+
+    final rawToken = token.trim();
+    final bearer =
+        rawToken.toLowerCase().startsWith('bearer ')
+            ? rawToken.substring(7).trim()
+            : rawToken;
+
+    final request = http.MultipartRequest('POST', url);
+    request.headers['Authorization'] = 'Bearer $bearer';
+    request.headers['Accept'] = 'application/json';
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'bill',
+        bytes,
+        filename: 'bill.jpg',
+        contentType: MediaType('image', 'jpeg'),
+      ),
+    );
+
+    try {
+      final streamed = await _client.send(request);
+      return http.Response.fromStream(streamed);
+    } catch (e) {
+      serviceSendError("Driver Bill Upload Error");
+      rethrow;
+    }
   }
 
   Future<http.Response> getStatusHistoryData({

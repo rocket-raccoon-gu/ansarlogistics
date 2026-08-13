@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:ansarlogistics/Driver/background_service/background_service.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_orders/bloc/driver_orders_page_cubit.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_orders/driver_orders_page.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/driverTabs/feature_driver_reports/bloc/driver_reports_cubit.dart';
@@ -90,9 +91,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
 
   Future<void> requestPermissions() async {
     try {
-      // Request permissions one by one with proper error handling
-
-      // Location permissions
+      // Location first — required for driver tracking after login
       await handlePermission(Permission.location, context);
       await handlePermission(Permission.locationWhenInUse, context);
       await handlePermission(Permission.locationAlways, context);
@@ -105,10 +104,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
       await handlePermission(Permission.camera, context);
     } catch (e, stackTrace) {
       log('Permission request error: $e', stackTrace: stackTrace);
-      if (kReleaseMode) {
-        // In production, you might want to silently fail or show a user-friendly message
-      } else {
-        // In debug, show the error
+      if (!kReleaseMode && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Permission error: ${e.toString()}')),
         );
@@ -116,9 +112,14 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
     }
   }
 
+  Future<void> _bootstrapDriverLocationTracking() async {
+    await requestPermissions();
+    // Start background service + push first location to API
+    await startDriverLocationTracking();
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     init();
     networkSubscription = NetworkStatusService.networkStatusController.stream
@@ -145,7 +146,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
           pageIndex = event.currIndex;
         });
 
-    requestPermissions();
+    _bootstrapDriverLocationTracking();
   }
 
   @override

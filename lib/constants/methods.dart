@@ -33,10 +33,24 @@ class HexColor extends Color {
   HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
 }
 
+/// Magento CDN URLs must include `/media/catalog/product`.
+/// Some APIs return `https://media.ansargallery.com/catalog/product/...` (missing `/media/`).
+String _withMediaCatalogPath(String url) {
+  if (url.contains('/catalog/product') &&
+      !url.contains('/media/catalog/product')) {
+    return url.replaceFirst('/catalog/product', '/media/catalog/product');
+  }
+  return url;
+}
+
 String resolveImageUrl(String? path) {
   if (path == null || path.isEmpty) return '';
-  final p = path.trim();
-  if (p.startsWith('http://') || p.startsWith('https://')) return p;
+  var p = path.trim();
+  if (p.startsWith('http://') || p.startsWith('https://')) {
+    return _withMediaCatalogPath(p);
+  }
+  // Relative paths may already include /catalog/product/
+  p = p.replaceFirst(RegExp(r'^/?catalog/product'), '');
   // ensure single slash between base and path
   final base = mainimageurl;
   if (p.startsWith('/')) {
@@ -69,8 +83,10 @@ Future<String> resolveImageUrlFromFirebase(String? path) async {
 
   final p = path.trim();
 
-  // If path already absolute, just return it
-  if (p.startsWith('http://') || p.startsWith('https://')) return p;
+  // If path already absolute, still insert missing /media/
+  if (p.startsWith('http://') || p.startsWith('https://')) {
+    return _withMediaCatalogPath(p);
+  }
 
   // Ensure single slash between base and path
   if (p.startsWith('/')) {

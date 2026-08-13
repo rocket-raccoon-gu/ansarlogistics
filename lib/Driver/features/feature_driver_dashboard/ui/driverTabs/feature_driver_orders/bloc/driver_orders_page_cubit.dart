@@ -31,6 +31,10 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
 
   bool isLoadingMore = false;
 
+  bool hasMore = true;
+
+  static const int pageSize = 8;
+
   int currentval = -1;
 
   final PostRepositories postRepositories;
@@ -39,54 +43,68 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
 
   List<DataItem> searchresult = [];
 
+  List<DataItem> allOrders = [];
+
   bool searchvisible = false;
 
-  void loadPosts(int count, String status) {
+  void loadPosts(int count, String status) async {
+    if (isClosed) return;
+    if (state is DriverPageLoadingState) return;
+
+    final currentstate = state;
+    var oldpost = <DataItem>[];
+
+    if (currentstate is DriverPageLoadedState) {
+      oldpost = List<DataItem>.from(currentstate.posts);
+      if (count != 0 && !currentstate.hasMore) return;
+    }
+
+    if (count != 0 && !hasMore) return;
+
+    if (count == 0) {
+      oldpost.clear();
+      allOrders.clear();
+      searchvisible = false;
+      page = 1;
+      hasMore = true;
+    }
+
+    isLoadingMore = count != 0;
+    emit(DriverPageLoadingState(oldpost, isFirstFetch: page == 1));
+
     try {
-      if (state is DriverPageLoadingState) return;
+      final newpost = await postRepositories.fetchposts(page, pageSize, status);
+      if (isClosed) return;
 
-      final currentstate = state;
-
-      var oldpost = <DataItem>[];
-
-      if (currentstate is DriverPageLoadedState) {
-        oldpost = currentstate.posts;
+      final posts = List<DataItem>.from(oldpost);
+      var added = 0;
+      for (final item in newpost) {
+        final exists = posts.any(
+          (existing) =>
+              existing.order.subgroupIdentifier ==
+              item.order.subgroupIdentifier,
+        );
+        if (!exists) {
+          posts.add(item);
+          added++;
+        }
       }
 
-      if (count == 0) {
-        oldpost.clear();
-        UserController.userController.orderitems.clear();
-        page = 1;
-      } else {
-        // UserController.userController.orderitems.addAll(oldpost);
+      page++;
+      hasMore =
+          added > 0 && postRepositories.postService.lastHasMore;
+      if (newpost.isEmpty || newpost.length < pageSize) {
+        hasMore = false;
       }
-
-      emit(
-        DriverPageLoadingState(
-          oldpost == 0 ? [] : oldpost,
-          isFirstFetch: page == 1,
-        ),
-      );
-
-      log(status);
-
-      if (!searchvisible) {
-        postRepositories.fetchposts(page, 6, status).then((newpost) {
-          page++;
-          List<DataItem> posts = (state as DriverPageLoadingState).oldpost;
-
-          posts.addAll(newpost);
-          // }
-
-          var postlist = posts.toSet().toList();
-
-          emit(DriverPageLoadedState(postlist.toSet().toList()));
-        });
-      }
+      allOrders = posts;
+      isLoadingMore = false;
+      emit(DriverPageLoadedState(posts, hasMore: hasMore));
     } catch (e) {
-      print(e);
-
-      // emit(DriverPageLoadedState(UserController.userController.orderitems));
+      log('Driver orders fetch failed: $e');
+      if (isClosed) return;
+      isLoadingMore = false;
+      hasMore = false;
+      emit(DriverPageLoadedState(oldpost, hasMore: false));
     }
   }
 
@@ -94,32 +112,24 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
     searchresult.clear();
     searchorderlist.clear();
 
-    final currentstate = state;
+    final source = allOrders.isNotEmpty ? allOrders : orderslist;
 
-    if (currentstate is DriverPageLoadedState) {
-      searchvisible = true;
-    }
-    if (orderslist.isEmpty) {
-      // orderslist = UserController().orderitems;
-    }
     if (keyword.isNotEmpty) {
-      // UserController().orderitems.forEach((element) {
-      //   if (element.subgroupIdentifier.startsWith(keyword.toString()) ||
-      //       element.subgroupIdentifier.contains(keyword.toString())) {
-      //     searchresult.add(element);
-      //   }
-      // });
+      searchvisible = true;
+      searchresult =
+          source
+              .where(
+                (element) => element.order.subgroupIdentifier
+                    .toUpperCase()
+                    .contains(keyword.toUpperCase()),
+              )
+              .toList();
+      emit(DriverPageLoadedState(searchresult, hasMore: false));
+      return;
     }
 
-    if (searchresult.isNotEmpty) {
-      emit(DriverPageLoadedState(searchresult));
-    } else if (keyword.isNotEmpty && searchresult.isEmpty) {
-      emit(DriverPageLoadedState(searchresult));
-    } else if (keyword.isEmpty) {
-      searchvisible = false;
-
-      emit(DriverPageLoadedState(orderslist));
-    }
+    searchvisible = false;
+    emit(DriverPageLoadedState(source, hasMore: hasMore));
   }
 
   Future<void> requestPermission() async {
@@ -221,10 +231,15 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
           loadPosts(0, '');
         } catch (e) {
           log("Error in location update: $e");
-          // Consider retry logic or fallback behavior here
+          if (!isClosed) {
+            loadPosts(0, '');
+          }
         }
       } else {
         initializeService();
+        if (!isClosed) {
+          loadPosts(0, '');
+        }
       }
     } catch (e) {
       log("Top level error in updateseekorder: $e");

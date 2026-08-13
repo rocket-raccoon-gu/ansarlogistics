@@ -29,10 +29,14 @@ class ListImageWidget extends StatelessWidget {
           final region = snapshot.data![1] as String?;
 
           // Choose which key to use based on region
-          final imageKey = region == 'UAE' ? 'imagepathuae' : 'imagepath';
+          final imageKey = region == 'UAE' ? 'imagepathuae' : 'mediapath';
+
+          final resolvedUrl = resolveImageUrl(imageurl);
+
+          log('$resolvedUrl');
 
           return CachedNetworkImage(
-            imageUrl: '${data[imageKey]}$imageurl',
+            imageUrl: resolvedUrl,
             imageBuilder: (context, imageProvider) {
               return Container(
                 decoration: BoxDecoration(

@@ -16,7 +16,8 @@ class DriverOrderSeekLoadingState extends DriverOrdersPageState {
 
 class DriverPageLoadedState extends DriverOrdersPageState {
   final List<DataItem> posts;
-  DriverPageLoadedState(this.posts);
+  final bool hasMore;
+  DriverPageLoadedState(this.posts, {this.hasMore = false});
 }
 
 class DriverOrderErrorState extends DriverOrdersPageState {

@@ -67,9 +67,13 @@ class _OrderRoutesPageState extends State<OrderRoutesPage> {
                         left: 0,
                         right: 0,
                         child: Container(
-                          height: 50,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                           color: customColors().backgroundPrimary,
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [

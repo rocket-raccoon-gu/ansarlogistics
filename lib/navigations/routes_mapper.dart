@@ -34,12 +34,9 @@ Route<dynamic>? Function(RouteSettings settings) onGenerateAppRoute(
       case _deliveryUpdatePageRouteName:
         final arg = settings.arguments as MapArguments;
         return routesFactory.createDeliveryUpdatePageRoute(arg.data);
-      // case _documentUploadPageRouteName:
-      //   final arg = settings.arguments as MapArguments;
-      //   return routesFactory.createDocumentUploadPageRoute(arg.data);
-      // case _viewOrderRoutePageRouteName:
-      //   final arg = settings.arguments as MapArguments;
-      //   return routesFactory.createViewOrderRoutePageRoute(arg.data);
+      case _viewOrderRoutePageRouteName:
+        final arg = settings.arguments as MapArguments;
+        return routesFactory.createViewOrderRoutePageRoute(arg.data);
       case _homeSectionInchargePageRouteName:
         return routesFactory.createHomeSectionInchargePageRoute();
       case _newScanBarcodePageRouteName:

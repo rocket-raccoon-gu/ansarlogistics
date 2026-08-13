@@ -6,6 +6,7 @@
 import 'package:ansarlogistics/Driver/features/feature_delivery_update/delivery_update_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_order_routes/order_routes_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_batch_picking/item_batch_pickup_root_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_item_add/item_add_page_route_builder.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_order_item_inner/order_item_inner_route_builder.dart';
@@ -133,12 +134,15 @@ class AppRoutesFactory extends RoutesFactory {
   //   return CustomRoute(
   //     builder: DocumentUploadPageRouteBuilder(_serviceLocator, data),
   //   );
-  // }
-  // @override
-  // Route createViewOrderRoutePageRoute(Map<String, dynamic> data) {
-  //   // TODO: implement createViewOrderRoutePageRoute
-  //   return CustomRoute(builder: OrderRoutesRouteBuilder(_serviceLocator, data));
-  // }
+  //   }
+
+  @override
+  Route createViewOrderRoutePageRoute(Map<String, dynamic> data) {
+    return CustomRoute(
+      builder: OrderRoutesRouteBuilder(_serviceLocator, data),
+    );
+  }
+
   @override
   Route createHomeSectionPageRoute(Map<String, dynamic> dara) {
     // TODO: implement createHomeSectionPageRoute

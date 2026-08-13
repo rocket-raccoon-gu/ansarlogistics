@@ -57,9 +57,15 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
     super.initState();
 
     scrollController.addListener(() {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) {
-        BlocProvider.of<DriverOrdersPageCubit>(context).loadPosts(
+      if (!scrollController.hasClients) return;
+      final cubit = BlocProvider.of<DriverOrdersPageCubit>(context);
+      if (cubit.searchvisible || cubit.isLoadingMore || !cubit.hasMore) {
+        return;
+      }
+      final position = scrollController.position;
+      if (position.maxScrollExtent <= 0) return;
+      if (position.pixels >= position.maxScrollExtent - 80) {
+        cubit.loadPosts(
           1,
           driverstatuslist[UserController().selectedindex]['status'],
         );
@@ -231,14 +237,14 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
           }
         },
         builder: (context, state) {
-          final items = (state is DriverPageLoadedState) ? state.posts : [];
+          final hasMore =
+              state is DriverPageLoadedState ? state.hasMore : false;
 
           if (state is DriverPageLoadingState) {
             orderitems = state.oldpost;
             isloading = true;
           } else if (state is DriverPageLoadedState) {
             orderitems = state.posts;
-            // UserController.userController.orderitems = orderitems!;
             isloading = false;
           }
 
@@ -258,12 +264,12 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: CustomSearchField(
                   onSearch: (val) {
-                    // BlocProvider.of<DriverOrdersPageCubit>(
-                    //   context,
-                    // ).updatesearchorder(
-                    //   UserController().orderitems,
-                    //   val.toString().toUpperCase(),
-                    // );
+                    BlocProvider.of<DriverOrdersPageCubit>(
+                      context,
+                    ).updatesearchorder(
+                      orderitems ?? [],
+                      val.toString().toUpperCase(),
+                    );
                   },
                   controller: _searchcontroller,
                   searchFormKey: _ordersearchFormKey,
@@ -283,9 +289,19 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                           bgcolor: customColors().green3,
                           text: "View My Route",
                           onpress: () async {
+                            if (orderitems == null || orderitems!.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'No orders available to show on the map.',
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
                             context.gNavigationService.openOrderRoutesPage(
                               context,
-                              arg: {'data': orderitems},
+                              arg: {'data': List.from(orderitems!)},
                             );
                           },
                           textStyle: customTextStyle(
@@ -372,7 +388,15 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                                 horizontal: 12.0,
                               ),
                               child: ListView.builder(
-                                itemCount: items.length,
+                                controller: scrollController,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                itemCount:
+                                    orderitems!.length +
+                                    ((hasMore ||
+                                            (state is DriverPageLoadingState &&
+                                                !state.isFirstFetch))
+                                        ? 1
+                                        : 0),
                                 itemBuilder: (context, index) {
                                   if (index < orderitems!.length) {
                                     return DriverOrderListItem(
@@ -399,16 +423,12 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
                                         ).loadPosts(0, "");
                                       },
                                     );
-                                  } else {
-                                    Timer(const Duration(milliseconds: 30), () {
-                                      scrollController.jumpTo(
-                                        scrollController
-                                            .position
-                                            .maxScrollExtent,
-                                      );
-                                    });
-                                    return const LoadingIndecator();
                                   }
+
+                                  return const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 16),
+                                    child: Center(child: LoadingIndecator()),
+                                  );
                                 },
                               ),
                             ),

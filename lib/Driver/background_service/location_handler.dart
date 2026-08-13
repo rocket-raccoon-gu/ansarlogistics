@@ -6,20 +6,15 @@ class LocationTaskHandler extends TaskHandler {
   @override
   Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
     log("Foreground Service Stopped");
-    return Future.value(true);
   }
 
   @override
   void onRepeatEvent(DateTime timestamp) {
-    // TODO: implement onRepeatEvent
-    log("Forgroud Service Started ${DateTime.now()}");
+    log("Foreground Service tick ${DateTime.now()}");
   }
 
   @override
-  Future<void> onStart(DateTime timestamp, TaskStarter starter) {
-    // TODO: implement onStart
-    log("Forgroud Service Started");
-
-    return Future.value(true);
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
+    log("Foreground Service Started");
   }
 }

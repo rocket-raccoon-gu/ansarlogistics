@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:ansarlogistics/Driver/features/feature_delivery_update/bloc/delivery_update_page_cubit.dart';
 import 'package:ansarlogistics/Driver/features/feature_delivery_update/bloc/delivery_update_page_state.dart';
@@ -25,78 +23,175 @@ class DeliveryUpdatePage extends StatefulWidget {
   State<DeliveryUpdatePage> createState() => _DeliveryUpdatePageState();
 }
 
-class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
-    with SingleTickerProviderStateMixin {
-  List<String> _pictures = [];
-
+class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
   final ImagePicker imagePicker = ImagePicker();
-
   XFile? image;
-
-  File? result;
-
-  bool upload = false;
-
   bool uploading = false;
 
-  bool updatestat = false;
-
-  Future<void>? getImage(String imgsource) async {
-    _pictures.clear();
+  Future<void> getImage(String imgsource) async {
     bool isCameraGranted = await Permission.camera.request().isGranted;
     if (!isCameraGranted) {
       isCameraGranted =
           await Permission.camera.request() == PermissionStatus.granted;
     }
+    if (!isCameraGranted) return;
 
-    if (!isCameraGranted) {
-      // Have not permission to camera
+    try {
+      final picked = await imagePicker.pickImage(
+        source:
+            imgsource == "camera" ? ImageSource.camera : ImageSource.gallery,
+      );
+      if (picked == null) return;
+
+      final filePath = picked.path;
+      final dir = filePath.contains('/') || filePath.contains('\\')
+          ? filePath.substring(
+            0,
+            filePath.replaceAll('\\', '/').lastIndexOf('/'),
+          )
+          : filePath;
+      final outpath =
+          '$dir/bill_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      final compressed = await FlutterImageCompress.compressAndGetFile(
+        filePath,
+        outpath,
+        quality: 70,
+        format: CompressFormat.jpeg,
+      );
+
+      setState(() {
+        image = compressed ?? picked;
+        uploading = false;
+      });
+      if (!mounted) return;
+      context.read<DeliveryUpdatePageCubit>().resetBillUpload();
+    } catch (e) {
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(
+          errorMessage: "Bill Image Not Captured Properly Try Again..!",
+        ),
+      );
+    }
+  }
+
+  void _openSourceSheet() {
+    customShowModalBottomSheet(
+      context: context,
+      inputWidget: Column(
+        children: [
+          _sourceRow("Camera", Icons.camera_alt, () {
+            Navigator.pop(context);
+            getImage("camera");
+          }),
+          _sourceRow("Gallery", Icons.photo_library_outlined, () {
+            Navigator.pop(context);
+            getImage("gallery");
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _sourceRow(String label, IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 18.0),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: customColors().fontPrimary),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TranslatedText(
+              text: label,
+              style: customTextStyle(
+                fontStyle: FontStyle.BodyL_Bold,
+                color: FontColor.FontPrimary,
+              ),
+            ),
+            Icon(icon),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _uploadBill() async {
+    if (image == null) {
+      showSnackBar(
+        context: context,
+        snackBar: showErrorDialogue(errorMessage: "Please Select a Picture"),
+      );
       return;
     }
-    if (isCameraGranted) {
-      try {
-        image = await imagePicker.pickImage(
-          source:
-              imgsource == "camera" ? ImageSource.camera : ImageSource.gallery,
-        );
-        final filePath = image!.path;
-        final lastindex = filePath.lastIndexOf(new RegExp(r'.jp'));
-        final splitted = filePath.substring(0, (lastindex));
-        final outpath = "${splitted}_out${filePath.substring(lastindex)}";
-        image = await FlutterImageCompress.compressAndGetFile(
-          filePath,
-          outpath,
-          quality: 28,
-        );
+    setState(() => uploading = true);
+    await context.read<DeliveryUpdatePageCubit>().uploadimage(File(image!.path));
+  }
 
-        Uint8List imagebytes = await image!.readAsBytes(); //convert to bytes
-        // List<int> imageBytes = result.readAsBytesSync();
-        // print("image bytes path = " + imagebytes.toString());
-        String base64string = base64.encode(imagebytes);
-        // print("base64 path = " + base64string.toString());
-        Uint8List imag = base64.decode(base64string.toString());
-        // print("my path = " + imag.toString());
-        _pictures.add(image!.path.toString());
-        // if (controller != null) {
-        //   image = await controller!.takePicture();
-        //   if (!mounted) return;
-        setState(() {});
-        // }
-      } catch (e) {
-        showSnackBar(
-          context: context,
-          snackBar: showErrorDialogue(
-            errorMessage: "Bill Image Not Captured Properly Try Again..!",
-          ),
-        );
-      }
-    }
+  Widget _stepChip({
+    required String number,
+    required String label,
+    required bool active,
+    required bool done,
+  }) {
+    final color =
+        done
+            ? customColors().secretGarden
+            : active
+            ? customColors().pacificBlue
+            : customColors().fontTertiary;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.4)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              child: Center(
+                child:
+                    done
+                        ? const Icon(Icons.check, size: 14, color: Colors.white)
+                        : Text(
+                          number,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TranslatedText(
+                text: label,
+                maxLines: 1,
+                style: customTextStyle(
+                  fontStyle: FontStyle.BodyM_Bold,
+                  color: FontColor.FontPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    double mheight = MediaQuery.of(context).size.height * 1.222;
-    Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0.0),
@@ -113,519 +208,51 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  width: 2.0,
+                  width: 1.0,
                   color: customColors().backgroundTertiary,
                 ),
               ),
             ),
             child: Padding(
-              padding: EdgeInsets.only(top: mheight * .012),
-              child: Center(
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        context.gNavigationService.back(context);
-                      },
-                      icon: Icon(Icons.arrow_back_ios, size: 17.0),
-                    ),
-                    Expanded(
-                      child: SizedBox(
-                        width: double.maxFinite,
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 16.0,
-                                bottom: 16.0,
-                                top: 8.0,
-                              ),
-                              child: TranslatedText(
-                                text: "Upload Bill Picture ",
-                                style: customTextStyle(
-                                  fontStyle: FontStyle.BodyL_Bold,
-                                  color: FontColor.FontPrimary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.gNavigationService.back(context),
+                    icon: const Icon(Icons.arrow_back_ios, size: 17.0),
+                  ),
+                  Expanded(
+                    child: TranslatedText(
+                      text: "Complete Delivery",
+                      style: customTextStyle(
+                        fontStyle: FontStyle.BodyL_Bold,
+                        color: FontColor.FontPrimary,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-
           BlocConsumer<DeliveryUpdatePageCubit, DeliveryUpdatePageState>(
-            builder: (context, state) {
-              return Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: DottedBorder(
-                        // color: Colors.black, //color of dotted/dash line
-                        // strokeWidth: 3, //thickness of dash/dots
-                        // dashPattern: [10, 6],
-                        //dash patterns, 10 is dash width, 6 is space width
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 50.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _pictures.isEmpty
-                                        ? InkWell(
-                                          onTap: () async {
-                                            // getImage();
-                                            customShowModalBottomSheet(
-                                              context: context,
-                                              inputWidget: Column(
-                                                children: [
-                                                  InkWell(
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      getImage("camera");
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                            vertical: 18.0,
-                                                            horizontal: 18.0,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        border: Border(
-                                                          bottom: BorderSide(
-                                                            color:
-                                                                customColors()
-                                                                    .fontPrimary,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          TranslatedText(
-                                                            text: "Camera",
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyL_Bold,
-                                                              color:
-                                                                  FontColor
-                                                                      .FontPrimary,
-                                                            ),
-                                                          ),
-                                                          Icon(
-                                                            Icons.camera_alt,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  InkWell(
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      getImage("gallery");
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                            vertical: 18.0,
-                                                            horizontal: 18.0,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        border: Border(
-                                                          bottom: BorderSide(
-                                                            color:
-                                                                customColors()
-                                                                    .fontPrimary,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          TranslatedText(
-                                                            text: "Gallery",
-                                                            style: customTextStyle(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .BodyL_Bold,
-                                                              color:
-                                                                  FontColor
-                                                                      .FontPrimary,
-                                                            ),
-                                                          ),
-                                                          Icon(
-                                                            Icons
-                                                                .browse_gallery,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                          child: Container(
-                                            height: 210.0,
-                                            width: 210.0,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color:
-                                                    customColors()
-                                                        .backgroundTertiary,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(6.0),
-                                            ),
-                                            child: Center(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    Icons.camera_alt_rounded,
-                                                    size: 65.0,
-                                                  ),
-                                                  TranslatedText(
-                                                    text: "Take Photo",
-                                                    style: customTextStyle(
-                                                      fontStyle:
-                                                          FontStyle
-                                                              .BodyM_SemiBold,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                        : Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 25.0,
-                                          ),
-                                          child:
-                                              image != null
-                                                  ? Image.file(
-                                                    File(
-                                                      _pictures[_pictures
-                                                              .length -
-                                                          1],
-                                                    ),
-                                                    height: 210.0,
-                                                    width: 210.0,
-                                                  )
-                                                  : Container(
-                                                    height: 210.0,
-                                                    width: 210.0,
-                                                  ),
-                                        ),
-                                  ],
-                                ),
-                              ),
-                              uploading
-                                  ? Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 50.0,
-                                      left: 10.0,
-                                      right: 10.0,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        LinearProgressIndicator(
-                                          minHeight: 12.0,
-                                          backgroundColor: customColors().grey,
-                                          valueColor: AlwaysStoppedAnimation(
-                                            customColors().secretGarden,
-                                          ),
-                                          // value: context
-                                          //     .read<ImageCaptureCubit>()
-                                          //     .uploadprogress,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 8.0,
-                                          ),
-                                          child: Text(
-                                            "Uploading Please Wait....!",
-                                            style: customTextStyle(
-                                              fontStyle: FontStyle.BodyM_Bold,
-                                              color: FontColor.SecretGarden,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                  : SizedBox(height: 50),
-                              _pictures.isNotEmpty
-                                  ? Padding(
-                                    padding: const EdgeInsets.only(top: 50.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 8.0,
-                                            bottom: 8.0,
-                                          ),
-                                          child: InkWell(
-                                            onTap: () async {
-                                              try {
-                                                if (image
-                                                        .toString()
-                                                        .isNotEmpty ||
-                                                    image != null) {
-                                                  setState(() {
-                                                    uploading = true;
-                                                  });
-
-                                                  File file = File(image!.path);
-
-                                                  // print("image");
-                                                  BlocProvider.of<
-                                                    DeliveryUpdatePageCubit
-                                                  >(context).uploadimage(file);
-                                                } else {
-                                                  showSnackBar(
-                                                    context: context,
-                                                    snackBar: showErrorDialogue(
-                                                      errorMessage:
-                                                          "Please Select a Picture",
-                                                    ),
-                                                  );
-                                                }
-                                              } catch (e) {
-                                                showSnackBar(
-                                                  context: context,
-                                                  snackBar: showSnackBar(
-                                                    context: context,
-                                                    snackBar: showErrorDialogue(
-                                                      errorMessage:
-                                                          e.toString(),
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 24.0,
-                                                    vertical: 9.0,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _pictures.isEmpty
-                                                        ? customColors()
-                                                            .pacificBlue
-                                                            .withOpacity(0.5)
-                                                        : customColors()
-                                                            .pacificBlue,
-                                                borderRadius:
-                                                    BorderRadius.circular(5.0),
-                                              ),
-                                              child: Center(
-                                                child: Row(
-                                                  children: [
-                                                    TranslatedText(
-                                                      text: "Upload",
-                                                      style: customTextStyle(
-                                                        fontStyle:
-                                                            FontStyle
-                                                                .BodyM_Bold,
-                                                        color: FontColor.White,
-                                                      ),
-                                                    ),
-                                                    const Padding(
-                                                      padding: EdgeInsets.only(
-                                                        left: 8.0,
-                                                      ),
-                                                      child: Icon(
-                                                        Icons
-                                                            .cloud_upload_outlined,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 8.0,
-                                            bottom: 8.0,
-                                          ),
-                                          child: InkWell(
-                                            onTap: () async {
-                                              // getImage();
-
-                                              setState(() {
-                                                uploading = false;
-                                              });
-                                              customShowModalBottomSheet(
-                                                context: context,
-                                                inputWidget: Column(
-                                                  children: [
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.pop(context);
-                                                        getImage("camera");
-                                                      },
-                                                      child: Container(
-                                                        padding:
-                                                            EdgeInsets.symmetric(
-                                                              vertical: 18.0,
-                                                              horizontal: 18.0,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          border: Border(
-                                                            bottom: BorderSide(
-                                                              color:
-                                                                  customColors()
-                                                                      .fontPrimary,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            TranslatedText(
-                                                              text: "Camera",
-                                                              style: customTextStyle(
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .BodyL_Bold,
-                                                                color:
-                                                                    FontColor
-                                                                        .FontPrimary,
-                                                              ),
-                                                            ),
-                                                            Icon(
-                                                              Icons.camera_alt,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.pop(context);
-                                                        getImage("gallery");
-                                                      },
-                                                      child: Container(
-                                                        padding:
-                                                            EdgeInsets.symmetric(
-                                                              vertical: 18.0,
-                                                              horizontal: 18.0,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          border: Border(
-                                                            bottom: BorderSide(
-                                                              color:
-                                                                  customColors()
-                                                                      .fontPrimary,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            TranslatedText(
-                                                              text: "Gallery",
-                                                              style: customTextStyle(
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .BodyL_Bold,
-                                                                color:
-                                                                    FontColor
-                                                                        .FontPrimary,
-                                                              ),
-                                                            ),
-                                                            Icon(
-                                                              Icons
-                                                                  .browse_gallery,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 24.0,
-                                                    vertical: 12.0,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    customColors().secretGarden,
-                                                borderRadius:
-                                                    BorderRadius.circular(5.0),
-                                              ),
-                                              child: Center(
-                                                child: TranslatedText(
-                                                  text: "Retake",
-                                                  style: customTextStyle(
-                                                    fontStyle:
-                                                        FontStyle.BodyM_Bold,
-                                                    color: FontColor.White,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                  : SizedBox(height: 100.0),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
             listener: (context, state) {
               if (state is DeliveryBillUpdatedState) {
-                setState(() {
-                  upload = true;
-                  uploading = false;
-                });
+                setState(() => uploading = false);
+                toastification.show(
+                  backgroundColor: customColors().secretGarden,
+                  context: context,
+                  title: TranslatedText(
+                    text: "Bill uploaded successfully",
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyL_Bold,
+                      color: FontColor.White,
+                    ),
+                  ),
+                );
               }
 
               if (state is DeliveryBillUpdateErrorState) {
-                setState(() {
-                  upload = false;
-                });
-
+                setState(() => uploading = false);
                 toastification.show(
                   backgroundColor: customColors().carnationRed,
                   context: context,
@@ -638,53 +265,264 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage>
                   ),
                 );
               }
+            },
+            builder: (context, state) {
+              final cubit = context.read<DeliveryUpdatePageCubit>();
+              final billUploaded = cubit.billUploaded;
+              final hasPhoto = image != null;
 
-              if (state is DeliveryStatusUpdateState) {
-                setState(() {
-                  updatestat = false;
-                });
-              }
+              return Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (cubit.orderId.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: customColors().backgroundTertiary
+                                .withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: TranslatedText(
+                            text: "Order  ${cubit.orderId}",
+                            style: customTextStyle(
+                              fontStyle: FontStyle.BodyL_Bold,
+                              color: FontColor.FontPrimary,
+                            ),
+                          ),
+                        ),
+                      Row(
+                        children: [
+                          _stepChip(
+                            number: "1",
+                            label: "Upload bill",
+                            active: !billUploaded,
+                            done: billUploaded,
+                          ),
+                          const SizedBox(width: 8),
+                          _stepChip(
+                            number: "2",
+                            label: "Mark delivered",
+                            active: billUploaded,
+                            done: false,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      TranslatedText(
+                        text: "Bill photo",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyL_Bold,
+                          color: FontColor.FontPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      TranslatedText(
+                        text:
+                            "Capture a clear photo of the delivery bill, then upload it. Mark Delivered unlocks after a successful upload.",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Regular,
+                          color: FontColor.FontTertiary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      DottedBorder(
+                        options: RoundedRectDottedBorderOptions(
+                          radius: const Radius.circular(12),
+                          dashPattern: const [8, 5],
+                          color:
+                              billUploaded
+                                  ? customColors().secretGarden
+                                  : customColors().fontTertiary,
+                        ),
+                        child: InkWell(
+                          onTap: uploading ? null : _openSourceSheet,
+                          child: Container(
+                            width: double.infinity,
+                            height: 240,
+                            alignment: Alignment.center,
+                            child:
+                                hasPhoto
+                                    ? Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          child: Image.file(
+                                            File(image!.path),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        if (billUploaded)
+                                          Positioned(
+                                            top: 10,
+                                            right: 10,
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 6,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    customColors().secretGarden,
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.check_circle,
+                                                    color: Colors.white,
+                                                    size: 16,
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  TranslatedText(
+                                                    text: "Uploaded",
+                                                    style: customTextStyle(
+                                                      fontStyle:
+                                                          FontStyle.BodyM_Bold,
+                                                      color: FontColor.White,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    )
+                                    : Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.camera_alt_rounded,
+                                          size: 56,
+                                          color: customColors().fontTertiary,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        TranslatedText(
+                                          text: "Tap to take photo",
+                                          style: customTextStyle(
+                                            fontStyle: FontStyle.BodyM_SemiBold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                          ),
+                        ),
+                      ),
+                      if (uploading) ...[
+                        const SizedBox(height: 16),
+                        LinearProgressIndicator(
+                          minHeight: 8,
+                          backgroundColor: customColors().grey,
+                          valueColor: AlwaysStoppedAnimation(
+                            customColors().secretGarden,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TranslatedText(
+                          text: "Uploading bill, please wait...",
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyM_Bold,
+                            color: FontColor.SecretGarden,
+                          ),
+                        ),
+                      ],
+                      if (hasPhoto && !uploading) ...[
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: BasketButton(
+                                text:
+                                    billUploaded
+                                        ? "Bill uploaded"
+                                        : "Upload bill",
+                                enabled: !billUploaded,
+                                loading: false,
+                                bgcolor: customColors().pacificBlue,
+                                onpress: billUploaded ? null : _uploadBill,
+                                textStyle: customTextStyle(
+                                  fontStyle: FontStyle.BodyL_Bold,
+                                  color: FontColor.White,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: BasketButton(
+                                text: "Retake",
+                                bgcolor: customColors().secretGarden,
+                                onpress: _openSourceSheet,
+                                textStyle: customTextStyle(
+                                  fontStyle: FontStyle.BodyL_Bold,
+                                  color: FontColor.White,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              );
             },
           ),
         ],
       ),
-      bottomNavigationBar:
-          upload
-              ? SizedBox(
-                height: screenSize.height * 0.10,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Divider(
-                      thickness: 1.0,
-                      color: customColors().backgroundTertiary,
-                    ),
+      bottomNavigationBar: BlocBuilder<
+        DeliveryUpdatePageCubit,
+        DeliveryUpdatePageState
+      >(
+        builder: (context, state) {
+          final cubit = context.read<DeliveryUpdatePageCubit>();
+          final enabled = cubit.billUploaded && !uploading;
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!cubit.billUploaded)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: BasketButton(
-                        loading:
-                            context.read<DeliveryUpdatePageCubit>().updatestat,
-                        text: "Update Delivery Status",
-                        bgcolor: customColors().green600,
-                        onpress: () async {
-                          setState(() {
-                            updatestat = true;
-                          });
-
-                          BlocProvider.of<DeliveryUpdatePageCubit>(
-                            context,
-                          ).updateMainOrderStat("complete");
-                        },
-                        textStyle: customTextStyle(
-                          fontStyle: FontStyle.BodyL_Bold,
-                          color: FontColor.White,
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: TranslatedText(
+                        text: "Upload the bill to enable Mark Delivered",
+                        style: customTextStyle(
+                          fontStyle: FontStyle.BodyM_Regular,
+                          color: FontColor.FontTertiary,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              )
-              : SizedBox(),
+                  BasketButton(
+                    text: "Mark Delivered",
+                    enabled: enabled,
+                    loading: cubit.updatestat,
+                    bgcolor: customColors().green600,
+                    onpress:
+                        enabled
+                            ? () => cubit.updateMainOrderStat("complete")
+                            : null,
+                    textStyle: customTextStyle(
+                      fontStyle: FontStyle.BodyL_Bold,
+                      color: FontColor.White,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
