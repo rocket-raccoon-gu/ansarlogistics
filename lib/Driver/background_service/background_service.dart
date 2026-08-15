@@ -125,10 +125,10 @@ void onStart(ServiceInstance service) {
     service.stopSelf();
   });
 
-  // Push location immediately, then every minute
+  // Push location immediately, then every 5 minutes
   updateDriverLocationFromGps();
 
-  Timer.periodic(const Duration(minutes: 1), (timer) async {
+  Timer.periodic(const Duration(minutes: 5), (timer) async {
     await updateDriverLocationFromGps();
   });
 

@@ -30,8 +30,11 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
     final order = widget.orderResponseItem.order;
     final customer = widget.orderResponseItem.customer;
     final address = widget.orderResponseItem.address;
+    final isReturn = isReturnOrder(widget.orderResponseItem);
     final type = getType(widget.orderResponseItem);
     final typeColor = getTypeColor(type);
+    final returnAccent = HexColor('#D97706');
+    final headerColor = isReturn ? returnAccent : typeColor;
     final itemCount = widget.orderResponseItem.items.fold<int>(
       0,
       (sum, item) => sum + item.quantity,
@@ -43,6 +46,10 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
       if (address.floor.trim().isNotEmpty) address.floor,
     ].join(', ');
     final isPrepaid = order.paymentMode.toUpperCase().contains('PREPAID');
+    final returnAmount =
+        order.totalReturnAmount > 0
+            ? order.totalReturnAmount
+            : order.orderValue;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -55,8 +62,15 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
           );
         },
         child: Dismissible(
-          key: ValueKey(order.subgroupIdentifier),
-          direction: DismissDirection.startToEnd,
+          key: ValueKey(
+            isReturn
+                ? '${order.returnId}_${order.subgroupIdentifier}'
+                : order.subgroupIdentifier,
+          ),
+          direction:
+              isReturn
+                  ? DismissDirection.none
+                  : DismissDirection.startToEnd,
           background: Container(
             decoration: BoxDecoration(
               color: customColors().pacificBlue,
@@ -104,12 +118,18 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isReturn ? HexColor('#FFF7ED') : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: typeColor.withOpacity(0.25)),
+              border: Border.all(
+                color: headerColor,
+                width: isReturn ? 1.8 : 1,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color:
+                      isReturn
+                          ? returnAccent.withOpacity(0.18)
+                          : Colors.black.withOpacity(0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -124,51 +144,186 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: typeColor,
+                    color: headerColor,
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(15),
+                      top: Radius.circular(14),
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Text(
-                        type,
-                        style: customTextStyle(
-                          fontStyle: FontStyle.BodyS_Bold,
-                          color: FontColor.White,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          order.subgroupIdentifier,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyL_Bold,
-                            color: FontColor.White,
+                  child:
+                      isReturn
+                          ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.22),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Text(
+                                      "RETURN",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 11,
+                                        letterSpacing: 0.4,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      order.returnId.isNotEmpty
+                                          ? order.returnId
+                                          : 'Return',
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyL_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      getStatus(order.status).isNotEmpty
+                                          ? getStatus(order.status)
+                                          : order.status,
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyS_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                order.subgroupIdentifier,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyM_SemiBold,
+                                  color: FontColor.White,
+                                ),
+                              ),
+                            ],
+                          )
+                      : type == "COMBINED"
+                          ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.22),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      "COMBINED",
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyS_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      getCombinedTypesLabel(
+                                        widget.orderResponseItem,
+                                      ),
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyL_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      getStatus(order.status).isNotEmpty
+                                          ? getStatus(order.status)
+                                          : order.status,
+                                      style: customTextStyle(
+                                        fontStyle: FontStyle.BodyS_Bold,
+                                        color: FontColor.White,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                order.subgroupIdentifier,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyM_SemiBold,
+                                  color: FontColor.White,
+                                ),
+                              ),
+                            ],
+                          )
+                          : Row(
+                            children: [
+                              Text(
+                                type,
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyS_Bold,
+                                  color: FontColor.White,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  order.subgroupIdentifier,
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyL_Bold,
+                                    color: FontColor.White,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  getStatus(order.status).isNotEmpty
+                                      ? getStatus(order.status)
+                                      : order.status,
+                                  style: customTextStyle(
+                                    fontStyle: FontStyle.BodyS_Bold,
+                                    color: FontColor.White,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          getStatus(order.status).isNotEmpty
-                              ? getStatus(order.status)
-                              : order.status,
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyS_Bold,
-                            color: FontColor.White,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -254,7 +409,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                       Row(
                         children: [
                           TranslatedText(
-                            text: 'Collect',
+                            text: isReturn ? 'Return amount' : 'Collect',
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyM_Regular,
                               color: FontColor.FontSecondary,
@@ -262,7 +417,7 @@ class _DriverOrderListItemState extends State<DriverOrderListItem> {
                           ),
                           const Spacer(),
                           Text(
-                            'QAR ${order.total.toStringAsFixed(2)}',
+                            'QAR ${(isReturn ? returnAmount : order.total).toStringAsFixed(2)}',
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.FontPrimary,

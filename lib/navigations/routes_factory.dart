@@ -12,6 +12,7 @@ abstract class RoutesFactory {
   Route<dynamic> createDriverDashboardPageRoute();
   Route<dynamic> createDriverOrderInnerPageRoute(Map<String, dynamic> data);
   Route<dynamic> createDeliveryUpdatePageRoute(Map<String, dynamic> data);
+  Route<dynamic> createDocumentUploadPageRoute(Map<String, dynamic> data);
   Route<dynamic> createPaymentCollectionPageRoute(Map<String, dynamic> data);
   Route<dynamic> createViewOrderRoutePageRoute(Map<String, dynamic> data);
   Route<dynamic> createHomeSectionInchargePageRoute();

@@ -224,7 +224,10 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                   ),
                   Expanded(
                     child: TranslatedText(
-                      text: "Complete Delivery",
+                      text:
+                          context.read<DeliveryUpdatePageCubit>().isReturn
+                              ? "Complete Return"
+                              : "Complete Delivery",
                       style: customTextStyle(
                         fontStyle: FontStyle.BodyL_Bold,
                         color: FontColor.FontPrimary,
@@ -237,13 +240,18 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
           ),
           BlocConsumer<DeliveryUpdatePageCubit, DeliveryUpdatePageState>(
             listener: (context, state) {
+              final isReturn =
+                  context.read<DeliveryUpdatePageCubit>().isReturn;
               if (state is DeliveryBillUpdatedState) {
                 setState(() => uploading = false);
                 toastification.show(
                   backgroundColor: customColors().secretGarden,
                   context: context,
                   title: TranslatedText(
-                    text: "Bill uploaded successfully",
+                    text:
+                        isReturn
+                            ? "Image uploaded successfully"
+                            : "Bill uploaded successfully",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_Bold,
                       color: FontColor.White,
@@ -258,7 +266,10 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                   backgroundColor: customColors().carnationRed,
                   context: context,
                   title: TranslatedText(
-                    text: "Failed To Upload Bill Please Try Again...!",
+                    text:
+                        isReturn
+                            ? "Failed To Upload Image Please Try Again...!"
+                            : "Failed To Upload Bill Please Try Again...!",
                     style: customTextStyle(
                       fontStyle: FontStyle.BodyL_Bold,
                       color: FontColor.White,
@@ -271,6 +282,7 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
               final cubit = context.read<DeliveryUpdatePageCubit>();
               final billUploaded = cubit.billUploaded;
               final hasPhoto = image != null;
+              final isReturn = cubit.isReturn;
 
               return Expanded(
                 child: SingleChildScrollView(
@@ -289,7 +301,10 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: TranslatedText(
-                            text: "Order  ${cubit.orderId}",
+                            text:
+                                isReturn
+                                    ? "Return  ${cubit.orderId}"
+                                    : "Order  ${cubit.orderId}",
                             style: customTextStyle(
                               fontStyle: FontStyle.BodyL_Bold,
                               color: FontColor.FontPrimary,
@@ -300,14 +315,14 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                         children: [
                           _stepChip(
                             number: "1",
-                            label: "Upload bill",
+                            label: isReturn ? "Upload image" : "Upload bill",
                             active: !billUploaded,
                             done: billUploaded,
                           ),
                           const SizedBox(width: 8),
                           _stepChip(
                             number: "2",
-                            label: "Mark delivered",
+                            label: isReturn ? "Mark returned" : "Mark delivered",
                             active: billUploaded,
                             done: false,
                           ),
@@ -315,7 +330,7 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                       ),
                       const SizedBox(height: 20),
                       TranslatedText(
-                        text: "Bill photo",
+                        text: isReturn ? "Return photo" : "Bill photo",
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyL_Bold,
                           color: FontColor.FontPrimary,
@@ -324,7 +339,9 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                       const SizedBox(height: 4),
                       TranslatedText(
                         text:
-                            "Capture a clear photo of the delivery bill, then upload it. Mark Delivered unlocks after a successful upload.",
+                            isReturn
+                                ? "Capture a clear photo of the returned items, then upload it. Mark Returned unlocks after a successful upload."
+                                : "Capture a clear photo of the delivery bill, then upload it. Mark Delivered unlocks after a successful upload.",
                         style: customTextStyle(
                           fontStyle: FontStyle.BodyM_Regular,
                           color: FontColor.FontTertiary,
@@ -430,7 +447,10 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                         ),
                         const SizedBox(height: 8),
                         TranslatedText(
-                          text: "Uploading bill, please wait...",
+                          text:
+                              isReturn
+                                  ? "Uploading image, please wait..."
+                                  : "Uploading bill, please wait...",
                           style: customTextStyle(
                             fontStyle: FontStyle.BodyM_Bold,
                             color: FontColor.SecretGarden,
@@ -445,8 +465,12 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                               child: BasketButton(
                                 text:
                                     billUploaded
-                                        ? "Bill uploaded"
-                                        : "Upload bill",
+                                        ? (isReturn
+                                            ? "Image uploaded"
+                                            : "Bill uploaded")
+                                        : (isReturn
+                                            ? "Upload image"
+                                            : "Upload bill"),
                                 enabled: !billUploaded,
                                 loading: false,
                                 bgcolor: customColors().pacificBlue,
@@ -498,7 +522,9 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: TranslatedText(
                         text:
-                            cubit.isWarehouseOrder
+                            cubit.isReturn
+                                ? "Upload the image to enable Mark Returned"
+                                : cubit.isWarehouseOrder
                                 ? "Upload the bill to continue to payment"
                                 : "Upload the bill to enable Mark Delivered",
                         style: customTextStyle(
@@ -509,7 +535,9 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                     ),
                   BasketButton(
                     text:
-                        cubit.isWarehouseOrder
+                        cubit.isReturn
+                            ? "Mark Returned"
+                            : cubit.isWarehouseOrder
                             ? "Collect Payment"
                             : "Mark Delivered",
                     enabled: enabled,
@@ -518,7 +546,9 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                     onpress:
                         enabled
                             ? () {
-                              if (cubit.isWarehouseOrder &&
+                              if (cubit.isReturn) {
+                                cubit.updateMainOrderStat("returned");
+                              } else if (cubit.isWarehouseOrder &&
                                   cubit.orderResponseItem != null) {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(

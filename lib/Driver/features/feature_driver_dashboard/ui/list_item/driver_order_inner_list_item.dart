@@ -1,5 +1,6 @@
 import 'package:ansarlogistics/components/custom_app_components/image_widgets/list_image_widget.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
+import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,26 @@ class DriverOrderInnerListItem extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (orderItem.subgroupIdentifier.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: getTypeColor(
+                            orderItem.subgroupIdentifier.split('-').first,
+                          ).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          orderItem.subgroupIdentifier.split('-').first,
+                          style: customTextStyle(
+                            fontStyle: FontStyle.BodyS_Bold,
+                            color: FontColor.FontPrimary,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 Padding(

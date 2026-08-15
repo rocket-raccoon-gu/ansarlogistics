@@ -607,6 +607,29 @@ class PDApiGateway implements AuthenticationService {
     }
   }
 
+  Future driverReportService({
+    required String startDate,
+    required String endDate,
+    required token,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .driverReportService(
+            startDate: startDate,
+            endDate: endDate,
+            token: token,
+          )
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("Driver Report Request" + e.toString());
+      rethrow;
+    }
+  }
+
   Future uploadDriverBill({
     required File bill,
     required String orderId,
@@ -622,6 +645,33 @@ class PDApiGateway implements AuthenticationService {
       return response;
     } catch (e) {
       serviceSendError("Driver Bill Upload Request$e");
+      rethrow;
+    }
+  }
+
+  Future uploadDriverDocuments({
+    required String orderId,
+    required String token,
+    required File customerSignature,
+    required File customerQid,
+    required File driverSignature,
+  }) async {
+    try {
+      final response = await pickerDriverApi
+          .uploadDriverDocuments(
+            orderId: orderId,
+            token: token,
+            customerSignature: customerSignature,
+            customerQid: customerQid,
+            driverSignature: driverSignature,
+          )
+          .catchError((e, trace) {
+            networkStreamController.sink.add(e.toString());
+            throw e;
+          });
+      return response;
+    } catch (e) {
+      serviceSendError("Driver Documents Upload Request$e");
       rethrow;
     }
   }

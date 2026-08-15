@@ -119,9 +119,16 @@ class DriverOrdersPageCubit extends Cubit<DriverOrdersPageState> {
       searchresult =
           source
               .where(
-                (element) => element.order.subgroupIdentifier
-                    .toUpperCase()
-                    .contains(keyword.toUpperCase()),
+                (element) =>
+                    element.order.subgroupIdentifier.toUpperCase().contains(
+                      keyword.toUpperCase(),
+                    ) ||
+                    element.order.merchantOrderId.toUpperCase().contains(
+                      keyword.toUpperCase(),
+                    ) ||
+                    element.order.subgroupIdentifiers.any(
+                      (id) => id.toUpperCase().contains(keyword.toUpperCase()),
+                    ),
               )
               .toList();
       emit(DriverPageLoadedState(searchresult, hasMore: false));

@@ -1011,22 +1011,13 @@ extension PDGeneralApi on PickerDriverApi {
     required String endDate,
     required token,
   }) {
-    Uri url;
-
-    // print("${startDate} <<<<<<<<<<<<<<<start data");
-    // print("${endDate} <<<<<<<<<<<<<<<endDate data");
-    // print("${token} <<<<<<<<<<<<<<<token data");
-
-    if (startDate != "" && endDate == "") {
-      // url = Uri.parse(
-      //   'https://pickerdriver-api.testuatah.com/api/picker/report?start_date=$startDate',
-      // );
-      url = _endpointWithApplicationPath('picker/report?start_date=$startDate');
-    } else {
-      url = _endpointWithApplicationPath(
-        'picker/report?start_date=$startDate&end_date=$endDate',
-      );
+    final query = <String, String>{'start_date': startDate};
+    if (endDate.isNotEmpty) {
+      query['end_date'] = endDate;
     }
+    final url = _endpointWithApplicationPath('picker/report').replace(
+      queryParameters: query,
+    );
 
     log(url.toString());
 
@@ -1036,6 +1027,36 @@ extension PDGeneralApi on PickerDriverApi {
     };
 
     serviceSend("Order Report Service");
+
+    return _handleRequest(
+      onRequest: () => _client.get(url, headers: headers),
+      onResponse: (response) {
+        return response;
+      },
+    );
+  }
+
+  Future<http.Response> driverReportService({
+    required String startDate,
+    required String endDate,
+    required token,
+  }) {
+    final query = <String, String>{'start_date': startDate};
+    if (endDate.isNotEmpty) {
+      query['end_date'] = endDate;
+    }
+    final url = _endpointWithApplicationPath('driver/report').replace(
+      queryParameters: query,
+    );
+
+    log(url.toString());
+
+    final Map<String, String> headers = {
+      "Content-Type": ContentTypes.applicationJson,
+      'Authorization': 'Bearer $token',
+    };
+
+    serviceSend("Driver Report Service");
 
     return _handleRequest(
       onRequest: () => _client.get(url, headers: headers),
@@ -1113,6 +1134,80 @@ extension PDGeneralApi on PickerDriverApi {
       serviceSendError("Driver Bill Upload Error");
       rethrow;
     }
+  }
+
+  /// POST driver/orders/documents/{orderId}
+  /// form-data: customer_signature, customer_qid, driver_signature
+  Future<http.Response> uploadDriverDocuments({
+    required String orderId,
+    required String token,
+    required File customerSignature,
+    required File customerQid,
+    required File driverSignature,
+  }) async {
+    final url = _endpointWithApplicationPath(
+      'driver/orders/documents/$orderId',
+    );
+    log('uploadDriverDocuments $url');
+    serviceSend("Driver Documents Upload");
+
+    final rawToken = token.trim();
+    final bearer =
+        rawToken.toLowerCase().startsWith('bearer ')
+            ? rawToken.substring(7).trim()
+            : rawToken;
+
+    final request = http.MultipartRequest('POST', url);
+    request.headers['Authorization'] = 'Bearer $bearer';
+    request.headers['Accept'] = 'application/json';
+
+    request.files.add(
+      await _multipartImageFile(
+        field: 'customer_signature',
+        file: customerSignature,
+        filenameBase: 'customer_signature',
+      ),
+    );
+    request.files.add(
+      await _multipartImageFile(
+        field: 'customer_qid',
+        file: customerQid,
+        filenameBase: 'customer_qid',
+      ),
+    );
+    request.files.add(
+      await _multipartImageFile(
+        field: 'driver_signature',
+        file: driverSignature,
+        filenameBase: 'driver_signature',
+      ),
+    );
+
+    try {
+      final streamed = await _client.send(request);
+      final response = await http.Response.fromStream(streamed);
+      _throwIfSessionExpired(response);
+      return response;
+    } catch (e) {
+      serviceSendError("Driver Documents Upload Error");
+      rethrow;
+    }
+  }
+
+  Future<http.MultipartFile> _multipartImageFile({
+    required String field,
+    required File file,
+    required String filenameBase,
+  }) async {
+    final bytes = await file.readAsBytes();
+    final path = file.path.toLowerCase();
+    final isPng = path.endsWith('.png');
+    return http.MultipartFile.fromBytes(
+      field,
+      bytes,
+      filename: isPng ? '$filenameBase.png' : '$filenameBase.jpg',
+      contentType: MediaType('image', isPng ? 'png' : 'jpeg'),
+    );
   }
 
   Future<http.Response> getStatusHistoryData({

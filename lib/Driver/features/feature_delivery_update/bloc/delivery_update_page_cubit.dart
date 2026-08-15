@@ -38,13 +38,22 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
   bool billUploaded = false;
   bool updatestat = false;
 
-  String get orderId =>
-      orderResponseItem?.order.subgroupIdentifier ?? '';
+  String get orderId {
+    final item = orderResponseItem;
+    if (item == null) return '';
+    return driverActionOrderId(item);
+  }
+
+  bool get isReturn {
+    final item = orderResponseItem;
+    if (item == null) return false;
+    return isReturnOrder(item);
+  }
 
   bool get isWarehouseOrder {
     final order = orderResponseItem;
-    if (order == null) return false;
-    return getType(order) == 'WAR';
+    if (order == null || isReturn) return false;
+    return getType(order) == 'WAR' || combinedOrderTypes(order).contains('WAR');
   }
 
   Future<void> uploadimage(File billfile) async {
@@ -96,7 +105,10 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
       toastification.show(
         backgroundColor: customColors().warning,
         title: TranslatedText(
-          text: "Please upload the bill first",
+          text:
+              isReturn
+                  ? "Please upload the return image first"
+                  : "Please upload the bill first",
           style: customTextStyle(
             fontStyle: FontStyle.BodyL_Bold,
             color: FontColor.White,
@@ -121,7 +133,9 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         orderid: orderId,
         orderstatus: status,
         comment:
-            "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order",
+            isReturn
+                ? "${UserController().profile.name} (${UserController().profile.empId}) returned this order"
+                : "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order",
         userid: UserController().profile.id.toString(),
         latitude: coords.lat,
         longitude: coords.lng,

@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/bloc/driver_order_inner_page_state.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -58,12 +59,23 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
   updateMainOrderStat(String orderid, String status) async {
     try {
       String? token = await PreferenceUtils.getDataFromShared("usertoken");
+      final DataItem orderItem = data['orderitem'];
+      final actionId =
+          isReturnOrder(orderItem)
+              ? driverActionOrderId(orderItem)
+              : orderid;
+
+      final comment =
+          status == "on_the_way_to_return"
+              ? "${UserController().profile.name} (${UserController().profile.empId}) is on the way to collect the return"
+              : status == "returned"
+              ? "${UserController().profile.name} (${UserController().profile.empId}) returned this order"
+              : "${UserController().profile.name.toString()} (${UserController().profile.empId}) is on the way to delivery location";
 
       final resp = await serviceLocator.tradingApi.updateMainOrderStat(
-        orderid: orderid,
+        orderid: actionId,
         orderstatus: status,
-        comment:
-            "${UserController().profile.name.toString()} (${UserController().profile.empId}) is on the way to delivery location",
+        comment: comment,
         userid: UserController().profile.id.toString(),
         latitude: UserController.userController.locationlatitude,
         longitude: UserController.userController.locationlongitude,
@@ -130,7 +142,11 @@ class DriverOrderInnerPageCubit extends Cubit<DriverOrderInnerPageState> {
           autoCloseDuration: const Duration(seconds: 5),
         );
 
-        // loading = false;
+        if (status == "on_the_way_to_return") {
+          orderItem.order.status = status;
+          emit(DriverOrderInitialPageState(assignedDriver: assignedDriver));
+          return;
+        }
 
         Navigator.of(context).popUntil((route) => route.isFirst);
 

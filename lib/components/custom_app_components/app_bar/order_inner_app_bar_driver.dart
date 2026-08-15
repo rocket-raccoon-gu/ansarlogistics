@@ -43,7 +43,11 @@ class OrderInnerAppBarDriver extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            height: 35.0,
+            height:
+                isCombinedOrder(orderResponseItem) ||
+                        isReturnOrder(orderResponseItem)
+                    ? 48.0
+                    : 35.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -55,21 +59,43 @@ class OrderInnerAppBarDriver extends StatelessWidget {
                     color: HexColor("#A3A3A3"),
                   ),
                 ),
-
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       InkWell(
                         onTap: onTapinfo,
-                        child: Text(
-                          title ??
-                              orderResponseItem.order.subgroupIdentifier
-                                  .toString(),
-                          style: customTextStyle(
-                            fontStyle: FontStyle.Lato_Bold,
-                            color: FontColor.FontPrimary,
-                          ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isReturnOrder(orderResponseItem))
+                              Text(
+                                orderResponseItem.order.returnId.isNotEmpty
+                                    ? 'RETURN  ${orderResponseItem.order.returnId}'
+                                    : 'RETURN',
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyS_Bold,
+                                  color: FontColor.Warning,
+                                ),
+                              )
+                            else if (isCombinedOrder(orderResponseItem))
+                              Text(
+                                getCombinedTypesLabel(orderResponseItem),
+                                style: customTextStyle(
+                                  fontStyle: FontStyle.BodyS_Bold,
+                                  color: FontColor.Primary,
+                                ),
+                              ),
+                            Text(
+                              title ??
+                                  orderResponseItem.order.subgroupIdentifier
+                                      .toString(),
+                              style: customTextStyle(
+                                fontStyle: FontStyle.Lato_Bold,
+                                color: FontColor.FontPrimary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       InkWell(
@@ -79,7 +105,6 @@ class OrderInnerAppBarDriver extends StatelessWidget {
                           color: HexColor('#A3A3A3'),
                         ),
                       ),
-
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 18.0,

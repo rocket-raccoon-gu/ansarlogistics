@@ -135,7 +135,7 @@ class _DriverOrdersPageState extends State<DriverOrdersPage>
 
       // Cancel any existing timer before starting a new one
       _locationTimer?.cancel();
-      _locationTimer = Timer.periodic(Duration(seconds: 30), (tim) async {
+      _locationTimer = Timer.periodic(const Duration(minutes: 5), (tim) async {
         if (!mounted) {
           tim.cancel();
           return;

@@ -182,6 +182,8 @@ String getStatus(String? stat) {
       return "Material Request";
     case "assigned_driver":
       return "Assigned Driver";
+    case "order_collected":
+      return "Order Collected";
     case "customer_not_answer":
       return "Customer Not Answer";
     case "cancel_request":
@@ -192,10 +194,14 @@ String getStatus(String? stat) {
       return "Assigned Cashier";
     case "start_punching":
       return "Start Punching";
-    case "assigned_customer_service":
+    case     "assigned_customer_service":
       return "Assigned Customer Service";
     case "submit_do":
       return "Submitted To Do";
+    case "on_the_way_to_return":
+      return "On The Way To Return";
+    case "returned":
+      return "Returned";
     default:
       return "";
   }
@@ -342,13 +348,79 @@ Color getTypeColor(String type) {
       return HexColor('#ff4081');
     case "ABY":
       return HexColor('#04a6c7');
-
+    case "COMBINED":
+      return HexColor('#5B4CDB');
+    case "RET":
+      return HexColor('#D97706');
     default:
       return customColors().fontPrimary;
   }
 }
 
+const _orderTypePrefixes = [
+  "EXP",
+  "NOL",
+  "VPO",
+  "SUP",
+  "CAK",
+  "WAR",
+  "ABY",
+  "RET",
+];
+
+List<String> combinedOrderTypes(DataItem orders) {
+  final fromIds =
+      orders.order.subgroupIdentifiers
+          .map((id) => id.split('-').first.toUpperCase())
+          .where((type) => _orderTypePrefixes.contains(type))
+          .toSet()
+          .toList();
+  if (fromIds.length > 1) return fromIds;
+
+  final orderType = orders.order.orderType.toUpperCase();
+  if (orderType.contains('-')) {
+    return orderType
+        .split('-')
+        .map((part) => part.trim())
+        .where((type) => _orderTypePrefixes.contains(type))
+        .toList();
+  }
+
+  if (fromIds.isNotEmpty) return fromIds;
+  final id = orders.order.subgroupIdentifier.toUpperCase();
+  return _orderTypePrefixes
+      .where((type) => id.startsWith('$type-') || id.contains('-$type-'))
+      .toList();
+}
+
+bool isReturnOrder(DataItem orders) {
+  final order = orders.order;
+  if (order.isReturn) return true;
+  if (order.returnId.trim().isNotEmpty) return true;
+  return order.orderType.toUpperCase() == "RET";
+}
+
+bool isCombinedOrder(DataItem orders) {
+  if (isReturnOrder(orders)) return false;
+  if (orders.order.isMerged) return true;
+  return orders.order.subgroupIdentifiers.length > 1;
+}
+
+String getCombinedTypesLabel(DataItem orders) {
+  final types = combinedOrderTypes(orders);
+  if (types.isEmpty) return "COMBINED";
+  return types.join(' + ');
+}
+
 String getType(DataItem orders) {
+  if (isReturnOrder(orders)) return "RET";
+  if (isCombinedOrder(orders)) return "COMBINED";
+
+  final orderType = orders.order.orderType.toUpperCase().trim();
+  if (_orderTypePrefixes.contains(orderType)) {
+    return orderType;
+  }
+
   if (orders.order.subgroupIdentifier.startsWith("EXP")) {
     return "EXP";
   } else if (orders.order.subgroupIdentifier.startsWith("NOL")) {
@@ -366,6 +438,36 @@ String getType(DataItem orders) {
   } else {
     return "Unknown";
   }
+}
+
+String driverActionOrderId(DataItem item) {
+  if (isReturnOrder(item)) {
+    if (item.order.returnId.trim().isNotEmpty) {
+      return item.order.returnId.trim();
+    }
+    if (item.order.apiId.trim().isNotEmpty) {
+      return item.order.apiId.trim();
+    }
+  }
+  return item.order.subgroupIdentifier;
+}
+
+/// POS / collectable amount used for high-value delivery documents.
+double getOrderPosAmount(DataItem order) {
+  if (order.order.posAmount > 0) return order.order.posAmount;
+  return order.order.total;
+}
+
+/// NOL / WAR / SUP over 500 (and VPO) need ID + signatures before the bill.
+bool needsDriverDeliveryDocuments(DataItem order) {
+  final amount = getOrderPosAmount(order);
+  final types =
+      isCombinedOrder(order)
+          ? combinedOrderTypes(order)
+          : [getType(order)];
+  if (types.contains("VPO")) return true;
+  return types.any((type) => type == "NOL" || type == "WAR" || type == "SUP") &&
+      amount >= 500;
 }
 
 // Reference to the specific Firestore document
@@ -399,7 +501,10 @@ Color getStatusColor(String status) {
     case 'on_the_way':
       return customColors().green4;
     case 'delivered':
+    case 'complete':
       return customColors().secretGarden;
+    case 'order_collected':
+      return HexColor('#7b98c9');
     case 'assigned_picker':
       return customColors().green2;
     case 'assigned_driver':

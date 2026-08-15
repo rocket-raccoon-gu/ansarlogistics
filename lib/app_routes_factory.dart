@@ -4,6 +4,7 @@
 // import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
 // import 'package:ansarlogistics/Driver/features/feature_order_routes/order_routes_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_delivery_update/delivery_update_page_route_builder.dart';
+import 'package:ansarlogistics/Driver/features/feature_document_upload/document_upload_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/driver_dashboard_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_driver_order_inner/driver_order_inner_page_route_builder.dart';
 import 'package:ansarlogistics/Driver/features/feature_order_routes/order_routes_route_builder.dart';
@@ -136,12 +137,11 @@ class AppRoutesFactory extends RoutesFactory {
   }
 
   @override
-  // Route createDocumentUploadPageRoute(Map<String, dynamic> data) {
-  //   // TODO: implement createDocumentUploadPageRoute
-  //   return CustomRoute(
-  //     builder: DocumentUploadPageRouteBuilder(_serviceLocator, data),
-  //   );
-  //   }
+  Route createDocumentUploadPageRoute(Map<String, dynamic> data) {
+    return CustomRoute(
+      builder: DocumentUploadPageRouteBuilder(_serviceLocator, data),
+    );
+  }
 
   @override
   Route createViewOrderRoutePageRoute(Map<String, dynamic> data) {
