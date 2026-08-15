@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:translator/translator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:picker_driver_api/responses/driver_base_response.dart';
 
 final translator = GoogleTranslator();
@@ -64,6 +65,42 @@ String resolveImageUrl(String? path) {
     }
     return '$base/$p';
   }
+}
+
+/// Uses already-tracked driver location so status updates are not blocked on GPS.
+Future<({String lat, String lng})> getDriverCoordinatesFast() async {
+  final cachedLat = UserController.userController.locationlatitude.trim();
+  final cachedLng = UserController.userController.locationlongitude.trim();
+  if (cachedLat.isNotEmpty && cachedLng.isNotEmpty) {
+    return (lat: cachedLat, lng: cachedLng);
+  }
+
+  try {
+    final last = await Geolocator.getLastKnownPosition();
+    if (last != null) {
+      return (
+        lat: last.latitude.toString(),
+        lng: last.longitude.toString(),
+      );
+    }
+  } catch (_) {}
+
+  final savedLat = await PreferenceUtils.getDataFromShared('driverlat');
+  final savedLng = await PreferenceUtils.getDataFromShared('driverlong');
+  if (savedLat != null &&
+      savedLng != null &&
+      savedLat.isNotEmpty &&
+      savedLng.isNotEmpty) {
+    return (lat: savedLat, lng: savedLng);
+  }
+
+  final current = await Geolocator.getCurrentPosition(
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.medium,
+      timeLimit: Duration(seconds: 2),
+    ),
+  );
+  return (lat: current.latitude.toString(), lng: current.longitude.toString());
 }
 
 Future<String> resolveImageUrlFromFirebase(String? path) async {

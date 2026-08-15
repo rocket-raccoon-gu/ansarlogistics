@@ -11,18 +11,15 @@ import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_reports/bloc/picker_report_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_picker_reports/picker_reports.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_products/products_page.dart';
-import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_profile/profile_page.dart';
 import 'package:ansarlogistics/components/custom_app_components/alert_dialogs.dart';
 import 'package:ansarlogistics/components/custom_app_components/bottom_bar/custom_bottom_bar_picker.dart';
-import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/session_out_bottom_sheet.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
 import 'package:ansarlogistics/utils/permission_service.dart';
-import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -59,22 +56,9 @@ class _PickerDashboardPageState extends State<PickerDashboardPage> {
   init() async {
     subscription = context.gTradingApiGateway.networkStreamController.stream
         .listen((event) {
-          if (event.contains("session timeout")) {
+          if (isSessionTimeoutNetworkEvent(event)) {
             log("session timeout from sp request");
-            sessionTimeOutBottomSheet(
-              context: context,
-              inputWidget: SessionOutBottomSheet(
-                onTap: () async {
-                  await PreferenceUtils.clear();
-                  // await logout(context);
-                  if (context.mounted) {
-                    Navigator.of(
-                      context,
-                    ).pushNamedAndRemoveUntil('/splash', (route) => false);
-                  }
-                },
-              ),
-            );
+            presentSessionTimeoutSheet(context: context);
           }
         });
   }

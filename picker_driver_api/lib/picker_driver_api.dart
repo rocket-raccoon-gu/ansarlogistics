@@ -58,6 +58,9 @@ class PickerDriverApi {
 
   bool networkOnline = true;
 
+  /// Fired before throwing when the server reports an expired/unauthorized session.
+  void Function(String message)? onAuthFailure;
+
   PickerDriverApi(
     this.baseUrl,
     this.productUrl,
@@ -304,6 +307,7 @@ extension PDGeneralApi on PickerDriverApi {
     try {
       serviceSend("Login");
       return _handleRequest(
+        checkSession: false,
         onRequest:
             () => _client.post(
               url,
@@ -1102,7 +1106,9 @@ extension PDGeneralApi on PickerDriverApi {
 
     try {
       final streamed = await _client.send(request);
-      return http.Response.fromStream(streamed);
+      final response = await http.Response.fromStream(streamed);
+      _throwIfSessionExpired(response);
+      return response;
     } catch (e) {
       serviceSendError("Driver Bill Upload Error");
       rethrow;
@@ -1833,9 +1839,57 @@ extension on PickerDriverApi {
     // }
   }
 
+  void _throwIfSessionExpired(http.Response response) {
+    if (_isSessionExpiredResponse(response)) {
+      const message = "Session timeout, please relogin";
+      onAuthFailure?.call(message);
+      throw NetworkException(message);
+    }
+  }
+
+  bool _isSessionExpiredResponse(http.Response response) {
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      return true;
+    }
+    final body = response.body;
+    if (body.isEmpty) return false;
+    final lower = body.toLowerCase();
+    if (lower.contains('not authorized to access this route') ||
+        lower.contains('not authorized') ||
+        lower.contains('unauthorized') ||
+        lower.contains('session timeout') ||
+        lower.contains('token expired') ||
+        lower.contains('jwt expired')) {
+      return true;
+    }
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is Map) {
+        if (decoded['errorCode'] == 1604 ||
+            decoded['errorCode']?.toString() == '1604') {
+          return true;
+        }
+        if (decoded['success'] == false) {
+          final msg = decoded['message']?.toString().toLowerCase() ?? '';
+          if (msg.contains('not authorized') ||
+              msg.contains('unauthoriz') ||
+              msg.contains('session timeout') ||
+              msg.contains('token expired') ||
+              msg.contains('jwt expired') ||
+              msg.contains('please relogin') ||
+              msg.contains('not logged in')) {
+            return true;
+          }
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
   Future<T> _handleRequest<T>({
     required Future<http.Response> Function() onRequest,
     required T Function(http.Response) onResponse,
+    bool checkSession = true,
   }) async {
     if (!networkOnline) {
       throw NetworkException(
@@ -1848,6 +1902,10 @@ extension on PickerDriverApi {
         timeoutDuration,
         onTimeout: () => throw TimeoutException("Request timed out"),
       );
+
+      if (checkSession) {
+        _throwIfSessionExpired(response);
+      }
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {
@@ -1864,7 +1922,7 @@ extension on PickerDriverApi {
         _logResponseError(response);
         return onResponse(
           response,
-        ); // Optional: Handle non-200 status codes here
+        );
       }
     } on SocketException catch (e) {
       log("Socket Exception: $e", time: DateTime.now());
@@ -1879,6 +1937,7 @@ extension on PickerDriverApi {
       }
       rethrow;
     } catch (e) {
+      if (e is NetworkException) rethrow;
       log("Unexpected Error: $e", time: DateTime.now());
       throw Exception(e.toString());
     }
@@ -1901,6 +1960,8 @@ extension on PickerDriverApi {
           timeoutDuration,
           onTimeout: () => throw TimeoutException("Timeout Exception"),
         );
+        _throwIfSessionExpired(response);
+
         if (response.statusCode == 200) {
           if ((response.contentLength ?? 0) < 1) {
             throw "respose is empty";
@@ -1949,4 +2010,7 @@ String updateCookie(http.Response response) {
 class NetworkException implements Exception {
   final String message;
   NetworkException(this.message);
+
+  @override
+  String toString() => message;
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ansarlogistics/app_page_injectable.dart';
+import 'package:ansarlogistics/constants/methods.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/textfields/translated_text.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
@@ -10,7 +11,6 @@ import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:ansarlogistics/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:picker_driver_api/responses/driver_base_response.dart';
 import 'package:toastification/toastification.dart';
 
@@ -95,15 +95,11 @@ class _PaymentCollectionPageState extends State<PaymentCollectionPage> {
     if (!_isBalanced || _submitting) return;
     setState(() => _submitting = true);
     try {
-      Position position = await Geolocator.getCurrentPosition();
-      final lat = position.latitude.toString();
-      final long = position.longitude.toString();
-      await PreferenceUtils.storeDataToShared("driverlat", lat);
-      await PreferenceUtils.storeDataToShared("driverlong", long);
-
+      final coords = await getDriverCoordinatesFast();
       final token =
-          await PreferenceUtils.getDataFromShared("usertoken") ??
-          UserController().profile.token.toString();
+          UserController().app_token.isNotEmpty
+              ? UserController().app_token
+              : UserController().profile.token.toString();
 
       final resp = await widget.serviceLocator.tradingApi.updateMainOrderStat(
         orderid: widget.order.order.subgroupIdentifier,
@@ -111,8 +107,8 @@ class _PaymentCollectionPageState extends State<PaymentCollectionPage> {
         comment:
             "${UserController().profile.name} (${UserController().profile.empId}) collected ${_fmt(_collected)} $_currency and delivered this order",
         userid: UserController().profile.id.toString(),
-        latitude: lat,
-        longitude: long,
+        latitude: coords.lat,
+        longitude: coords.lng,
         token1: token,
         paymentMethod: _paymentMethodValue,
         grandTotal: _fmt(_total),
@@ -121,7 +117,15 @@ class _PaymentCollectionPageState extends State<PaymentCollectionPage> {
         cardAmount: _fmt(_card),
       );
 
+      PreferenceUtils.storeDataToShared("driverlat", coords.lat);
+      PreferenceUtils.storeDataToShared("driverlong", coords.lng);
+
       if (!mounted) return;
+
+      if (resp is String) {
+        setState(() => _submitting = false);
+        return;
+      }
 
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body);
@@ -193,186 +197,161 @@ class _PaymentCollectionPageState extends State<PaymentCollectionPage> {
     final dark = const Color(0xFF3D3D3D);
     return Scaffold(
       backgroundColor: customColors().backgroundPrimary,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(0),
-        child: AppBar(
-          elevation: 0,
-          backgroundColor: customColors().backgroundPrimary,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: customColors().backgroundPrimary,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios, size: 17),
         ),
+        title: TranslatedText(
+          text: "Payment Collection",
+          style: customTextStyle(
+            fontStyle: FontStyle.BodyL_Bold,
+            color: FontColor.FontPrimary,
+          ),
+        ),
+        centerTitle: true,
       ),
-      body: Column(
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
           Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: customColors().backgroundTertiary),
-              ),
+              color: dark,
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Row(
+            child: Column(
               children: [
-                IconButton(
-                  onPressed: () => context.gNavigationService.back(context),
-                  icon: const Icon(Icons.arrow_back_ios, size: 17),
-                ),
-                Expanded(
-                  child: TranslatedText(
-                    text: "Payment Collection",
-                    textAlign: TextAlign.center,
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyL_Bold,
-                      color: FontColor.FontPrimary,
-                    ),
+                TranslatedText(
+                  text: "Total Amount to Collect",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.BodyM_Regular,
+                    color: FontColor.White,
                   ),
                 ),
-                const SizedBox(width: 48),
+                const SizedBox(height: 8),
+                Text(
+                  "${_fmt(_total)} $_currency",
+                  style: customTextStyle(
+                    fontStyle: FontStyle.HeaderS_Bold,
+                    color: FontColor.White,
+                  ),
+                ),
               ],
             ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 22,
-                      horizontal: 16,
-                    ),
-                    decoration: BoxDecoration(
-                      color: dark,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        TranslatedText(
-                          text: "Total Amount to Collect",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.BodyM_Regular,
-                            color: FontColor.White,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "${_fmt(_total)} $_currency",
-                          style: customTextStyle(
-                            fontStyle: FontStyle.HeaderS_Bold,
-                            color: FontColor.White,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TranslatedText(
-                    text: "Select Payment Method",
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyL_Bold,
-                      color: FontColor.FontPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _methodTile(
-                        _PayMethod.cash,
-                        "Cash on\nDelivery",
-                        Icons.payments_outlined,
-                      ),
-                      const SizedBox(width: 8),
-                      _methodTile(
-                        _PayMethod.card,
-                        "Card on\nDelivery",
-                        Icons.credit_card,
-                      ),
-                      const SizedBox(width: 8),
-                      _methodTile(
-                        _PayMethod.split,
-                        "Split\nPayment",
-                        Icons.layers_outlined,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _amountField(
-                    label: "Cash Amount",
-                    controller: _cashCtrl,
-                    enabled: _method != _PayMethod.card,
-                  ),
-                  const SizedBox(height: 12),
-                  _amountField(
-                    label: "Card Amount",
-                    controller: _cardCtrl,
-                    enabled: _method != _PayMethod.cash,
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color:
-                          _isBalanced
-                              ? customColors().secretGarden.withOpacity(0.12)
-                              : const Color(0xFFFFF3E0),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color:
-                              _isBalanced
-                                  ? customColors().secretGarden
-                                  : const Color(0xFFEF6C00),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TranslatedText(
-                            text:
-                                _isBalanced
-                                    ? "Amount matched ${_fmt(_total)} $_currency"
-                                    : "Balance to Collect ${_fmt(_balance.abs())} $_currency",
-                            style: customTextStyle(
-                              fontStyle: FontStyle.BodyM_Bold,
-                              color: FontColor.FontPrimary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TranslatedText(
-                    text: "Collection Summary",
-                    style: customTextStyle(
-                      fontStyle: FontStyle.BodyL_Bold,
-                      color: FontColor.FontPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  if (_cash > 0) _summaryRow("Cash", _cash),
-                  if (_card > 0) _summaryRow("Card", _card),
-                  const Divider(),
-                  _summaryRow("Total collected", _collected, bold: true),
-                ],
-              ),
+          const SizedBox(height: 20),
+          TranslatedText(
+            text: "Select Payment Method",
+            style: customTextStyle(
+              fontStyle: FontStyle.BodyL_Bold,
+              color: FontColor.FontPrimary,
             ),
           ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _methodTile(
+                _PayMethod.cash,
+                "Cash on\nDelivery",
+                Icons.payments_outlined,
+              ),
+              const SizedBox(width: 8),
+              _methodTile(
+                _PayMethod.card,
+                "Card on\nDelivery",
+                Icons.credit_card,
+              ),
+              const SizedBox(width: 8),
+              _methodTile(
+                _PayMethod.split,
+                "Split\nPayment",
+                Icons.layers_outlined,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _amountField(
+            label: "Cash Amount",
+            controller: _cashCtrl,
+            enabled: _method != _PayMethod.card,
+          ),
+          const SizedBox(height: 12),
+          _amountField(
+            label: "Card Amount",
+            controller: _cardCtrl,
+            enabled: _method != _PayMethod.cash,
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color:
+                  _isBalanced
+                      ? customColors().secretGarden.withOpacity(0.12)
+                      : const Color(0xFFFFF3E0),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  color:
+                      _isBalanced
+                          ? customColors().secretGarden
+                          : const Color(0xFFEF6C00),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TranslatedText(
+                    text:
+                        _isBalanced
+                            ? "Amount matched ${_fmt(_total)} $_currency"
+                            : "Balance to Collect ${_fmt(_balance.abs())} $_currency",
+                    style: customTextStyle(
+                      fontStyle: FontStyle.BodyM_Bold,
+                      color: FontColor.FontPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          TranslatedText(
+            text: "Collection Summary",
+            style: customTextStyle(
+              fontStyle: FontStyle.BodyL_Bold,
+              color: FontColor.FontPrimary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (_cash > 0) _summaryRow("Cash", _cash),
+          if (_card > 0) _summaryRow("Card", _card),
+          const Divider(),
+          _summaryRow("Total collected", _collected, bold: true),
         ],
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: BasketButton(
-            text: "Mark Delivered",
-            enabled: _isBalanced && !_submitting,
-            loading: _submitting,
-            bgcolor: customColors().green600,
-            onpress: _isBalanced ? _submit : null,
-            textStyle: customTextStyle(
-              fontStyle: FontStyle.BodyL_Bold,
-              color: FontColor.White,
+          child: SizedBox(
+            height: 52,
+            width: double.infinity,
+            child: BasketButton(
+              text: "Mark Delivered",
+              enabled: _isBalanced && !_submitting,
+              loading: _submitting,
+              bgcolor: customColors().green600,
+              onpress: _isBalanced ? _submit : null,
+              textStyle: customTextStyle(
+                fontStyle: FontStyle.BodyL_Bold,
+                color: FontColor.White,
+              ),
             ),
           ),
         ),

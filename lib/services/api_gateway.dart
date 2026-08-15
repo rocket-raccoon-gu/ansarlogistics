@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/session_out_bottom_sheet.dart';
 import 'package:ansarlogistics/services/authentication_service.dart';
 import 'package:ansarlogistics/services/crash_analytics.dart';
 import 'package:ansarlogistics/user_controller/user_controller.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:picker_driver_api/utils/firebase_api_logger.dart';
 import 'package:ansarlogistics/utils/network/network_service_status.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
@@ -17,6 +19,12 @@ class PDApiGateway implements AuthenticationService {
   final PickerDriverApi pickerDriverApi;
   final StreamController<String> networkStreamController;
   PDApiGateway(this.pickerDriverApi, this.networkStreamController) {
+    pickerDriverApi.onAuthFailure = (message) {
+      networkStreamController.sink.add(message);
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        presentSessionTimeoutSheet();
+      });
+    };
     NetworkStatusService.networkStatusController.stream.listen((
       NetworkStatus status,
     ) {

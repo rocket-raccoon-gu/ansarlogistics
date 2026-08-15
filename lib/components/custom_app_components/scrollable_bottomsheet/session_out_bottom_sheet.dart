@@ -1,6 +1,47 @@
+import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
+import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
+import 'package:ansarlogistics/firebase_configs/init_notification.dart';
 import 'package:ansarlogistics/themes/style.dart';
 import 'package:flutter/material.dart';
+
+bool isSessionTimeoutNetworkEvent(String event) {
+  final lower = event.toLowerCase();
+  return lower.contains('session timeout') ||
+      lower.contains('not authorized to access this route') ||
+      lower.contains('please relogin');
+}
+
+bool _isPreLoginRoute(String? name) {
+  if (name == null || name.isEmpty) return false;
+  return name == '/login' ||
+      name == '/splash' ||
+      name == '/signup' ||
+      name == '/selectregionspageroutename';
+}
+
+void presentSessionTimeoutSheet({BuildContext? context}) {
+  final ctx = context ?? navigatorKey.currentContext;
+  if (ctx == null || !ctx.mounted) return;
+
+  String? routeName = ModalRoute.of(ctx)?.settings.name;
+  if (routeName == null || routeName.isEmpty) {
+    navigatorKey.currentState?.popUntil((route) {
+      routeName = route.settings.name;
+      return true;
+    });
+  }
+  if (_isPreLoginRoute(routeName)) return;
+
+  sessionTimeOutBottomSheet(
+    context: ctx,
+    inputWidget: SessionOutBottomSheet(
+      onTap: () async {
+        await logout(ctx);
+      },
+    ),
+  );
+}
 
 class SessionOutBottomSheet extends StatelessWidget {
   VoidCallback? onTap;

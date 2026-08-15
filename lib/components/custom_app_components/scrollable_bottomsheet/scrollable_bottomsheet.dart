@@ -66,15 +66,21 @@ customShowModalBottomSheet({
   );
 }
 
+bool _sessionSheetOpen = false;
+
 sessionTimeOutBottomSheet({
   required BuildContext context,
   required Widget inputWidget,
   bool dismissable = false,
 }) {
+  if (_sessionSheetOpen) return;
+  if (!context.mounted) return;
+  _sessionSheetOpen = true;
   return showModalBottomSheet(
     isDismissible: false,
     context: context,
     enableDrag: false,
+    useRootNavigator: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
         topLeft: Radius.circular(8.0),
@@ -116,7 +122,9 @@ sessionTimeOutBottomSheet({
         ),
       );
     },
-  );
+  ).whenComplete(() {
+    _sessionSheetOpen = false;
+  });
 }
 
 customShowModalBottomSheetEg({

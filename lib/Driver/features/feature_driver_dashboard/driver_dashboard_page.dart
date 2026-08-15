@@ -10,11 +10,9 @@ import 'package:ansarlogistics/Driver/features/feature_driver_dashboard/ui/drive
 import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/services/post_repositories.dart';
 import 'package:ansarlogistics/Picker/presentation_layer/features/feature_orders/services/post_service.dart';
-import 'package:ansarlogistics/Picker/repository_layer/more_content.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/common_features/feature_profile/profile_page.dart';
 import 'package:ansarlogistics/components/custom_app_components/bottom_bar/custom_bottom_bar_driver.dart';
-import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/session_out_bottom_sheet.dart';
 import 'package:ansarlogistics/services/service_locator.dart';
 import 'package:ansarlogistics/themes/style.dart';
@@ -54,24 +52,9 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
   init() async {
     subscription = context.gTradingApiGateway.networkStreamController.stream
         .listen((event) {
-          if (event.contains("session timeout")) {
+          if (isSessionTimeoutNetworkEvent(event)) {
             log("session timeout from sp request");
-            sessionTimeOutBottomSheet(
-              context: context,
-              inputWidget: SessionOutBottomSheet(
-                onTap: () async {
-                  await logout(context);
-                },
-              ),
-            );
-            // showAlertDilogue(
-            //     context: context,
-            //     content:
-            //         "Session expired, or you have loged in from a different location.",
-            //     positiveButtonName: "Relogin",
-            //     onPositiveButtonClick: () async {
-            //       await logout(context);
-            //     });
+            presentSessionTimeoutSheet(context: context);
           }
         });
   }

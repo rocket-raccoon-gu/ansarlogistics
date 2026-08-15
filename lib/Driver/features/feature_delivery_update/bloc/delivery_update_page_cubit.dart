@@ -12,7 +12,6 @@ import 'package:ansarlogistics/user_controller/user_controller.dart';
 import 'package:ansarlogistics/utils/preference_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:picker_driver_api/responses/driver_base_response.dart';
 import 'package:toastification/toastification.dart';
 
@@ -112,16 +111,11 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
       updatestat = true;
       emit(DeliveryStatusUpdateState());
 
-      Position position = await Geolocator.getCurrentPosition();
-      String lat = position.latitude.toString();
-      String long = position.longitude.toString();
-
-      await PreferenceUtils.storeDataToShared("driverlat", lat);
-      await PreferenceUtils.storeDataToShared("driverlong", long);
-
+      final coords = await getDriverCoordinatesFast();
       final token =
-          await PreferenceUtils.getDataFromShared("usertoken") ??
-          UserController().profile.token.toString();
+          UserController().app_token.isNotEmpty
+              ? UserController().app_token
+              : UserController().profile.token.toString();
 
       final resp = await serviceLocator.tradingApi.updateMainOrderStat(
         orderid: orderId,
@@ -129,10 +123,13 @@ class DeliveryUpdatePageCubit extends Cubit<DeliveryUpdatePageState> {
         comment:
             "${UserController().profile.name.toString()} (${UserController().profile.empId}) is Delivered This Order",
         userid: UserController().profile.id.toString(),
-        latitude: lat,
-        longitude: long,
+        latitude: coords.lat,
+        longitude: coords.lng,
         token1: token,
       );
+
+      PreferenceUtils.storeDataToShared("driverlat", coords.lat);
+      PreferenceUtils.storeDataToShared("driverlong", coords.lng);
 
       if (resp.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(resp.body);

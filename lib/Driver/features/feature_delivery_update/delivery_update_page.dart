@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ansarlogistics/Driver/features/feature_delivery_update/bloc/delivery_update_page_cubit.dart';
 import 'package:ansarlogistics/Driver/features/feature_delivery_update/bloc/delivery_update_page_state.dart';
+import 'package:ansarlogistics/Driver/features/feature_payment_collection/payment_collection_page.dart';
 import 'package:ansarlogistics/app_page_injectable.dart';
 import 'package:ansarlogistics/components/custom_app_components/buttons/basket_button.dart';
 import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/scrollable_bottomsheet.dart';
@@ -517,12 +518,17 @@ class _DeliveryUpdatePageState extends State<DeliveryUpdatePage> {
                     onpress:
                         enabled
                             ? () {
-                              if (cubit.isWarehouseOrder) {
-                                context.gNavigationService
-                                    .openPaymentCollectionPage(
-                                      context,
-                                      arg: {'order': cubit.orderResponseItem},
-                                    );
+                              if (cubit.isWarehouseOrder &&
+                                  cubit.orderResponseItem != null) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => PaymentCollectionPage(
+                                          serviceLocator: cubit.serviceLocator,
+                                          order: cubit.orderResponseItem!,
+                                        ),
+                                  ),
+                                );
                               } else {
                                 cubit.updateMainOrderStat("complete");
                               }

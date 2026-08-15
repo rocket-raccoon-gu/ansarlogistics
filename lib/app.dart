@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:ansarlogistics/Picker/presentation_layer/bloc_navigation/navigation_cubit.dart'
     show NavigationCubit;
 import 'package:ansarlogistics/app_routes_factory.dart' show AppRoutesFactory;
 import 'package:ansarlogistics/app_theme.dart';
+import 'package:ansarlogistics/components/custom_app_components/scrollable_bottomsheet/session_out_bottom_sheet.dart';
 import 'package:ansarlogistics/firebase_configs/init_notification.dart'
     show navigatorKey;
 import 'package:ansarlogistics/navigations/navigation.dart'
@@ -41,6 +43,7 @@ class PDApp extends StatefulWidget {
 
 class _PDAppState extends State<PDApp> with WidgetsBindingObserver {
   CustomMode themeMode = CustomMode.Light;
+  StreamSubscription<String>? _sessionSubscription;
 
   @override
   void initState() {
@@ -50,6 +53,16 @@ class _PDAppState extends State<PDApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
     NetworkStatusService();
+    _sessionSubscription = widget
+        .serviceLocator
+        .tradingApi
+        .networkStreamController
+        .stream
+        .listen((event) {
+          if (!isSessionTimeoutNetworkEvent(event)) return;
+          log("session timeout from api request");
+          presentSessionTimeoutSheet();
+        });
   }
 
   Future<void> _initScandit() async {
@@ -70,6 +83,7 @@ class _PDAppState extends State<PDApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _sessionSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     // Clean up Scandit resources when app is disposed
     ScanditManager.dispose();
